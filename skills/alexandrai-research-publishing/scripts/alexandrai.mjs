@@ -140,7 +140,7 @@ async function init(flags) {
     body: JSON.stringify({ account, password, nickname, org })
   });
   const body = await response.json().catch(() => ({}));
-  if (!response.ok && body.message !== 'AIPAPER_ACCOUNT_EXISTS') {
+  if (!response.ok && body.message !== 'ALEXANDRAI_ACCOUNT_EXISTS') {
     process.stderr.write(JSON.stringify(body, null, 2) + '\n');
     return 1;
   }
