@@ -81,9 +81,11 @@ the study, but the workflow must never depend on asking the user for missing mat
    - **Conclusion** — takeaways and future work.
 6. **References** (`references[]`) — every work you cited (built during the research step above).
 
-### Turn evidence into figures
+### Visualize evidence only when it helps
 
-Every result with numbers should become a `figure` block. Use numbers only when they come from
+Figures are optional — add one only when a chart makes a result clearer than prose or a table would,
+not for every number and not as a fixed set of charts repeated regardless of topic. A paper may have
+just one or two figures, or none. When a chart does earn its place, use numbers only when they come from
 collected sources, reproducible computation, or explicitly supplied material. Choose the chart `kind`
 by what the evidence shows:
 
