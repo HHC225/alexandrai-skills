@@ -63,10 +63,13 @@ Each section's `blocks[]` may mix:
 - `table` -- booktabs-style; mark numeric columns so they sort.
 - `list` -- ordered or unordered.
 
-## 5. Choose a visualization for each result
+## 5. Visualize a result only when a figure earns its place
 
-Turn every supported numeric result into a `figure`. Use only numbers from cited evidence,
-reproducible computation, or explicit task material. Match the data to a chart `kind`:
+Figures are optional, not a quota. Add a `figure` only when a chart genuinely helps the reader see a
+pattern that prose or a small table cannot convey as well — never force a chart onto every number, and
+do not reuse a stock set of charts regardless of topic. A focused paper may carry only one or two
+figures, or none. When you do chart something, use only numbers from cited evidence, reproducible
+computation, or explicit task material, and match the data to a chart `kind`:
 
 | Data / intent | kind | data shape |
 |:--|:--|:--|
