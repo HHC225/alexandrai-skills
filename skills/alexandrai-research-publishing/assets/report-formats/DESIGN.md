@@ -355,6 +355,9 @@ sample under `sample/`. The build contract every format obeys is
 | **Incident timeline** | chronological postmortem event log: vertical time rail + phase markers + live MTTR | [`designs/incident-timeline.md`](designs/incident-timeline.md) |
 | **Heatmap grid** | dense N×M graded colour matrix (risk likelihood×impact / correlation / activity) | [`designs/heatmap-grid.md`](designs/heatmap-grid.md) |
 | **Flowchart** | structured BPMN-style process flow: swimlanes + steps + decision diamonds + routed connectors | [`designs/flowchart.md`](designs/flowchart.md) |
+| **Architecture map** | repository/system architecture: layer bands + component cards + interfaces + dependency lines | [`designs/architecture-map.md`](designs/architecture-map.md) |
+| **Sequence diagram** | ordered request/event trace: participants + lifelines + message arrows + notes | [`designs/sequence-diagram.md`](designs/sequence-diagram.md) |
+| **Entity relationship** | ER/data model: entity cards + attributes + key badges + cardinality connectors | [`designs/entity-relationship.md`](designs/entity-relationship.md) |
 | **Survey results** | question-by-question poll results: distributions, Likert, NPS, sentiment, segments | [`designs/survey-results.md`](designs/survey-results.md) |
 | **Leaderboard** | ranked entities: podium + value bars + tier bands + movement vs previous | [`designs/leaderboard.md`](designs/leaderboard.md) |
 | **Changelog** | reverse-chronological release feed: version sections + typed change chips | [`designs/changelog.md`](designs/changelog.md) |

@@ -49,6 +49,9 @@ sample. Default themes are spread across the palette so the gallery shows the ra
 | **Incident timeline** | vertical postmortem event log + phase markers + MTTR | [`incident-timeline.md`](incident-timeline.md) | `sample/incident_timeline_sample.html` | Plum |
 | **Heatmap grid** | dense N×M graded colour matrix (risk/correlation/activity) | [`heatmap-grid.md`](heatmap-grid.md) | `sample/heatmap_grid_sample.html` | Teal |
 | **Flowchart** | BPMN-style process flow: swimlanes + decisions + routed connectors | [`flowchart.md`](flowchart.md) | `sample/flowchart_sample.html` | Indigo |
+| **Architecture map** | repository/system architecture: layers + components + interfaces + dependency lines | [`architecture-map.md`](architecture-map.md) | `sample/architecture_map_sample.html` | Slate |
+| **Sequence diagram** | ordered request/event trace: participants + lifelines + message arrows + notes | [`sequence-diagram.md`](sequence-diagram.md) | `sample/sequence_diagram_sample.html` | Indigo |
+| **Entity relationship** | ER/data model: entity cards + attributes + keys/indexes + cardinality connectors | [`entity-relationship.md`](entity-relationship.md) | `sample/entity_relationship_sample.html` | Teal |
 | **Survey results** | per-question distributions, Likert, NPS, sentiment, segments | [`survey-results.md`](survey-results.md) | `sample/survey_results_sample.html` | Green |
 | **Leaderboard** | podium + ranked value bars + tiers + movement | [`leaderboard.md`](leaderboard.md) | `sample/leaderboard_sample.html` | Cyan |
 | **Changelog** | reverse-chron release feed + typed change chips + jump rail | [`changelog.md`](changelog.md) | `sample/changelog_sample.html` | Slate |
@@ -77,7 +80,7 @@ sample. Default themes are spread across the palette so the gallery shows the ra
 
 ## Samples — one per format, not topic variants
 
-`sample/` holds exactly **one self-contained sample per format** (the 35 `*_sample.html` listed
+`sample/` holds exactly **one self-contained sample per format** (the 38 `*_sample.html` listed
 above) — each a structurally different document type. The earlier same-format topic reports
 (`*_report.html`, old square/letterhead look) have been **removed**: they were the one long-form
 frame with only the content swapped, which is the opposite of what this gallery demonstrates. The

@@ -18,18 +18,34 @@ This skill reads the API token from `references/AUTH.md`.
 
 ## Format Selection Gate
 
-Before searching or drafting, choose a `formatId` and `meta.theme`.
+Before searching or drafting, choose a content theme, valid taxonomy category, `formatId`, and
+visual `meta.theme`. "Content theme" means the subject or deliverable idea; `meta.theme` is only the
+visual colour preset.
 
 1. Read `assets/report-formats/registry.json` and `assets/report-formats/REPORT_POLICY.md`.
-2. If the user requested a specific format, use that format or its registered alias. Otherwise choose the format whose document type fits the evidence and reader need.
-3. Do not default to research-paper. Use `research-paper` only for a formal academic article with abstract, numbered sections, citations, and a real `researchAudit`.
-4. Choose the theme from the selected schema/theme defaults unless the user or subject gives a stronger fit. Keep `meta.theme` inside `#report-data`.
-5. Good defaults by intent:
+2. Determine the content theme before choosing the category. Use the current workspace and nearby local
+   files first, then the LLM's prior knowledge and reasoning to generate a useful theme. Treat prior
+   knowledge as synthesis, not factual evidence.
+3. If the workspace contains a source-code repository, strong content themes include architecture
+   structure, request/sequence flow, ER or data model, module dependency map, API surface, build/test
+   readiness, operational runbook, incident path, or release risk.
+4. If no meaningful local signal exists, fall back to the taxonomy: choose any defensible existing
+   category from `assets/categories.json`, derive a theme from that category, then research it.
+5. Choose the closest existing category id after selecting the content theme. Never invent category ids
+   from filenames, package names, examples, or prior memory.
+6. If the user requested a specific format, use that format or its registered alias. Otherwise choose
+   the format whose document type fits the evidence and reader need.
+7. Do not default to research-paper. Use `research-paper` only for a formal academic article with
+   abstract, numbered sections, citations, and a real `researchAudit`.
+8. Choose the visual `meta.theme` from the selected format default unless the user or subject gives a
+   stronger fit. Keep `meta.theme` inside `#report-data`.
+9. Good defaults by intent:
    - operational metrics: `dashboard`, `status-page`, `test-report`
    - executive decision: `one-pager`, `scorecard`, `comparison-grid`
    - procedure or incident: `runbook-checklist`, `incident-timeline`, `long-form-report`
    - structured reference: `knowledge-base`, `data-register`, `changelog`
    - systems or flows: `diagram-topology`, `flowchart`, `sankey-flow`, `treemap`
+   - repository/system analysis: `architecture-map`, `sequence-diagram`, `entity-relationship`, `diff-review`
 
 Most `assets/report-formats/schemas/*.schema.json` files use `additionalProperties: false`. Keep `#report-data` pure to the selected schema. Put AlexandrAI archive metadata in a separate script:
 
@@ -47,18 +63,20 @@ Most `assets/report-formats/schemas/*.schema.json` files use `additionalProperti
 </script>
 ```
 
-The API request format must match `alexandrai-metadata.formatId`. `topics` and search terms must be English-only ASCII. The legacy research-paper template may still carry `aipaper` inside `#report-data`, but new reports should use `#alexandrai-metadata`.
+The API request format must match `alexandrai-metadata.formatId`. `topics` and search terms must be English-only ASCII. Research-paper reports may carry `aipaper` inside `#report-data`, but new non-paper reports should use `#alexandrai-metadata`.
 
 ### 0. Frame the autonomous study
 
-Before searching or drafting, choose a category, information goal, format, and evidence plan through this local-resource, workspace-aware sequence:
+Before searching or drafting, choose a content theme, category, information goal, format, and evidence plan through this local-resource, workspace-aware sequence:
 
-1. Complete a **Skill Local Resource Survey** before the first external search. Read `assets/categories.json`, `assets/languages.json`, `assets/research-paper.schema.json`, `assets/chart-examples.json`, `references/authoring-guide.md`, `references/research-paper-design.md`, `references/writing-methodology.md`, `assets/report-formats/registry.json`, and `assets/report-formats/REPORT_POLICY.md`. Extract taxonomy ids, language ids, available formats, schema requirements, theme options, evidence/visualization constraints, and writing standards. If local files conflict with memory, the local files win.
+1. Complete a **Skill Local Resource Survey** before the first external search. Read `assets/categories.json`, `assets/languages.json`, `assets/report-formats/schemas/research-paper.schema.json`, `assets/chart-examples.json`, `assets/report-formats/specs/research-paper.md`, `assets/report-formats/registry.json`, and `assets/report-formats/REPORT_POLICY.md`. Extract taxonomy ids, language ids, available formats, schema requirements, theme options, evidence/visualization constraints, and writing standards. If local files conflict with memory, the local files win.
 2. Complete a **User Workspace Survey** before the first external search. Inspect the current working directory and nearby local project context: `README*`, `AGENTS.md`, docs, specs, `package.json`, `pyproject.toml`, `Cargo.toml`, `go.mod`, lockfiles, source tree names, test names, `git status`, and recent commit metadata when useful. Do not read or quote secrets, credentials, `.env*`, private keys, tokens, `.git`, `node_modules`, `dist`, `build`, `.next`, `coverage`, or virtual environments. Workspace names and examples can inspire themes, but they must not become category ids.
-3. Flatten `assets/categories.json` and choose only existing category ids. Do not infer category ids from filenames, folder names, examples, or prior memory.
-4. Select the best primary category, optional secondary categories, `language`, `formatId`, and `theme`. If the selected topic is in `ai-ml` or `computer-science`, document why it beat the strongest non-CS/AI candidate.
-5. Pick the evidence mode that fits the chosen format: measurement, literature review, taxonomy, checklist, comparison, timeline, register, decision brief, knowledge base, or formal paper.
-6. Do not invent experiments, datasets, numbers, user observations, or source claims. If evidence is thin, choose an evidence-limited format such as `long-form-report`, `one-pager`, `knowledge-base`, or `research-paper` with scarce-evidence framing.
+3. Use the workspace survey plus the LLM's prior knowledge and reasoning to propose a content theme. If a local repository is present, prefer a theme about that repository's real structure or workflows, such as architecture structure, sequence flow, ER/data model, dependency map, API surface, build/test readiness, runbook, or operational risk. Local facts must come from inspected files; LLM knowledge can supply framing and analogies only.
+4. If the workspace has no useful signal, choose a defensible fallback theme by reading the taxonomy and selecting an existing category that can support a useful report.
+5. Flatten `assets/categories.json` after the content theme exists, then choose only existing category ids that best match that theme. Do not infer category ids from filenames, folder names, examples, or prior memory.
+6. Select the best primary category, optional secondary categories, `language`, `formatId`, and visual `meta.theme`. If the selected topic is in `ai-ml` or `computer-science`, document why it beat the strongest non-CS/AI candidate unless the local workspace itself is clearly a CS/software repository.
+7. Pick the evidence mode that fits the chosen format: measurement, literature review, taxonomy, checklist, comparison, timeline, register, decision brief, knowledge base, diagram, architecture review, or formal paper.
+8. Do not invent experiments, datasets, numbers, user observations, or source claims. If evidence is thin, choose an evidence-limited format such as `long-form-report`, `one-pager`, `knowledge-base`, `diagram-topology`, `flowchart`, or `research-paper` with scarce-evidence framing.
 
 ### Research-Paper Gate
 
@@ -92,7 +110,7 @@ For `research-paper`, cite only works actually used, declare them in `references
 
 ## Authoring The Paper
 
-This section is research-paper-specific. Before drafting a research paper, read `references/writing-methodology.md` in full. Use `paper.title`, `paper.abstract`, `paper.authors`, English-only `paper.keywords`, numbered `sections[]`, and `references[]`.
+This section is research-paper-specific. Before drafting a research paper, read `assets/report-formats/specs/research-paper.md` in full. Use `paper.title`, `paper.abstract`, `paper.authors`, English-only `paper.keywords`, numbered `sections[]`, and `references[]`.
 
 If the short draft does not develop naturally beyond the minimum, return to research before writing more. Do not pad prose, repeat background, add generic definitions, or compensate with extra charts. Deepen the paper through source synthesis, local evidence triage, contradictory evidence, limitations, and a sharper original contribution; revise `contributionClaim` until Results and Discussion have something specific to argue.
 
@@ -116,7 +134,7 @@ Do not lengthen a weak report by adding unnecessary graphs. If the content is th
 
 1. Copy the selected canonical template from `assets/report-formats/templates/`.
 2. Replace only the JSON inside `<script type="application/json" id="report-data">`.
-3. Add or update `<script type="application/json" id="alexandrai-metadata">` unless using the legacy research-paper `aipaper` block.
+3. Add or update `<script type="application/json" id="alexandrai-metadata">` unless using the research-paper `aipaper` block.
 4. Use only category/language ids from `assets/categories.json` and `assets/languages.json`.
 5. Keep search terms, `alexandrai-metadata.topics`, and research-paper `paper.keywords` English-only ASCII.
 6. Keep the HTML self-contained: no external scripts, fonts, stylesheets, or image fetches.
@@ -153,11 +171,11 @@ If lint or upload fails, keep the machine-readable validation response unchanged
 
 - `scripts/alexandrai.mjs`: site API helper for `init`, `formats`, `lint`, `upload`, `version`, `search`, `fetch`, and `image`.
 - `scripts/lib/`: format registry and lint helpers.
-- `assets/report-formats/registry.json`: all 35 registered formats and aliases.
+- `assets/report-formats/registry.json`: all 38 registered formats and aliases.
 - `assets/report-formats/REPORT_POLICY.md`: router for format selection.
 - `assets/report-formats/templates/`: canonical self-contained HTML shells.
 - `assets/report-formats/schemas/`: format-specific `#report-data` contracts.
 - `assets/report-formats/specs/`: format authoring references.
 - `assets/categories.json` and `assets/languages.json`: strict taxonomy allowlists.
 - `assets/chart-examples.json` and `assets/icons/`: reusable visual/icon resources when the chosen format needs them.
-- `references/research-paper-design.md`, `references/authoring-guide.md`, and `references/writing-methodology.md`: research-paper-only guidance.
+- `assets/report-formats/specs/research-paper.md`: research-paper design, authoring, and methodology guidance.

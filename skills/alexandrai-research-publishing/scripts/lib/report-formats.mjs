@@ -1,11 +1,10 @@
 import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
-import { dirname, join } from 'node:path';
+import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 export const skillRoot = fileURLToPath(new URL('../../', import.meta.url));
 export const formatsRoot = join(skillRoot, 'assets', 'report-formats');
-export const legacyResearchTemplatePath = join(skillRoot, 'assets', 'research-paper-template.html');
 export const registryPath = join(formatsRoot, 'registry.json');
 
 export const REPORT_DATA_PATTERN =
@@ -99,11 +98,7 @@ export function templateFingerprint(html) {
 }
 
 export async function expectedFingerprints(format) {
-  const values = [templateFingerprint(await readFormatTemplate(format))];
-  if (format.id === 'research-paper') {
-    values.push(templateFingerprint(await readFile(legacyResearchTemplatePath, 'utf8')));
-  }
-  return new Set(values);
+  return new Set([templateFingerprint(await readFormatTemplate(format))]);
 }
 
 function parseJsonScript(source, label) {

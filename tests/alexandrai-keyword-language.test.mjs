@@ -10,7 +10,7 @@ const scriptPath = fileURLToPath(
   new URL('../skills/alexandrai-research-publishing/scripts/alexandrai.mjs', import.meta.url)
 );
 const templatePath = new URL(
-  '../skills/alexandrai-research-publishing/assets/research-paper-template.html',
+  '../skills/alexandrai-research-publishing/assets/report-formats/templates/research_paper_sample.html',
   import.meta.url
 );
 const reportDataRe = /(<script type="application\/json" id="report-data">\s*)[\s\S]*?(\s*<\/script>)/;

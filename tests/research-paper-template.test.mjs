@@ -2,7 +2,10 @@ import { readFile } from 'node:fs/promises';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-const templatePath = new URL('../skills/alexandrai-research-publishing/assets/research-paper-template.html', import.meta.url);
+const templatePath = new URL(
+  '../skills/alexandrai-research-publishing/assets/report-formats/templates/research_paper_sample.html',
+  import.meta.url
+);
 
 async function readTemplate() {
   return readFile(templatePath, 'utf8');

@@ -1,0 +1,112 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://genesis.design/schemas/architecture-map.schema.json",
+  "title": "Architecture Map",
+  "description": "Data contract for the architecture-map format: a repository/system architecture review diagram. Components are arranged by architectural layers/zones, connected by typed dependencies, and annotated with interfaces and review findings. Unlike diagram-topology, position supports architecture review rather than arbitrary network reachability.",
+  "type": "object",
+  "required": ["meta", "layers", "components", "relationships"],
+  "additionalProperties": false,
+  "properties": {
+    "meta": { "$ref": "#/$defs/meta" },
+    "layers": {
+      "type": "array",
+      "description": "Architecture layers or zones rendered as horizontal bands.",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "label"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string" },
+          "label": { "type": "string" },
+          "summary": { "type": "string" }
+        }
+      }
+    },
+    "components": {
+      "type": "array",
+      "description": "Repository/system components placed inside architecture layers.",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "label", "type", "layer", "x", "y"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string" },
+          "label": { "type": "string" },
+          "type": { "type": "string", "enum": ["entrypoint", "service", "module", "library", "database", "queue", "external", "job", "config"] },
+          "layer": { "type": "string", "description": "Must match layers[].id." },
+          "x": { "type": "number", "description": "Horizontal position within the canvas, 0..100." },
+          "y": { "type": "number", "description": "Vertical position within the canvas, 0..100." },
+          "status": { "type": "string", "enum": ["ok", "hold", "risk", "neutral"], "default": "neutral" },
+          "owner": { "type": "string" },
+          "tech": { "type": "string" },
+          "path": { "type": "string", "description": "Repository path, package, or deployment unit." },
+          "summary": { "type": "string" },
+          "interfaces": {
+            "type": "array",
+            "description": "Public API, CLI, event, or dependency surfaces exposed by this component.",
+            "items": {
+              "type": "object",
+              "required": ["label"],
+              "additionalProperties": false,
+              "properties": {
+                "label": { "type": "string" },
+                "kind": { "type": "string", "enum": ["api", "event", "cli", "db", "file", "library"], "default": "api" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "relationships": {
+      "type": "array",
+      "description": "Directed dependencies and data/control flows between components.",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["from", "to"],
+        "additionalProperties": false,
+        "properties": {
+          "from": { "type": "string" },
+          "to": { "type": "string" },
+          "label": { "type": "string" },
+          "kind": { "type": "string", "enum": ["call", "event", "data", "deploy", "imports"], "default": "call" },
+          "status": { "type": "string", "enum": ["ok", "hold", "risk", "neutral"], "default": "neutral" }
+        }
+      }
+    },
+    "findings": {
+      "type": "array",
+      "description": "Architecture review notes surfaced in the right rail.",
+      "items": {
+        "type": "object",
+        "required": ["title", "status", "detail"],
+        "additionalProperties": false,
+        "properties": {
+          "title": { "type": "string" },
+          "status": { "type": "string", "enum": ["ok", "hold", "risk", "neutral"] },
+          "detail": { "type": "string" },
+          "componentId": { "type": "string" }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "meta": {
+      "type": "object",
+      "required": ["org", "project", "reportType", "title", "date", "theme"],
+      "additionalProperties": false,
+      "properties": {
+        "org": { "type": "string", "default": "{{ORG}}" },
+        "project": { "type": "string", "default": "{{PROJECT}}" },
+        "reportType": { "type": "string", "examples": ["Architecture Map"] },
+        "title": { "type": "string" },
+        "subtitle": { "type": "string" },
+        "date": { "type": "string" },
+        "author": { "type": "string", "default": "{{AUTHOR}}" },
+        "theme": { "type": "string", "enum": ["blue", "purple", "indigo", "teal", "cyan", "green", "plum", "slate", "black"], "default": "slate" }
+      }
+    }
+  }
+}

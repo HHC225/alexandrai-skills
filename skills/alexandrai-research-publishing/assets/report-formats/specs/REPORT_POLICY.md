@@ -21,7 +21,7 @@
 4. Drop the JSON into the format's sample template (`#report-data`) — the inline renderer builds the DOM
    and wires the interactions. Pick icons from [`../icons/`](../icons/) (the categories per format below).
 
-## Router — all 35 formats (1:1 with schema)
+## Router — all 38 formats (1:1 with schema)
 
 | Format | Use when… | Schema | Required top-level fields | Theme | Icon categories |
 |:--|:--|:--|:--|:--|:--|
@@ -46,6 +46,9 @@
 | **incident-timeline** | chronological incident / postmortem event log | `schemas/incident-timeline.schema.json` | meta, incident, events | plum | time, status, bug-qa, people |
 | **heatmap-grid** | N×M graded matrix (risk likelihood×impact / correlation / activity) | `schemas/heatmap-grid.schema.json` | meta, mode, rows, cols, cells, scale | teal | data, status, math-units, nav |
 | **flowchart** | structured process flow with swimlanes + decisions | `schemas/flowchart.schema.json` | meta, lanes, nodes, edges | indigo | process, status, nav, code |
+| **architecture-map** | repository/system architecture structure (layers, components, interfaces, dependencies) | `schemas/architecture-map.schema.json` | meta, layers, components, relationships | slate | code, infra, process, status, nav |
+| **sequence-diagram** | ordered request/event trace across participants and lifelines | `schemas/sequence-diagram.schema.json` | meta, participants, messages | indigo | code, process, infra, nav, status |
+| **entity-relationship** | ER/data-model diagram (entities, attributes, keys, cardinality) | `schemas/entity-relationship.schema.json` | meta, entities, relationships | teal | data, code, document, nav |
 | **survey-results** | question-by-question survey / poll results | `schemas/survey-results.schema.json` | meta, summary, segments, questions | green | data, status, people, editorial |
 | **leaderboard** | ranked entities by a metric (podium + bars + tiers) | `schemas/leaderboard.schema.json` | meta, metric, tiers, entries | cyan | data, status, people, nav |
 | **changelog** | reverse-chronological release feed | `schemas/changelog.schema.json` | meta, product, versions | slate | code, status, nav, editorial |
@@ -68,7 +71,7 @@ via `meta.theme`. Every sample ships the in-report 9-dot switcher so the reader 
 
 - Numbers leading, monitored over time → **dashboard**; numbers in a formal ruled statement → **financial-statement**; a lookup catalogue → **data-register**.
 - A plan over time → **timeline-roadmap** (continuous gantt) vs **calendar-schedule** (discrete day cells).
-- A hierarchy → **org-chart**; a spatial system map → **diagram-topology**; a 2×2/SWOT → **matrix-canvas**.
+- A hierarchy → **org-chart**; a spatial system map → **diagram-topology**; repository architecture → **architecture-map**; a request trace → **sequence-diagram**; a data model → **entity-relationship**; a 2×2/SWOT → **matrix-canvas**.
 - Options weighed against criteria → **comparison-grid**. A procedure to execute → **runbook-checklist**.
 - Presented aloud → **presentation**; one page for execs → **one-pager**; a narrative investigation → **long-form-report**; a visual story → **infographic**; a showcase → **portfolio**; an editorial read → **magazine**.
 

@@ -11,6 +11,12 @@ const registryPath = new URL('assets/report-formats/registry.json', skillRoot);
 const templatesRoot = new URL('assets/report-formats/templates/', skillRoot);
 const schemasRoot = new URL('assets/report-formats/schemas/', skillRoot);
 const scriptPath = fileURLToPath(new URL('scripts/alexandrai.mjs', skillRoot));
+const expectedFormatCount = 38;
+const repositoryAnalysisFormats = [
+  ['architecture-map', 'architecture_map_sample.html'],
+  ['sequence-diagram', 'sequence_diagram_sample.html'],
+  ['entity-relationship', 'entity_relationship_sample.html']
+];
 
 const metadataRe =
   /(<script type="application\/json" id="alexandrai-metadata">\s*)[\s\S]*?(\s*<\/script>)/;
@@ -49,12 +55,15 @@ async function htmlForFormat(formatId, metadataMutator = () => {}) {
     : html.replace('</body>', `${metadataScript}\n</body>`);
 }
 
-test('format registry exposes all 35 html_report_design formats', async () => {
+test('format registry exposes all 38 html_report_design formats', async () => {
   const registry = JSON.parse(await readFile(registryPath, 'utf8'));
 
-  assert.equal(registry.formats.length, 35);
+  assert.equal(registry.formats.length, expectedFormatCount);
   assert.ok(registry.formats.some((format) => format.id === 'dashboard'));
   assert.ok(registry.formats.some((format) => format.id === 'research-paper'));
+  for (const [formatId] of repositoryAnalysisFormats) {
+    assert.ok(registry.formats.some((format) => format.id === formatId), `missing ${formatId}`);
+  }
   assert.deepEqual(
     registry.formats.find((format) => format.id === 'slide-deck')?.aliases,
     ['presentation']
@@ -72,9 +81,12 @@ test('formats command prints the complete format catalogue', async () => {
   assert.equal(result.code, 0);
   const body = JSON.parse(result.stdout);
   assert.equal(body.ok, true);
-  assert.equal(body.formats.length, 35);
+  assert.equal(body.formats.length, expectedFormatCount);
   assert.ok(body.formats.some((format) => format.id === 'dashboard'));
   assert.ok(body.formats.some((format) => format.id === 'research-paper'));
+  for (const [formatId] of repositoryAnalysisFormats) {
+    assert.ok(body.formats.some((format) => format.id === formatId), `missing ${formatId}`);
+  }
 });
 
 test('lint accepts a non-paper template when selected format metadata matches', async () => {
@@ -89,6 +101,23 @@ test('lint accepts a non-paper template when selected format metadata matches', 
     assert.match(result.stdout, /ALEXANDRAI_LINT_OK/);
   } finally {
     await rm(dir, { recursive: true, force: true });
+  }
+});
+
+test('lint accepts repository and system analysis templates', async () => {
+  for (const [formatId, templateName] of repositoryAnalysisFormats) {
+    const dir = await mkdtemp(join(tmpdir(), `alexandrai-${formatId}-`));
+    try {
+      const file = join(dir, templateName);
+      await writeFile(file, await htmlForFormat(formatId), 'utf8');
+
+      const result = await runCli(['lint', file, '--format', formatId, '--offline']);
+
+      assert.equal(result.code, 0, result.stderr);
+      assert.match(result.stdout, /ALEXANDRAI_LINT_OK/);
+    } finally {
+      await rm(dir, { recursive: true, force: true });
+    }
   }
 });
 

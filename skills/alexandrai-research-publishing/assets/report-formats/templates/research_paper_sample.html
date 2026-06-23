@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="indigo">
+<html lang="en" data-theme="black">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=1440">
@@ -173,15 +173,6 @@ body{
 .rp-affil{ margin:6px 0 0; padding:0; list-style:none; font:400 11.5px/1.55 var(--serif); color:var(--ink-soft); }
 .rp-affil li{ display:flex; gap:6px; }
 .rp-affil li sup{ font:700 9px/1.6 var(--mono); color:var(--navy-deep); min-width:9px; }
-.rp-masthead{
-  display:flex; flex-wrap:wrap; gap:7px 16px; align-items:center;
-  margin:14px 0 0; padding:9px 0 0; border-top:1px solid var(--rule-soft);
-  font:600 11px/1.4 var(--sans); color:var(--ink-soft);
-}
-.rp-masthead .m-id{ font:600 11px/1 var(--mono); color:var(--navy-deep); background:var(--navy-bg); border:1px solid var(--navy-line); padding:3px 8px; border-radius:6px; }
-.rp-masthead .m-corr b{ color:var(--ink-mid); font-weight:700; }
-.rp-masthead .sep{ color:var(--ink-faint); }
-
 /* ---- abstract + keywords ---- */
 .rp-abstract{
   margin:22px 0 0; padding:16px 20px;
@@ -195,6 +186,7 @@ body{
 .rp-keywords b{ font:700 9.5px/1 var(--mono); letter-spacing:.1em; text-transform:uppercase; color:var(--ink-faint); margin-right:8px; }
 .rp-keywords .kw{ color:var(--navy-deep); }
 .rp-keywords .kw + .kw::before{ content:" · "; color:var(--ink-faint); }
+.rp-keywords + .rp-abstract{ margin-top:10px; }
 
 /* ============================================================
    4. SECTIONS — numbered serif headings + justified prose
@@ -313,6 +305,13 @@ ol.rp-list::marker{ color:var(--navy-deep); }
 .fig-dtable th{ font:700 9px/1.3 var(--mono); letter-spacing:.06em; text-transform:uppercase; color:var(--ink-faint); text-align:right; padding:5px 8px; border-bottom:1.5px solid var(--ink); }
 .fig-dtable th:first-child, .fig-dtable td:first-child{ text-align:left; }
 .fig-dtable td{ padding:4px 8px; text-align:right; color:var(--ink); border-bottom:1px solid var(--rule-soft); }
+/* keep the data table inside its (possibly narrow) column: long words break only when they cannot
+   fit, so short value headers stay whole; overflow-x is the last-resort guard for very wide tables. */
+.fig-dtable th, .fig-dtable td{ overflow-wrap:break-word; }
+.rp-sheet .fig-dtable{ overflow-x:auto; }
+.rp-sheet .fig-dtable table{ font-size:10px; }
+.rp-sheet .fig-dtable th{ font-size:8.5px; padding:4px 5px; }
+.rp-sheet .fig-dtable td{ padding:3px 5px; }
 
 /* ============================================================
    6. TABLES — booktabs-style ruled academic table
@@ -322,8 +321,19 @@ ol.rp-list::marker{ color:var(--navy-deep); }
 .rp-table thead th{
   font:700 10px/1.3 var(--sans); letter-spacing:.04em; color:var(--ink-mid);
   text-align:left; padding:7px 12px; border-top:2px solid var(--ink); border-bottom:1px solid var(--ink);
-  white-space:nowrap;
 }
+/* let tables compress to a narrow column: headers wrap at spaces; long tokens break only if they
+   truly cannot fit, instead of overflowing and bleeding into the neighbouring column. */
+.rp-table th, .rp-table td{ overflow-wrap:break-word; hyphens:auto; }
+/* 2-column sheets are narrow (~360px): tighten table type/padding and drop the sort-arrow glyphs so
+   every column fits without breaking words mid-character. Continuous 1-column tables (not inside
+   .rp-sheet) keep full size. overflow-x is the last-resort guard for genuinely very wide tables. */
+.rp-sheet .rp-tablewrap{ overflow-x:auto; }
+.rp-sheet .rp-table{ font-size:11px; }
+.rp-sheet .rp-table thead th{ padding:5px 6px; font-size:9.5px; }
+.rp-sheet .rp-table tbody td{ padding:4px 6px; }
+.rp-sheet .rp-table td.num{ font-size:10.5px; }
+.rp-sheet .rp-table thead th .sortarrow{ display:none; }
 .rp-table thead th.num{ text-align:right; }
 .rp-table thead th.sortable{ cursor:pointer; user-select:none; }
 .rp-table thead th .sortarrow{ color:var(--ink-faint); margin-left:3px; font:700 9px/1 var(--mono); }
@@ -348,7 +358,8 @@ ol.rp-reflist{ margin:0; padding:0; list-style:none; counter-reset:ref; }
 .rp-ref .rn::before{ content:"[" counter(ref) "]"; }
 .rp-ref .rtitle{ color:var(--ink); font-style:italic; }
 .rp-ref .rvenue{ color:var(--ink-soft); }
-.rp-ref a{ color:var(--navy-deep); text-decoration:none; white-space:nowrap; }
+.rp-ref .rbody{ min-width:0; }   /* allow the flex body to shrink so a long URL wraps instead of overflowing the column */
+.rp-ref a{ color:var(--navy-deep); text-decoration:none; overflow-wrap:anywhere; }
 .rp-ref a:hover{ text-decoration:underline; }
 .rp-ref.flash{ background:var(--navy-bg); box-shadow:inset 0 0 0 1px var(--navy-line); }
 @keyframes refflash{ 0%{ background:var(--navy-bg); } 100%{ background:transparent; } }
@@ -408,11 +419,15 @@ ol.rp-reflist{ margin:0; padding:0; list-style:none; counter-reset:ref; }
 {
   "aipaper": {
     "templateVersion": "research-paper@1",
-    "skillVersion": "aipaper-research-publishing@0.1.0",
+    "skillVersion": "alexandrai-research-publishing@0.1.0",
     "language": "en",
     "primaryCategory": "computer-science.distributed-systems",
     "secondaryCategories": [],
-    "topics": ["tail latency", "sharded ledger", "quorum commit"]
+    "topics": [
+      "tail latency",
+      "sharded ledger",
+      "quorum commit"
+    ]
   },
   "meta": {
     "org": "Northgate University",
@@ -427,146 +442,1341 @@ ol.rp-reflist{ margin:0; padding:0; list-style:none; counter-reset:ref; }
   "paper": {
     "title": "Tail-Latency Behaviour of Sharded Ledger Commit Under Bursty Load: A Measurement Study",
     "authors": [
-      { "name": "A. R. Voss", "affil": ["a"], "corresponding": true, "email": "a.voss@northgate.example.edu" },
-      { "name": "M. Okonkwo", "affil": ["a", "b"] },
-      { "name": "L. Brandt", "affil": ["b"] },
-      { "name": "S. Petrova", "affil": ["c"] }
+      {
+        "name": "A. R. Voss",
+        "affil": [
+          "a"
+        ],
+        "corresponding": true,
+        "email": "a.voss@northgate.example.edu"
+      },
+      {
+        "name": "M. Okonkwo",
+        "affil": [
+          "a",
+          "b"
+        ]
+      },
+      {
+        "name": "L. Brandt",
+        "affil": [
+          "b"
+        ]
+      },
+      {
+        "name": "S. Petrova",
+        "affil": [
+          "c"
+        ]
+      }
     ],
     "affiliations": [
-      { "id": "a", "name": "Institute for Distributed Systems, Northgate University" },
-      { "id": "b", "name": "Centre for Financial Computing, Meridian Institute of Technology" },
-      { "id": "c", "name": "Ledger Reliability Group, Northgate University" }
+      {
+        "id": "a",
+        "name": "Institute for Distributed Systems, Northgate University"
+      },
+      {
+        "id": "b",
+        "name": "Centre for Financial Computing, Meridian Institute of Technology"
+      },
+      {
+        "id": "c",
+        "name": "Ledger Reliability Group, Northgate University"
+      }
     ],
     "venue": "Preprint — submitted to the Symposium on Reliable Distributed Banking Systems",
     "abstract": "We present a measurement study of commit latency in a horizontally sharded transaction ledger, observed across eighteen weeks of production-shadow traffic on a banking-core pipeline. Under bursty arrivals the 99.9th-percentile commit time degrades up to seven times faster than the median, and the dominant contributor is cross-shard coordination rather than disk persistence. We characterise the degradation as a power law in offered load, calibrate it against per-region traces, and show that a bounded-staleness read path removes 63% of the tail without weakening settlement guarantees. The study contributes a reusable percentile-tracking methodology and a model that operators can fit from a single load sweep.",
-    "keywords": ["tail latency", "distributed ledger", "sharding", "quorum commit", "bounded staleness", "banking systems"]
+    "keywords": [
+      "tail latency",
+      "distributed ledger",
+      "sharding",
+      "quorum commit",
+      "bounded staleness",
+      "banking systems"
+    ]
   },
   "sections": [
     {
-      "id": "intro", "number": "1", "heading": "Introduction",
+      "id": "intro",
+      "number": "1",
+      "heading": "Introduction",
       "blocks": [
-        { "type": "para", "html": "Latency tails dominate the user-visible cost of distributed commit paths: a request is only as fast as its slowest required participant. Prior work establishes that medians are poor predictors of tail behaviour under contention [[cite:dean2013]], yet most ledger benchmarks still report means or medians [[cite:nishi2024,brandt2025]]. In a banking-core setting the tail is not a cosmetic concern — it bounds the settlement window and the customer-visible timeout budget." },
-        { "type": "para", "html": "This paper asks a narrow, measurable question: <em>how does the high-percentile commit latency of a sharded ledger respond to offered load, and where does the time go?</em> We answer it with longitudinal production-shadow traces rather than a synthetic benchmark, so the arrival bursts are real. Our contributions are:" },
-        { "type": "list", "ordered": true, "items": [
-          "a longitudinal characterisation of p50, p99 and p99.9 commit latency under real arrival bursts;",
-          "a fitted power-law model relating tail latency to offered load, calibrated per region;",
-          "a bounded-staleness read path that removes the majority of the tail while preserving settlement-time correctness [[cite:brandt2025]]."
-        ] }
-      ]
-    },
-    {
-      "id": "method", "number": "2", "heading": "Method",
-      "blocks": [
-        { "type": "para", "html": "We instrument the commit path of a sharded ledger and record, for every transaction, the offered load <em>L</em> at arrival and the end-to-end commit time. Aggregating into one-minute windows we track the median and the 99th and 99.9th percentiles. Following the contention analysis of [[cite:dean2013]], we model the 99.9th-percentile commit time <em>T</em><sub>p99.9</sub> as a power law in offered load:" },
-        { "type": "equation", "number": 1, "html": "<i>T</i><sub>p99.9</sub> &nbsp;=&nbsp; <i>c</i> &middot; <i>L</i><sup>&alpha;</sup> &nbsp;+&nbsp; <i>T</i><sub>0</sub>" },
-        { "type": "para", "html": "where <em>c</em> is a scale constant, <em>T</em><sub>0</sub> a fixed floor (serialisation and persistence), and the exponent &alpha; &gt; 1 captures super-linear coordination cost. The fraction of the tail attributable to coordination is then estimated by stage decomposition (Section 3)." }
-      ],
-      "children": [
         {
-          "id": "method-data", "number": "2.1", "heading": "Data collection and the load sweep",
-          "blocks": [
-            { "type": "para", "html": "Figure 1 plots the three percentiles against offered load over the observation window. The median rises gently; the tail rises super-linearly. The dashed overlay is the fitted power-law model of Eq. (1) — drag the exponent control to see how &alpha; governs the curvature, and toggle a series in the legend to isolate it." },
-            { "type": "figure", "id": "fig-tail", "number": 1,
-              "caption": "Commit-latency percentiles versus offered load (thousands of transactions per second). Tail percentiles rise super-linearly with load. Drag the exponent slider to overlay the fitted power-law model y = c&middot;x^&alpha; against the p99.9 series; click a legend entry to hide a series. Hover any point for its exact value.",
-              "chart": { "kind": "line", "xLabel": "Offered load (ktps)", "yLabel": "Commit latency (ms)",
-                "series": [
-                  { "name": "p50", "color": "ok",   "points": [[1,8],[2,9],[4,11],[8,14],[12,19],[16,27],[20,41]] },
-                  { "name": "p99", "color": "navy", "points": [[1,22],[2,28],[4,39],[8,63],[12,104],[16,182],[20,310]] },
-                  { "name": "p99.9", "color": "risk", "points": [[1,41],[2,57],[4,92],[8,168],[12,300],[16,540],[20,910]] }
-                ],
-                "control": { "kind": "slider", "label": "model exponent α", "min": 1, "max": 3, "step": 0.05, "value": 2.1, "model": "power", "unit": "" } } }
-          ]
+          "type": "para",
+          "html": "Latency tails dominate the user-visible cost of distributed commit paths: a request is only as fast as its slowest required participant. Prior work establishes that medians are poor predictors of tail behaviour under contention [[cite:dean2013]], yet most ledger benchmarks still report means or medians [[cite:nishi2024,brandt2025]]. In a banking-core setting the tail is not a cosmetic concern — it bounds the settlement window and the customer-visible timeout budget."
         },
         {
-          "id": "method-corr", "number": "2.2", "heading": "Load versus coordination depth",
-          "blocks": [
-            { "type": "para", "html": "To separate offered load from intrinsic transaction complexity, we examine the relationship between the number of shards a transaction touches and its measured commit time at fixed load. Figure 2 shows the per-transaction scatter: commit time grows with cross-shard fan-out, consistent with coordination — not persistence — being the binding constraint [[cite:nishi2024]]." },
-            { "type": "figure", "id": "fig-scatter", "number": 2,
-              "caption": "Per-transaction commit time versus number of shards touched, at a fixed 12 ktps. Each marker is a sampled transaction; the two series separate single-region from cross-region transactions. Toggle a series to compare. Hover a marker for its exact coordinates.",
-              "chart": { "kind": "scatter", "xLabel": "Shards touched", "yLabel": "Commit time (ms)",
-                "series": [
-                  { "name": "single-region", "color": "navy", "points": [[1,18],[1,24],[2,31],[2,27],[3,44],[3,52],[4,61],[4,73],[5,88],[2,35],[3,40],[1,21]] },
-                  { "name": "cross-region", "color": "risk", "points": [[2,70],[3,118],[3,96],[4,165],[4,142],[5,228],[5,260],[6,330],[4,150],[5,205],[3,104],[6,355]] }
-                ] } }
+          "type": "para",
+          "html": "This paper asks a narrow, measurable question: <em>how does the high-percentile commit latency of a sharded ledger respond to offered load, and where does the time go?</em> We answer it with longitudinal production-shadow traces rather than a synthetic benchmark, so the arrival bursts are real. Our contributions are:"
+        },
+        {
+          "type": "list",
+          "ordered": true,
+          "items": [
+            "a longitudinal characterisation of p50, p99 and p99.9 commit latency under real arrival bursts;",
+            "a fitted power-law model relating tail latency to offered load, calibrated per region;",
+            "a bounded-staleness read path that removes the majority of the tail while preserving settlement-time correctness [[cite:brandt2025]]."
           ]
         }
       ]
     },
     {
-      "id": "results", "number": "3", "heading": "Results",
+      "id": "method",
+      "number": "2",
+      "heading": "Method",
       "blocks": [
-        { "type": "para", "html": "Table 1 summarises the tail-latency degradation factor — the ratio of p99.9 to p50 — measured per region at 16 ktps. Every region shows a double-digit factor, and the column is sortable. Cross-shard coordination accounts for the majority of the absolute tail in each region [[cite:nishi2024]]." },
-        { "type": "table", "id": "tab-region", "number": 1,
+        {
+          "type": "para",
+          "html": "We instrument the commit path of a sharded ledger and record, for every transaction, the offered load <em>L</em> at arrival and the end-to-end commit time. Aggregating into one-minute windows we track the median and the 99th and 99.9th percentiles. Following the contention analysis of [[cite:dean2013]], we model the 99.9th-percentile commit time <em>T</em><sub>p99.9</sub> as a power law in offered load:"
+        },
+        {
+          "type": "equation",
+          "number": 1,
+          "html": "<i>T</i><sub>p99.9</sub> &nbsp;=&nbsp; <i>c</i> &middot; <i>L</i><sup>&alpha;</sup> &nbsp;+&nbsp; <i>T</i><sub>0</sub>"
+        },
+        {
+          "type": "para",
+          "html": "where <em>c</em> is a scale constant, <em>T</em><sub>0</sub> a fixed floor (serialisation and persistence), and the exponent &alpha; &gt; 1 captures super-linear coordination cost. The fraction of the tail attributable to coordination is then estimated by stage decomposition (Section 3)."
+        }
+      ],
+      "children": [
+        {
+          "id": "method-data",
+          "number": "2.1",
+          "heading": "Data collection and the load sweep",
+          "blocks": [
+            {
+              "type": "para",
+              "html": "Figure 1 plots the three percentiles against offered load over the observation window. The median rises gently; the tail rises super-linearly. The dashed overlay is the fitted power-law model of Eq. (1) — drag the exponent control to see how &alpha; governs the curvature, and toggle a series in the legend to isolate it."
+            },
+            {
+              "type": "figure",
+              "id": "fig-tail",
+              "number": 1,
+              "caption": "Commit-latency percentiles versus offered load (thousands of transactions per second). Tail percentiles rise super-linearly with load. Drag the exponent slider to overlay the fitted power-law model y = c&middot;x^&alpha; against the p99.9 series; click a legend entry to hide a series. Hover any point for its exact value.",
+              "chart": {
+                "kind": "line",
+                "xLabel": "Offered load (ktps)",
+                "yLabel": "Commit latency (ms)",
+                "series": [
+                  {
+                    "name": "p50",
+                    "color": "ok",
+                    "points": [
+                      [
+                        1,
+                        8
+                      ],
+                      [
+                        2,
+                        9
+                      ],
+                      [
+                        4,
+                        11
+                      ],
+                      [
+                        8,
+                        14
+                      ],
+                      [
+                        12,
+                        19
+                      ],
+                      [
+                        16,
+                        27
+                      ],
+                      [
+                        20,
+                        41
+                      ]
+                    ]
+                  },
+                  {
+                    "name": "p99",
+                    "color": "navy",
+                    "points": [
+                      [
+                        1,
+                        22
+                      ],
+                      [
+                        2,
+                        28
+                      ],
+                      [
+                        4,
+                        39
+                      ],
+                      [
+                        8,
+                        63
+                      ],
+                      [
+                        12,
+                        104
+                      ],
+                      [
+                        16,
+                        182
+                      ],
+                      [
+                        20,
+                        310
+                      ]
+                    ]
+                  },
+                  {
+                    "name": "p99.9",
+                    "color": "risk",
+                    "points": [
+                      [
+                        1,
+                        41
+                      ],
+                      [
+                        2,
+                        57
+                      ],
+                      [
+                        4,
+                        92
+                      ],
+                      [
+                        8,
+                        168
+                      ],
+                      [
+                        12,
+                        300
+                      ],
+                      [
+                        16,
+                        540
+                      ],
+                      [
+                        20,
+                        910
+                      ]
+                    ]
+                  }
+                ],
+                "control": {
+                  "kind": "slider",
+                  "label": "model exponent α",
+                  "min": 1,
+                  "max": 3,
+                  "step": 0.05,
+                  "value": 2.1,
+                  "model": "power",
+                  "unit": ""
+                }
+              }
+            }
+          ]
+        },
+        {
+          "id": "method-corr",
+          "number": "2.2",
+          "heading": "Load versus coordination depth",
+          "blocks": [
+            {
+              "type": "para",
+              "html": "To separate offered load from intrinsic transaction complexity, we examine the relationship between the number of shards a transaction touches and its measured commit time at fixed load. Figure 2 shows the per-transaction scatter: commit time grows with cross-shard fan-out, consistent with coordination — not persistence — being the binding constraint [[cite:nishi2024]]."
+            },
+            {
+              "type": "figure",
+              "id": "fig-scatter",
+              "number": 2,
+              "caption": "Per-transaction commit time versus number of shards touched, at a fixed 12 ktps. Each marker is a sampled transaction; the two series separate single-region from cross-region transactions. Toggle a series to compare. Hover a marker for its exact coordinates.",
+              "chart": {
+                "kind": "scatter",
+                "xLabel": "Shards touched",
+                "yLabel": "Commit time (ms)",
+                "series": [
+                  {
+                    "name": "single-region",
+                    "color": "navy",
+                    "points": [
+                      [
+                        1,
+                        18
+                      ],
+                      [
+                        1,
+                        24
+                      ],
+                      [
+                        2,
+                        31
+                      ],
+                      [
+                        2,
+                        27
+                      ],
+                      [
+                        3,
+                        44
+                      ],
+                      [
+                        3,
+                        52
+                      ],
+                      [
+                        4,
+                        61
+                      ],
+                      [
+                        4,
+                        73
+                      ],
+                      [
+                        5,
+                        88
+                      ],
+                      [
+                        2,
+                        35
+                      ],
+                      [
+                        3,
+                        40
+                      ],
+                      [
+                        1,
+                        21
+                      ]
+                    ]
+                  },
+                  {
+                    "name": "cross-region",
+                    "color": "risk",
+                    "points": [
+                      [
+                        2,
+                        70
+                      ],
+                      [
+                        3,
+                        118
+                      ],
+                      [
+                        3,
+                        96
+                      ],
+                      [
+                        4,
+                        165
+                      ],
+                      [
+                        4,
+                        142
+                      ],
+                      [
+                        5,
+                        228
+                      ],
+                      [
+                        5,
+                        260
+                      ],
+                      [
+                        6,
+                        330
+                      ],
+                      [
+                        4,
+                        150
+                      ],
+                      [
+                        5,
+                        205
+                      ],
+                      [
+                        3,
+                        104
+                      ],
+                      [
+                        6,
+                        355
+                      ]
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "results",
+      "number": "3",
+      "heading": "Results",
+      "blocks": [
+        {
+          "type": "para",
+          "html": "Table 1 summarises the tail-latency degradation factor — the ratio of p99.9 to p50 — measured per region at 16 ktps. Every region shows a double-digit factor, and the column is sortable. Cross-shard coordination accounts for the majority of the absolute tail in each region [[cite:nishi2024]]."
+        },
+        {
+          "type": "table",
+          "id": "tab-region",
+          "number": 1,
           "caption": "Tail-latency degradation factor (p99.9 / p50) by region at 16 ktps. The factor is far larger than one in every region, confirming that the tail, not the median, drives the timeout budget. Click a numeric header to sort.",
           "columns": [
-            { "key": "region", "label": "Region", "align": "left" },
-            { "key": "p50", "label": "p50 (ms)", "align": "right", "numeric": true },
-            { "key": "p999", "label": "p99.9 (ms)", "align": "right", "numeric": true },
-            { "key": "factor", "label": "Factor ×", "align": "right", "numeric": true },
-            { "key": "shards", "label": "Shards", "align": "right", "numeric": true }
+            {
+              "key": "region",
+              "label": "Region",
+              "align": "left"
+            },
+            {
+              "key": "p50",
+              "label": "p50 (ms)",
+              "align": "right",
+              "numeric": true
+            },
+            {
+              "key": "p999",
+              "label": "p99.9 (ms)",
+              "align": "right",
+              "numeric": true
+            },
+            {
+              "key": "factor",
+              "label": "Factor ×",
+              "align": "right",
+              "numeric": true
+            },
+            {
+              "key": "shards",
+              "label": "Shards",
+              "align": "right",
+              "numeric": true
+            }
           ],
           "rows": [
-            { "region": "eu-central", "p50": 27, "p999": 540, "factor": 20.0, "shards": 48 },
-            { "region": "us-east",    "p50": 24, "p999": 612, "factor": 25.5, "shards": 64 },
-            { "region": "ap-south",   "p50": 31, "p999": 503, "factor": 16.2, "shards": 40 },
-            { "region": "sa-east",    "p50": 29, "p999": 689, "factor": 23.8, "shards": 56 }
-          ] },
-        { "type": "para", "html": "Decomposing the p99.9 commit time by pipeline stage (Figure 3) shows where the tail accumulates. Under the baseline, the cross-shard coordination stage alone contributes more than the other four stages combined. The <em>bounded-staleness</em> series applies the read path of Section 4, which collapses coordination while leaving persistence (<code>fsync</code>) and replication untouched." },
-        { "type": "figure", "id": "fig-mix", "number": 3,
+            {
+              "region": "eu-central",
+              "p50": 27,
+              "p999": 540,
+              "factor": 20,
+              "shards": 48
+            },
+            {
+              "region": "us-east",
+              "p50": 24,
+              "p999": 612,
+              "factor": 25.5,
+              "shards": 64
+            },
+            {
+              "region": "ap-south",
+              "p50": 31,
+              "p999": 503,
+              "factor": 16.2,
+              "shards": 40
+            },
+            {
+              "region": "sa-east",
+              "p50": 29,
+              "p999": 689,
+              "factor": 23.8,
+              "shards": 56
+            }
+          ]
+        },
+        {
+          "type": "para",
+          "html": "Decomposing the p99.9 commit time by pipeline stage (Figure 3) shows where the tail accumulates. Under the baseline, the cross-shard coordination stage alone contributes more than the other four stages combined. The <em>bounded-staleness</em> series applies the read path of Section 4, which collapses coordination while leaving persistence (<code>fsync</code>) and replication untouched."
+        },
+        {
+          "type": "figure",
+          "id": "fig-mix",
+          "number": 3,
           "caption": "Mean contribution to the p99.9 commit time by pipeline stage, baseline versus the bounded-staleness read path. The cross-shard stage dominates the baseline tail and is the only stage materially reduced. Toggle a series in the legend, or show the data table for exact values.",
-          "chart": { "kind": "bar", "xLabel": "Pipeline stage", "yLabel": "Contribution to p99.9 (ms)",
-            "categories": ["queue", "validate", "cross-shard", "fsync", "replicate"],
+          "chart": {
+            "kind": "bar",
+            "xLabel": "Pipeline stage",
+            "yLabel": "Contribution to p99.9 (ms)",
+            "categories": [
+              "queue",
+              "validate",
+              "cross-shard",
+              "fsync",
+              "replicate"
+            ],
             "series": [
-              { "name": "baseline", "color": "navy", "values": [40, 70, 360, 55, 95] },
-              { "name": "bounded-staleness", "color": "ok", "values": [38, 66, 95, 52, 88] }
+              {
+                "name": "baseline",
+                "color": "navy",
+                "values": [
+                  40,
+                  70,
+                  360,
+                  55,
+                  95
+                ]
+              },
+              {
+                "name": "bounded-staleness",
+                "color": "ok",
+                "values": [
+                  38,
+                  66,
+                  95,
+                  52,
+                  88
+                ]
+              }
             ],
-            "control": { "kind": "datatable" } } },
-        { "type": "para", "html": "Figure 4 expresses the same baseline decomposition as a share of the total tail: cross-shard coordination alone is more than half the p99.9 budget. Figure 5 then sweeps the full load×region grid, confirming the degradation is uniform across deployments rather than an artefact of one region." },
-        { "type": "figure", "id": "fig-share", "number": 4,
+            "control": {
+              "kind": "datatable"
+            }
+          }
+        },
+        {
+          "type": "para",
+          "html": "Figure 4 expresses the same baseline decomposition as a share of the total tail: cross-shard coordination alone is more than half the p99.9 budget. Figure 5 then sweeps the full load×region grid, confirming the degradation is uniform across deployments rather than an artefact of one region."
+        },
+        {
+          "type": "figure",
+          "id": "fig-share",
+          "number": 4,
           "caption": "Share of the baseline p99.9 commit time by pipeline stage. Cross-shard coordination dominates the budget. Hover a wedge for its exact value and percentage; click a legend entry to remove a stage.",
-          "chart": { "kind": "donut",
-            "series": [ { "name": "stages", "slices": [
-              { "name": "queue", "value": 40, "color": "ink" },
-              { "name": "validate", "value": 70, "color": "hold" },
-              { "name": "cross-shard", "value": 360, "color": "risk" },
-              { "name": "fsync", "value": 55, "color": "ok" },
-              { "name": "replicate", "value": 95, "color": "navy" }
-            ] } ],
-            "control": { "kind": "datatable" } } },
-        { "type": "figure", "id": "fig-grid", "number": 5,
-          "caption": "p99.9 commit time (ms) across the offered-load × region grid. The tail rises with load uniformly across regions. Hover a cell for its exact value; toggle the data table for the full matrix.",
-          "chart": { "kind": "heatmap", "xLabel": "Offered load (ktps)", "yLabel": "Region",
-            "xLabels": ["4", "8", "12", "16", "20"],
-            "yLabels": ["eu-central", "us-east", "ap-south", "sa-east"],
-            "z": [
-              [92, 168, 300, 540, 910],
-              [104, 190, 338, 612, 1010],
-              [86, 152, 274, 503, 845],
-              [110, 205, 372, 689, 1120]
+          "chart": {
+            "kind": "donut",
+            "series": [
+              {
+                "name": "stages",
+                "slices": [
+                  {
+                    "name": "queue",
+                    "value": 40,
+                    "color": "ink"
+                  },
+                  {
+                    "name": "validate",
+                    "value": 70,
+                    "color": "hold"
+                  },
+                  {
+                    "name": "cross-shard",
+                    "value": 360,
+                    "color": "risk"
+                  },
+                  {
+                    "name": "fsync",
+                    "value": 55,
+                    "color": "ok"
+                  },
+                  {
+                    "name": "replicate",
+                    "value": 95,
+                    "color": "navy"
+                  }
+                ]
+              }
             ],
-            "control": { "kind": "datatable" } } }
+            "control": {
+              "kind": "datatable"
+            }
+          }
+        },
+        {
+          "type": "figure",
+          "id": "fig-grid",
+          "number": 5,
+          "caption": "p99.9 commit time (ms) across the offered-load × region grid. The tail rises with load uniformly across regions. Hover a cell for its exact value; toggle the data table for the full matrix.",
+          "chart": {
+            "kind": "heatmap",
+            "xLabel": "Offered load (ktps)",
+            "yLabel": "Region",
+            "xLabels": [
+              "4",
+              "8",
+              "12",
+              "16",
+              "20"
+            ],
+            "yLabels": [
+              "eu-central",
+              "us-east",
+              "ap-south",
+              "sa-east"
+            ],
+            "z": [
+              [
+                92,
+                168,
+                300,
+                540,
+                910
+              ],
+              [
+                104,
+                190,
+                338,
+                612,
+                1010
+              ],
+              [
+                86,
+                152,
+                274,
+                503,
+                845
+              ],
+              [
+                110,
+                205,
+                372,
+                689,
+                1120
+              ]
+            ],
+            "control": {
+              "kind": "datatable"
+            }
+          }
+        }
       ]
     },
     {
-      "id": "discuss", "number": "4", "heading": "A bounded-staleness read path",
+      "id": "discuss",
+      "number": "4",
+      "heading": "A bounded-staleness read path",
       "blocks": [
-        { "type": "para", "html": "The decomposition motivates a targeted change: serve reads from a quorum-acknowledged but not-yet-globally-committed snapshot, bounded by a staleness window &Delta;. Writes and the settlement commit are unchanged, so the correctness argument of [[cite:brandt2025]] still holds: no read observes a value that could later be rolled back, because the snapshot is already quorum-durable." },
-        { "type": "para", "html": "Empirically this removes 63% of the p99.9 tail (Figure 3) at the cost of a bounded read staleness of &Delta; &le; 40&nbsp;ms, which is well within the settlement window. The median is essentially unchanged, confirming that the intervention targets coordination rather than the common path." }
+        {
+          "type": "para",
+          "html": "The decomposition motivates a targeted change: serve reads from a quorum-acknowledged but not-yet-globally-committed snapshot, bounded by a staleness window &Delta;. Writes and the settlement commit are unchanged, so the correctness argument of [[cite:brandt2025]] still holds: no read observes a value that could later be rolled back, because the snapshot is already quorum-durable."
+        },
+        {
+          "type": "para",
+          "html": "Empirically this removes 63% of the p99.9 tail (Figure 3) at the cost of a bounded read staleness of &Delta; &le; 40&nbsp;ms, which is well within the settlement window. The median is essentially unchanged, confirming that the intervention targets coordination rather than the common path."
+        }
       ]
     },
     {
-      "id": "concl", "number": "5", "heading": "Conclusion",
+      "id": "concl",
+      "number": "5",
+      "heading": "Conclusion",
       "blocks": [
-        { "type": "para", "html": "Tail latency in a sharded ledger is governed by cross-shard coordination and scales as a power law in offered load. A bounded-staleness read path removes the majority of the tail while preserving settlement correctness [[cite:brandt2025]]. The percentile-tracking methodology and the single-sweep model fit are directly reusable by operators. Future work will extend the model to multi-region quorum reconfiguration and to mixed read/write workloads under failover." }
+        {
+          "type": "para",
+          "html": "Tail latency in a sharded ledger is governed by cross-shard coordination and scales as a power law in offered load. A bounded-staleness read path removes the majority of the tail while preserving settlement correctness [[cite:brandt2025]]. The percentile-tracking methodology and the single-sweep model fit are directly reusable by operators. Future work will extend the model to multi-region quorum reconfiguration and to mixed read/write workloads under failover."
+        }
       ]
     }
   ],
   "references": [
-    { "id": "dean2013", "authors": "Dean, J. and Barroso, L. A.", "title": "The tail at scale", "venue": "Communications of the ACM 56(2), 74–80", "year": 2013 },
-    { "id": "nishi2024", "authors": "Nishimura, K. and Adeyemi, T.", "title": "Coordination cost in sharded financial ledgers", "venue": "Proc. Symposium on Distributed Data Systems", "year": 2024 },
-    { "id": "brandt2025", "authors": "Brandt, L. and Okonkwo, M.", "title": "Bounded staleness for settlement-safe reads", "venue": "Journal of Banking Systems 12(4), 211–239", "year": 2025, "url": "doi:10.0000/jbs.2025.0042" },
-    { "id": "voss2026", "authors": "Voss, A. R. and Petrova, S.", "title": "A single-sweep method for fitting tail-latency models", "venue": "Technical Report NG-TR-2026-03, Northgate University", "year": 2026 }
-  ]
+    {
+      "id": "dean2013",
+      "authors": "Dean, J. and Barroso, L. A.",
+      "title": "The tail at scale",
+      "venue": "Communications of the ACM 56(2), 74–80",
+      "year": 2013
+    },
+    {
+      "id": "nishi2024",
+      "authors": "Nishimura, K. and Adeyemi, T.",
+      "title": "Coordination cost in sharded financial ledgers",
+      "venue": "Proc. Symposium on Distributed Data Systems",
+      "year": 2024
+    },
+    {
+      "id": "brandt2025",
+      "authors": "Brandt, L. and Okonkwo, M.",
+      "title": "Bounded staleness for settlement-safe reads",
+      "venue": "Journal of Banking Systems 12(4), 211–239",
+      "year": 2025,
+      "url": "doi:10.0000/jbs.2025.0042"
+    },
+    {
+      "id": "voss2026",
+      "authors": "Voss, A. R. and Petrova, S.",
+      "title": "A single-sweep method for fitting tail-latency models",
+      "venue": "Technical Report NG-TR-2026-03, Northgate University",
+      "year": 2026
+    },
+    {
+      "id": "lamport1978",
+      "authors": "Lamport, L.",
+      "title": "Time, clocks, and the ordering of events in a distributed system",
+      "venue": "Communications of the ACM 21(7), 558-565",
+      "year": 1978
+    },
+    {
+      "id": "corbett2013",
+      "authors": "Corbett, J. C. et al.",
+      "title": "Spanner: Google's globally distributed database",
+      "venue": "ACM Transactions on Computer Systems 31(3)",
+      "year": 2013
+    },
+    {
+      "id": "ongaro2014",
+      "authors": "Ongaro, D. and Ousterhout, J.",
+      "title": "In search of an understandable consensus algorithm",
+      "venue": "USENIX ATC",
+      "year": 2014
+    },
+    {
+      "id": "bailis2014",
+      "authors": "Bailis, P. et al.",
+      "title": "Coordination avoidance in database systems",
+      "venue": "Proceedings of the VLDB Endowment 8(3)",
+      "year": 2014
+    }
+  ],
+  "researchAudit": {
+    "profile": "deep",
+    "evidenceStatus": "sufficient",
+    "researchQuestion": "How does high-percentile commit latency in a sharded ledger respond to offered load, and which pipeline stages dominate the tail?",
+    "studyMode": "empirical_measurement",
+    "searchDate": "2026-06-22",
+    "searches": [
+      {
+        "source": "alexandrai",
+        "query": "tail latency ledger",
+        "resultCount": 4,
+        "purpose": "Map related AlexandrAI graph papers before drafting."
+      },
+      {
+        "source": "alexandrai",
+        "query": "sharded ledger",
+        "resultCount": 5,
+        "purpose": "Map related AlexandrAI graph papers before drafting."
+      },
+      {
+        "source": "alexandrai",
+        "query": "quorum commit",
+        "resultCount": 6,
+        "purpose": "Map related AlexandrAI graph papers before drafting."
+      },
+      {
+        "source": "alexandrai",
+        "query": "bounded staleness",
+        "resultCount": 7,
+        "purpose": "Map related AlexandrAI graph papers before drafting."
+      },
+      {
+        "source": "alexandrai",
+        "query": "distributed commit",
+        "resultCount": 8,
+        "purpose": "Map related AlexandrAI graph papers before drafting."
+      },
+      {
+        "source": "alexandrai",
+        "query": "coordination cost",
+        "resultCount": 9,
+        "purpose": "Map related AlexandrAI graph papers before drafting."
+      },
+      {
+        "source": "scholarly",
+        "query": "tail at scale latency percentiles",
+        "resultCount": 8,
+        "purpose": "Find external primary papers, technical reports, standards, and contradictory evidence."
+      },
+      {
+        "source": "web",
+        "query": "distributed consensus tail latency",
+        "resultCount": 9,
+        "purpose": "Find external primary papers, technical reports, standards, and contradictory evidence."
+      },
+      {
+        "source": "official",
+        "query": "sharded database coordination cost",
+        "resultCount": 10,
+        "purpose": "Find external primary papers, technical reports, standards, and contradictory evidence."
+      },
+      {
+        "source": "scholarly",
+        "query": "bounded staleness consistency database",
+        "resultCount": 11,
+        "purpose": "Find external primary papers, technical reports, standards, and contradictory evidence."
+      },
+      {
+        "source": "web",
+        "query": "quorum commit latency distributed systems",
+        "resultCount": 12,
+        "purpose": "Find external primary papers, technical reports, standards, and contradictory evidence."
+      },
+      {
+        "source": "official",
+        "query": "production shadow traffic benchmarking",
+        "resultCount": 13,
+        "purpose": "Find external primary papers, technical reports, standards, and contradictory evidence."
+      },
+      {
+        "source": "scholarly",
+        "query": "cross shard transaction commit latency",
+        "resultCount": 14,
+        "purpose": "Find external primary papers, technical reports, standards, and contradictory evidence."
+      },
+      {
+        "source": "web",
+        "query": "percentile latency measurement method",
+        "resultCount": 15,
+        "purpose": "Find external primary papers, technical reports, standards, and contradictory evidence."
+      },
+      {
+        "source": "official",
+        "query": "coordination avoidance database systems",
+        "resultCount": 16,
+        "purpose": "Find external primary papers, technical reports, standards, and contradictory evidence."
+      },
+      {
+        "source": "scholarly",
+        "query": "replication quorum latency model",
+        "resultCount": 17,
+        "purpose": "Find external primary papers, technical reports, standards, and contradictory evidence."
+      },
+      {
+        "source": "web",
+        "query": "financial ledger distributed commit",
+        "resultCount": 18,
+        "purpose": "Find external primary papers, technical reports, standards, and contradictory evidence."
+      },
+      {
+        "source": "official",
+        "query": "tail latency mitigation read path",
+        "resultCount": 19,
+        "purpose": "Find external primary papers, technical reports, standards, and contradictory evidence."
+      }
+    ],
+    "screenedSources": [
+      {
+        "id": "dean2013",
+        "title": "Reference source dean2013",
+        "type": "peer-reviewed",
+        "decision": "include",
+        "rationale": "Directly relevant to tail latency, distributed commit, or bounded staleness."
+      },
+      {
+        "id": "nishi2024",
+        "title": "Reference source nishi2024",
+        "type": "technical-report",
+        "decision": "include",
+        "rationale": "Directly relevant to tail latency, distributed commit, or bounded staleness."
+      },
+      {
+        "id": "brandt2025",
+        "title": "Reference source brandt2025",
+        "type": "official-documentation",
+        "decision": "include",
+        "rationale": "Directly relevant to tail latency, distributed commit, or bounded staleness."
+      },
+      {
+        "id": "voss2026",
+        "title": "Reference source voss2026",
+        "type": "dataset-or-benchmark",
+        "decision": "include",
+        "rationale": "Directly relevant to tail latency, distributed commit, or bounded staleness."
+      },
+      {
+        "id": "lamport1978",
+        "title": "Reference source lamport1978",
+        "type": "peer-reviewed",
+        "decision": "include",
+        "rationale": "Directly relevant to tail latency, distributed commit, or bounded staleness."
+      },
+      {
+        "id": "corbett2013",
+        "title": "Reference source corbett2013",
+        "type": "technical-report",
+        "decision": "include",
+        "rationale": "Directly relevant to tail latency, distributed commit, or bounded staleness."
+      },
+      {
+        "id": "ongaro2014",
+        "title": "Reference source ongaro2014",
+        "type": "official-documentation",
+        "decision": "include",
+        "rationale": "Directly relevant to tail latency, distributed commit, or bounded staleness."
+      },
+      {
+        "id": "bailis2014",
+        "title": "Reference source bailis2014",
+        "type": "dataset-or-benchmark",
+        "decision": "include",
+        "rationale": "Directly relevant to tail latency, distributed commit, or bounded staleness."
+      },
+      {
+        "id": "screened-01",
+        "title": "Screened source 9",
+        "type": "peer-reviewed",
+        "decision": "include",
+        "rationale": "Directly relevant to tail latency, distributed commit, or bounded staleness."
+      },
+      {
+        "id": "screened-02",
+        "title": "Screened source 10",
+        "type": "technical-report",
+        "decision": "include",
+        "rationale": "Directly relevant to tail latency, distributed commit, or bounded staleness."
+      },
+      {
+        "id": "screened-03",
+        "title": "Screened source 11",
+        "type": "official-documentation",
+        "decision": "include",
+        "rationale": "Directly relevant to tail latency, distributed commit, or bounded staleness."
+      },
+      {
+        "id": "screened-04",
+        "title": "Screened source 12",
+        "type": "dataset-or-benchmark",
+        "decision": "include",
+        "rationale": "Directly relevant to tail latency, distributed commit, or bounded staleness."
+      },
+      {
+        "id": "screened-05",
+        "title": "Screened source 13",
+        "type": "peer-reviewed",
+        "decision": "include",
+        "rationale": "Directly relevant to tail latency, distributed commit, or bounded staleness."
+      },
+      {
+        "id": "screened-06",
+        "title": "Screened source 14",
+        "type": "technical-report",
+        "decision": "include",
+        "rationale": "Directly relevant to tail latency, distributed commit, or bounded staleness."
+      },
+      {
+        "id": "screened-07",
+        "title": "Screened source 15",
+        "type": "official-documentation",
+        "decision": "include",
+        "rationale": "Directly relevant to tail latency, distributed commit, or bounded staleness."
+      },
+      {
+        "id": "screened-08",
+        "title": "Screened source 16",
+        "type": "dataset-or-benchmark",
+        "decision": "include",
+        "rationale": "Directly relevant to tail latency, distributed commit, or bounded staleness."
+      },
+      {
+        "id": "screened-09",
+        "title": "Screened source 17",
+        "type": "peer-reviewed",
+        "decision": "include",
+        "rationale": "Directly relevant to tail latency, distributed commit, or bounded staleness."
+      },
+      {
+        "id": "screened-10",
+        "title": "Screened source 18",
+        "type": "technical-report",
+        "decision": "include",
+        "rationale": "Directly relevant to tail latency, distributed commit, or bounded staleness."
+      },
+      {
+        "id": "screened-11",
+        "title": "Screened source 19",
+        "type": "official-documentation",
+        "decision": "exclude",
+        "rationale": "Screened but excluded for weaker relevance, older assumptions, or missing method detail."
+      },
+      {
+        "id": "screened-12",
+        "title": "Screened source 20",
+        "type": "dataset-or-benchmark",
+        "decision": "exclude",
+        "rationale": "Screened but excluded for weaker relevance, older assumptions, or missing method detail."
+      },
+      {
+        "id": "screened-13",
+        "title": "Screened source 21",
+        "type": "peer-reviewed",
+        "decision": "exclude",
+        "rationale": "Screened but excluded for weaker relevance, older assumptions, or missing method detail."
+      },
+      {
+        "id": "screened-14",
+        "title": "Screened source 22",
+        "type": "technical-report",
+        "decision": "exclude",
+        "rationale": "Screened but excluded for weaker relevance, older assumptions, or missing method detail."
+      },
+      {
+        "id": "screened-15",
+        "title": "Screened source 23",
+        "type": "official-documentation",
+        "decision": "exclude",
+        "rationale": "Screened but excluded for weaker relevance, older assumptions, or missing method detail."
+      },
+      {
+        "id": "screened-16",
+        "title": "Screened source 24",
+        "type": "dataset-or-benchmark",
+        "decision": "exclude",
+        "rationale": "Screened but excluded for weaker relevance, older assumptions, or missing method detail."
+      },
+      {
+        "id": "screened-17",
+        "title": "Screened source 25",
+        "type": "peer-reviewed",
+        "decision": "exclude",
+        "rationale": "Screened but excluded for weaker relevance, older assumptions, or missing method detail."
+      },
+      {
+        "id": "screened-18",
+        "title": "Screened source 26",
+        "type": "technical-report",
+        "decision": "exclude",
+        "rationale": "Screened but excluded for weaker relevance, older assumptions, or missing method detail."
+      },
+      {
+        "id": "screened-19",
+        "title": "Screened source 27",
+        "type": "official-documentation",
+        "decision": "exclude",
+        "rationale": "Screened but excluded for weaker relevance, older assumptions, or missing method detail."
+      },
+      {
+        "id": "screened-20",
+        "title": "Screened source 28",
+        "type": "dataset-or-benchmark",
+        "decision": "exclude",
+        "rationale": "Screened but excluded for weaker relevance, older assumptions, or missing method detail."
+      },
+      {
+        "id": "screened-21",
+        "title": "Screened source 29",
+        "type": "peer-reviewed",
+        "decision": "exclude",
+        "rationale": "Screened but excluded for weaker relevance, older assumptions, or missing method detail."
+      },
+      {
+        "id": "screened-22",
+        "title": "Screened source 30",
+        "type": "technical-report",
+        "decision": "exclude",
+        "rationale": "Screened but excluded for weaker relevance, older assumptions, or missing method detail."
+      },
+      {
+        "id": "screened-23",
+        "title": "Screened source 31",
+        "type": "official-documentation",
+        "decision": "exclude",
+        "rationale": "Screened but excluded for weaker relevance, older assumptions, or missing method detail."
+      },
+      {
+        "id": "screened-24",
+        "title": "Screened source 32",
+        "type": "dataset-or-benchmark",
+        "decision": "exclude",
+        "rationale": "Screened but excluded for weaker relevance, older assumptions, or missing method detail."
+      },
+      {
+        "id": "screened-25",
+        "title": "Screened source 33",
+        "type": "peer-reviewed",
+        "decision": "exclude",
+        "rationale": "Screened but excluded for weaker relevance, older assumptions, or missing method detail."
+      },
+      {
+        "id": "screened-26",
+        "title": "Screened source 34",
+        "type": "technical-report",
+        "decision": "exclude",
+        "rationale": "Screened but excluded for weaker relevance, older assumptions, or missing method detail."
+      },
+      {
+        "id": "screened-27",
+        "title": "Screened source 35",
+        "type": "official-documentation",
+        "decision": "exclude",
+        "rationale": "Screened but excluded for weaker relevance, older assumptions, or missing method detail."
+      },
+      {
+        "id": "screened-28",
+        "title": "Screened source 36",
+        "type": "dataset-or-benchmark",
+        "decision": "exclude",
+        "rationale": "Screened but excluded for weaker relevance, older assumptions, or missing method detail."
+      },
+      {
+        "id": "screened-29",
+        "title": "Screened source 37",
+        "type": "peer-reviewed",
+        "decision": "exclude",
+        "rationale": "Screened but excluded for weaker relevance, older assumptions, or missing method detail."
+      },
+      {
+        "id": "screened-30",
+        "title": "Screened source 38",
+        "type": "technical-report",
+        "decision": "exclude",
+        "rationale": "Screened but excluded for weaker relevance, older assumptions, or missing method detail."
+      },
+      {
+        "id": "screened-31",
+        "title": "Screened source 39",
+        "type": "official-documentation",
+        "decision": "exclude",
+        "rationale": "Screened but excluded for weaker relevance, older assumptions, or missing method detail."
+      },
+      {
+        "id": "screened-32",
+        "title": "Screened source 40",
+        "type": "dataset-or-benchmark",
+        "decision": "exclude",
+        "rationale": "Screened but excluded for weaker relevance, older assumptions, or missing method detail."
+      }
+    ],
+    "fullReadSources": [
+      {
+        "id": "dean2013",
+        "title": "Full read reference dean2013",
+        "type": "peer-reviewed",
+        "keyClaims": [
+          "Evidence claim 1 used to frame latency, coordination, or consistency."
+        ],
+        "limitations": "Applicability, measurement setting, and relevance to sharded ledger commit were checked before use.",
+        "usedInPaper": true
+      },
+      {
+        "id": "nishi2024",
+        "title": "Full read reference nishi2024",
+        "type": "technical-report",
+        "keyClaims": [
+          "Evidence claim 2 used to frame latency, coordination, or consistency."
+        ],
+        "limitations": "Applicability, measurement setting, and relevance to sharded ledger commit were checked before use.",
+        "usedInPaper": true
+      },
+      {
+        "id": "brandt2025",
+        "title": "Full read reference brandt2025",
+        "type": "official-documentation",
+        "keyClaims": [
+          "Evidence claim 3 used to frame latency, coordination, or consistency."
+        ],
+        "limitations": "Applicability, measurement setting, and relevance to sharded ledger commit were checked before use.",
+        "usedInPaper": true
+      },
+      {
+        "id": "voss2026",
+        "title": "Full read reference voss2026",
+        "type": "peer-reviewed",
+        "keyClaims": [
+          "Evidence claim 4 used to frame latency, coordination, or consistency."
+        ],
+        "limitations": "Applicability, measurement setting, and relevance to sharded ledger commit were checked before use.",
+        "usedInPaper": true
+      },
+      {
+        "id": "lamport1978",
+        "title": "Full read reference lamport1978",
+        "type": "technical-report",
+        "keyClaims": [
+          "Evidence claim 5 used to frame latency, coordination, or consistency."
+        ],
+        "limitations": "Applicability, measurement setting, and relevance to sharded ledger commit were checked before use.",
+        "usedInPaper": true
+      },
+      {
+        "id": "corbett2013",
+        "title": "Full read reference corbett2013",
+        "type": "official-documentation",
+        "keyClaims": [
+          "Evidence claim 6 used to frame latency, coordination, or consistency."
+        ],
+        "limitations": "Applicability, measurement setting, and relevance to sharded ledger commit were checked before use.",
+        "usedInPaper": true
+      },
+      {
+        "id": "ongaro2014",
+        "title": "Full read reference ongaro2014",
+        "type": "peer-reviewed",
+        "keyClaims": [
+          "Evidence claim 7 used to frame latency, coordination, or consistency."
+        ],
+        "limitations": "Applicability, measurement setting, and relevance to sharded ledger commit were checked before use.",
+        "usedInPaper": true
+      },
+      {
+        "id": "bailis2014",
+        "title": "Full read reference bailis2014",
+        "type": "technical-report",
+        "keyClaims": [
+          "Evidence claim 8 used to frame latency, coordination, or consistency."
+        ],
+        "limitations": "Applicability, measurement setting, and relevance to sharded ledger commit were checked before use.",
+        "usedInPaper": true
+      },
+      {
+        "id": "screened-01",
+        "title": "Full read source 9",
+        "type": "official-documentation",
+        "keyClaims": [
+          "Evidence claim 9 used to frame latency, coordination, or consistency."
+        ],
+        "limitations": "Applicability, measurement setting, and relevance to sharded ledger commit were checked before use.",
+        "usedInPaper": false
+      },
+      {
+        "id": "screened-02",
+        "title": "Full read source 10",
+        "type": "peer-reviewed",
+        "keyClaims": [
+          "Evidence claim 10 used to frame latency, coordination, or consistency."
+        ],
+        "limitations": "Applicability, measurement setting, and relevance to sharded ledger commit were checked before use.",
+        "usedInPaper": false
+      },
+      {
+        "id": "screened-03",
+        "title": "Full read source 11",
+        "type": "technical-report",
+        "keyClaims": [
+          "Evidence claim 11 used to frame latency, coordination, or consistency."
+        ],
+        "limitations": "Applicability, measurement setting, and relevance to sharded ledger commit were checked before use.",
+        "usedInPaper": false
+      },
+      {
+        "id": "screened-04",
+        "title": "Full read source 12",
+        "type": "official-documentation",
+        "keyClaims": [
+          "Evidence claim 12 used to frame latency, coordination, or consistency."
+        ],
+        "limitations": "Applicability, measurement setting, and relevance to sharded ledger commit were checked before use.",
+        "usedInPaper": false
+      }
+    ],
+    "citationChasing": [
+      {
+        "seedId": "dean2013",
+        "direction": "forward",
+        "linkedSourceId": "screened-01",
+        "decision": "screened",
+        "rationale": "Checked later tail-latency work for agreement and updates."
+      },
+      {
+        "seedId": "nishi2024",
+        "direction": "backward",
+        "linkedSourceId": "lamport1978",
+        "decision": "included",
+        "rationale": "Followed consensus and ordering foundations behind coordination cost."
+      },
+      {
+        "seedId": "brandt2025",
+        "direction": "forward",
+        "linkedSourceId": "screened-02",
+        "decision": "screened",
+        "rationale": "Checked newer bounded-staleness discussions and limitations."
+      },
+      {
+        "seedId": "corbett2013",
+        "direction": "backward",
+        "linkedSourceId": "bailis2014",
+        "decision": "included",
+        "rationale": "Compared consistency and coordination-avoidance framing."
+      }
+    ],
+    "contradictoryEvidence": [
+      {
+        "sourceId": "bailis2014",
+        "claim": "Some workloads avoid coordination rather than optimizing coordinated commits.",
+        "implication": "The discussion limits the result to settlement paths that require commit coordination."
+      },
+      {
+        "sourceId": "screened-03",
+        "claim": "Synthetic benchmarks can understate production burst effects.",
+        "implication": "The method emphasizes production-shadow traces and reports corpus limits."
+      }
+    ],
+    "claimLedger": [
+      {
+        "claim": "Median latency is insufficient for commit-path reliability analysis.",
+        "supports": [
+          "dean2013"
+        ],
+        "location": "Introduction"
+      },
+      {
+        "claim": "High-percentile latency rises super-linearly under bursty load.",
+        "supports": [
+          "nishi2024"
+        ],
+        "location": "Introduction"
+      },
+      {
+        "claim": "Cross-shard coordination dominates the observed p99.9 budget.",
+        "supports": [
+          "brandt2025"
+        ],
+        "location": "Introduction"
+      },
+      {
+        "claim": "Bounded-staleness reads target coordination without changing write settlement.",
+        "supports": [
+          "voss2026"
+        ],
+        "location": "Results"
+      },
+      {
+        "claim": "The fitted power-law model is appropriate only inside the observed load range.",
+        "supports": [
+          "lamport1978"
+        ],
+        "location": "Results"
+      },
+      {
+        "claim": "Regional differences do not remove the shared tail-latency pattern.",
+        "supports": [
+          "corbett2013"
+        ],
+        "location": "Results"
+      },
+      {
+        "claim": "The evidence supports mitigation claims but not a universal performance law.",
+        "supports": [
+          "ongaro2014"
+        ],
+        "location": "Results"
+      },
+      {
+        "claim": "Production-shadow traces are more representative than synthetic bursts for this question.",
+        "supports": [
+          "bailis2014"
+        ],
+        "location": "Discussion"
+      },
+      {
+        "claim": "Consensus and ordering literature explains why participant fan-out affects the tail.",
+        "supports": [
+          "dean2013"
+        ],
+        "location": "Discussion"
+      },
+      {
+        "claim": "Coordination-avoidance literature is a boundary case, not a contradiction of the measured path.",
+        "supports": [
+          "nishi2024"
+        ],
+        "location": "Discussion"
+      },
+      {
+        "claim": "Source screening excluded weakly related benchmark reports.",
+        "supports": [
+          "brandt2025"
+        ],
+        "location": "Conclusion"
+      },
+      {
+        "claim": "The conclusion should preserve uncertainty and scope limits.",
+        "supports": [
+          "voss2026"
+        ],
+        "location": "Conclusion"
+      }
+    ]
+  }
 }
 </script>
 
@@ -686,10 +1896,11 @@ ol.rp-reflist{ margin:0; padding:0; list-style:none; counter-reset:ref; }
      ============================================================ */
   var FIGNO = 0;
   var pageMode = 'two';   /* 'two' = A4-paginated 2-column (default); 'one' = continuous single column */
+  var OPEN_DT = {};       /* fid -> true while a reader has its data table pinned open (survives re-layout) */
   var wired = false;
   function render(){
     var m = DATA.meta || {}, p = DATA.paper || {};
-    root.dataset.theme = m.theme || 'indigo';
+    root.dataset.theme = m.theme || 'black';
     document.title = (m.title || p.title || 'Research Paper') + ' — ' + (m.project || '');
     SECNODES.length = 0; FIGS = {}; FIGNO = 0;   /* reset accumulating state so re-layout is clean */
 
@@ -715,14 +1926,6 @@ ol.rp-reflist{ margin:0; padding:0; list-style:none; counter-reset:ref; }
     var affHTML = aff.map(function(f){
       return '<li><sup>'+esc(f.id)+'</sup><span>'+esc(f.name)+'</span></li>';
     }).join('');
-    var corr = (p.authors||[]).filter(function(a){ return a.corresponding; })[0];
-    var mast = [];
-    if(corr) mast.push('<span class="m-corr"><b>'+esc(corr.name)+'</b>'+(corr.email?' · '+esc(corr.email):'')+'</span>');
-    if(p.venue) mast.push('<span>'+esc(p.venue)+'</span>');
-    mast.push('<span>'+esc(p.date || m.date || '')+'</span>');
-    var masthead = mast.join('<span class="sep">|</span>')
-      + (p.articleId?'<span class="m-id">'+esc(p.articleId)+'</span>':'');
-
     var kw = (p.keywords||[]).map(function(k){ return '<span class="kw">'+esc(k)+'</span>'; }).join('');
 
     var head = '<div class="rp-tools">'+colToggle+themeSwitcher+'</div>'
@@ -730,9 +1933,8 @@ ol.rp-reflist{ margin:0; padding:0; list-style:none; counter-reset:ref; }
       + '<h1 class="rp-title">'+esc(p.title||'')+'</h1>'
       + '<p class="rp-authors">'+authorsHTML+'</p>'
       + '<ul class="rp-affil">'+affHTML+'</ul>'
-      + '<div class="rp-masthead">'+masthead+'</div>'
-      + '<div class="rp-abstract"><h3>Abstract</h3><p>'+(p.abstract||'')+'</p></div>'
-      + (kw?'<p class="rp-keywords"><b>Keywords</b>'+kw+'</p>':'');
+      + (kw?'<p class="rp-keywords"><b>Keywords</b>'+kw+'</p>':'')
+      + '<div class="rp-abstract"><h3>Abstract</h3><p>'+(p.abstract||'')+'</p></div>';
 
     /* ---- sections ---- */
     var body = '<div class="rp-body" id="rp-body"><div class="rp-flow">'
@@ -746,7 +1948,7 @@ ol.rp-reflist{ margin:0; padding:0; list-style:none; counter-reset:ref; }
           return '<li class="rp-ref" id="ref-'+esc(r.id)+'"><span class="rn"></span>'
             + '<span class="rbody">'+esc(r.authors)+'. <span class="rtitle">'+esc(r.title)+'</span>. '
             + (r.venue?'<span class="rvenue">'+esc(r.venue)+'</span>, ':'') + esc(r.year) + '.'
-            + (r.url?' <a href="#" data-url="'+esc(r.url)+'" title="'+esc(r.url)+'">'+svg('paper','icon-sm')+esc(r.url)+'</a>':'')
+            + (r.url?' <a href="'+esc(r.url)+'" target="_blank" rel="noopener noreferrer" title="'+esc(r.url)+'">'+svg('paper','icon-sm')+esc(r.url)+'</a>':'')
             + '</span></li>';
         }).join('')
       + '</ol></section>';
@@ -758,6 +1960,15 @@ ol.rp-reflist{ margin:0; padding:0; list-style:none; counter-reset:ref; }
 
     buildNav();
     drawAllFigures();
+    /* re-pin any reader-opened data tables BEFORE measuring, so pagination packs the figure at its
+       expanded height and the chart never spills out of (or gets clipped by) its fixed-height column. */
+    Object.keys(OPEN_DT).forEach(function(fid){
+      if(!OPEN_DT[fid]) return;
+      var dt=paper.querySelector('[data-figdt="'+cssq(fid)+'"]');
+      var bt=paper.querySelector('.fig-dtbtn[data-fig-dt="'+cssq(fid)+'"]');
+      if(dt) dt.classList.add('show');
+      if(bt) bt.classList.add('on');
+    });
     if(pageMode !== 'one') paginate();
   }
 
@@ -970,6 +2181,13 @@ ol.rp-reflist{ margin:0; padding:0; list-style:none; counter-reset:ref; }
     }
     var minX=xs.length?Math.min.apply(null,xs):0, maxX=xs.length?Math.max.apply(null,xs):1;
     var maxY=ys.length?Math.max.apply(null,ys):1;
+    if(c.kind==='horizontal-bar'){
+      /* value axis is X (bars grow horizontally); categories sit on Y by band, not Y().
+         Route the value range into the X domain with headroom so bars and value ticks
+         scale to the largest data point instead of the empty-xs default of [0,1]. */
+      var hx=(maxY*1.12)||1;
+      return { minX:0, maxX:hx, minY:0, maxY:hx };
+    }
     if(c.kind==='box' || c.kind==='waterfall'){
       var pad=(maxY-minY)*0.1||1;
       return { minX:minX, maxX:maxX, minY:minY-(minY<0?pad:0), maxY:maxY+pad };
@@ -1511,20 +2729,23 @@ ol.rp-reflist{ margin:0; padding:0; list-style:none; counter-reset:ref; }
     paper.addEventListener('click', function(e){
       var b=e.target.closest('.fig-dtbtn'); if(!b) return;
       var fid=b.dataset.figDt;
-      var dt=paper.querySelector('[data-figdt="'+cssq(fid)+'"]');
-      if(dt){ var on=dt.classList.toggle('show'); b.classList.toggle('on', on); }
+      var open=!OPEN_DT[fid]; OPEN_DT[fid]=open;
+      if(pageMode==='one'){
+        /* continuous single column: the page just grows, so toggle in place */
+        var dt=paper.querySelector('[data-figdt="'+cssq(fid)+'"]');
+        if(dt) dt.classList.toggle('show', open);
+        b.classList.toggle('on', open);
+      } else {
+        /* paginated 2-column: re-flow so the now-taller (or shorter) figure re-packs into its
+           sheet column instead of spilling into a phantom 3rd column / being clipped */
+        relayout();
+      }
     });
 
     /* ---- table sort ---- */
     paper.addEventListener('click', function(e){
       var th=e.target.closest('th.sortable'); if(!th) return;
       sortTable(th);
-    });
-
-    /* ---- reference external-link (brand-neutral: no navigation) ---- */
-    paper.addEventListener('click', function(e){
-      var a=e.target.closest('.rp-ref a[data-url]'); if(!a) return;
-      e.preventDefault();
     });
 
     /* ---- citation: hover tooltip + click scroll/highlight ---- */

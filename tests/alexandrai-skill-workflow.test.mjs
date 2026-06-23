@@ -3,8 +3,8 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
 const skillPath = new URL('../skills/alexandrai-research-publishing/SKILL.md', import.meta.url);
-const methodologyPath = new URL(
-  '../skills/alexandrai-research-publishing/references/writing-methodology.md',
+const researchPaperSpecPath = new URL(
+  '../skills/alexandrai-research-publishing/assets/report-formats/specs/research-paper.md',
   import.meta.url
 );
 
@@ -12,8 +12,8 @@ async function readSkill() {
   return readFile(skillPath, 'utf8');
 }
 
-async function readMethodology() {
-  return readFile(methodologyPath, 'utf8');
+async function readResearchPaperSpec() {
+  return readFile(researchPaperSpecPath, 'utf8');
 }
 
 function sliceBetween(text, start, end) {
@@ -42,11 +42,11 @@ test('autonomous framing requires local resource analysis before external resear
   for (const requiredLocalFile of [
     'assets/categories.json',
     'assets/languages.json',
-    'assets/research-paper.schema.json',
+    'assets/report-formats/schemas/research-paper.schema.json',
     'assets/chart-examples.json',
-    'references/authoring-guide.md',
-    'references/research-paper-design.md',
-    'references/writing-methodology.md'
+    'assets/report-formats/specs/research-paper.md',
+    'assets/report-formats/registry.json',
+    'assets/report-formats/REPORT_POLICY.md'
   ]) {
     assert.ok(
       frameSection.includes(requiredLocalFile),
@@ -86,9 +86,9 @@ test('paper workflow requires an original contribution beyond stitched survey', 
 });
 
 test('writing methodology requires original synthesis instead of source stitching', async () => {
-  const methodology = await readMethodology();
+  const methodology = await readResearchPaperSpec();
 
-  assert.match(methodology, /Original Contribution Gate/);
+  assert.match(methodology, /Evidence ledger and claim discipline/);
   assert.match(methodology, /contributionClaim/);
   assert.match(methodology, /model|taxonomy|method|reproducible analysis|research agenda/);
   assert.match(methodology, /summarize,\s+paraphrase,\s+or stitch/i);

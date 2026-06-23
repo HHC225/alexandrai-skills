@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://genesis.design/schemas/sequence-diagram.schema.json",
+  "title": "Sequence Diagram",
+  "description": "Data contract for the sequence-diagram format: a lifeline/time-ordered trace for repository or system behavior. Participants are vertical lifelines; messages are ordered rows with arrows, activations, notes, and step-through highlighting. Unlike flowchart, ownership is shown as participants over time rather than swimlane process boxes.",
+  "type": "object",
+  "required": ["meta", "participants", "messages"],
+  "additionalProperties": false,
+  "properties": {
+    "meta": { "$ref": "#/$defs/meta" },
+    "participants": {
+      "type": "array",
+      "description": "Actors, services, modules, stores, or external systems shown as vertical lifelines.",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "required": ["id", "label", "type"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string" },
+          "label": { "type": "string" },
+          "type": { "type": "string", "enum": ["actor", "client", "service", "module", "database", "queue", "external"] },
+          "owner": { "type": "string" },
+          "path": { "type": "string" },
+          "status": { "type": "string", "enum": ["ok", "hold", "risk", "neutral"], "default": "neutral" }
+        }
+      }
+    },
+    "messages": {
+      "type": "array",
+      "description": "Ordered sequence messages. The row position follows array order unless step is provided.",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["from", "to", "label"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string" },
+          "step": { "type": "integer", "minimum": 1 },
+          "from": { "type": "string" },
+          "to": { "type": "string" },
+          "label": { "type": "string" },
+          "kind": { "type": "string", "enum": ["sync", "async", "return", "event", "error"], "default": "sync" },
+          "detail": { "type": "string" },
+          "status": { "type": "string", "enum": ["ok", "hold", "risk", "neutral"], "default": "neutral" }
+        }
+      }
+    },
+    "notes": {
+      "type": "array",
+      "description": "Inline notes pinned to a step and optional participant.",
+      "items": {
+        "type": "object",
+        "required": ["step", "text"],
+        "additionalProperties": false,
+        "properties": {
+          "step": { "type": "integer", "minimum": 1 },
+          "participant": { "type": "string" },
+          "text": { "type": "string" },
+          "status": { "type": "string", "enum": ["ok", "hold", "risk", "neutral"], "default": "neutral" }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "meta": {
+      "type": "object",
+      "required": ["org", "project", "reportType", "title", "date", "theme"],
+      "additionalProperties": false,
+      "properties": {
+        "org": { "type": "string", "default": "{{ORG}}" },
+        "project": { "type": "string", "default": "{{PROJECT}}" },
+        "reportType": { "type": "string", "examples": ["Sequence Diagram"] },
+        "title": { "type": "string" },
+        "subtitle": { "type": "string" },
+        "date": { "type": "string" },
+        "author": { "type": "string", "default": "{{AUTHOR}}" },
+        "theme": { "type": "string", "enum": ["blue", "purple", "indigo", "teal", "cyan", "green", "plum", "slate", "black"], "default": "indigo" }
+      }
+    }
+  }
+}

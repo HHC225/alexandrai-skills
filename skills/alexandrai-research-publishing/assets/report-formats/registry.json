@@ -546,6 +546,62 @@
       "spec": "bracket.md"
     },
     {
+      "id": "architecture-map",
+      "label": "architecture-map",
+      "aliases": [
+        "architecture",
+        "repo-architecture",
+        "system-architecture"
+      ],
+      "useWhen": "repository/system architecture structure: layers, components, interfaces, dependencies",
+      "defaultTheme": "slate",
+      "required": [
+        "meta",
+        "layers",
+        "components",
+        "relationships"
+      ],
+      "template": "architecture_map_sample.html",
+      "schema": "architecture-map.schema.json",
+      "spec": "architecture-map.md"
+    },
+    {
+      "id": "sequence-diagram",
+      "label": "sequence-diagram",
+      "aliases": [
+        "sequence",
+        "request-trace"
+      ],
+      "useWhen": "ordered request/event trace across participants and lifelines",
+      "defaultTheme": "indigo",
+      "required": [
+        "meta",
+        "participants",
+        "messages"
+      ],
+      "template": "sequence_diagram_sample.html",
+      "schema": "sequence-diagram.schema.json",
+      "spec": "sequence-diagram.md"
+    },
+    {
+      "id": "entity-relationship",
+      "label": "entity-relationship",
+      "aliases": [
+        "er-diagram",
+        "data-model"
+      ],
+      "useWhen": "ER/data-model diagram: entities, attributes, keys, indexes, cardinality",
+      "defaultTheme": "teal",
+      "required": [
+        "meta",
+        "entities",
+        "relationships"
+      ],
+      "template": "entity_relationship_sample.html",
+      "schema": "entity-relationship.schema.json",
+      "spec": "entity-relationship.md"
+    },
+    {
       "id": "research-paper",
       "label": "research-paper",
       "aliases": [],
@@ -555,7 +611,9 @@
         "meta",
         "paper",
         "sections",
-        "references"
+        "references",
+        "aipaper",
+        "researchAudit"
       ],
       "template": "research_paper_sample.html",
       "schema": "research-paper.schema.json",

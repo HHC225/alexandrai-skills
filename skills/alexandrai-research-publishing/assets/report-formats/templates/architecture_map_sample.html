@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en" data-theme="slate">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1440">
+<title>{{PROJECT}} - Architecture Map</title>
+<style>
+:root{--bg:#fff;--bg-band:#f6f6f8;--bg-subtle:#fafafb;--bg-deep:#15131a;--rule:#dcdce2;--rule-soft:#ebebef;--ink:#11131a;--ink-mid:#33363f;--ink-soft:#5a5e68;--ink-faint:#868b95;--navy:#3f4f63;--navy-deep:#29384b;--navy-bg:#eef1f5;--navy-line:#c2ccd8;--ok:#34495e;--ok-bg:#eef1f5;--ok-line:#c2ccd8;--risk:#b3261e;--risk-bg:#fbeceb;--risk-line:#edc7c4;--hold:#8a6d00;--hold-bg:#fbf3da;--hold-line:#e7d8a4;--mono:ui-monospace,"JetBrains Mono","SFMono-Regular",Menlo,Consolas,monospace;--sans:-apple-system,"Segoe UI",system-ui,Roboto,"Noto Sans",sans-serif}
+html[data-theme="blue"]{--navy:#0b5fd4;--navy-deep:#0842a0;--navy-bg:#e8f1fc;--navy-line:#bcd6f5;--ok:#1a4f9c;--ok-bg:#e9f0fa;--ok-line:#b7cdea}
+html[data-theme="purple"]{--navy:#a100ff;--navy-deep:#7a00c2;--navy-bg:#f3e8ff;--navy-line:#d9bef5;--ok:#5a2f8a;--ok-bg:#efe8f5;--ok-line:#d0b5e0}
+html[data-theme="indigo"]{--navy:#4338ca;--navy-deep:#312c92;--navy-bg:#ebebfb;--navy-line:#c7c3f0;--ok:#3730a3;--ok-bg:#ebeaf7;--ok-line:#c5c2ea}
+html[data-theme="teal"]{--navy:#0e7c86;--navy-deep:#095861;--navy-bg:#e0f3f4;--navy-line:#a9dade;--ok:#0f5d54;--ok-bg:#e3f3ef;--ok-line:#b3ddd4}
+html[data-theme="cyan"]{--navy:#0891b2;--navy-deep:#0e6f88;--navy-bg:#e2f4f9;--navy-line:#abdde9;--ok:#0e6b7a;--ok-bg:#e4f3f4;--ok-line:#b0dde2}
+html[data-theme="green"]{--navy:#1f7a44;--navy-deep:#155730;--navy-bg:#e6f4ea;--navy-line:#b3dcc1;--ok:#2f6b3c;--ok-bg:#e9f3ea;--ok-line:#bedcc4}
+html[data-theme="plum"]{--navy:#a21d6e;--navy-deep:#7c1450;--navy-bg:#fbe8f2;--navy-line:#e8b9d4;--ok:#6d2356;--ok-bg:#f6e8f0;--ok-line:#e3bcd5}
+html[data-theme="slate"]{--navy:#3f4f63;--navy-deep:#29384b;--navy-bg:#eef1f5;--navy-line:#c2ccd8;--ok:#34495e;--ok-bg:#eef1f5;--ok-line:#c2ccd8}
+html[data-theme="black"]{--navy:#000;--navy-deep:#000;--navy-bg:#f1f1f3;--navy-line:#d6d6db;--ok:#3f3f46;--ok-bg:#f1f1f3;--ok-line:#cfcfd6}
+*{box-sizing:border-box}html,body{margin:0;height:100%}body{font:13px/1.45 var(--sans);color:var(--ink);background:var(--bg-band);overflow:hidden}button,select{font:inherit}.app{height:100vh;display:grid;grid-template-columns:230px 1fr 310px;grid-template-rows:52px 1fr;grid-template-areas:"bar bar bar" "left canvas right"}.bar{grid-area:bar;display:flex;align-items:center;gap:14px;padding:9px 16px;background:var(--bg);border-bottom:1px solid var(--rule);box-shadow:0 1px 3px rgba(17,19,26,.05);z-index:5}.mark{width:30px;height:30px;border-radius:8px;background:var(--navy);color:#fff;display:grid;place-items:center;font:800 14px/1 var(--mono)}.titles{min-width:0}.eyebrow{font:700 9px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:4px}.title{font:800 15px/1.15 var(--sans);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.title b{color:var(--navy-deep)}.bar-spacer{flex:1}.date{font:700 10px/1 var(--mono);letter-spacing:.06em;color:var(--ink-soft);text-transform:uppercase}.rc-theme{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--rule);border-radius:7px;padding:3px 4px 3px 7px;background:var(--bg)}.rc-theme-sw{width:12px;height:12px;border-radius:50%;background:var(--navy);box-shadow:0 0 0 1px var(--rule)}.rc-theme-sel{border:0;background:none;font:600 11px/1 var(--mono);color:var(--ink-mid);outline:none}
+.side{background:var(--bg);overflow:auto}.left{grid-area:left;border-right:1px solid var(--rule)}.right{grid-area:right;border-left:1px solid var(--rule)}.group{padding:14px;border-bottom:1px solid var(--rule-soft)}.label{font:800 9.5px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:10px}.chip{display:inline-flex;align-items:center;gap:6px;font:700 10.5px/1 var(--mono);color:var(--navy-deep);background:var(--navy-bg);border:1px solid var(--navy-line);border-radius:6px;padding:5px 8px;margin:0 5px 6px 0}.sw{width:9px;height:9px;border-radius:50%;background:var(--navy)}.st{display:inline-flex;align-items:center;gap:6px;font:700 10px/1 var(--mono);text-transform:uppercase;border:1px solid var(--rule);border-radius:6px;padding:4px 7px;background:var(--bg)}.st:before{content:"";width:7px;height:7px;border-radius:50%;background:var(--ink-faint)}.st.ok{color:var(--ok);background:var(--ok-bg);border-color:var(--ok-line)}.st.ok:before{background:var(--ok)}.st.risk{color:var(--risk);background:var(--risk-bg);border-color:var(--risk-line)}.st.risk:before{background:var(--risk)}.st.hold{color:var(--hold);background:var(--hold-bg);border-color:var(--hold-line)}.st.hold:before{background:var(--hold)}.list{display:flex;flex-direction:column;gap:7px}.filter{width:100%;text-align:left;border:1px solid var(--rule);border-radius:8px;background:var(--bg);padding:8px 9px;cursor:pointer;color:var(--ink-mid);display:flex;align-items:center;justify-content:space-between}.filter:hover,.filter.on{background:var(--navy-bg);border-color:var(--navy-line);color:var(--navy-deep)}.canvas{grid-area:canvas;position:relative;overflow:hidden;background:linear-gradient(var(--rule-soft) 1px,transparent 1px),linear-gradient(90deg,var(--rule-soft) 1px,transparent 1px),var(--bg-subtle);background-size:28px 28px}.world{position:absolute;left:50%;top:50%;width:1400px;height:820px;transform:translate(-50%,-50%)}.band{position:absolute;left:36px;right:36px;border:1px solid var(--rule);border-radius:12px;background:rgba(255,255,255,.62);box-shadow:0 1px 2px rgba(17,19,26,.04)}.band-title{position:absolute;left:14px;top:10px;font:800 10px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-faint)}svg.edges{position:absolute;inset:0;overflow:visible}.edge{stroke:var(--ink-soft);stroke-width:2;fill:none;marker-end:url(#arrow);opacity:.72}.edge.event{stroke-dasharray:7 6}.edge.data{stroke-width:3.5}.edge.imports{stroke-dasharray:2 5}.edge.hot{stroke:var(--navy);stroke-width:4;opacity:1}.edge.risk{stroke:var(--risk)}.edge-label{font:700 10px/1 var(--mono);fill:var(--ink-mid)}.edge-pill{fill:var(--bg);stroke:var(--rule)}
+.component{position:absolute;width:178px;min-height:82px;transform:translate(-50%,-50%);border:1px solid var(--rule);border-radius:10px;background:var(--bg);box-shadow:0 8px 22px rgba(17,19,26,.08);padding:10px;cursor:pointer;transition:opacity .12s,box-shadow .12s,border-color .12s}.component:hover,.component.sel{border-color:var(--navy);box-shadow:0 0 0 3px var(--navy-bg),0 10px 24px rgba(17,19,26,.1)}.component.dim{opacity:.32}.ctype{font:800 9px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);display:flex;justify-content:space-between}.cname{font:800 13px/1.2 var(--sans);margin:7px 0 5px;color:var(--ink)}.cmeta{font:600 10.5px/1.3 var(--mono);color:var(--ink-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.dot{width:8px;height:8px;border-radius:50%;background:var(--ink-faint);display:inline-block}.dot.ok{background:var(--ok)}.dot.risk{background:var(--risk)}.dot.hold{background:var(--hold)}.detail{padding:16px}.detail h2{font:800 17px/1.2 var(--sans);margin:0 0 8px}.detail p{margin:10px 0;color:var(--ink-mid)}.kv{display:grid;grid-template-columns:82px 1fr;gap:7px 10px;margin:12px 0}.k{font:800 9px/1.2 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint)}.v{font:600 12px/1.25 var(--sans);color:var(--ink-mid)}.iface{border:1px solid var(--rule);border-radius:8px;padding:7px 8px;margin:6px 0;background:var(--bg-subtle);font:600 11px/1.25 var(--sans)}.finding{border-left:3px solid var(--rule);padding:8px 0 8px 10px;margin:9px 0}.finding.risk{border-color:var(--risk)}.finding.hold{border-color:var(--hold)}.finding.ok{border-color:var(--ok)}.finding b{display:block;font:800 12px/1.2 var(--sans);margin-bottom:3px}.finding span{color:var(--ink-soft);font-size:12px}@media print{body{overflow:visible}.app{display:block}.bar,.side{display:none}.canvas{height:100vh}.world{transform:scale(.82);left:0;top:0;transform-origin:0 0}}
+</style>
+</head>
+<body>
+<noscript>This report needs JavaScript to render the architecture map from #report-data.</noscript>
+<div class="app">
+  <header class="bar"><div class="mark">AM</div><div class="titles"><div class="eyebrow" id="eyebrow"></div><div class="title" id="title"></div></div><div class="bar-spacer"></div><div class="date" id="date"></div><label class="rc-theme"><span class="rc-theme-sw"></span><select class="rc-theme-sel" id="theme"><option>blue</option><option>purple</option><option>indigo</option><option>teal</option><option>cyan</option><option>green</option><option>plum</option><option>slate</option><option>black</option></select></label></header>
+  <aside class="side left"><div class="group"><div class="label">Layers</div><div id="layers" class="list"></div></div><div class="group"><div class="label">Component types</div><div id="types"></div></div><div class="group"><div class="label">Relationships</div><span class="chip"><span class="sw"></span>call</span><span class="chip"><span class="sw"></span>event</span><span class="chip"><span class="sw"></span>data</span><span class="chip"><span class="sw"></span>imports</span></div></aside>
+  <main class="canvas"><div class="world" id="world"><svg class="edges" id="edges" viewBox="0 0 1400 820"><defs><marker id="arrow" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8 z" fill="var(--ink-soft)"/></marker></defs></svg><div id="bands"></div><div id="components"></div></div></main>
+  <aside class="side right"><div class="group"><div class="label">Selected component</div><div id="detail" class="detail"><p>Select a component to inspect interfaces, paths and direct dependencies.</p></div></div><div class="group"><div class="label">Architecture findings</div><div id="findings"></div></div></aside>
+</div>
+<script type="application/json" id="report-data">
+{
+  "meta": {
+    "org": "{{ORG}}",
+    "project": "{{PROJECT}}",
+    "reportType": "Architecture Map",
+    "title": "Checkout Repository - Layered Architecture Map",
+    "subtitle": "Static repository view of entrypoints, domain modules, integrations and persistence boundaries",
+    "date": "2026-06-23",
+    "author": "{{AUTHOR}}",
+    "theme": "slate"
+  },
+  "layers": [
+    { "id": "entry", "label": "Entrypoints", "summary": "HTTP and scheduled triggers" },
+    { "id": "domain", "label": "Domain modules", "summary": "Business behavior and orchestration" },
+    { "id": "infra", "label": "Infrastructure", "summary": "Persistence, events and external adapters" }
+  ],
+  "components": [
+    { "id": "router", "label": "HTTP Router", "type": "entrypoint", "layer": "entry", "x": 14, "y": 18, "status": "ok", "owner": "platform", "tech": "Express", "path": "src/routes/checkout.ts", "summary": "Accepts checkout commands and validates request shape.", "interfaces": [{ "label": "POST /checkout", "kind": "api" }] },
+    { "id": "job", "label": "Settlement Job", "type": "job", "layer": "entry", "x": 14, "y": 48, "status": "hold", "owner": "payments", "tech": "Node cron", "path": "src/jobs/settlement.ts", "summary": "Runs pending settlement batches.", "interfaces": [{ "label": "settlement:run", "kind": "cli" }] },
+    { "id": "checkout", "label": "Checkout Service", "type": "service", "layer": "domain", "x": 39, "y": 28, "status": "ok", "owner": "checkout", "tech": "TypeScript", "path": "src/domain/checkout", "summary": "Coordinates cart validation, payment authorization and order creation.", "interfaces": [{ "label": "createCheckout()", "kind": "library" }] },
+    { "id": "pricing", "label": "Pricing Module", "type": "module", "layer": "domain", "x": 63, "y": 18, "status": "ok", "owner": "commerce", "tech": "TypeScript", "path": "src/domain/pricing", "summary": "Applies discount and tax rules.", "interfaces": [{ "label": "quoteCart()", "kind": "library" }] },
+    { "id": "payment", "label": "Payment Adapter", "type": "external", "layer": "infra", "x": 63, "y": 47, "status": "risk", "owner": "payments", "tech": "REST client", "path": "src/infra/payment-provider.ts", "summary": "Wraps the card provider API; retry policy needs review.", "interfaces": [{ "label": "authorize()", "kind": "api" }] },
+    { "id": "orders", "label": "Order Repository", "type": "database", "layer": "infra", "x": 41, "y": 72, "status": "ok", "owner": "checkout", "tech": "PostgreSQL", "path": "src/infra/order-repo.ts", "summary": "Persists orders and payment attempts.", "interfaces": [{ "label": "orders table", "kind": "db" }] },
+    { "id": "events", "label": "Domain Events", "type": "queue", "layer": "infra", "x": 84, "y": 71, "status": "hold", "owner": "platform", "tech": "Kafka", "path": "src/infra/events.ts", "summary": "Publishes checkout.completed and payment.failed.", "interfaces": [{ "label": "checkout.events", "kind": "event" }] }
+  ],
+  "relationships": [
+    { "from": "router", "to": "checkout", "label": "command", "kind": "call", "status": "ok" },
+    { "from": "job", "to": "orders", "label": "pending batches", "kind": "data", "status": "hold" },
+    { "from": "checkout", "to": "pricing", "label": "quote", "kind": "call", "status": "ok" },
+    { "from": "checkout", "to": "payment", "label": "authorize", "kind": "call", "status": "risk" },
+    { "from": "checkout", "to": "orders", "label": "persist", "kind": "data", "status": "ok" },
+    { "from": "checkout", "to": "events", "label": "publish", "kind": "event", "status": "hold" },
+    { "from": "pricing", "to": "checkout", "label": "imports types", "kind": "imports", "status": "ok" }
+  ],
+  "findings": [
+    { "title": "Payment adapter is the main runtime risk", "status": "risk", "detail": "The checkout path waits on provider authorization and has only coarse retry handling.", "componentId": "payment" },
+    { "title": "Settlement job shares order repository", "status": "hold", "detail": "Batch mutation path should be reviewed against live checkout writes.", "componentId": "job" },
+    { "title": "Domain module boundaries are readable", "status": "ok", "detail": "Pricing, checkout orchestration and infrastructure adapters are separated.", "componentId": "checkout" }
+  ]
+}
+</script>
+<script type="application/json" id="alexandrai-metadata">
+{
+  "formatId": "architecture-map",
+  "templateVersion": "architecture-map@1",
+  "skillVersion": "alexandrai-research-publishing@0.2.0",
+  "language": "en",
+  "primaryCategory": "computer-science.software-engineering",
+  "secondaryCategories": ["computer-science.architecture"],
+  "topics": ["repository architecture", "component map", "system analysis"]
+}
+</script>
+<script>
+(function(){
+  const data = JSON.parse(document.getElementById('report-data').textContent);
+  const W = 1400, H = 820;
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const cls = (s) => s === 'ok' ? 'ok' : s === 'risk' ? 'risk' : s === 'hold' ? 'hold' : 'neutral';
+  let activeLayer = 'all', activeType = 'all', selected = null;
+
+  function init(){
+    document.documentElement.dataset.theme = data.meta.theme || 'slate';
+    $('theme').value = document.documentElement.dataset.theme;
+    $('theme').addEventListener('change', e => document.documentElement.dataset.theme = e.target.value);
+    $('eyebrow').textContent = data.meta.reportType || 'Architecture Map';
+    $('title').innerHTML = '<b>'+esc(data.meta.project)+'</b> - '+esc(data.meta.title);
+    $('date').textContent = data.meta.date || '';
+    renderFilters();
+    render();
+  }
+
+  function renderFilters(){
+    $('layers').innerHTML = '<button class="filter on" data-layer="all">All layers</button>' +
+      data.layers.map(l => '<button class="filter" data-layer="'+esc(l.id)+'">'+esc(l.label)+'<span>'+count('layer',l.id)+'</span></button>').join('');
+    $('layers').querySelectorAll('button').forEach(b => b.onclick = () => { activeLayer = b.dataset.layer; renderFilters(); render(); });
+    const types = [...new Set(data.components.map(c => c.type))];
+    $('types').innerHTML = '<button class="filter on" data-type="all">All types</button>' +
+      types.map(t => '<button class="filter" data-type="'+esc(t)+'">'+esc(t)+'<span>'+count('type',t)+'</span></button>').join('');
+    $('types').querySelectorAll('button').forEach(b => b.onclick = () => { activeType = b.dataset.type; renderFilters(); render(); });
+    document.querySelectorAll('[data-layer]').forEach(b => b.classList.toggle('on', b.dataset.layer === activeLayer));
+    document.querySelectorAll('[data-type]').forEach(b => b.classList.toggle('on', b.dataset.type === activeType));
+  }
+
+  function count(k,v){ return data.components.filter(c => c[k] === v).length; }
+  function visible(c){ return (activeLayer === 'all' || c.layer === activeLayer) && (activeType === 'all' || c.type === activeType); }
+  function pos(c){ return { x: c.x * W / 100, y: c.y * H / 100 }; }
+
+  function render(){
+    const comps = data.components.filter(visible);
+    const ids = new Set(comps.map(c => c.id));
+    const edges = data.relationships.filter(r => ids.has(r.from) && ids.has(r.to));
+    renderBands();
+    renderEdges(edges);
+    $('components').innerHTML = comps.map(componentHtml).join('');
+    $('components').querySelectorAll('.component').forEach(el => el.onclick = () => { selected = el.dataset.id; render(); });
+    renderDetail();
+    renderFindings();
+  }
+
+  function renderBands(){
+    const h = H / data.layers.length;
+    $('bands').innerHTML = data.layers.map((l,i) => '<div class="band" style="top:'+(i*h+22)+'px;height:'+(h-26)+'px"><div class="band-title">'+esc(l.label)+'</div></div>').join('');
+  }
+  function renderEdges(edges){
+    const byId = Object.fromEntries(data.components.map(c => [c.id,c]));
+    const hotIds = selected ? new Set(edges.filter(e => e.from === selected || e.to === selected).flatMap(e => [e.from,e.to])) : new Set();
+    $('edges').innerHTML = '<defs><marker id="arrow" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8 z" fill="var(--ink-soft)"/></marker></defs>' +
+      edges.map(e => {
+        const a = pos(byId[e.from]), b = pos(byId[e.to]), mx=(a.x+b.x)/2, my=(a.y+b.y)/2;
+        const hot = selected && (e.from === selected || e.to === selected);
+        return '<path class="edge '+esc(e.kind||'call')+' '+(hot?'hot ':'')+cls(e.status)+'" d="M'+a.x+','+a.y+' L'+b.x+','+b.y+'"/>' +
+          '<g><rect class="edge-pill" x="'+(mx-42)+'" y="'+(my-12)+'" width="84" height="22" rx="7"/><text class="edge-label" x="'+mx+'" y="'+(my+4)+'" text-anchor="middle">'+esc(e.label||e.kind||'link')+'</text></g>';
+      }).join('');
+  }
+  function componentHtml(c){
+    const p = pos(c);
+    const related = selected ? data.relationships.some(e => (e.from === selected && e.to === c.id) || (e.to === selected && e.from === c.id)) : false;
+    const dim = selected && c.id !== selected && !related;
+    return '<article class="component '+(c.id===selected?'sel ':'')+(dim?'dim':'')+'" data-id="'+esc(c.id)+'" style="left:'+p.x+'px;top:'+p.y+'px"><div class="ctype">'+esc(c.type)+'<span class="dot '+cls(c.status)+'"></span></div><div class="cname">'+esc(c.label)+'</div><div class="cmeta">'+esc(c.path||c.tech||'')+'</div></article>';
+  }
+  function renderDetail(){
+    const c = data.components.find(x => x.id === selected);
+    if(!c){ $('detail').innerHTML = '<p>Select a component to inspect interfaces, paths and direct dependencies.</p>'; return; }
+    const rels = data.relationships.filter(r => r.from === c.id || r.to === c.id);
+    $('detail').innerHTML = '<h2>'+esc(c.label)+'</h2><span class="st '+cls(c.status)+'">'+esc(c.status||'neutral')+'</span><p>'+esc(c.summary||'')+'</p><div class="kv"><div class="k">type</div><div class="v">'+esc(c.type)+'</div><div class="k">layer</div><div class="v">'+esc(c.layer)+'</div><div class="k">owner</div><div class="v">'+esc(c.owner||'')+'</div><div class="k">tech</div><div class="v">'+esc(c.tech||'')+'</div><div class="k">path</div><div class="v">'+esc(c.path||'')+'</div></div><div class="label">Interfaces</div>'+(c.interfaces||[]).map(i => '<div class="iface">'+esc(i.kind||'api')+' - '+esc(i.label)+'</div>').join('')+'<div class="label" style="margin-top:14px">Direct links</div>'+rels.map(r => '<div class="iface">'+esc(r.from)+' -> '+esc(r.to)+' : '+esc(r.label||r.kind)+'</div>').join('');
+  }
+  function renderFindings(){
+    $('findings').innerHTML = (data.findings||[]).map(f => '<div class="finding '+cls(f.status)+'"><b>'+esc(f.title)+'</b><span>'+esc(f.detail)+'</span></div>').join('');
+  }
+  init();
+})();
+</script>
+</body>
+</html>
