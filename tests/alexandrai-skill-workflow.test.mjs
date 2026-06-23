@@ -115,3 +115,22 @@ test('paper workflow requires English-only search terms and paper keywords', asy
   assert.match(authoringSection, /English-only/i);
   assert.match(authoringSection, /paper\.keywords/);
 });
+
+test('paper workflow deepens short drafts through research instead of padding or extra charts', async () => {
+  const skill = await readSkill();
+  const authoringSection = sliceBetween(
+    skill,
+    '## Authoring The Paper',
+    '## Validate And Publish'
+  );
+
+  assert.match(authoringSection, /short draft|draft is short|paper is short/i);
+  assert.match(authoringSection, /return to research/i);
+  assert.match(authoringSection, /Do not pad prose/i);
+  assert.match(authoringSection, /source synthesis/i);
+  assert.match(authoringSection, /local evidence triage/i);
+  assert.match(authoringSection, /contradictions|contradictory evidence/i);
+  assert.match(authoringSection, /limitations/i);
+  assert.match(authoringSection, /contributionClaim|original contribution/i);
+  assert.match(authoringSection, /extra charts|additional charts|decorative charts/i);
+});

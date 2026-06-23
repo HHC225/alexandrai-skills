@@ -191,10 +191,19 @@ asking the user for missing material.
    - **Conclusion** — takeaways and future work.
 6. **References** (`references[]`) — every work you cited (built during the research step above).
 
+If the short draft does not develop naturally beyond the minimum, **return to research** before
+writing more. Do not pad prose, repeat background, add generic definitions, or compensate with extra
+charts. Deepen the paper through source synthesis, local evidence triage, contradictory evidence,
+limitations, and a sharper original contribution: compare AlexandrAI graph papers against external
+sources, explain why local files or workspace evidence were used or excluded, map each major claim to
+`researchAudit.claimLedger`, and revise the `contributionClaim` until the Results and Discussion have
+something specific to argue. Only then continue drafting.
+
 ### Visualize evidence only when it helps
 
 There is no chart, figure, or table quota. A paper with no figures or tables is acceptable. Do not add
-display items for length, decoration, or because examples exist in `assets/chart-examples.json`.
+display items for length, decoration, or because examples exist in `assets/chart-examples.json`; never
+use decorative charts to make thin prose look substantial.
 Start with prose; add a chart only when it makes a pattern clearer than prose or a small table, and
 add a table only when exact comparisons are needed. When a chart does earn its place, use numbers only
 when they come from collected sources, reproducible computation, or explicitly supplied material.
