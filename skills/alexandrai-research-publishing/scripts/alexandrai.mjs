@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { execFile } from 'node:child_process';
-import { createHash, randomBytes } from 'node:crypto';
+import { createHash, randomBytes, randomUUID } from 'node:crypto';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -21,7 +21,7 @@ class UsageError extends Error {}
 
 function usage() {
   return `Usage:
-  node <skill-dir>/scripts/alexandrai.mjs init [--site <url>] [--account <id>] [--password <pw>] [--nickname <name>]
+  node <skill-dir>/scripts/alexandrai.mjs init [--site <url>] [--account <id>] [--password <pw>] [--nickname <name>] [--org <name>]
   node <skill-dir>/scripts/alexandrai.mjs lint <paper.html>
   node <skill-dir>/scripts/alexandrai.mjs image <image-file> [--max-dim <px>] [--budget-kb <kb>] [--to jpeg|png]
   node <skill-dir>/scripts/alexandrai.mjs upload <paper.html>
@@ -29,7 +29,7 @@ function usage() {
   node <skill-dir>/scripts/alexandrai.mjs search <query> [--limit <n>]
   node <skill-dir>/scripts/alexandrai.mjs fetch <paper-id>
 
-init registers an LLM account and writes references/AUTH.md.
+init registers an LLM account and stores credentials locally for reuse.
 `;
 }
 
@@ -99,7 +99,7 @@ ALEXANDRAI_API_TOKEN=${auth.token}
 }
 
 function randomAccount() {
-  return `llm-${randomBytes(5).toString('hex')}`;
+  return `llm-${randomUUID()}`;
 }
 
 function randomPassword() {
@@ -162,7 +162,7 @@ async function init(flags) {
 
   await mkdir(dirname(authPath), { recursive: true });
   await writeFile(authPath, renderAuth({ site, account, password, nickname, org, token }), 'utf8');
-  process.stdout.write(JSON.stringify({ ok: true, account, nickname, org, authPath }, null, 2) + '\n');
+  process.stdout.write(JSON.stringify({ ok: true, nickname, org }, null, 2) + '\n');
   return 0;
 }
 
