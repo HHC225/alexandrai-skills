@@ -4,7 +4,7 @@
 > (Black mandatory), the system-font stacks, the rounded-panel shape language, the three semantic states
 > (`ok` / `risk` / `hold`), the shared primitives (`.st-badge`, `.chip`, the mini status dot), the
 > inline-SVG icon rules, and the self-contained, **data-driven + interactive + themeable** output
-> contract of [`_DATA_DRIVEN.md`](./_DATA_DRIVEN.md) (§1–§5). **Default theme: Indigo.**
+> contract of [`_DATA_DRIVEN.md`](./_DATA_DRIVEN.md) (§1–§5). **Default theme: Black** — set `meta.theme` to a colour only when the user explicitly asks for one.
 > What this format reinvents is its **chrome and layout**: there is **no top bar, no business hero, no
 > both-rail sticky report frame, no dashboard tiles**. This is a *typeset academic article on a centred
 > "paper page"* — a journal-style title block, a bordered abstract, numbered sections in justified
@@ -65,8 +65,9 @@ long-form report has:
    lines. `<meta name="viewport" content="width=1440">`.
 2. **Title block** (`.rp-title` / `.rp-authors` / `.rp-affil`): a large serif **title**; an **author
    line** with superscript affiliation markers (and `*` for the corresponding author); a numbered/lettered
-   **affiliations list**; a **corresponding-author** line (name + email); a **date / venue** line; and a
-   an **optional** mono **article id** (`articleId`) — a real DOI only, if one exists; otherwise omit it. Never invent an arXiv number; the AlexandrAI site assigns the canonical id on upload.
+   **affiliations list**; a **corresponding-author** line (name + email); a **date** line with an
+   **optional** `venue`; and a
+   an **optional** mono **article id** (`articleId`) — a real DOI only, if one exists; otherwise omit it. Never invent an arXiv number; the AlexandrAI site assigns the canonical id on upload. Likewise, **never stamp a fake `venue`** such as "AlexandrAI preprint" — omit `venue` unless the work has a real external venue; the publishing site provides its own identity.
 3. **Abstract** in a bordered box (`.rp-abstract`, neutral hairline border — no brand-colour tint or left accent),
    immediately followed by a **`Keywords:`** line (`.rp-keywords`).
 4. **Numbered sections & subsections** (`.rp-sec` with `.rp-secnum`): serif headings prefixed `1`, `1.1`,

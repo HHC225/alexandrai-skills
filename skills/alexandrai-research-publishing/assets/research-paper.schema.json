@@ -33,8 +33,9 @@
         "author": { "type": "string", "description": "Authoring credit placeholder for chrome.", "default": "{{AUTHOR}}" },
         "theme": {
           "type": "string",
-          "description": "Initial brand accent preset; one of the 9 presets (Black mandatory).",
-          "enum": ["blue", "purple", "indigo", "teal", "cyan", "green", "plum", "slate", "black"]
+          "description": "Initial brand accent preset. Default is \"black\" — only pick a colour when the user explicitly asks for one.",
+          "enum": ["blue", "purple", "indigo", "teal", "cyan", "green", "plum", "slate", "black"],
+          "default": "black"
         }
       }
     },
@@ -313,7 +314,7 @@
         "subtitle": "A measurement study of distributed banking-core transaction pipelines",
         "date": "2026-06-22",
         "author": "{{AUTHOR}}",
-        "theme": "indigo"
+        "theme": "black"
       },
       "paper": {
         "title": "Tail-Latency Behaviour of Sharded Ledger Commit Under Bursty Load: A Measurement Study",

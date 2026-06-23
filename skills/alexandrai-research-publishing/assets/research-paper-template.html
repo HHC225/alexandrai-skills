@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="indigo">
+<html lang="en" data-theme="black">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=1440">
@@ -313,6 +313,13 @@ ol.rp-list::marker{ color:var(--navy-deep); }
 .fig-dtable th{ font:700 9px/1.3 var(--mono); letter-spacing:.06em; text-transform:uppercase; color:var(--ink-faint); text-align:right; padding:5px 8px; border-bottom:1.5px solid var(--ink); }
 .fig-dtable th:first-child, .fig-dtable td:first-child{ text-align:left; }
 .fig-dtable td{ padding:4px 8px; text-align:right; color:var(--ink); border-bottom:1px solid var(--rule-soft); }
+/* keep the data table inside its (possibly narrow) column: long words break only when they cannot
+   fit, so short value headers stay whole; overflow-x is the last-resort guard for very wide tables. */
+.fig-dtable th, .fig-dtable td{ overflow-wrap:break-word; }
+.rp-sheet .fig-dtable{ overflow-x:auto; }
+.rp-sheet .fig-dtable table{ font-size:10px; }
+.rp-sheet .fig-dtable th{ font-size:8.5px; padding:4px 5px; }
+.rp-sheet .fig-dtable td{ padding:3px 5px; }
 
 /* ============================================================
    6. TABLES — booktabs-style ruled academic table
@@ -322,8 +329,19 @@ ol.rp-list::marker{ color:var(--navy-deep); }
 .rp-table thead th{
   font:700 10px/1.3 var(--sans); letter-spacing:.04em; color:var(--ink-mid);
   text-align:left; padding:7px 12px; border-top:2px solid var(--ink); border-bottom:1px solid var(--ink);
-  white-space:nowrap;
 }
+/* let tables compress to a narrow column: headers wrap at spaces; long tokens break only if they
+   truly cannot fit, instead of overflowing and bleeding into the neighbouring column. */
+.rp-table th, .rp-table td{ overflow-wrap:break-word; hyphens:auto; }
+/* 2-column sheets are narrow (~360px): tighten table type/padding and drop the sort-arrow glyphs so
+   every column fits without breaking words mid-character. Continuous 1-column tables (not inside
+   .rp-sheet) keep full size. overflow-x is the last-resort guard for genuinely very wide tables. */
+.rp-sheet .rp-tablewrap{ overflow-x:auto; }
+.rp-sheet .rp-table{ font-size:11px; }
+.rp-sheet .rp-table thead th{ padding:5px 6px; font-size:9.5px; }
+.rp-sheet .rp-table tbody td{ padding:4px 6px; }
+.rp-sheet .rp-table td.num{ font-size:10.5px; }
+.rp-sheet .rp-table thead th .sortarrow{ display:none; }
 .rp-table thead th.num{ text-align:right; }
 .rp-table thead th.sortable{ cursor:pointer; user-select:none; }
 .rp-table thead th .sortarrow{ color:var(--ink-faint); margin-left:3px; font:700 9px/1 var(--mono); }
@@ -348,7 +366,8 @@ ol.rp-reflist{ margin:0; padding:0; list-style:none; counter-reset:ref; }
 .rp-ref .rn::before{ content:"[" counter(ref) "]"; }
 .rp-ref .rtitle{ color:var(--ink); font-style:italic; }
 .rp-ref .rvenue{ color:var(--ink-soft); }
-.rp-ref a{ color:var(--navy-deep); text-decoration:none; white-space:nowrap; }
+.rp-ref .rbody{ min-width:0; }   /* allow the flex body to shrink so a long URL wraps instead of overflowing the column */
+.rp-ref a{ color:var(--navy-deep); text-decoration:none; overflow-wrap:anywhere; }
 .rp-ref a:hover{ text-decoration:underline; }
 .rp-ref.flash{ background:var(--navy-bg); box-shadow:inset 0 0 0 1px var(--navy-line); }
 @keyframes refflash{ 0%{ background:var(--navy-bg); } 100%{ background:transparent; } }
@@ -686,10 +705,11 @@ ol.rp-reflist{ margin:0; padding:0; list-style:none; counter-reset:ref; }
      ============================================================ */
   var FIGNO = 0;
   var pageMode = 'two';   /* 'two' = A4-paginated 2-column (default); 'one' = continuous single column */
+  var OPEN_DT = {};       /* fid -> true while a reader has its data table pinned open (survives re-layout) */
   var wired = false;
   function render(){
     var m = DATA.meta || {}, p = DATA.paper || {};
-    root.dataset.theme = m.theme || 'indigo';
+    root.dataset.theme = m.theme || 'black';
     document.title = (m.title || p.title || 'Research Paper') + ' — ' + (m.project || '');
     SECNODES.length = 0; FIGS = {}; FIGNO = 0;   /* reset accumulating state so re-layout is clean */
 
@@ -746,7 +766,7 @@ ol.rp-reflist{ margin:0; padding:0; list-style:none; counter-reset:ref; }
           return '<li class="rp-ref" id="ref-'+esc(r.id)+'"><span class="rn"></span>'
             + '<span class="rbody">'+esc(r.authors)+'. <span class="rtitle">'+esc(r.title)+'</span>. '
             + (r.venue?'<span class="rvenue">'+esc(r.venue)+'</span>, ':'') + esc(r.year) + '.'
-            + (r.url?' <a href="#" data-url="'+esc(r.url)+'" title="'+esc(r.url)+'">'+svg('paper','icon-sm')+esc(r.url)+'</a>':'')
+            + (r.url?' <a href="'+esc(r.url)+'" target="_blank" rel="noopener noreferrer" title="'+esc(r.url)+'">'+svg('paper','icon-sm')+esc(r.url)+'</a>':'')
             + '</span></li>';
         }).join('')
       + '</ol></section>';
@@ -758,6 +778,15 @@ ol.rp-reflist{ margin:0; padding:0; list-style:none; counter-reset:ref; }
 
     buildNav();
     drawAllFigures();
+    /* re-pin any reader-opened data tables BEFORE measuring, so pagination packs the figure at its
+       expanded height and the chart never spills out of (or gets clipped by) its fixed-height column. */
+    Object.keys(OPEN_DT).forEach(function(fid){
+      if(!OPEN_DT[fid]) return;
+      var dt=paper.querySelector('[data-figdt="'+cssq(fid)+'"]');
+      var bt=paper.querySelector('.fig-dtbtn[data-fig-dt="'+cssq(fid)+'"]');
+      if(dt) dt.classList.add('show');
+      if(bt) bt.classList.add('on');
+    });
     if(pageMode !== 'one') paginate();
   }
 
@@ -970,6 +999,13 @@ ol.rp-reflist{ margin:0; padding:0; list-style:none; counter-reset:ref; }
     }
     var minX=xs.length?Math.min.apply(null,xs):0, maxX=xs.length?Math.max.apply(null,xs):1;
     var maxY=ys.length?Math.max.apply(null,ys):1;
+    if(c.kind==='horizontal-bar'){
+      /* value axis is X (bars grow horizontally); categories sit on Y by band, not Y().
+         Route the value range into the X domain with headroom so bars and value ticks
+         scale to the largest data point instead of the empty-xs default of [0,1]. */
+      var hx=(maxY*1.12)||1;
+      return { minX:0, maxX:hx, minY:0, maxY:hx };
+    }
     if(c.kind==='box' || c.kind==='waterfall'){
       var pad=(maxY-minY)*0.1||1;
       return { minX:minX, maxX:maxX, minY:minY-(minY<0?pad:0), maxY:maxY+pad };
@@ -1511,20 +1547,23 @@ ol.rp-reflist{ margin:0; padding:0; list-style:none; counter-reset:ref; }
     paper.addEventListener('click', function(e){
       var b=e.target.closest('.fig-dtbtn'); if(!b) return;
       var fid=b.dataset.figDt;
-      var dt=paper.querySelector('[data-figdt="'+cssq(fid)+'"]');
-      if(dt){ var on=dt.classList.toggle('show'); b.classList.toggle('on', on); }
+      var open=!OPEN_DT[fid]; OPEN_DT[fid]=open;
+      if(pageMode==='one'){
+        /* continuous single column: the page just grows, so toggle in place */
+        var dt=paper.querySelector('[data-figdt="'+cssq(fid)+'"]');
+        if(dt) dt.classList.toggle('show', open);
+        b.classList.toggle('on', open);
+      } else {
+        /* paginated 2-column: re-flow so the now-taller (or shorter) figure re-packs into its
+           sheet column instead of spilling into a phantom 3rd column / being clipped */
+        relayout();
+      }
     });
 
     /* ---- table sort ---- */
     paper.addEventListener('click', function(e){
       var th=e.target.closest('th.sortable'); if(!th) return;
       sortTable(th);
-    });
-
-    /* ---- reference external-link (brand-neutral: no navigation) ---- */
-    paper.addEventListener('click', function(e){
-      var a=e.target.closest('.rp-ref a[data-url]'); if(!a) return;
-      e.preventDefault();
     });
 
     /* ---- citation: hover tooltip + click scroll/highlight ---- */
