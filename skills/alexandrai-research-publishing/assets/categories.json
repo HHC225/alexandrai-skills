@@ -1,0 +1,1931 @@
+{
+  "version": "2026-06-22",
+  "categories": [
+    {
+      "id": "computer-science",
+      "name": "Computer Science",
+      "children": [
+        {
+          "id": "computer-science.algorithms",
+          "name": "Algorithms"
+        },
+        {
+          "id": "computer-science.architecture",
+          "name": "Computer Architecture"
+        },
+        {
+          "id": "computer-science.databases",
+          "name": "Databases"
+        },
+        {
+          "id": "computer-science.distributed-systems",
+          "name": "Distributed Systems"
+        },
+        {
+          "id": "computer-science.networking",
+          "name": "Networking"
+        },
+        {
+          "id": "computer-science.human-computer-interaction",
+          "name": "Human-Computer Interaction"
+        },
+        {
+          "id": "computer-science.programming-languages",
+          "name": "Programming Languages"
+        },
+        {
+          "id": "computer-science.security",
+          "name": "Security"
+        },
+        {
+          "id": "computer-science.software-engineering",
+          "name": "Software Engineering"
+        },
+        {
+          "id": "computer-science.systems",
+          "name": "Systems"
+        },
+        {
+          "id": "computer-science.theory",
+          "name": "Theory"
+        },
+        {
+          "id": "computer-science.operating-systems",
+          "name": "Operating Systems"
+        },
+        {
+          "id": "computer-science.compilers",
+          "name": "Compilers"
+        },
+        {
+          "id": "computer-science.computer-graphics",
+          "name": "Computer Graphics"
+        },
+        {
+          "id": "computer-science.data-structures",
+          "name": "Data Structures"
+        },
+        {
+          "id": "computer-science.formal-methods",
+          "name": "Formal Methods"
+        },
+        {
+          "id": "computer-science.parallel-computing",
+          "name": "Parallel Computing"
+        },
+        {
+          "id": "computer-science.quantum-computing",
+          "name": "Quantum Computing"
+        },
+        {
+          "id": "computer-science.information-retrieval",
+          "name": "Information Retrieval"
+        }
+      ]
+    },
+    {
+      "id": "ai-ml",
+      "name": "AI and Machine Learning",
+      "children": [
+        {
+          "id": "ai-ml.agent-systems",
+          "name": "Agent Systems"
+        },
+        {
+          "id": "ai-ml.alignment",
+          "name": "AI Alignment"
+        },
+        {
+          "id": "ai-ml.computer-vision",
+          "name": "Computer Vision"
+        },
+        {
+          "id": "ai-ml.deep-learning",
+          "name": "Deep Learning"
+        },
+        {
+          "id": "ai-ml.evaluation",
+          "name": "Evaluation"
+        },
+        {
+          "id": "ai-ml.generative-ai",
+          "name": "Generative AI"
+        },
+        {
+          "id": "ai-ml.language-models",
+          "name": "Language Models"
+        },
+        {
+          "id": "ai-ml.nlp",
+          "name": "Natural Language Processing"
+        },
+        {
+          "id": "ai-ml.reinforcement-learning",
+          "name": "Reinforcement Learning"
+        },
+        {
+          "id": "ai-ml.retrieval",
+          "name": "Retrieval and Search"
+        },
+        {
+          "id": "ai-ml.robotics",
+          "name": "Robotics"
+        },
+        {
+          "id": "ai-ml.speech-recognition",
+          "name": "Speech Recognition"
+        },
+        {
+          "id": "ai-ml.multimodal-learning",
+          "name": "Multimodal Learning"
+        },
+        {
+          "id": "ai-ml.graph-learning",
+          "name": "Graph Learning"
+        },
+        {
+          "id": "ai-ml.interpretability",
+          "name": "Interpretability"
+        },
+        {
+          "id": "ai-ml.federated-learning",
+          "name": "Federated Learning"
+        },
+        {
+          "id": "ai-ml.transfer-learning",
+          "name": "Transfer Learning"
+        },
+        {
+          "id": "ai-ml.recommender-systems",
+          "name": "Recommender Systems"
+        },
+        {
+          "id": "ai-ml.knowledge-representation",
+          "name": "Knowledge Representation"
+        },
+        {
+          "id": "ai-ml.fairness-bias",
+          "name": "Fairness and Bias"
+        }
+      ]
+    },
+    {
+      "id": "finance",
+      "name": "Finance",
+      "children": [
+        {
+          "id": "finance.accounting",
+          "name": "Accounting"
+        },
+        {
+          "id": "finance.asset-pricing",
+          "name": "Asset Pricing"
+        },
+        {
+          "id": "finance.corporate-finance",
+          "name": "Corporate Finance"
+        },
+        {
+          "id": "finance.financial-systems",
+          "name": "Financial Systems"
+        },
+        {
+          "id": "finance.fintech",
+          "name": "Financial Technology"
+        },
+        {
+          "id": "finance.market-structure",
+          "name": "Market Structure"
+        },
+        {
+          "id": "finance.payments",
+          "name": "Payments"
+        },
+        {
+          "id": "finance.risk-management",
+          "name": "Risk Management"
+        },
+        {
+          "id": "finance.banking",
+          "name": "Banking"
+        },
+        {
+          "id": "finance.derivatives",
+          "name": "Derivatives"
+        },
+        {
+          "id": "finance.behavioral-finance",
+          "name": "Behavioral Finance"
+        },
+        {
+          "id": "finance.quantitative-finance",
+          "name": "Quantitative Finance"
+        },
+        {
+          "id": "finance.insurance",
+          "name": "Insurance"
+        },
+        {
+          "id": "finance.investments",
+          "name": "Investments"
+        },
+        {
+          "id": "finance.cryptocurrency",
+          "name": "Cryptocurrency"
+        }
+      ]
+    },
+    {
+      "id": "medicine",
+      "name": "Medicine",
+      "children": [
+        {
+          "id": "medicine.clinical-research",
+          "name": "Clinical Research"
+        },
+        {
+          "id": "medicine.diagnostics",
+          "name": "Diagnostics"
+        },
+        {
+          "id": "medicine.digital-health",
+          "name": "Digital Health"
+        },
+        {
+          "id": "medicine.epidemiology",
+          "name": "Epidemiology"
+        },
+        {
+          "id": "medicine.health-policy",
+          "name": "Health Policy"
+        },
+        {
+          "id": "medicine.health-systems",
+          "name": "Health Systems"
+        },
+        {
+          "id": "medicine.medical-imaging",
+          "name": "Medical Imaging"
+        },
+        {
+          "id": "medicine.public-health",
+          "name": "Public Health"
+        },
+        {
+          "id": "medicine.pharmacology",
+          "name": "Pharmacology"
+        },
+        {
+          "id": "medicine.cardiology",
+          "name": "Cardiology"
+        },
+        {
+          "id": "medicine.oncology",
+          "name": "Oncology"
+        },
+        {
+          "id": "medicine.neurology",
+          "name": "Neurology"
+        },
+        {
+          "id": "medicine.immunology",
+          "name": "Immunology"
+        },
+        {
+          "id": "medicine.genetics",
+          "name": "Medical Genetics"
+        },
+        {
+          "id": "medicine.surgery",
+          "name": "Surgery"
+        },
+        {
+          "id": "medicine.pediatrics",
+          "name": "Pediatrics"
+        },
+        {
+          "id": "medicine.psychiatry",
+          "name": "Psychiatry"
+        },
+        {
+          "id": "medicine.infectious-disease",
+          "name": "Infectious Disease"
+        }
+      ]
+    },
+    {
+      "id": "biology",
+      "name": "Biology",
+      "children": [
+        {
+          "id": "biology.bioinformatics",
+          "name": "Bioinformatics"
+        },
+        {
+          "id": "biology.cell-biology",
+          "name": "Cell Biology"
+        },
+        {
+          "id": "biology.ecology",
+          "name": "Ecology"
+        },
+        {
+          "id": "biology.evolution",
+          "name": "Evolution"
+        },
+        {
+          "id": "biology.genomics",
+          "name": "Genomics"
+        },
+        {
+          "id": "biology.molecular-biology",
+          "name": "Molecular Biology"
+        },
+        {
+          "id": "biology.neuroscience",
+          "name": "Neuroscience"
+        },
+        {
+          "id": "biology.systems-biology",
+          "name": "Systems Biology"
+        },
+        {
+          "id": "biology.microbiology",
+          "name": "Microbiology"
+        },
+        {
+          "id": "biology.immunology",
+          "name": "Immunology"
+        },
+        {
+          "id": "biology.genetics",
+          "name": "Genetics"
+        },
+        {
+          "id": "biology.developmental-biology",
+          "name": "Developmental Biology"
+        },
+        {
+          "id": "biology.structural-biology",
+          "name": "Structural Biology"
+        },
+        {
+          "id": "biology.synthetic-biology",
+          "name": "Synthetic Biology"
+        },
+        {
+          "id": "biology.biophysics",
+          "name": "Biophysics"
+        },
+        {
+          "id": "biology.botany",
+          "name": "Botany"
+        },
+        {
+          "id": "biology.zoology",
+          "name": "Zoology"
+        }
+      ]
+    },
+    {
+      "id": "physics",
+      "name": "Physics",
+      "children": [
+        {
+          "id": "physics.astrophysics",
+          "name": "Astrophysics"
+        },
+        {
+          "id": "physics.condensed-matter",
+          "name": "Condensed Matter"
+        },
+        {
+          "id": "physics.high-energy",
+          "name": "High Energy Physics"
+        },
+        {
+          "id": "physics.optics",
+          "name": "Optics"
+        },
+        {
+          "id": "physics.plasma",
+          "name": "Plasma Physics"
+        },
+        {
+          "id": "physics.quantum",
+          "name": "Quantum Physics"
+        },
+        {
+          "id": "physics.statistical-mechanics",
+          "name": "Statistical Mechanics"
+        },
+        {
+          "id": "physics.particle-physics",
+          "name": "Particle Physics"
+        },
+        {
+          "id": "physics.nuclear-physics",
+          "name": "Nuclear Physics"
+        },
+        {
+          "id": "physics.atomic-molecular",
+          "name": "Atomic and Molecular Physics"
+        },
+        {
+          "id": "physics.cosmology",
+          "name": "Cosmology"
+        },
+        {
+          "id": "physics.fluid-dynamics",
+          "name": "Fluid Dynamics"
+        },
+        {
+          "id": "physics.gravitation",
+          "name": "Gravitation"
+        },
+        {
+          "id": "physics.biophysics",
+          "name": "Biophysics"
+        },
+        {
+          "id": "physics.acoustics",
+          "name": "Acoustics"
+        }
+      ]
+    },
+    {
+      "id": "mathematics",
+      "name": "Mathematics",
+      "children": [
+        {
+          "id": "mathematics.algebra",
+          "name": "Algebra"
+        },
+        {
+          "id": "mathematics.analysis",
+          "name": "Analysis"
+        },
+        {
+          "id": "mathematics.applied-mathematics",
+          "name": "Applied Mathematics"
+        },
+        {
+          "id": "mathematics.geometry",
+          "name": "Geometry"
+        },
+        {
+          "id": "mathematics.optimization",
+          "name": "Optimization"
+        },
+        {
+          "id": "mathematics.probability",
+          "name": "Probability"
+        },
+        {
+          "id": "mathematics.statistics",
+          "name": "Statistics"
+        },
+        {
+          "id": "mathematics.number-theory",
+          "name": "Number Theory"
+        },
+        {
+          "id": "mathematics.topology",
+          "name": "Topology"
+        },
+        {
+          "id": "mathematics.combinatorics",
+          "name": "Combinatorics"
+        },
+        {
+          "id": "mathematics.logic",
+          "name": "Mathematical Logic"
+        },
+        {
+          "id": "mathematics.differential-equations",
+          "name": "Differential Equations"
+        },
+        {
+          "id": "mathematics.numerical-analysis",
+          "name": "Numerical Analysis"
+        },
+        {
+          "id": "mathematics.discrete-mathematics",
+          "name": "Discrete Mathematics"
+        },
+        {
+          "id": "mathematics.mathematical-physics",
+          "name": "Mathematical Physics"
+        }
+      ]
+    },
+    {
+      "id": "chemistry",
+      "name": "Chemistry",
+      "children": [
+        {
+          "id": "chemistry.analytical",
+          "name": "Analytical Chemistry"
+        },
+        {
+          "id": "chemistry.biochemistry",
+          "name": "Biochemistry"
+        },
+        {
+          "id": "chemistry.inorganic",
+          "name": "Inorganic Chemistry"
+        },
+        {
+          "id": "chemistry.materials-chemistry",
+          "name": "Materials Chemistry"
+        },
+        {
+          "id": "chemistry.organic",
+          "name": "Organic Chemistry"
+        },
+        {
+          "id": "chemistry.physical",
+          "name": "Physical Chemistry"
+        },
+        {
+          "id": "chemistry.computational",
+          "name": "Computational Chemistry"
+        },
+        {
+          "id": "chemistry.electrochemistry",
+          "name": "Electrochemistry"
+        },
+        {
+          "id": "chemistry.polymer",
+          "name": "Polymer Chemistry"
+        },
+        {
+          "id": "chemistry.medicinal",
+          "name": "Medicinal Chemistry"
+        },
+        {
+          "id": "chemistry.environmental",
+          "name": "Environmental Chemistry"
+        },
+        {
+          "id": "chemistry.catalysis",
+          "name": "Catalysis"
+        },
+        {
+          "id": "chemistry.spectroscopy",
+          "name": "Spectroscopy"
+        }
+      ]
+    },
+    {
+      "id": "earth-environment",
+      "name": "Earth and Environment",
+      "children": [
+        {
+          "id": "earth-environment.atmospheric-science",
+          "name": "Atmospheric Science"
+        },
+        {
+          "id": "earth-environment.climate",
+          "name": "Climate Science"
+        },
+        {
+          "id": "earth-environment.ecology",
+          "name": "Ecology"
+        },
+        {
+          "id": "earth-environment.geology",
+          "name": "Geology"
+        },
+        {
+          "id": "earth-environment.oceanography",
+          "name": "Oceanography"
+        },
+        {
+          "id": "earth-environment.sustainability",
+          "name": "Sustainability"
+        },
+        {
+          "id": "earth-environment.geophysics",
+          "name": "Geophysics"
+        },
+        {
+          "id": "earth-environment.hydrology",
+          "name": "Hydrology"
+        },
+        {
+          "id": "earth-environment.meteorology",
+          "name": "Meteorology"
+        },
+        {
+          "id": "earth-environment.soil-science",
+          "name": "Soil Science"
+        },
+        {
+          "id": "earth-environment.environmental-science",
+          "name": "Environmental Science"
+        },
+        {
+          "id": "earth-environment.natural-hazards",
+          "name": "Natural Hazards"
+        },
+        {
+          "id": "earth-environment.remote-sensing",
+          "name": "Remote Sensing"
+        },
+        {
+          "id": "earth-environment.paleontology",
+          "name": "Paleontology"
+        }
+      ]
+    },
+    {
+      "id": "social-science",
+      "name": "Social Science",
+      "children": [
+        {
+          "id": "social-science.education",
+          "name": "Education"
+        },
+        {
+          "id": "social-science.economics",
+          "name": "Economics"
+        },
+        {
+          "id": "social-science.political-science",
+          "name": "Political Science"
+        },
+        {
+          "id": "social-science.psychology",
+          "name": "Psychology"
+        },
+        {
+          "id": "social-science.public-policy",
+          "name": "Public Policy"
+        },
+        {
+          "id": "social-science.sociology",
+          "name": "Sociology"
+        },
+        {
+          "id": "social-science.demography",
+          "name": "Demography"
+        },
+        {
+          "id": "social-science.criminology",
+          "name": "Criminology"
+        },
+        {
+          "id": "social-science.development-studies",
+          "name": "Development Studies"
+        },
+        {
+          "id": "social-science.gender-studies",
+          "name": "Gender Studies"
+        },
+        {
+          "id": "social-science.social-work",
+          "name": "Social Work"
+        },
+        {
+          "id": "social-science.international-relations",
+          "name": "International Relations"
+        },
+        {
+          "id": "social-science.behavioral-economics",
+          "name": "Behavioral Economics"
+        }
+      ]
+    },
+    {
+      "id": "humanities",
+      "name": "Humanities",
+      "children": [
+        {
+          "id": "humanities.history",
+          "name": "History"
+        },
+        {
+          "id": "humanities.linguistics",
+          "name": "Linguistics"
+        },
+        {
+          "id": "humanities.literature",
+          "name": "Literature"
+        },
+        {
+          "id": "humanities.philosophy",
+          "name": "Philosophy"
+        },
+        {
+          "id": "humanities.religious-studies",
+          "name": "Religious Studies"
+        },
+        {
+          "id": "humanities.cultural-studies",
+          "name": "Cultural Studies"
+        },
+        {
+          "id": "humanities.ethics",
+          "name": "Ethics"
+        },
+        {
+          "id": "humanities.classics",
+          "name": "Classics"
+        },
+        {
+          "id": "humanities.art-history",
+          "name": "Art History"
+        },
+        {
+          "id": "humanities.philology",
+          "name": "Philology"
+        },
+        {
+          "id": "humanities.rhetoric",
+          "name": "Rhetoric"
+        }
+      ]
+    },
+    {
+      "id": "engineering",
+      "name": "Engineering",
+      "children": [
+        {
+          "id": "engineering.aerospace",
+          "name": "Aerospace Engineering"
+        },
+        {
+          "id": "engineering.chemical",
+          "name": "Chemical Engineering"
+        },
+        {
+          "id": "engineering.civil",
+          "name": "Civil Engineering"
+        },
+        {
+          "id": "engineering.control-systems",
+          "name": "Control Systems"
+        },
+        {
+          "id": "engineering.electrical",
+          "name": "Electrical Engineering"
+        },
+        {
+          "id": "engineering.energy-systems",
+          "name": "Energy Systems"
+        },
+        {
+          "id": "engineering.manufacturing",
+          "name": "Manufacturing"
+        },
+        {
+          "id": "engineering.materials",
+          "name": "Materials Engineering"
+        },
+        {
+          "id": "engineering.mechanical",
+          "name": "Mechanical Engineering"
+        },
+        {
+          "id": "engineering.biomedical",
+          "name": "Biomedical Engineering"
+        },
+        {
+          "id": "engineering.industrial",
+          "name": "Industrial Engineering"
+        },
+        {
+          "id": "engineering.environmental",
+          "name": "Environmental Engineering"
+        },
+        {
+          "id": "engineering.structural",
+          "name": "Structural Engineering"
+        },
+        {
+          "id": "engineering.systems-engineering",
+          "name": "Systems Engineering"
+        },
+        {
+          "id": "engineering.nuclear",
+          "name": "Nuclear Engineering"
+        },
+        {
+          "id": "engineering.aeronautics",
+          "name": "Aeronautics"
+        },
+        {
+          "id": "engineering.aerodynamics",
+          "name": "Aerodynamics"
+        }
+      ]
+    },
+    {
+      "id": "robotics",
+      "name": "Robotics",
+      "children": [
+        {
+          "id": "robotics.autonomy",
+          "name": "Autonomy"
+        },
+        {
+          "id": "robotics.human-robot-interaction",
+          "name": "Human-Robot Interaction"
+        },
+        {
+          "id": "robotics.manipulation",
+          "name": "Manipulation"
+        },
+        {
+          "id": "robotics.motion-planning",
+          "name": "Motion Planning"
+        },
+        {
+          "id": "robotics.perception",
+          "name": "Robot Perception"
+        },
+        {
+          "id": "robotics.field-robotics",
+          "name": "Field Robotics"
+        },
+        {
+          "id": "robotics.control",
+          "name": "Robot Control"
+        },
+        {
+          "id": "robotics.swarm-robotics",
+          "name": "Swarm Robotics"
+        },
+        {
+          "id": "robotics.soft-robotics",
+          "name": "Soft Robotics"
+        },
+        {
+          "id": "robotics.medical-robotics",
+          "name": "Medical Robotics"
+        },
+        {
+          "id": "robotics.aerial-robotics",
+          "name": "Aerial Robotics"
+        },
+        {
+          "id": "robotics.localization-mapping",
+          "name": "Localization and Mapping"
+        }
+      ]
+    },
+    {
+      "id": "business-management",
+      "name": "Business and Management",
+      "children": [
+        {
+          "id": "business-management.accounting",
+          "name": "Accounting"
+        },
+        {
+          "id": "business-management.marketing",
+          "name": "Marketing"
+        },
+        {
+          "id": "business-management.operations",
+          "name": "Operations Management"
+        },
+        {
+          "id": "business-management.organizational-behavior",
+          "name": "Organizational Behavior"
+        },
+        {
+          "id": "business-management.strategy",
+          "name": "Strategy"
+        },
+        {
+          "id": "business-management.entrepreneurship",
+          "name": "Entrepreneurship"
+        },
+        {
+          "id": "business-management.human-resources",
+          "name": "Human Resources"
+        },
+        {
+          "id": "business-management.finance",
+          "name": "Managerial Finance"
+        },
+        {
+          "id": "business-management.innovation",
+          "name": "Innovation Management"
+        },
+        {
+          "id": "business-management.project-management",
+          "name": "Project Management"
+        },
+        {
+          "id": "business-management.business-analytics",
+          "name": "Business Analytics"
+        }
+      ]
+    },
+    {
+      "id": "law-policy",
+      "name": "Law and Policy",
+      "children": [
+        {
+          "id": "law-policy.ai-governance",
+          "name": "AI Governance"
+        },
+        {
+          "id": "law-policy.compliance",
+          "name": "Compliance"
+        },
+        {
+          "id": "law-policy.data-protection",
+          "name": "Data Protection"
+        },
+        {
+          "id": "law-policy.intellectual-property",
+          "name": "Intellectual Property"
+        },
+        {
+          "id": "law-policy.regulation",
+          "name": "Regulation"
+        },
+        {
+          "id": "law-policy.constitutional-law",
+          "name": "Constitutional Law"
+        },
+        {
+          "id": "law-policy.criminal-law",
+          "name": "Criminal Law"
+        },
+        {
+          "id": "law-policy.international-law",
+          "name": "International Law"
+        },
+        {
+          "id": "law-policy.human-rights",
+          "name": "Human Rights"
+        },
+        {
+          "id": "law-policy.corporate-law",
+          "name": "Corporate Law"
+        },
+        {
+          "id": "law-policy.environmental-law",
+          "name": "Environmental Law"
+        }
+      ]
+    },
+    {
+      "id": "operations",
+      "name": "Operations",
+      "children": [
+        {
+          "id": "operations.incident-response",
+          "name": "Incident Response"
+        },
+        {
+          "id": "operations.process-improvement",
+          "name": "Process Improvement"
+        },
+        {
+          "id": "operations.quality",
+          "name": "Quality"
+        },
+        {
+          "id": "operations.reliability",
+          "name": "Reliability"
+        },
+        {
+          "id": "operations.supply-chain",
+          "name": "Supply Chain"
+        },
+        {
+          "id": "operations.logistics",
+          "name": "Logistics"
+        },
+        {
+          "id": "operations.inventory-management",
+          "name": "Inventory Management"
+        },
+        {
+          "id": "operations.scheduling",
+          "name": "Scheduling"
+        },
+        {
+          "id": "operations.operations-research",
+          "name": "Operations Research"
+        },
+        {
+          "id": "operations.service-operations",
+          "name": "Service Operations"
+        }
+      ]
+    },
+    {
+      "id": "statistics",
+      "name": "Statistics",
+      "children": [
+        {
+          "id": "statistics.bayesian-statistics",
+          "name": "Bayesian Statistics"
+        },
+        {
+          "id": "statistics.statistical-inference",
+          "name": "Statistical Inference"
+        },
+        {
+          "id": "statistics.experimental-design",
+          "name": "Experimental Design"
+        },
+        {
+          "id": "statistics.regression-analysis",
+          "name": "Regression Analysis"
+        },
+        {
+          "id": "statistics.time-series",
+          "name": "Time Series Analysis"
+        },
+        {
+          "id": "statistics.multivariate-analysis",
+          "name": "Multivariate Analysis"
+        },
+        {
+          "id": "statistics.nonparametric-statistics",
+          "name": "Nonparametric Statistics"
+        },
+        {
+          "id": "statistics.computational-statistics",
+          "name": "Computational Statistics"
+        },
+        {
+          "id": "statistics.biostatistics",
+          "name": "Biostatistics"
+        }
+      ]
+    },
+    {
+      "id": "data-science",
+      "name": "Data Science",
+      "children": [
+        {
+          "id": "data-science.data-mining",
+          "name": "Data Mining"
+        },
+        {
+          "id": "data-science.feature-engineering",
+          "name": "Feature Engineering"
+        },
+        {
+          "id": "data-science.data-visualization",
+          "name": "Data Visualization"
+        },
+        {
+          "id": "data-science.big-data",
+          "name": "Big Data"
+        },
+        {
+          "id": "data-science.data-engineering",
+          "name": "Data Engineering"
+        },
+        {
+          "id": "data-science.predictive-modeling",
+          "name": "Predictive Modeling"
+        },
+        {
+          "id": "data-science.causal-inference",
+          "name": "Causal Inference"
+        },
+        {
+          "id": "data-science.anomaly-detection",
+          "name": "Anomaly Detection"
+        },
+        {
+          "id": "data-science.data-governance",
+          "name": "Data Governance"
+        }
+      ]
+    },
+    {
+      "id": "information-science",
+      "name": "Information Science and Library",
+      "children": [
+        {
+          "id": "information-science.library-science",
+          "name": "Library Science"
+        },
+        {
+          "id": "information-science.knowledge-management",
+          "name": "Knowledge Management"
+        },
+        {
+          "id": "information-science.information-retrieval",
+          "name": "Information Retrieval"
+        },
+        {
+          "id": "information-science.archival-science",
+          "name": "Archival Science"
+        },
+        {
+          "id": "information-science.bibliometrics",
+          "name": "Bibliometrics"
+        },
+        {
+          "id": "information-science.scholarly-communication",
+          "name": "Scholarly Communication"
+        },
+        {
+          "id": "information-science.metadata",
+          "name": "Metadata and Cataloging"
+        },
+        {
+          "id": "information-science.digital-libraries",
+          "name": "Digital Libraries"
+        }
+      ]
+    },
+    {
+      "id": "energy",
+      "name": "Energy",
+      "children": [
+        {
+          "id": "energy.renewable-energy",
+          "name": "Renewable Energy"
+        },
+        {
+          "id": "energy.solar-energy",
+          "name": "Solar Energy"
+        },
+        {
+          "id": "energy.wind-energy",
+          "name": "Wind Energy"
+        },
+        {
+          "id": "energy.nuclear-energy",
+          "name": "Nuclear Energy"
+        },
+        {
+          "id": "energy.energy-storage",
+          "name": "Energy Storage"
+        },
+        {
+          "id": "energy.power-systems",
+          "name": "Power Systems"
+        },
+        {
+          "id": "energy.smart-grid",
+          "name": "Smart Grid"
+        },
+        {
+          "id": "energy.fossil-fuels",
+          "name": "Fossil Fuels"
+        },
+        {
+          "id": "energy.energy-policy",
+          "name": "Energy Policy"
+        }
+      ]
+    },
+    {
+      "id": "agriculture-food",
+      "name": "Agriculture and Food Science",
+      "children": [
+        {
+          "id": "agriculture-food.agronomy",
+          "name": "Agronomy"
+        },
+        {
+          "id": "agriculture-food.crop-science",
+          "name": "Crop Science"
+        },
+        {
+          "id": "agriculture-food.soil-science",
+          "name": "Soil Science"
+        },
+        {
+          "id": "agriculture-food.horticulture",
+          "name": "Horticulture"
+        },
+        {
+          "id": "agriculture-food.animal-husbandry",
+          "name": "Animal Husbandry"
+        },
+        {
+          "id": "agriculture-food.food-science",
+          "name": "Food Science"
+        },
+        {
+          "id": "agriculture-food.food-security",
+          "name": "Food Security"
+        },
+        {
+          "id": "agriculture-food.agricultural-economics",
+          "name": "Agricultural Economics"
+        },
+        {
+          "id": "agriculture-food.precision-agriculture",
+          "name": "Precision Agriculture"
+        }
+      ]
+    },
+    {
+      "id": "veterinary-science",
+      "name": "Veterinary Science",
+      "children": [
+        {
+          "id": "veterinary-science.animal-health",
+          "name": "Animal Health"
+        },
+        {
+          "id": "veterinary-science.veterinary-medicine",
+          "name": "Veterinary Medicine"
+        },
+        {
+          "id": "veterinary-science.veterinary-surgery",
+          "name": "Veterinary Surgery"
+        },
+        {
+          "id": "veterinary-science.animal-nutrition",
+          "name": "Animal Nutrition"
+        },
+        {
+          "id": "veterinary-science.veterinary-pathology",
+          "name": "Veterinary Pathology"
+        },
+        {
+          "id": "veterinary-science.zoonotic-diseases",
+          "name": "Zoonotic Diseases"
+        },
+        {
+          "id": "veterinary-science.wildlife-health",
+          "name": "Wildlife Health"
+        }
+      ]
+    },
+    {
+      "id": "nursing",
+      "name": "Nursing",
+      "children": [
+        {
+          "id": "nursing.clinical-nursing",
+          "name": "Clinical Nursing"
+        },
+        {
+          "id": "nursing.community-health-nursing",
+          "name": "Community Health Nursing"
+        },
+        {
+          "id": "nursing.nursing-education",
+          "name": "Nursing Education"
+        },
+        {
+          "id": "nursing.nursing-administration",
+          "name": "Nursing Administration"
+        },
+        {
+          "id": "nursing.critical-care",
+          "name": "Critical Care Nursing"
+        },
+        {
+          "id": "nursing.geriatric-nursing",
+          "name": "Geriatric Nursing"
+        },
+        {
+          "id": "nursing.mental-health-nursing",
+          "name": "Mental Health Nursing"
+        }
+      ]
+    },
+    {
+      "id": "dentistry",
+      "name": "Dentistry",
+      "children": [
+        {
+          "id": "dentistry.oral-health",
+          "name": "Oral Health"
+        },
+        {
+          "id": "dentistry.orthodontics",
+          "name": "Orthodontics"
+        },
+        {
+          "id": "dentistry.periodontics",
+          "name": "Periodontics"
+        },
+        {
+          "id": "dentistry.endodontics",
+          "name": "Endodontics"
+        },
+        {
+          "id": "dentistry.oral-surgery",
+          "name": "Oral Surgery"
+        },
+        {
+          "id": "dentistry.prosthodontics",
+          "name": "Prosthodontics"
+        },
+        {
+          "id": "dentistry.dental-public-health",
+          "name": "Dental Public Health"
+        }
+      ]
+    },
+    {
+      "id": "public-administration",
+      "name": "Public Administration",
+      "children": [
+        {
+          "id": "public-administration.governance",
+          "name": "Governance"
+        },
+        {
+          "id": "public-administration.public-management",
+          "name": "Public Management"
+        },
+        {
+          "id": "public-administration.nonprofit-management",
+          "name": "Nonprofit Management"
+        },
+        {
+          "id": "public-administration.public-finance",
+          "name": "Public Finance"
+        },
+        {
+          "id": "public-administration.urban-governance",
+          "name": "Urban Governance"
+        },
+        {
+          "id": "public-administration.e-government",
+          "name": "E-Government"
+        },
+        {
+          "id": "public-administration.policy-analysis",
+          "name": "Policy Analysis"
+        }
+      ]
+    },
+    {
+      "id": "communication-media",
+      "name": "Communication and Media Studies",
+      "children": [
+        {
+          "id": "communication-media.journalism",
+          "name": "Journalism"
+        },
+        {
+          "id": "communication-media.mass-communication",
+          "name": "Mass Communication"
+        },
+        {
+          "id": "communication-media.digital-media",
+          "name": "Digital Media"
+        },
+        {
+          "id": "communication-media.public-relations",
+          "name": "Public Relations"
+        },
+        {
+          "id": "communication-media.advertising",
+          "name": "Advertising"
+        },
+        {
+          "id": "communication-media.media-theory",
+          "name": "Media Theory"
+        },
+        {
+          "id": "communication-media.broadcasting",
+          "name": "Broadcasting"
+        },
+        {
+          "id": "communication-media.social-media",
+          "name": "Social Media"
+        }
+      ]
+    },
+    {
+      "id": "anthropology",
+      "name": "Anthropology",
+      "children": [
+        {
+          "id": "anthropology.cultural-anthropology",
+          "name": "Cultural Anthropology"
+        },
+        {
+          "id": "anthropology.social-anthropology",
+          "name": "Social Anthropology"
+        },
+        {
+          "id": "anthropology.linguistic-anthropology",
+          "name": "Linguistic Anthropology"
+        },
+        {
+          "id": "anthropology.biological-anthropology",
+          "name": "Biological Anthropology"
+        },
+        {
+          "id": "anthropology.ethnography",
+          "name": "Ethnography"
+        },
+        {
+          "id": "anthropology.medical-anthropology",
+          "name": "Medical Anthropology"
+        }
+      ]
+    },
+    {
+      "id": "archaeology",
+      "name": "Archaeology",
+      "children": [
+        {
+          "id": "archaeology.prehistoric-archaeology",
+          "name": "Prehistoric Archaeology"
+        },
+        {
+          "id": "archaeology.classical-archaeology",
+          "name": "Classical Archaeology"
+        },
+        {
+          "id": "archaeology.bioarchaeology",
+          "name": "Bioarchaeology"
+        },
+        {
+          "id": "archaeology.archaeometry",
+          "name": "Archaeometry"
+        },
+        {
+          "id": "archaeology.cultural-heritage",
+          "name": "Cultural Heritage"
+        },
+        {
+          "id": "archaeology.zooarchaeology",
+          "name": "Zooarchaeology"
+        }
+      ]
+    },
+    {
+      "id": "geography",
+      "name": "Geography",
+      "children": [
+        {
+          "id": "geography.physical-geography",
+          "name": "Physical Geography"
+        },
+        {
+          "id": "geography.human-geography",
+          "name": "Human Geography"
+        },
+        {
+          "id": "geography.cartography",
+          "name": "Cartography"
+        },
+        {
+          "id": "geography.gis",
+          "name": "Geographic Information Systems"
+        },
+        {
+          "id": "geography.geospatial-analysis",
+          "name": "Geospatial Analysis"
+        },
+        {
+          "id": "geography.regional-studies",
+          "name": "Regional Studies"
+        },
+        {
+          "id": "geography.urban-geography",
+          "name": "Urban Geography"
+        }
+      ]
+    },
+    {
+      "id": "architecture-urban-planning",
+      "name": "Architecture and Urban Planning",
+      "children": [
+        {
+          "id": "architecture-urban-planning.architectural-design",
+          "name": "Architectural Design"
+        },
+        {
+          "id": "architecture-urban-planning.urban-planning",
+          "name": "Urban Planning"
+        },
+        {
+          "id": "architecture-urban-planning.landscape-architecture",
+          "name": "Landscape Architecture"
+        },
+        {
+          "id": "architecture-urban-planning.building-technology",
+          "name": "Building Technology"
+        },
+        {
+          "id": "architecture-urban-planning.sustainable-architecture",
+          "name": "Sustainable Architecture"
+        },
+        {
+          "id": "architecture-urban-planning.historic-preservation",
+          "name": "Historic Preservation"
+        },
+        {
+          "id": "architecture-urban-planning.regional-planning",
+          "name": "Regional Planning"
+        }
+      ]
+    },
+    {
+      "id": "design",
+      "name": "Design",
+      "children": [
+        {
+          "id": "design.graphic-design",
+          "name": "Graphic Design"
+        },
+        {
+          "id": "design.industrial-design",
+          "name": "Industrial Design"
+        },
+        {
+          "id": "design.interaction-design",
+          "name": "Interaction Design"
+        },
+        {
+          "id": "design.user-experience",
+          "name": "User Experience Design"
+        },
+        {
+          "id": "design.service-design",
+          "name": "Service Design"
+        },
+        {
+          "id": "design.fashion-design",
+          "name": "Fashion Design"
+        },
+        {
+          "id": "design.design-theory",
+          "name": "Design Theory"
+        }
+      ]
+    },
+    {
+      "id": "arts-humanities",
+      "name": "Arts and Performing Arts",
+      "children": [
+        {
+          "id": "arts-humanities.visual-arts",
+          "name": "Visual Arts"
+        },
+        {
+          "id": "arts-humanities.performing-arts",
+          "name": "Performing Arts"
+        },
+        {
+          "id": "arts-humanities.music",
+          "name": "Music"
+        },
+        {
+          "id": "arts-humanities.film-studies",
+          "name": "Film Studies"
+        },
+        {
+          "id": "arts-humanities.theater",
+          "name": "Theater"
+        },
+        {
+          "id": "arts-humanities.dance",
+          "name": "Dance"
+        },
+        {
+          "id": "arts-humanities.photography",
+          "name": "Photography"
+        },
+        {
+          "id": "arts-humanities.musicology",
+          "name": "Musicology"
+        }
+      ]
+    },
+    {
+      "id": "sports-exercise-science",
+      "name": "Sports and Exercise Science",
+      "children": [
+        {
+          "id": "sports-exercise-science.exercise-physiology",
+          "name": "Exercise Physiology"
+        },
+        {
+          "id": "sports-exercise-science.biomechanics",
+          "name": "Biomechanics"
+        },
+        {
+          "id": "sports-exercise-science.sports-medicine",
+          "name": "Sports Medicine"
+        },
+        {
+          "id": "sports-exercise-science.kinesiology",
+          "name": "Kinesiology"
+        },
+        {
+          "id": "sports-exercise-science.sports-psychology",
+          "name": "Sports Psychology"
+        },
+        {
+          "id": "sports-exercise-science.nutrition",
+          "name": "Sports Nutrition"
+        },
+        {
+          "id": "sports-exercise-science.sports-management",
+          "name": "Sports Management"
+        }
+      ]
+    },
+    {
+      "id": "materials-science",
+      "name": "Materials Science",
+      "children": [
+        {
+          "id": "materials-science.nanomaterials",
+          "name": "Nanomaterials"
+        },
+        {
+          "id": "materials-science.polymers",
+          "name": "Polymers"
+        },
+        {
+          "id": "materials-science.ceramics",
+          "name": "Ceramics"
+        },
+        {
+          "id": "materials-science.metals-alloys",
+          "name": "Metals and Alloys"
+        },
+        {
+          "id": "materials-science.composites",
+          "name": "Composites"
+        },
+        {
+          "id": "materials-science.semiconductors",
+          "name": "Semiconductors"
+        },
+        {
+          "id": "materials-science.biomaterials",
+          "name": "Biomaterials"
+        },
+        {
+          "id": "materials-science.material-characterization",
+          "name": "Material Characterization"
+        }
+      ]
+    },
+    {
+      "id": "nanotechnology",
+      "name": "Nanotechnology",
+      "children": [
+        {
+          "id": "nanotechnology.nanofabrication",
+          "name": "Nanofabrication"
+        },
+        {
+          "id": "nanotechnology.nanoelectronics",
+          "name": "Nanoelectronics"
+        },
+        {
+          "id": "nanotechnology.nanomedicine",
+          "name": "Nanomedicine"
+        },
+        {
+          "id": "nanotechnology.nanophotonics",
+          "name": "Nanophotonics"
+        },
+        {
+          "id": "nanotechnology.molecular-nanotechnology",
+          "name": "Molecular Nanotechnology"
+        },
+        {
+          "id": "nanotechnology.nanocharacterization",
+          "name": "Nanocharacterization"
+        }
+      ]
+    },
+    {
+      "id": "cybersecurity",
+      "name": "Cybersecurity",
+      "children": [
+        {
+          "id": "cybersecurity.network-security",
+          "name": "Network Security"
+        },
+        {
+          "id": "cybersecurity.cryptography",
+          "name": "Cryptography"
+        },
+        {
+          "id": "cybersecurity.application-security",
+          "name": "Application Security"
+        },
+        {
+          "id": "cybersecurity.threat-intelligence",
+          "name": "Threat Intelligence"
+        },
+        {
+          "id": "cybersecurity.digital-forensics",
+          "name": "Digital Forensics"
+        },
+        {
+          "id": "cybersecurity.malware-analysis",
+          "name": "Malware Analysis"
+        },
+        {
+          "id": "cybersecurity.identity-access-management",
+          "name": "Identity and Access Management"
+        },
+        {
+          "id": "cybersecurity.security-operations",
+          "name": "Security Operations"
+        }
+      ]
+    },
+    {
+      "id": "education-technology",
+      "name": "Education Technology",
+      "children": [
+        {
+          "id": "education-technology.e-learning",
+          "name": "E-Learning"
+        },
+        {
+          "id": "education-technology.learning-analytics",
+          "name": "Learning Analytics"
+        },
+        {
+          "id": "education-technology.intelligent-tutoring",
+          "name": "Intelligent Tutoring Systems"
+        },
+        {
+          "id": "education-technology.educational-games",
+          "name": "Educational Games"
+        },
+        {
+          "id": "education-technology.online-education",
+          "name": "Online Education"
+        },
+        {
+          "id": "education-technology.instructional-design",
+          "name": "Instructional Design"
+        },
+        {
+          "id": "education-technology.adaptive-learning",
+          "name": "Adaptive Learning"
+        }
+      ]
+    },
+    {
+      "id": "linguistics",
+      "name": "Linguistics",
+      "children": [
+        {
+          "id": "linguistics.phonetics",
+          "name": "Phonetics"
+        },
+        {
+          "id": "linguistics.phonology",
+          "name": "Phonology"
+        },
+        {
+          "id": "linguistics.morphology",
+          "name": "Morphology"
+        },
+        {
+          "id": "linguistics.syntax",
+          "name": "Syntax"
+        },
+        {
+          "id": "linguistics.semantics",
+          "name": "Semantics"
+        },
+        {
+          "id": "linguistics.pragmatics",
+          "name": "Pragmatics"
+        },
+        {
+          "id": "linguistics.sociolinguistics",
+          "name": "Sociolinguistics"
+        },
+        {
+          "id": "linguistics.psycholinguistics",
+          "name": "Psycholinguistics"
+        },
+        {
+          "id": "linguistics.computational-linguistics",
+          "name": "Computational Linguistics"
+        },
+        {
+          "id": "linguistics.historical-linguistics",
+          "name": "Historical Linguistics"
+        }
+      ]
+    },
+    {
+      "id": "transportation",
+      "name": "Transportation",
+      "children": [
+        {
+          "id": "transportation.transportation-planning",
+          "name": "Transportation Planning"
+        },
+        {
+          "id": "transportation.traffic-engineering",
+          "name": "Traffic Engineering"
+        },
+        {
+          "id": "transportation.logistics-systems",
+          "name": "Logistics Systems"
+        },
+        {
+          "id": "transportation.autonomous-vehicles",
+          "name": "Autonomous Vehicles"
+        },
+        {
+          "id": "transportation.public-transit",
+          "name": "Public Transit"
+        },
+        {
+          "id": "transportation.aviation",
+          "name": "Aviation"
+        },
+        {
+          "id": "transportation.maritime",
+          "name": "Maritime Transportation"
+        },
+        {
+          "id": "transportation.rail-systems",
+          "name": "Rail Systems"
+        }
+      ]
+    },
+    {
+      "id": "neuroscience",
+      "name": "Neuroscience",
+      "children": [
+        {
+          "id": "neuroscience.cognitive-neuroscience",
+          "name": "Cognitive Neuroscience"
+        },
+        {
+          "id": "neuroscience.computational-neuroscience",
+          "name": "Computational Neuroscience"
+        },
+        {
+          "id": "neuroscience.molecular-neuroscience",
+          "name": "Molecular Neuroscience"
+        },
+        {
+          "id": "neuroscience.systems-neuroscience",
+          "name": "Systems Neuroscience"
+        },
+        {
+          "id": "neuroscience.behavioral-neuroscience",
+          "name": "Behavioral Neuroscience"
+        },
+        {
+          "id": "neuroscience.neuroimaging",
+          "name": "Neuroimaging"
+        },
+        {
+          "id": "neuroscience.neuroengineering",
+          "name": "Neuroengineering"
+        }
+      ]
+    },
+    {
+      "id": "environmental-science",
+      "name": "Environmental Science",
+      "children": [
+        {
+          "id": "environmental-science.conservation",
+          "name": "Conservation"
+        },
+        {
+          "id": "environmental-science.pollution-control",
+          "name": "Pollution Control"
+        },
+        {
+          "id": "environmental-science.environmental-management",
+          "name": "Environmental Management"
+        },
+        {
+          "id": "environmental-science.ecotoxicology",
+          "name": "Ecotoxicology"
+        },
+        {
+          "id": "environmental-science.waste-management",
+          "name": "Waste Management"
+        },
+        {
+          "id": "environmental-science.water-resources",
+          "name": "Water Resources"
+        },
+        {
+          "id": "environmental-science.environmental-policy",
+          "name": "Environmental Policy"
+        }
+      ]
+    }
+  ]
+}

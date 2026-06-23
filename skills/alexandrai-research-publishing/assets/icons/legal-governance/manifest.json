@@ -1,0 +1,18 @@
+[
+  {"name":"gavel","file":"gavel.svg","category":"legal-governance","keywords":["gavel","judge","court","decision","ruling","verdict","hammer"]},
+  {"name":"scales-justice","file":"scales-justice.svg","category":"legal-governance","keywords":["scales","justice","balance","fairness","law","equity","weigh"]},
+  {"name":"contract","file":"contract.svg","category":"legal-governance","keywords":["contract","agreement","document","legal","terms","binding"]},
+  {"name":"contract-sign","file":"contract-sign.svg","category":"legal-governance","keywords":["contract","sign","signature","execute","countersign","agreement"]},
+  {"name":"seal-stamp","file":"seal-stamp.svg","category":"legal-governance","keywords":["seal","stamp","official","authenticate","certify","notarise","emboss"]},
+  {"name":"regulation","file":"regulation.svg","category":"legal-governance","keywords":["regulation","rule","law","policy","directive","requirement","standard"]},
+  {"name":"law-book","file":"law-book.svg","category":"legal-governance","keywords":["law","book","statute","code","legislation","legal","volume"]},
+  {"name":"court-building","file":"court-building.svg","category":"legal-governance","keywords":["court","building","tribunal","judiciary","institution","hall","justice"]},
+  {"name":"clause","file":"clause.svg","category":"legal-governance","keywords":["clause","section","paragraph","provision","term","article","legal"]},
+  {"name":"amendment","file":"amendment.svg","category":"legal-governance","keywords":["amendment","revision","change","modify","edit","update","legal"]},
+  {"name":"notary","file":"notary.svg","category":"legal-governance","keywords":["notary","notarise","authenticate","witness","certify","official","stamp"]},
+  {"name":"license-legal","file":"license-legal.svg","category":"legal-governance","keywords":["license","permit","credential","authorisation","legal","card","certificate"]},
+  {"name":"compliance-doc","file":"compliance-doc.svg","category":"legal-governance","keywords":["compliance","document","check","verify","audit","approved","conform"]},
+  {"name":"mandate","file":"mandate.svg","category":"legal-governance","keywords":["mandate","order","directive","requirement","obligation","instruction","authority"]},
+  {"name":"ruling","file":"ruling.svg","category":"legal-governance","keywords":["ruling","verdict","judgment","court","decision","decree","official"]},
+  {"name":"evidence-bag","file":"evidence-bag.svg","category":"legal-governance","keywords":["evidence","bag","exhibit","forensic","proof","item","custody"]}
+]

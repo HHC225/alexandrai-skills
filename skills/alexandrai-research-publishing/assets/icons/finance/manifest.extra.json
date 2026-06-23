@@ -1,0 +1,22 @@
+[
+  {"name":"kyc","file":"kyc.svg","category":"finance","keywords":["know your customer","identity","verification","compliance","onboarding","customer due diligence"]},
+  {"name":"aml","file":"aml.svg","category":"finance","keywords":["anti-money laundering","compliance","suspicious","monitoring","screening"]},
+  {"name":"swift","file":"swift.svg","category":"finance","keywords":["swift","bic","international","messaging","interbank","network"]},
+  {"name":"iban","file":"iban.svg","category":"finance","keywords":["iban","account number","international","bank account","routing"]},
+  {"name":"wire-transfer","file":"wire-transfer.svg","category":"finance","keywords":["wire","remittance","bank-to-bank","electronic","funds transfer"]},
+  {"name":"settlement","file":"settlement.svg","category":"finance","keywords":["settlement","clearing","finality","dvp","netting","clearing house"]},
+  {"name":"reconciliation","file":"reconciliation.svg","category":"finance","keywords":["reconciliation","matching","balancing","discrepancy","compare","ledger"]},
+  {"name":"mortgage","file":"mortgage.svg","category":"finance","keywords":["mortgage","home loan","property","real estate","housing","lien"]},
+  {"name":"loan","file":"loan.svg","category":"finance","keywords":["loan","credit","borrowing","principal","repayment","lending"]},
+  {"name":"dividend","file":"dividend.svg","category":"finance","keywords":["dividend","distribution","equity","shareholder","yield","payout"]},
+  {"name":"tax","file":"tax.svg","category":"finance","keywords":["tax","withholding","vat","gst","fiscal","duty","levy"]},
+  {"name":"fraud-alert","file":"fraud-alert.svg","category":"finance","keywords":["fraud","alert","suspicious","anomaly","risk","detection","warning"]},
+  {"name":"fx-rate","file":"fx-rate.svg","category":"finance","keywords":["fx","foreign exchange","rate","currency","conversion","spot rate","forex"]},
+  {"name":"portfolio","file":"portfolio.svg","category":"finance","keywords":["portfolio","investments","holdings","assets","allocation","positions"]},
+  {"name":"escrow","file":"escrow.svg","category":"finance","keywords":["escrow","trust","held","conditional","third party","lockup"]},
+  {"name":"collateral","file":"collateral.svg","category":"finance","keywords":["collateral","security","pledge","margin","guarantee","asset backing"]},
+  {"name":"credit-score","file":"credit-score.svg","category":"finance","keywords":["credit score","rating","creditworthiness","risk score","gauge"]},
+  {"name":"overdraft","file":"overdraft.svg","category":"finance","keywords":["overdraft","negative balance","facility","drawdown","overdrawn"]},
+  {"name":"statement","file":"statement.svg","category":"finance","keywords":["statement","account statement","summary","period","history","balance"]},
+  {"name":"payout","file":"payout.svg","category":"finance","keywords":["payout","disbursement","payment out","remittance","settlement payment"]}
+]

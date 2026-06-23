@@ -1,0 +1,21 @@
+[
+  {"name":"lock","file":"lock.svg","category":"security","keywords":["locked","padlock","secure","closed","protected"]},
+  {"name":"lock-open","file":"lock-open.svg","category":"security","keywords":["unlocked","open","unsecured","accessible"]},
+  {"name":"key","file":"key.svg","category":"security","keywords":["key","credential","secret","auth","password"]},
+  {"name":"shield","file":"shield.svg","category":"security","keywords":["shield","protect","defense","guard","safe"]},
+  {"name":"shield-keyhole","file":"shield-keyhole.svg","category":"security","keywords":["shield","lock","protected","keyhole","access control"]},
+  {"name":"audit-magnifier","file":"audit-magnifier.svg","category":"security","keywords":["audit","magnifier","inspect","review","investigate","search","log"]},
+  {"name":"policy-doc","file":"policy-doc.svg","category":"security","keywords":["policy","document","rules","regulation","procedure","compliance"]},
+  {"name":"certificate","file":"certificate.svg","category":"security","keywords":["certificate","cert","credential","seal","medal","award","ssl","tls"]},
+  {"name":"signature-pen","file":"signature-pen.svg","category":"security","keywords":["signature","sign","pen","esign","digital signature","approve"]},
+  {"name":"redact","file":"redact.svg","category":"security","keywords":["redact","censor","mask","hide","blackout","classified","pii"]},
+  {"name":"fingerprint","file":"fingerprint.svg","category":"security","keywords":["fingerprint","biometric","identity","unique","biom","identity verification"]},
+  {"name":"access-grant","file":"access-grant.svg","category":"security","keywords":["access grant","allow","permit","authorized","approved","user access"]},
+  {"name":"access-deny","file":"access-deny.svg","category":"security","keywords":["access deny","forbidden","unauthorized","rejected","block","revoke"]},
+  {"name":"encryption","file":"encryption.svg","category":"security","keywords":["encryption","encrypt","lock","cipher","data protection","at rest"]},
+  {"name":"token","file":"token.svg","category":"security","keywords":["token","bearer","jwt","api key","auth token","chip","card"]},
+  {"name":"mfa","file":"mfa.svg","category":"security","keywords":["mfa","2fa","two factor","multi factor","otp","authentication","phone"]},
+  {"name":"vulnerability","file":"vulnerability.svg","category":"security","keywords":["vulnerability","vuln","cve","risk","warning","security flaw","exposure"]},
+  {"name":"patch","file":"patch.svg","category":"security","keywords":["patch","fix","remediation","update","hotfix","security patch"]},
+  {"name":"compliance-check","file":"compliance-check.svg","category":"security","keywords":["compliance","check","pass","regulation","audit pass","verified","conformance"]}
+]

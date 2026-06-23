@@ -1,0 +1,122 @@
+[
+  {
+    "name": "candidate",
+    "file": "candidate.svg",
+    "category": "hr-recruiting",
+    "keywords": ["candidate", "applicant", "job seeker", "prospect", "interviewee"]
+  },
+  {
+    "name": "resume",
+    "file": "resume.svg",
+    "category": "hr-recruiting",
+    "keywords": ["resume", "profile", "person document", "application", "biography"]
+  },
+  {
+    "name": "cv",
+    "file": "cv.svg",
+    "category": "hr-recruiting",
+    "keywords": ["cv", "curriculum vitae", "document", "application", "qualifications"]
+  },
+  {
+    "name": "job-offer",
+    "file": "job-offer.svg",
+    "category": "hr-recruiting",
+    "keywords": ["job offer", "offer letter", "contract", "acceptance", "hiring document"]
+  },
+  {
+    "name": "interview",
+    "file": "interview.svg",
+    "category": "hr-recruiting",
+    "keywords": ["interview", "screening", "assessment", "evaluation", "meeting"]
+  },
+  {
+    "name": "onboarding",
+    "file": "onboarding.svg",
+    "category": "hr-recruiting",
+    "keywords": ["onboarding", "new hire", "joining", "induction", "orientation"]
+  },
+  {
+    "name": "offboarding",
+    "file": "offboarding.svg",
+    "category": "hr-recruiting",
+    "keywords": ["offboarding", "exit", "departure", "termination", "resignation"]
+  },
+  {
+    "name": "payroll",
+    "file": "payroll.svg",
+    "category": "hr-recruiting",
+    "keywords": ["payroll", "payment", "compensation", "wage", "salary run"]
+  },
+  {
+    "name": "salary",
+    "file": "salary.svg",
+    "category": "hr-recruiting",
+    "keywords": ["salary", "compensation", "pay", "wage", "remuneration", "income"]
+  },
+  {
+    "name": "benefits",
+    "file": "benefits.svg",
+    "category": "hr-recruiting",
+    "keywords": ["benefits", "perks", "package", "welfare", "allowance", "entitlements"]
+  },
+  {
+    "name": "vacation",
+    "file": "vacation.svg",
+    "category": "hr-recruiting",
+    "keywords": ["vacation", "leave", "holiday", "time off", "PTO", "annual leave"]
+  },
+  {
+    "name": "performance-review",
+    "file": "performance-review.svg",
+    "category": "hr-recruiting",
+    "keywords": ["performance review", "appraisal", "evaluation", "assessment", "KPI", "1-on-1"]
+  },
+  {
+    "name": "headcount",
+    "file": "headcount.svg",
+    "category": "hr-recruiting",
+    "keywords": ["headcount", "workforce", "staff count", "FTE", "team size"]
+  },
+  {
+    "name": "hiring",
+    "file": "hiring.svg",
+    "category": "hr-recruiting",
+    "keywords": ["hiring", "recruit", "add staff", "new position", "open role"]
+  },
+  {
+    "name": "talent-pool",
+    "file": "talent-pool.svg",
+    "category": "hr-recruiting",
+    "keywords": ["talent pool", "pipeline", "candidates", "bench", "sourcing", "prospects"]
+  },
+  {
+    "name": "promotion",
+    "file": "promotion.svg",
+    "category": "hr-recruiting",
+    "keywords": ["promotion", "career advancement", "level up", "grade", "raise", "elevation"]
+  },
+  {
+    "name": "attendance",
+    "file": "attendance.svg",
+    "category": "hr-recruiting",
+    "keywords": ["attendance", "presence", "check-in", "roster", "workdays", "absence"]
+  },
+  {
+    "name": "timesheet",
+    "file": "timesheet.svg",
+    "category": "hr-recruiting",
+    "keywords": ["timesheet", "hours", "time tracking", "work log", "overtime", "clocking"]
+  },
+  {
+    "name": "recruitment-funnel",
+    "file": "recruitment-funnel.svg",
+    "category": "hr-recruiting",
+    "keywords": ["recruitment funnel", "pipeline", "stages", "conversion", "applicant flow"]
+  },
+  {
+    "name": "employee-record",
+    "file": "employee-record.svg",
+    "category": "hr-recruiting",
+    "keywords": ["employee record", "personnel file", "HR file", "staff profile", "master data"]
+  }
+]

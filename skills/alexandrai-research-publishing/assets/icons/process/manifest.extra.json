@@ -1,0 +1,110 @@
+[
+  {
+    "name": "approval-chain",
+    "file": "approval-chain.svg",
+    "category": "process",
+    "keywords": ["approval", "chain", "multi-step", "sign-off", "authorize", "sequential", "workflow"]
+  },
+  {
+    "name": "sign-off",
+    "file": "sign-off.svg",
+    "category": "process",
+    "keywords": ["sign-off", "signature", "endorse", "authorize", "finalize", "approve", "sign"]
+  },
+  {
+    "name": "review-cycle",
+    "file": "review-cycle.svg",
+    "category": "process",
+    "keywords": ["review", "cycle", "iterate", "feedback", "loop", "revision", "round-trip"]
+  },
+  {
+    "name": "raci",
+    "file": "raci.svg",
+    "category": "process",
+    "keywords": ["raci", "responsible", "accountable", "consulted", "informed", "matrix", "roles", "governance"]
+  },
+  {
+    "name": "dependency-graph",
+    "file": "dependency-graph.svg",
+    "category": "process",
+    "keywords": ["dependency", "graph", "network", "links", "prerequisites", "relations", "dag"]
+  },
+  {
+    "name": "critical-path",
+    "file": "critical-path.svg",
+    "category": "process",
+    "keywords": ["critical", "path", "cpm", "duration", "schedule", "longest", "constraint"]
+  },
+  {
+    "name": "bottleneck",
+    "file": "bottleneck.svg",
+    "category": "process",
+    "keywords": ["bottleneck", "constraint", "choke", "limit", "congestion", "capacity", "flow"]
+  },
+  {
+    "name": "throughput",
+    "file": "throughput.svg",
+    "category": "process",
+    "keywords": ["throughput", "rate", "flow", "velocity", "output", "capacity", "performance"]
+  },
+  {
+    "name": "backlog",
+    "file": "backlog.svg",
+    "category": "process",
+    "keywords": ["backlog", "queue", "items", "stack", "pending", "stories", "agile"]
+  },
+  {
+    "name": "wip-limit",
+    "file": "wip-limit.svg",
+    "category": "process",
+    "keywords": ["wip", "work-in-progress", "limit", "kanban", "cap", "constraint", "board"]
+  },
+  {
+    "name": "retrospective",
+    "file": "retrospective.svg",
+    "category": "process",
+    "keywords": ["retrospective", "retro", "reflection", "review", "look-back", "agile", "improvement"]
+  },
+  {
+    "name": "standup",
+    "file": "standup.svg",
+    "category": "process",
+    "keywords": ["standup", "daily", "scrum", "sync", "meeting", "team", "status"]
+  },
+  {
+    "name": "sprint-review",
+    "file": "sprint-review.svg",
+    "category": "process",
+    "keywords": ["sprint-review", "demo", "showcase", "delivery", "sprint", "agile", "complete"]
+  },
+  {
+    "name": "burndown",
+    "file": "burndown.svg",
+    "category": "process",
+    "keywords": ["burndown", "chart", "remaining", "trend", "sprint", "progress", "agile"]
+  },
+  {
+    "name": "value-stream",
+    "file": "value-stream.svg",
+    "category": "process",
+    "keywords": ["value-stream", "vsm", "flow", "lean", "end-to-end", "delivery", "map"]
+  },
+  {
+    "name": "gate-review",
+    "file": "gate-review.svg",
+    "category": "process",
+    "keywords": ["gate-review", "stage-gate", "inspection", "quality", "decision", "tollgate", "checkpoint"]
+  },
+  {
+    "name": "rollout",
+    "file": "rollout.svg",
+    "category": "process",
+    "keywords": ["rollout", "deploy", "release", "staged", "gradual", "launch", "publish"]
+  },
+  {
+    "name": "change-request",
+    "file": "change-request.svg",
+    "category": "process",
+    "keywords": ["change-request", "cr", "change", "modification", "request", "proposal", "amendment"]
+  }
+]

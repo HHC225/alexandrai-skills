@@ -1,0 +1,22 @@
+[
+  {"name":"cart","file":"cart.svg","category":"commerce","keywords":["cart","shopping","trolley","purchase","basket"]},
+  {"name":"cart-add","file":"cart-add.svg","category":"commerce","keywords":["cart","add","plus","shopping","add-to-cart"]},
+  {"name":"shopping-bag","file":"shopping-bag.svg","category":"commerce","keywords":["bag","shopping","purchase","retail"]},
+  {"name":"storefront","file":"storefront.svg","category":"commerce","keywords":["store","shop","retail","front","merchant"]},
+  {"name":"order-box","file":"order-box.svg","category":"commerce","keywords":["order","box","package","parcel","shipment"]},
+  {"name":"shipping-box","file":"shipping-box.svg","category":"commerce","keywords":["shipping","box","package","parcel","dispatch"]},
+  {"name":"delivery-truck","file":"delivery-truck.svg","category":"commerce","keywords":["delivery","truck","shipping","transport","logistics"]},
+  {"name":"return-box","file":"return-box.svg","category":"commerce","keywords":["return","refund","box","reverse","logistics"]},
+  {"name":"discount-tag","file":"discount-tag.svg","category":"commerce","keywords":["discount","tag","percent","sale","promo","offer"]},
+  {"name":"coupon","file":"coupon.svg","category":"commerce","keywords":["coupon","voucher","discount","promo","code"]},
+  {"name":"gift","file":"gift.svg","category":"commerce","keywords":["gift","present","reward","bonus","wrap"]},
+  {"name":"price-tag","file":"price-tag.svg","category":"commerce","keywords":["price","tag","label","cost","sku"]},
+  {"name":"checkout","file":"checkout.svg","category":"commerce","keywords":["checkout","payment","confirm","purchase","complete"]},
+  {"name":"refund","file":"refund.svg","category":"commerce","keywords":["refund","return","reversal","credit","chargeback"]},
+  {"name":"subscription","file":"subscription.svg","category":"commerce","keywords":["subscription","recurring","plan","billing","renewal"]},
+  {"name":"loyalty-card","file":"loyalty-card.svg","category":"commerce","keywords":["loyalty","card","points","membership","rewards"]},
+  {"name":"barcode-scan","file":"barcode-scan.svg","category":"commerce","keywords":["barcode","scan","sku","product","upc","ean"]},
+  {"name":"wishlist","file":"wishlist.svg","category":"commerce","keywords":["wishlist","bookmark","save","favourite","list"]},
+  {"name":"basket","file":"basket.svg","category":"commerce","keywords":["basket","cart","purchase","items","order"]},
+  {"name":"sale","file":"sale.svg","category":"commerce","keywords":["sale","discount","percent","offer","promo","deal"]}
+]

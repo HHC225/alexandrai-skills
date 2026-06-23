@@ -1,0 +1,18 @@
+[
+  {"name":"source-ticket","file":"source-ticket.svg","category":"source","keywords":["ticket","issue","task","jira","card","notch","tracker","story","defect"]},
+  {"name":"source-repo","file":"source-repo.svg","category":"source","keywords":["repo","repository","git","gitlab","github","branch","version","code","vcs"]},
+  {"name":"source-monitoring","file":"source-monitoring.svg","category":"source","keywords":["monitoring","monitor","dashboard","panel","waveform","alert","metric","newrelic","observability"]},
+  {"name":"source-logs","file":"source-logs.svg","category":"source","keywords":["log","logs","logfile","lines","console","output","trace","audit-log","text"]},
+  {"name":"source-datamodel","file":"source-datamodel.svg","category":"source","keywords":["datamodel","data-model","schema","erd","entity","relation","table","database","diagram","spanner"]},
+  {"name":"source-wiki","file":"source-wiki.svg","category":"source","keywords":["wiki","confluence","knowledge-base","book","pages","documentation","open-book","manual"]},
+  {"name":"source-chat","file":"source-chat.svg","category":"source","keywords":["chat","slack","message","conversation","panel","thread","comment","discussion","messenger"]},
+  {"name":"source-console","file":"source-console.svg","category":"source","keywords":["console","terminal","cli","shell","command-line","prompt","gcp","kubectl","bash"]},
+  {"name":"source-design-doc","file":"source-design-doc.svg","category":"source","keywords":["design-doc","design","drawing","engineering","ruler","blueprint","architecture","technical-doc","hld","lld"]},
+  {"name":"source-spec","file":"source-spec.svg","category":"source","keywords":["spec","specification","requirement","requirements","srs","clause","structured","formal","contract"]},
+  {"name":"source-regulator","file":"source-regulator.svg","category":"source","keywords":["regulator","regulatory","official","authority","government","building","compliance","fsa","regulation","institutional"]},
+  {"name":"source-press","file":"source-press.svg","category":"source","keywords":["press","announcement","release","publication","newspaper","columns","article","newsletter","bulletin"]},
+  {"name":"source-rca","file":"source-rca.svg","category":"source","keywords":["rca","root-cause","analysis","magnifier","investigation","incident","postmortem","search-doc","cause"]},
+  {"name":"source-news","file":"source-news.svg","category":"source","keywords":["news","newspaper","article","columns","headlines","media","publication","feed","journal"]},
+  {"name":"source-email","file":"source-email.svg","category":"source","keywords":["email","mail","envelope","message","inbox","correspondence","notification","contact"]},
+  {"name":"source-external","file":"source-external.svg","category":"source","keywords":["external","link","outbound","outside","third-party","external-source","out-arrow","reference","open"]}
+]

@@ -1,0 +1,22 @@
+[
+  {"name":"vpn","file":"vpn.svg","category":"security","keywords":["vpn","tunnel","encrypted tunnel","virtual private network","network security","privacy"]},
+  {"name":"waf","file":"waf.svg","category":"security","keywords":["waf","web application firewall","firewall","traffic filter","application security","filter"]},
+  {"name":"ids","file":"ids.svg","category":"security","keywords":["ids","intrusion detection","anomaly detection","network monitoring","threat detection","inspect"]},
+  {"name":"siem","file":"siem.svg","category":"security","keywords":["siem","security information","event management","log analysis","security monitoring","alert","dashboard"]},
+  {"name":"soc","file":"soc.svg","category":"security","keywords":["soc","security operations center","monitor","operations","security team","command center"]},
+  {"name":"cve","file":"cve.svg","category":"security","keywords":["cve","common vulnerabilities","exposures","vulnerability id","security advisory","patch"]},
+  {"name":"threat-actor","file":"threat-actor.svg","category":"security","keywords":["threat actor","attacker","adversary","hacker","malicious user","threat","risk"]},
+  {"name":"malware","file":"malware.svg","category":"security","keywords":["malware","virus","bug","infection","malicious software","threat","code"]},
+  {"name":"phishing","file":"phishing.svg","category":"security","keywords":["phishing","social engineering","email attack","fishing","credential theft","deception"]},
+  {"name":"ransomware","file":"ransomware.svg","category":"security","keywords":["ransomware","ransom","extortion","data hostage","encryption attack","lock","coin"]},
+  {"name":"backup-shield","file":"backup-shield.svg","category":"security","keywords":["backup","restore","recovery","shield","data protection","backup shield","resilience"]},
+  {"name":"failover","file":"failover.svg","category":"security","keywords":["failover","high availability","redundancy","switchover","disaster recovery","server","resilience"]},
+  {"name":"zero-trust","file":"zero-trust.svg","category":"security","keywords":["zero trust","never trust","always verify","zero-trust","access control","security model"]},
+  {"name":"sso","file":"sso.svg","category":"security","keywords":["sso","single sign-on","federation","unified login","identity","authentication","key"]},
+  {"name":"oauth","file":"oauth.svg","category":"security","keywords":["oauth","oauth2","delegated auth","authorization","token","access delegation","api auth"]},
+  {"name":"rbac","file":"rbac.svg","category":"security","keywords":["rbac","role-based access","access control","permissions","roles","authorization","hierarchy"]},
+  {"name":"secret-vault","file":"secret-vault.svg","category":"security","keywords":["secret","vault","secrets manager","key vault","password store","credential store","safe"]},
+  {"name":"security-scan","file":"security-scan.svg","category":"security","keywords":["scan","security scan","vulnerability scan","pentest","assessment","sweep","scanner"]},
+  {"name":"breach","file":"breach.svg","category":"security","keywords":["breach","data breach","incident","compromise","crack","intrusion","leak","attack"]},
+  {"name":"quarantine","file":"quarantine.svg","category":"security","keywords":["quarantine","isolation","containment","sandboxed","blocked","quarantined file","security isolation"]}
+]

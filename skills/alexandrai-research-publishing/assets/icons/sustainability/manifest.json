@@ -1,0 +1,18 @@
+[
+  {"name":"leaf","file":"leaf.svg","category":"sustainability","keywords":["leaf","plant","green","nature","organic","eco","foliage"]},
+  {"name":"recycle","file":"recycle.svg","category":"sustainability","keywords":["recycle","recycling","loop","circular","waste","reuse","arrows"]},
+  {"name":"solar-panel","file":"solar-panel.svg","category":"sustainability","keywords":["solar","panel","photovoltaic","pv","sun","energy","power","renewable"]},
+  {"name":"wind-turbine","file":"wind-turbine.svg","category":"sustainability","keywords":["wind","turbine","windmill","energy","power","renewable","generator"]},
+  {"name":"energy-bolt","file":"energy-bolt.svg","category":"sustainability","keywords":["energy","bolt","lightning","electricity","power","flash","electric"]},
+  {"name":"carbon","file":"carbon.svg","category":"sustainability","keywords":["carbon","co2","emissions","greenhouse","gas","climate","dioxide"]},
+  {"name":"water-drop","file":"water-drop.svg","category":"sustainability","keywords":["water","drop","droplet","liquid","hydro","conservation","resource"]},
+  {"name":"tree","file":"tree.svg","category":"sustainability","keywords":["tree","forest","nature","carbon-offset","planting","green","afforestation"]},
+  {"name":"eco-globe","file":"eco-globe.svg","category":"sustainability","keywords":["globe","earth","world","planet","global","environment","esg"]},
+  {"name":"emissions","file":"emissions.svg","category":"sustainability","keywords":["emissions","exhaust","pollution","ghg","scope","co2","greenhouse"]},
+  {"name":"renewable","file":"renewable.svg","category":"sustainability","keywords":["renewable","clean","energy","cycle","sustainable","circular","refresh"]},
+  {"name":"battery-eco","file":"battery-eco.svg","category":"sustainability","keywords":["battery","eco","storage","energy","charge","green","power"]},
+  {"name":"footprint","file":"footprint.svg","category":"sustainability","keywords":["footprint","carbon-footprint","impact","trace","environment","scope"]},
+  {"name":"biodiversity","file":"biodiversity.svg","category":"sustainability","keywords":["biodiversity","ecosystem","nature","species","habitat","tnfd","environment"]},
+  {"name":"circular-economy","file":"circular-economy.svg","category":"sustainability","keywords":["circular","economy","loop","cycle","reuse","waste","lifecycle"]},
+  {"name":"charging","file":"charging.svg","category":"sustainability","keywords":["charging","ev","electric","vehicle","battery","bolt","energy","charge"]}
+]

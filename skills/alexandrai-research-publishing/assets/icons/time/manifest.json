@@ -1,0 +1,104 @@
+[
+  {
+    "name": "clock",
+    "file": "clock.svg",
+    "category": "time",
+    "keywords": ["clock", "time", "hour", "watch", "current-time"]
+  },
+  {
+    "name": "clock-alert",
+    "file": "clock-alert.svg",
+    "category": "time",
+    "keywords": ["clock-alert", "time-warning", "overrun", "breach", "late", "alert"]
+  },
+  {
+    "name": "calendar",
+    "file": "calendar.svg",
+    "category": "time",
+    "keywords": ["calendar", "date", "month", "day", "schedule"]
+  },
+  {
+    "name": "calendar-event",
+    "file": "calendar-event.svg",
+    "category": "time",
+    "keywords": ["calendar-event", "event", "appointment", "booking", "date-mark"]
+  },
+  {
+    "name": "calendar-check",
+    "file": "calendar-check.svg",
+    "category": "time",
+    "keywords": ["calendar-check", "completed", "done", "verified-date", "confirmed"]
+  },
+  {
+    "name": "calendar-range",
+    "file": "calendar-range.svg",
+    "category": "time",
+    "keywords": ["calendar-range", "date-range", "from-to", "period", "span", "interval"]
+  },
+  {
+    "name": "duration",
+    "file": "duration.svg",
+    "category": "time",
+    "keywords": ["duration", "span", "interval", "length", "time-span", "elapsed-total"]
+  },
+  {
+    "name": "deadline",
+    "file": "deadline.svg",
+    "category": "time",
+    "keywords": ["deadline", "due-date", "cutoff", "target-date", "flag", "milestone-date"]
+  },
+  {
+    "name": "history",
+    "file": "history.svg",
+    "category": "time",
+    "keywords": ["history", "undo", "past", "previous", "revert", "back-in-time", "restore"]
+  },
+  {
+    "name": "schedule",
+    "file": "schedule.svg",
+    "category": "time",
+    "keywords": ["schedule", "plan", "agenda", "timetable", "task-list", "calendar-list"]
+  },
+  {
+    "name": "stopwatch",
+    "file": "stopwatch.svg",
+    "category": "time",
+    "keywords": ["stopwatch", "measure-time", "lap", "split-time", "performance", "benchmark"]
+  },
+  {
+    "name": "timer",
+    "file": "timer.svg",
+    "category": "time",
+    "keywords": ["timer", "countdown", "preset", "timeout", "alarm", "set-time"]
+  },
+  {
+    "name": "recurring",
+    "file": "recurring.svg",
+    "category": "time",
+    "keywords": ["recurring", "repeat", "cycle", "periodic", "cron", "scheduled-repeat", "loop"]
+  },
+  {
+    "name": "sla-clock",
+    "file": "sla-clock.svg",
+    "category": "time",
+    "keywords": ["sla-clock", "sla", "service-level", "threshold", "compliance-time", "sla-breach"]
+  },
+  {
+    "name": "elapsed",
+    "file": "elapsed.svg",
+    "category": "time",
+    "keywords": ["elapsed", "time-passed", "progress-time", "consumed", "spent-time", "partial"]
+  },
+  {
+    "name": "timezone",
+    "file": "timezone.svg",
+    "category": "time",
+    "keywords": ["timezone", "zone", "utc", "offset", "region-time", "global-time", "meridian"]
+  },
+  {
+    "name": "overdue",
+    "file": "overdue.svg",
+    "category": "time",
+    "keywords": ["overdue", "past-due", "missed", "expired", "late", "failed-deadline"]
+  }
+]

@@ -1,0 +1,22 @@
+[
+  {"name":"success-filled","file":"success-filled.svg","category":"status","keywords":["success","done","complete","pass","filled","solid","positive","approved","check","circle"]},
+  {"name":"error-filled","file":"error-filled.svg","category":"status","keywords":["error","fail","failure","reject","filled","solid","negative","denied","cross","circle"]},
+  {"name":"syncing","file":"syncing.svg","category":"status","keywords":["sync","syncing","refresh","loading","updating","arrows","rotate","in-progress","data-sync"]},
+  {"name":"offline","file":"offline.svg","category":"status","keywords":["offline","disconnected","unavailable","inactive","slash","circle","node","down"]},
+  {"name":"online","file":"online.svg","category":"status","keywords":["online","connected","active","available","live","circle","node","up","healthy"]},
+  {"name":"draft-status","file":"draft-status.svg","category":"status","keywords":["draft","editing","wip","work-in-progress","pencil","document","unfinished","unpublished"]},
+  {"name":"published","file":"published.svg","category":"status","keywords":["published","live","released","finalized","document","check","approved","deployed"]},
+  {"name":"archived","file":"archived.svg","category":"status","keywords":["archived","archive","stored","retired","inactive","closed","history","box"]},
+  {"name":"new-badge","file":"new-badge.svg","category":"status","keywords":["new","badge","fresh","recently-added","starburst","seal","indicator","just-added"]},
+  {"name":"beta","file":"beta.svg","category":"status","keywords":["beta","preview","experimental","draft","dashed","badge","unstable","pre-release","testing"]},
+  {"name":"deprecated","file":"deprecated.svg","category":"status","keywords":["deprecated","obsolete","sunset","retired","slash","warning","circle","end-of-life","legacy"]},
+  {"name":"locked-status","file":"locked-status.svg","category":"status","keywords":["locked","lock","restricted","protected","immutable","secure","closed","no-edit"]},
+  {"name":"unlocked-status","file":"unlocked-status.svg","category":"status","keywords":["unlocked","open","editable","accessible","lock-open","mutable","unrestricted"]},
+  {"name":"partial-check","file":"partial-check.svg","category":"status","keywords":["partial","partial-check","semi","halfway","dash","circle","incomplete","mixed","some-passed"]},
+  {"name":"indeterminate","file":"indeterminate.svg","category":"status","keywords":["indeterminate","unknown","uncertain","dash","dashed","circle","undetermined","unclear","mixed"]},
+  {"name":"snooze","file":"snooze.svg","category":"status","keywords":["snooze","snoozed","alarm","clock","defer","delayed","muted","postponed","reminder"]},
+  {"name":"priority-high","file":"priority-high.svg","category":"status","keywords":["priority","high","urgent","critical","important","triangle","exclamation","severe","top"]},
+  {"name":"priority-low","file":"priority-low.svg","category":"status","keywords":["priority","low","minor","trivial","triangle","down","less-urgent","backlog"]},
+  {"name":"escalated","file":"escalated.svg","category":"status","keywords":["escalated","escalation","elevated","urgent","raised","chevron","double-up","severity-raised"]},
+  {"name":"on-hold","file":"on-hold.svg","category":"status","keywords":["on-hold","hold","paused","suspended","frozen","pause","circle","bars","waiting","deferred"]}
+]

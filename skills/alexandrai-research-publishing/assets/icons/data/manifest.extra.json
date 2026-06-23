@@ -1,0 +1,22 @@
+[
+  {"name":"radar-chart","file":"radar-chart.svg","category":"data","keywords":["radar","spider","web","radial","polygon","axis","multi-dimension","star","metrics"]},
+  {"name":"bubble-chart","file":"bubble-chart.svg","category":"data","keywords":["bubble","chart","scatter","size","three-variable","axis","circles","magnitude"]},
+  {"name":"waterfall","file":"waterfall.svg","category":"data","keywords":["waterfall","bridge","cumulative","variance","incremental","bars","axis","delta","positive","negative"]},
+  {"name":"candlestick","file":"candlestick.svg","category":"data","keywords":["candlestick","ohlc","open","close","high","low","finance","stock","trading","price","axis"]},
+  {"name":"treemap","file":"treemap.svg","category":"data","keywords":["treemap","tree","hierarchical","nested","rectangles","proportion","size","breakdown","partition"]},
+  {"name":"sankey","file":"sankey.svg","category":"data","keywords":["sankey","flow","stream","network","bandwidth","allocation","path","energy","transition"]},
+  {"name":"combo-chart","file":"combo-chart.svg","category":"data","keywords":["combo","combination","mixed","bar","line","dual","axis","overlay","series","multi-type"]},
+  {"name":"boxplot","file":"boxplot.svg","category":"data","keywords":["boxplot","box","whisker","quartile","median","distribution","outlier","spread","statistics","iqr"]},
+  {"name":"cohort","file":"cohort.svg","category":"data","keywords":["cohort","retention","group","time","period","decay","table","analysis","funnel","user"]},
+  {"name":"retention-curve","file":"retention-curve.svg","category":"data","keywords":["retention","curve","decay","churn","survival","cohort","user","time","axis","drop-off"]},
+  {"name":"gauge-full","file":"gauge-full.svg","category":"data","keywords":["gauge","full","needle","dial","speedometer","meter","kpi","radial","progress","pointer"]},
+  {"name":"kpi-card","file":"kpi-card.svg","category":"data","keywords":["kpi","card","tile","metric","key","performance","indicator","dashboard","stat","value","spark"]},
+  {"name":"etl","file":"etl.svg","category":"data","keywords":["etl","extract","transform","load","pipeline","data","flow","integration","ingestion","process"]},
+  {"name":"dataset","file":"dataset.svg","category":"data","keywords":["dataset","data","store","collection","rows","database","cylinder","storage","records","bulk"]},
+  {"name":"query","file":"query.svg","category":"data","keywords":["query","sql","search","lookup","find","filter","database","magnifier","select","fetch"]},
+  {"name":"aggregate","file":"aggregate.svg","category":"data","keywords":["aggregate","sum","group","combine","merge","rollup","consolidate","total","collect","reduce"]},
+  {"name":"dimension","file":"dimension.svg","category":"data","keywords":["dimension","cube","3d","axis","data-model","olap","category","field","column","axis"]},
+  {"name":"drill-down","file":"drill-down.svg","category":"data","keywords":["drill","down","expand","hierarchy","detail","zoom","level","nested","sub","decompose"]},
+  {"name":"forecast","file":"forecast.svg","category":"data","keywords":["forecast","predict","projection","future","trend","model","dashed","extrapolate","estimate","time-series"]},
+  {"name":"anomaly","file":"anomaly.svg","category":"data","keywords":["anomaly","outlier","spike","deviation","alert","unusual","detection","exception","abnormal","series"]}
+]

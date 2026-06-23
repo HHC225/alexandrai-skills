@@ -1,0 +1,22 @@
+[
+  {"name":"quote","file":"quote.svg","category":"editorial","keywords":["quotation","citation","blockquote","pullquote","reference"]},
+  {"name":"bookmark","file":"bookmark.svg","category":"editorial","keywords":["save","mark","flag","reference","saved"]},
+  {"name":"pin","file":"pin.svg","category":"editorial","keywords":["pin","attach","stick","anchor","tack"]},
+  {"name":"tag","file":"tag.svg","category":"editorial","keywords":["tag","label","marker","category","classify"]},
+  {"name":"label","file":"label.svg","category":"editorial","keywords":["label","badge","flag","ribbon","annotate"]},
+  {"name":"highlight","file":"highlight.svg","category":"editorial","keywords":["highlight","mark","emphasize","underline","annotate"]},
+  {"name":"note","file":"note.svg","category":"editorial","keywords":["note","sticky","memo","annotation","comment"]},
+  {"name":"callout","file":"callout.svg","category":"editorial","keywords":["callout","aside","annotation","comment","remark"]},
+  {"name":"asterisk","file":"asterisk.svg","category":"editorial","keywords":["asterisk","footnote","star","reference","caveat"]},
+  {"name":"key-point","file":"key-point.svg","category":"editorial","keywords":["key-point","takeaway","summary","highlight","bar-mark"]},
+  {"name":"insight","file":"insight.svg","category":"editorial","keywords":["insight","finding","analysis","magnifier","data-bar"]},
+  {"name":"recommendation","file":"recommendation.svg","category":"editorial","keywords":["recommendation","action","suggest","checklist","proposal"]},
+  {"name":"warning-note","file":"warning-note.svg","category":"editorial","keywords":["warning","caution","alert","caveat","notice"]},
+  {"name":"info-note","file":"info-note.svg","category":"editorial","keywords":["info","information","note","tip","guidance"]},
+  {"name":"list-bullet","file":"list-bullet.svg","category":"editorial","keywords":["list","bullet","unordered","items","points"]},
+  {"name":"list-numbered","file":"list-numbered.svg","category":"editorial","keywords":["list","numbered","ordered","sequence","steps"]},
+  {"name":"divider","file":"divider.svg","category":"editorial","keywords":["divider","separator","rule","break","section"]},
+  {"name":"section-mark","file":"section-mark.svg","category":"editorial","keywords":["section","chapter","heading","outline","structure"]},
+  {"name":"footnote","file":"footnote.svg","category":"editorial","keywords":["footnote","reference","endnote","citation","source"]},
+  {"name":"exhibit-mark","file":"exhibit-mark.svg","category":"editorial","keywords":["exhibit","figure","table","attachment","reference"]}
+]

@@ -1,0 +1,1676 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="indigo">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1440">
+<title>Research Paper — {{PROJECT}}</title>
+<style>
+/* ============================================================
+   RESEARCH PAPER — formal academic / journal article
+   Inherits the family DNA from designs/_FOUNDATION.md.
+   Data-driven + interactive + themeable per designs/_DATA_DRIVEN.md.
+   Default theme: Indigo. Self-contained: inline CSS, inline SVG
+   icons, ONE inline <script>. NO external requests, NO math CDN.
+   Content is rendered from #report-data by render() below.
+   ============================================================ */
+
+/* ---- 1. tokens (verbatim from the shared palette; Indigo selected on <html>) ---- */
+:root{
+  /* surfaces */
+  --bg:#fff; --bg-band:#f6f6f8; --bg-subtle:#fafafb; --bg-deep:#15131a;
+  --rule:#dcdce2; --rule-soft:#ebebef;
+  /* ink */
+  --ink:#11131a; --ink-mid:#33363f; --ink-soft:#5a5e68; --ink-faint:#868b95;
+  /* brand accent (Purple default; the active theme is set on <html data-theme>) */
+  --navy:#a100ff; --navy-deep:#7a00c2; --navy-bg:#f3e8ff; --navy-line:#d9bef5;
+  --ok:#5a2f8a; --ok-bg:#efe8f5; --ok-line:#d0b5e0;
+  /* semantic states — CONSTANT across all themes */
+  --risk:#b3261e; --risk-bg:#fbeceb; --risk-line:#edc7c4;
+  --hold:#8a6d00; --hold-bg:#fbf3da; --hold-line:#e7d8a4;
+  /* type stacks */
+  --mono:ui-monospace,"JetBrains Mono","SFMono-Regular",Menlo,Consolas,monospace;
+  --sans:-apple-system,"Segoe UI",system-ui,Roboto,"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic UI","Apple SD Gothic Neo","Malgun Gothic","PingFang SC","Microsoft YaHei","Noto Sans CJK JP","Noto Sans CJK KR","Noto Sans CJK SC","Noto Sans JP","Noto Sans KR","Noto Sans SC","Noto Sans",sans-serif;
+  /* a system serif voice for the journal body — no external fonts */
+  --serif:Georgia,"Times New Roman","Noto Serif CJK JP","Noto Serif CJK KR","Noto Serif","Hiragino Mincho ProN",serif;
+}
+/* default :root above = Purple. The 9 brand presets (Black mandatory) override below. */
+html[data-theme="blue"]{   --navy:#0b5fd4; --navy-deep:#0842a0; --navy-bg:#e8f1fc; --navy-line:#bcd6f5; --ok:#1a4f9c; --ok-bg:#e9f0fa; --ok-line:#b7cdea; }
+html[data-theme="purple"]{ --navy:#a100ff; --navy-deep:#7a00c2; --navy-bg:#f3e8ff; --navy-line:#d9bef5; --ok:#5a2f8a; --ok-bg:#efe8f5; --ok-line:#d0b5e0; }
+html[data-theme="indigo"]{ --navy:#4338ca; --navy-deep:#312c92; --navy-bg:#ebebfb; --navy-line:#c7c3f0; --ok:#3730a3; --ok-bg:#ebeaf7; --ok-line:#c5c2ea; }
+html[data-theme="teal"]{   --navy:#0e7c86; --navy-deep:#095861; --navy-bg:#e0f3f4; --navy-line:#a9dade; --ok:#0f5d54; --ok-bg:#e3f3ef; --ok-line:#b3ddd4; }
+html[data-theme="cyan"]{   --navy:#0891b2; --navy-deep:#0e6f88; --navy-bg:#e2f4f9; --navy-line:#abdde9; --ok:#0e6b7a; --ok-bg:#e4f3f4; --ok-line:#b0dde2; }
+html[data-theme="green"]{  --navy:#1f7a44; --navy-deep:#155730; --navy-bg:#e6f4ea; --navy-line:#b3dcc1; --ok:#2f6b3c; --ok-bg:#e9f3ea; --ok-line:#bedcc4; }
+html[data-theme="plum"]{   --navy:#a21d6e; --navy-deep:#7c1450; --navy-bg:#fbe8f2; --navy-line:#e8b9d4; --ok:#6d2356; --ok-bg:#f6e8f0; --ok-line:#e3bcd5; }
+html[data-theme="slate"]{  --navy:#3f4f63; --navy-deep:#29384b; --navy-bg:#eef1f5; --navy-line:#c2ccd8; --ok:#34495e; --ok-bg:#eef1f5; --ok-line:#c2ccd8; }
+html[data-theme="black"]{  --navy:#000000; --navy-deep:#000000; --navy-bg:#f1f1f3; --navy-line:#d6d6db; --ok:#3f3f46; --ok-bg:#f1f1f3; --ok-line:#cfcfd6; }
+
+/* ============================================================= RESET / PAGE */
+*{ box-sizing:border-box; }
+html,body{ margin:0; }
+body{
+  font:13px/1.6 var(--sans); color:var(--ink);
+  background:var(--bg-band);
+  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+}
+.tnum{ font-feature-settings:"tnum" 1; font-variant-numeric:tabular-nums; }
+.icon{ width:1.15em; height:1.15em; display:inline-block; vertical-align:-.18em; color:inherit; }
+.icon-sm{ width:13px; height:13px; }
+
+/* ---- shared primitives: badge / chip ---- */
+.st-badge{
+  display:inline-flex; align-items:center; gap:.4em;
+  font:600 11px/1 var(--sans); padding:3px 8px 3px 7px; border-radius:6px;
+  border:1px solid var(--rule); color:var(--ink-mid); background:var(--bg); white-space:nowrap;
+}
+.st-badge::before{ content:""; width:7px; height:7px; border-radius:50%; background:var(--ink-faint); }
+.st-ok{ color:var(--ok); background:var(--ok-bg); border-color:var(--ok-line); } .st-ok::before{ background:var(--ok); }
+.st-risk{ color:var(--risk); background:var(--risk-bg); border-color:var(--risk-line); } .st-risk::before{ background:var(--risk); }
+.st-hold{ color:var(--hold); background:var(--hold-bg); border-color:var(--hold-line); } .st-hold::before{ background:var(--hold); }
+.chip{
+  display:inline-flex; align-items:center; gap:.35em;
+  font:600 10.5px/1 var(--mono); letter-spacing:.02em;
+  padding:3px 8px; border-radius:6px;
+  background:var(--navy-bg); color:var(--navy-deep); border:1px solid var(--navy-line);
+}
+.mlabel{ font:600 10px/1.4 var(--mono); letter-spacing:.11em; text-transform:uppercase; color:var(--ink-faint); }
+
+/* ---- noscript banner ---- */
+.noscript-note{
+  margin:0; padding:14px 22px; background:var(--hold-bg); color:var(--hold);
+  border-bottom:1px solid var(--hold-line); font:600 12.5px/1.5 var(--sans);
+}
+.noscript-note code{ font:600 11.5px/1 var(--mono); }
+
+/* ============================================================
+   2. THE PAPER PAGE — a centred journal sheet on a grey backdrop
+   ============================================================ */
+.rp-stage{
+  padding:34px 24px 80px; min-height:100vh;
+  display:flex; justify-content:center;
+}
+.rp-page{
+  position:relative;
+  width:880px; max-width:100%;
+  background:var(--bg); color:var(--ink);
+  border:1px solid var(--rule); border-radius:14px;
+  box-shadow:0 1px 2px rgba(17,19,26,.045), 0 18px 50px rgba(17,19,26,.06);
+  padding:48px 64px 56px;
+}
+/* paginated A4 sheets: on screen the paper renders as stacked A4 pages, each a 2-column flow read
+   left column top-to-bottom then right column (column-fill:auto + a fixed column height) — i.e. it
+   reads like a printed journal page. Built by paginate(). */
+.rp-page.paged{ background:none; border:0; box-shadow:none; padding:0; display:flex; flex-direction:column; align-items:stretch; gap:30px; }
+.rp-sheet{
+  position:relative; width:100%; min-height:1244px;     /* A4 ratio: 880 * 297/210 */
+  background:var(--bg); color:var(--ink);
+  border:1px solid var(--rule); border-radius:14px;
+  box-shadow:0 1px 2px rgba(17,19,26,.045), 0 18px 50px rgba(17,19,26,.06);
+  padding:48px 64px 56px; overflow:hidden;
+}
+.rp-sheetflow{ column-count:2; column-gap:30px; column-fill:auto; height:1140px; }   /* 1244 - 48 - 56 */
+.rp-frontmatter{ column-span:all; }
+.rp-sheetflow > .rp-h{ margin-top:18px; break-after:avoid; }
+.rp-sheetflow > .rp-h.rp-h2{ padding-bottom:6px; border-bottom:1px solid var(--rule-soft); }
+.rp-sheetflow > *:first-child{ margin-top:0; }
+.rp-sheetno{ position:absolute; left:0; right:0; bottom:18px; text-align:center; font:600 8.5px/1 var(--mono); letter-spacing:.14em; text-transform:uppercase; color:var(--ink-faint); }
+
+/* ---- floating Contents outline (left of the page) ---- */
+.rp-nav{
+  position:fixed; top:84px; left:24px; width:196px; z-index:40;
+  background:var(--bg); border:1px solid var(--rule); border-radius:11px;
+  padding:11px 12px; box-shadow:0 1px 3px rgba(17,19,26,.05);
+  max-height:calc(100vh - 140px); overflow:auto;
+}
+.rp-nav h4{ margin:0 0 7px; font:700 9.5px/1 var(--mono); letter-spacing:.13em; text-transform:uppercase; color:var(--ink-faint); display:flex; align-items:center; gap:6px; }
+.rp-nav ol{ margin:0; padding:0; list-style:none; }
+.rp-nav li{ margin:0; }
+.rp-nav li.sub{ margin-left:14px; }
+.rp-nav a{
+  display:flex; gap:7px; align-items:baseline; text-decoration:none;
+  padding:3px 6px; border-radius:6px; border-left:2px solid transparent;
+  font:600 11px/1.35 var(--sans); color:var(--ink-soft); cursor:pointer;
+}
+.rp-nav li.sub a{ font-weight:500; font-size:10.5px; color:var(--ink-faint); }
+.rp-nav a:hover{ background:var(--bg-subtle); color:var(--ink); }
+.rp-nav a .n{ font:700 10px/1.4 var(--mono); color:var(--ink-faint); min-width:20px; }
+.rp-nav a.active{ background:var(--navy-bg); color:var(--navy-deep); border-left-color:var(--navy); }
+.rp-nav a.active .n{ color:var(--navy-deep); }
+@media (max-width:1320px){ .rp-nav{ display:none; } }
+
+/* ---- top-right controls strip on the sheet ---- */
+.rp-tools{
+  display:flex; align-items:center; gap:9px; justify-content:flex-end;
+  margin:-8px 0 18px; flex-wrap:wrap;
+}
+.rp-coltoggle{ display:inline-flex; align-items:center; border:1px solid var(--rule); border-radius:7px; overflow:hidden; background:var(--bg); }
+.rp-coltoggle button{ border:0; background:none; cursor:pointer; padding:5px 9px; font:600 10.5px/1 var(--sans); color:var(--ink-soft); }
+.rp-coltoggle button + button{ border-left:1px solid var(--rule); }
+.rp-coltoggle button.on{ background:var(--navy-bg); color:var(--navy-deep); }
+
+/* theme switcher — canonical (per _DATA_DRIVEN §3) */
+.rc-theme{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--rule);border-radius:7px;
+          padding:3px 4px 3px 7px;background:var(--bg);}
+.rc-theme-sw{width:12px;height:12px;border-radius:50%;background:var(--navy);box-shadow:0 0 0 1px var(--rule);flex:none;}
+.rc-theme-sel{border:0;background:none;font:600 11px/1 var(--mono);color:var(--ink-mid);cursor:pointer;outline:none;padding:2px;}
+@media print{.rc-theme{display:none;}}
+
+/* ============================================================
+   3. TITLE BLOCK  (serif title, superscript affiliations)
+   ============================================================ */
+.rp-eyebrow{
+  font:700 10px/1 var(--mono); letter-spacing:.16em; text-transform:uppercase; color:var(--navy-deep);
+  display:flex; align-items:center; gap:7px; margin-bottom:12px;
+}
+.rp-eyebrow::after{ content:""; flex:1; height:1px; background:var(--rule); }
+.rp-title{
+  font:700 30px/1.22 var(--serif); letter-spacing:-.01em; color:var(--ink);
+  margin:0 0 16px; text-wrap:balance;
+}
+.rp-authors{ font:500 15px/1.7 var(--serif); color:var(--ink); margin:0 0 4px; }
+.rp-authors .au{ white-space:nowrap; }
+.rp-authors sup{ font:700 9.5px/1 var(--mono); color:var(--navy-deep); letter-spacing:.02em; padding:0 .5px; }
+.rp-authors .corr{ color:var(--navy-deep); font-weight:700; }
+.rp-affil{ margin:6px 0 0; padding:0; list-style:none; font:400 11.5px/1.55 var(--serif); color:var(--ink-soft); }
+.rp-affil li{ display:flex; gap:6px; }
+.rp-affil li sup{ font:700 9px/1.6 var(--mono); color:var(--navy-deep); min-width:9px; }
+.rp-masthead{
+  display:flex; flex-wrap:wrap; gap:7px 16px; align-items:center;
+  margin:14px 0 0; padding:9px 0 0; border-top:1px solid var(--rule-soft);
+  font:600 11px/1.4 var(--sans); color:var(--ink-soft);
+}
+.rp-masthead .m-id{ font:600 11px/1 var(--mono); color:var(--navy-deep); background:var(--navy-bg); border:1px solid var(--navy-line); padding:3px 8px; border-radius:6px; }
+.rp-masthead .m-corr b{ color:var(--ink-mid); font-weight:700; }
+.rp-masthead .sep{ color:var(--ink-faint); }
+
+/* ---- abstract + keywords ---- */
+.rp-abstract{
+  margin:22px 0 0; padding:16px 20px;
+  background:transparent; border:1px solid var(--rule); border-radius:10px;
+}
+.rp-abstract h3{
+  margin:0 0 6px; font:700 9.5px/1 var(--mono); letter-spacing:.16em; text-transform:uppercase; color:var(--navy-deep);
+}
+.rp-abstract p{ margin:0; font:400 13px/1.66 var(--serif); color:var(--ink-mid); text-align:justify; hyphens:auto; }
+.rp-keywords{ margin:12px 0 0; font:400 12px/1.6 var(--serif); color:var(--ink-soft); }
+.rp-keywords b{ font:700 9.5px/1 var(--mono); letter-spacing:.1em; text-transform:uppercase; color:var(--ink-faint); margin-right:8px; }
+.rp-keywords .kw{ color:var(--navy-deep); }
+.rp-keywords .kw + .kw::before{ content:" · "; color:var(--ink-faint); }
+
+/* ============================================================
+   4. SECTIONS — numbered serif headings + justified prose
+   ============================================================ */
+.rp-body{ margin-top:26px; }
+/* figures & tables are kept whole: never split across a column or page. In 2-column mode they
+   shrink to the column width and stay within a single column (moved whole to the next column if
+   they don't fit) — they do NOT span both columns. The chart SVG / image scales to 100% width. */
+.rp-fig, .rp-tablewrap{ break-inside:avoid; }
+.rp-sec{ margin:0; }
+.rp-sec[data-depth="0"]{ margin-top:26px; }
+.rp-sec[data-depth="0"]:first-child{ margin-top:0; }
+.rp-h{
+  display:flex; align-items:baseline; gap:10px; margin:0 0 9px;
+  scroll-margin-top:24px;
+}
+.rp-h2{ font:700 18px/1.3 var(--serif); color:var(--ink); }
+.rp-h3{ font:700 14.5px/1.35 var(--serif); color:var(--ink); }
+.rp-secnum{
+  font:inherit; color:var(--navy-deep); flex:none; align-self:baseline;
+}
+.rp-sec[data-depth="0"] > .rp-h{ padding-bottom:6px; border-bottom:1px solid var(--rule-soft); }
+.rp-para{
+  margin:0 0 11px; font:400 13.5px/1.72 var(--serif); color:var(--ink);
+  text-align:justify; hyphens:auto;
+}
+.rp-para code, .rp-para em code{ font:600 12px/1 var(--mono); background:var(--bg-subtle); border:1px solid var(--rule-soft); border-radius:4px; padding:.5px 4px; }
+.rp-para sub, .rp-para sup{ font-size:.74em; }
+ul.rp-list, ol.rp-list{ margin:0 0 11px; padding-left:24px; font:400 13.5px/1.66 var(--serif); color:var(--ink); }
+ul.rp-list li, ol.rp-list li{ margin:0 0 3px; text-align:justify; hyphens:auto; }
+ol.rp-list{ list-style:decimal; }
+ol.rp-list::marker{ color:var(--navy-deep); }
+
+/* ---- inline citation ---- */
+.rp-cite{
+  font:600 11px/1 var(--mono); color:var(--navy-deep); cursor:pointer;
+  text-decoration:none; white-space:nowrap; border-radius:3px; padding:0 1px;
+}
+.rp-cite:hover{ background:var(--navy-bg); }
+
+/* ---- numbered equation (HTML/Unicode, no math CDN) ---- */
+.rp-eq{
+  position:relative; margin:16px 0; padding:12px 44px 12px 0;
+  display:flex; align-items:center; justify-content:center;
+  background:var(--bg-subtle); border:1px solid var(--rule-soft); border-radius:10px;
+}
+.rp-eq .eqbody{ font:400 16px/1.5 var(--serif); color:var(--ink); letter-spacing:.01em; }
+.rp-eq .eqbody i{ font-style:italic; }
+.rp-eq sub, .rp-eq sup{ font-size:.66em; }
+.rp-eqnum{ position:absolute; right:16px; top:50%; transform:translateY(-50%); font:600 12px/1 var(--mono); color:var(--ink-soft); }
+
+/* ============================================================
+   5. FIGURES — interactive SVG charts
+   ============================================================ */
+.rp-fig{
+  margin:18px 0; padding:14px 16px 12px;
+  border:1px solid var(--rule); border-radius:11px; background:var(--bg);
+  scroll-margin-top:24px;
+}
+.fig-head{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:9px; flex-wrap:wrap; }
+.fig-legend{ display:flex; gap:5px; flex-wrap:wrap; }
+.lg-btn{
+  display:inline-flex; align-items:center; gap:6px; cursor:pointer; user-select:none;
+  border:1px solid var(--rule); border-radius:999px; background:var(--bg);
+  padding:3px 9px 3px 8px; font:600 10.5px/1 var(--sans); color:var(--ink-mid);
+}
+.lg-btn .sw{ width:10px; height:10px; border-radius:3px; background:var(--ink-faint); flex:none; }
+.lg-btn.off{ opacity:.45; text-decoration:line-through; }
+.fig-tools{ display:inline-flex; align-items:center; gap:8px; }
+.fig-slider{ display:inline-flex; align-items:center; gap:8px; font:600 10.5px/1 var(--sans); color:var(--ink-soft); }
+.fig-slider input[type=range]{ width:128px; accent-color:var(--navy); cursor:pointer; }
+.fig-slider .val{ font:700 11px/1 var(--mono); color:var(--navy-deep); min-width:42px; text-align:right; }
+.fig-dtbtn{
+  display:inline-flex; align-items:center; gap:5px; cursor:pointer;
+  border:1px solid var(--rule); border-radius:7px; background:var(--bg);
+  padding:4px 9px; font:600 10.5px/1 var(--sans); color:var(--ink-mid);
+}
+.fig-dtbtn.on{ background:var(--navy-bg); color:var(--navy-deep); border-color:var(--navy-line); }
+.fig-plot{ position:relative; }
+.fig-plot svg{ display:block; width:100%; height:auto; }
+.rp-img{ display:block; width:100%; height:auto; border-radius:6px; }
+.ax-line{ stroke:var(--ink); stroke-width:1; }
+.grid-line{ stroke:var(--rule-soft); stroke-width:1; }
+.ax-tick{ font:600 9px var(--mono); fill:var(--ink-faint); }
+.ax-title{ font:600 9.5px var(--sans); fill:var(--ink-soft); letter-spacing:.04em; text-transform:uppercase; }
+.ser-line{ fill:none; stroke-width:1.9; }
+.ser-pt{ stroke:var(--bg); stroke-width:1.4; }
+.ser-bar{ rx:2.5; }
+.ser-area{ fill-opacity:.16; stroke:none; }
+.ser-bubble{ fill-opacity:.4; stroke:var(--bg); stroke-width:1.2; }
+/* pie / donut */
+.pie-slice{ stroke:var(--bg); stroke-width:1.5; }
+.pie-center{ font:700 15px var(--mono); fill:var(--ink); }
+/* radar */
+.radar-grid{ fill:none; stroke:var(--rule-soft); stroke-width:1; }
+.radar-area{ fill-opacity:.14; stroke-width:1.8; }
+/* heatmap */
+.hm-cell{ stroke:var(--bg); stroke-width:1; }
+/* box-and-whisker */
+.box-whisk{ stroke-width:1.4; }
+.box-iqr{ fill-opacity:.16; stroke-width:1.5; }
+.box-med{ stroke:var(--ink); stroke-width:1.8; }
+.box-out{ fill:var(--bg); stroke-width:1.3; }
+/* waterfall connector */
+.wf-conn{ stroke:var(--ink-faint); stroke-width:1; stroke-dasharray:2 2; }
+.model-line{ fill:none; stroke:var(--ink-soft); stroke-width:1.4; stroke-dasharray:5 4; }
+.hovline{ stroke:var(--ink-faint); stroke-width:1; stroke-dasharray:3 3; opacity:0; }
+.hotcell{ fill:transparent; cursor:crosshair; }
+.fig-cursor-dot{ opacity:0; pointer-events:none; }
+.rp-figcap{ margin:9px 2px 0; font:400 11.5px/1.55 var(--serif); color:var(--ink-soft); text-align:justify; hyphens:auto; }
+.rp-figcap b{ font:700 11.5px/1.4 var(--serif); color:var(--ink); }
+/* under-figure data table */
+.fig-dtable{ margin:10px 0 2px; display:none; }
+.fig-dtable.show{ display:block; }
+.fig-dtable table{ width:100%; border-collapse:collapse; font:600 11px/1 var(--mono); }
+.fig-dtable th{ font:700 9px/1.3 var(--mono); letter-spacing:.06em; text-transform:uppercase; color:var(--ink-faint); text-align:right; padding:5px 8px; border-bottom:1.5px solid var(--ink); }
+.fig-dtable th:first-child, .fig-dtable td:first-child{ text-align:left; }
+.fig-dtable td{ padding:4px 8px; text-align:right; color:var(--ink); border-bottom:1px solid var(--rule-soft); }
+
+/* ============================================================
+   6. TABLES — booktabs-style ruled academic table
+   ============================================================ */
+.rp-tablewrap{ margin:18px 0; scroll-margin-top:24px; }
+.rp-table{ width:100%; border-collapse:collapse; font:400 12.5px/1.5 var(--serif); color:var(--ink); }
+.rp-table thead th{
+  font:700 10px/1.3 var(--sans); letter-spacing:.04em; color:var(--ink-mid);
+  text-align:left; padding:7px 12px; border-top:2px solid var(--ink); border-bottom:1px solid var(--ink);
+  white-space:nowrap;
+}
+.rp-table thead th.num{ text-align:right; }
+.rp-table thead th.sortable{ cursor:pointer; user-select:none; }
+.rp-table thead th .sortarrow{ color:var(--ink-faint); margin-left:3px; font:700 9px/1 var(--mono); }
+.rp-table thead th.sorted .sortarrow{ color:var(--navy-deep); }
+.rp-table tbody td{ padding:6px 12px; border-bottom:1px solid var(--rule-soft); }
+.rp-table tbody tr:last-child td{ border-bottom:2px solid var(--ink); }
+.rp-table td.num{ text-align:right; font:600 12px/1.4 var(--mono); font-feature-settings:"tnum" 1; }
+.rp-tablecap{ margin:9px 2px 0; font:400 11.5px/1.55 var(--serif); color:var(--ink-soft); text-align:justify; }
+.rp-tablecap b{ font:700 11.5px/1.4 var(--serif); color:var(--ink); }
+
+/* ============================================================
+   7. REFERENCES
+   ============================================================ */
+.rp-refs{ margin-top:30px; padding-top:14px; border-top:2px solid var(--ink); }
+.rp-refs h2{ display:flex; align-items:center; gap:9px; font:700 15px/1.3 var(--serif); margin:0 0 11px; }
+ol.rp-reflist{ margin:0; padding:0; list-style:none; counter-reset:ref; }
+.rp-ref{
+  display:flex; gap:10px; padding:7px 8px; border-radius:8px;
+  font:400 12px/1.55 var(--serif); color:var(--ink-mid); scroll-margin-top:90px;
+}
+.rp-ref .rn{ counter-increment:ref; font:700 11px/1.5 var(--mono); color:var(--navy-deep); min-width:24px; }
+.rp-ref .rn::before{ content:"[" counter(ref) "]"; }
+.rp-ref .rtitle{ color:var(--ink); font-style:italic; }
+.rp-ref .rvenue{ color:var(--ink-soft); }
+.rp-ref a{ color:var(--navy-deep); text-decoration:none; white-space:nowrap; }
+.rp-ref a:hover{ text-decoration:underline; }
+.rp-ref.flash{ background:var(--navy-bg); box-shadow:inset 0 0 0 1px var(--navy-line); }
+@keyframes refflash{ 0%{ background:var(--navy-bg); } 100%{ background:transparent; } }
+
+/* ---- footer wordmark ---- */
+.rp-foot{
+  margin-top:30px; padding-top:14px; border-top:1px solid var(--rule-soft);
+  display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;
+  font:600 10px/1.4 var(--mono); letter-spacing:.06em; text-transform:uppercase; color:var(--ink-faint);
+}
+.rp-foot .wm{ display:inline-flex; align-items:center; gap:8px; color:var(--ink-mid); }
+.rp-foot .wm .sq{ width:12px; height:12px; border-radius:3px; background:var(--navy); }
+
+/* ============================================================
+   8. SHARED FLOATING TOOLTIP  (charts + citations)
+   ============================================================ */
+.chart-tip{
+  position:fixed; z-index:90; pointer-events:none; transform:translate(-50%,-100%);
+  background:#15131a; color:#fff; border-radius:8px; padding:8px 10px;
+  font:600 11px/1.4 var(--sans); white-space:nowrap; max-width:320px; white-space:normal;
+  box-shadow:0 6px 20px rgba(0,0,0,.32); opacity:0; transition:opacity .1s; }
+.chart-tip.show{ opacity:1; }
+.chart-tip .ct-h{ font:700 9.5px/1.3 var(--mono); letter-spacing:.07em; text-transform:uppercase; color:#cfd3db; margin-bottom:4px; }
+.chart-tip .ct-row{ display:flex; align-items:center; gap:6px; }
+.chart-tip .ct-row + .ct-row{ margin-top:2px; }
+.chart-tip .ct-row i{ width:9px; height:9px; border-radius:2px; flex:none; }
+.chart-tip .ct-row b{ font:700 11.5px/1 var(--mono); margin-left:auto; padding-left:10px; }
+.chart-tip.cite{ font:400 11px/1.5 var(--serif); white-space:normal; }
+.chart-tip.cite .ct-h{ font:700 9.5px/1.3 var(--mono); }
+.chart-tip.cite i.it{ font-style:italic; color:#e7e7ee; }
+
+/* ============================================================= PRINT */
+@media print{
+  body{ background:#fff; }
+  .rp-stage{ padding:0; display:block; }
+  .rp-page, .rp-page.paged{ width:auto; max-width:none; gap:0; }
+  /* each on-screen A4 sheet becomes a printed page; its two columns read left-then-right */
+  .rp-sheet{ width:auto; min-height:auto; border:0; border-radius:0; box-shadow:none; padding:0; overflow:visible; break-after:page; break-inside:avoid; }
+  .rp-sheet:last-child{ break-after:auto; }
+  .rp-sheetflow{ height:auto; }
+  .rp-sheetno{ display:none; }
+  .rp-nav, .rp-tools, .fig-tools, .fig-legend, .rc-theme, .chart-tip{ display:none !important; }
+  .fig-dtable{ display:block !important; }
+  .rp-fig, .rp-tablewrap, .rp-eq, .rp-abstract{ break-inside:avoid; }
+}
+@page{ margin:18mm 16mm; @bottom-center{ content: counter(page); font:10px "Courier New", monospace; color:#9aa0aa; } }
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     CONTENT SOURCE — the ONLY content lives here as JSON.
+     render() builds the whole <body> from this on DOMContentLoaded.
+     This instance is a valid example of schemas/research-paper.schema.json.
+     ============================================================ -->
+<script type="application/json" id="report-data">
+{
+  "aipaper": {
+    "templateVersion": "research-paper@1",
+    "skillVersion": "alexandrai-research-publishing@0.1.0",
+    "language": "en",
+    "primaryCategory": "computer-science.distributed-systems",
+    "secondaryCategories": [],
+    "topics": ["tail latency", "sharded ledger", "quorum commit"]
+  },
+  "meta": {
+    "org": "Northgate University",
+    "project": "Distributed Systems Group",
+    "reportType": "Research Paper",
+    "title": "Tail-Latency Behaviour of Sharded Ledger Commit Under Bursty Load",
+    "subtitle": "A measurement study of distributed banking-core transaction pipelines",
+    "date": "2026-06-22",
+    "author": "A. R. Voss",
+    "theme": "indigo"
+  },
+  "paper": {
+    "title": "Tail-Latency Behaviour of Sharded Ledger Commit Under Bursty Load: A Measurement Study",
+    "authors": [
+      { "name": "A. R. Voss", "affil": ["a"], "corresponding": true, "email": "a.voss@northgate.example.edu" },
+      { "name": "M. Okonkwo", "affil": ["a", "b"] },
+      { "name": "L. Brandt", "affil": ["b"] },
+      { "name": "S. Petrova", "affil": ["c"] }
+    ],
+    "affiliations": [
+      { "id": "a", "name": "Institute for Distributed Systems, Northgate University" },
+      { "id": "b", "name": "Centre for Financial Computing, Meridian Institute of Technology" },
+      { "id": "c", "name": "Ledger Reliability Group, Northgate University" }
+    ],
+    "venue": "Preprint — submitted to the Symposium on Reliable Distributed Banking Systems",
+    "abstract": "We present a measurement study of commit latency in a horizontally sharded transaction ledger, observed across eighteen weeks of production-shadow traffic on a banking-core pipeline. Under bursty arrivals the 99.9th-percentile commit time degrades up to seven times faster than the median, and the dominant contributor is cross-shard coordination rather than disk persistence. We characterise the degradation as a power law in offered load, calibrate it against per-region traces, and show that a bounded-staleness read path removes 63% of the tail without weakening settlement guarantees. The study contributes a reusable percentile-tracking methodology and a model that operators can fit from a single load sweep.",
+    "keywords": ["tail latency", "distributed ledger", "sharding", "quorum commit", "bounded staleness", "banking systems"]
+  },
+  "sections": [
+    {
+      "id": "intro", "number": "1", "heading": "Introduction",
+      "blocks": [
+        { "type": "para", "html": "Latency tails dominate the user-visible cost of distributed commit paths: a request is only as fast as its slowest required participant. Prior work establishes that medians are poor predictors of tail behaviour under contention [[cite:dean2013]], yet most ledger benchmarks still report means or medians [[cite:nishi2024,brandt2025]]. In a banking-core setting the tail is not a cosmetic concern — it bounds the settlement window and the customer-visible timeout budget." },
+        { "type": "para", "html": "This paper asks a narrow, measurable question: <em>how does the high-percentile commit latency of a sharded ledger respond to offered load, and where does the time go?</em> We answer it with longitudinal production-shadow traces rather than a synthetic benchmark, so the arrival bursts are real. Our contributions are:" },
+        { "type": "list", "ordered": true, "items": [
+          "a longitudinal characterisation of p50, p99 and p99.9 commit latency under real arrival bursts;",
+          "a fitted power-law model relating tail latency to offered load, calibrated per region;",
+          "a bounded-staleness read path that removes the majority of the tail while preserving settlement-time correctness [[cite:brandt2025]]."
+        ] }
+      ]
+    },
+    {
+      "id": "method", "number": "2", "heading": "Method",
+      "blocks": [
+        { "type": "para", "html": "We instrument the commit path of a sharded ledger and record, for every transaction, the offered load <em>L</em> at arrival and the end-to-end commit time. Aggregating into one-minute windows we track the median and the 99th and 99.9th percentiles. Following the contention analysis of [[cite:dean2013]], we model the 99.9th-percentile commit time <em>T</em><sub>p99.9</sub> as a power law in offered load:" },
+        { "type": "equation", "number": 1, "html": "<i>T</i><sub>p99.9</sub> &nbsp;=&nbsp; <i>c</i> &middot; <i>L</i><sup>&alpha;</sup> &nbsp;+&nbsp; <i>T</i><sub>0</sub>" },
+        { "type": "para", "html": "where <em>c</em> is a scale constant, <em>T</em><sub>0</sub> a fixed floor (serialisation and persistence), and the exponent &alpha; &gt; 1 captures super-linear coordination cost. The fraction of the tail attributable to coordination is then estimated by stage decomposition (Section 3)." }
+      ],
+      "children": [
+        {
+          "id": "method-data", "number": "2.1", "heading": "Data collection and the load sweep",
+          "blocks": [
+            { "type": "para", "html": "Figure 1 plots the three percentiles against offered load over the observation window. The median rises gently; the tail rises super-linearly. The dashed overlay is the fitted power-law model of Eq. (1) — drag the exponent control to see how &alpha; governs the curvature, and toggle a series in the legend to isolate it." },
+            { "type": "figure", "id": "fig-tail", "number": 1,
+              "caption": "Commit-latency percentiles versus offered load (thousands of transactions per second). Tail percentiles rise super-linearly with load. Drag the exponent slider to overlay the fitted power-law model y = c&middot;x^&alpha; against the p99.9 series; click a legend entry to hide a series. Hover any point for its exact value.",
+              "chart": { "kind": "line", "xLabel": "Offered load (ktps)", "yLabel": "Commit latency (ms)",
+                "series": [
+                  { "name": "p50", "color": "ok",   "points": [[1,8],[2,9],[4,11],[8,14],[12,19],[16,27],[20,41]] },
+                  { "name": "p99", "color": "navy", "points": [[1,22],[2,28],[4,39],[8,63],[12,104],[16,182],[20,310]] },
+                  { "name": "p99.9", "color": "risk", "points": [[1,41],[2,57],[4,92],[8,168],[12,300],[16,540],[20,910]] }
+                ],
+                "control": { "kind": "slider", "label": "model exponent α", "min": 1, "max": 3, "step": 0.05, "value": 2.1, "model": "power", "unit": "" } } }
+          ]
+        },
+        {
+          "id": "method-corr", "number": "2.2", "heading": "Load versus coordination depth",
+          "blocks": [
+            { "type": "para", "html": "To separate offered load from intrinsic transaction complexity, we examine the relationship between the number of shards a transaction touches and its measured commit time at fixed load. Figure 2 shows the per-transaction scatter: commit time grows with cross-shard fan-out, consistent with coordination — not persistence — being the binding constraint [[cite:nishi2024]]." },
+            { "type": "figure", "id": "fig-scatter", "number": 2,
+              "caption": "Per-transaction commit time versus number of shards touched, at a fixed 12 ktps. Each marker is a sampled transaction; the two series separate single-region from cross-region transactions. Toggle a series to compare. Hover a marker for its exact coordinates.",
+              "chart": { "kind": "scatter", "xLabel": "Shards touched", "yLabel": "Commit time (ms)",
+                "series": [
+                  { "name": "single-region", "color": "navy", "points": [[1,18],[1,24],[2,31],[2,27],[3,44],[3,52],[4,61],[4,73],[5,88],[2,35],[3,40],[1,21]] },
+                  { "name": "cross-region", "color": "risk", "points": [[2,70],[3,118],[3,96],[4,165],[4,142],[5,228],[5,260],[6,330],[4,150],[5,205],[3,104],[6,355]] }
+                ] } }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "results", "number": "3", "heading": "Results",
+      "blocks": [
+        { "type": "para", "html": "Table 1 summarises the tail-latency degradation factor — the ratio of p99.9 to p50 — measured per region at 16 ktps. Every region shows a double-digit factor, and the column is sortable. Cross-shard coordination accounts for the majority of the absolute tail in each region [[cite:nishi2024]]." },
+        { "type": "table", "id": "tab-region", "number": 1,
+          "caption": "Tail-latency degradation factor (p99.9 / p50) by region at 16 ktps. The factor is far larger than one in every region, confirming that the tail, not the median, drives the timeout budget. Click a numeric header to sort.",
+          "columns": [
+            { "key": "region", "label": "Region", "align": "left" },
+            { "key": "p50", "label": "p50 (ms)", "align": "right", "numeric": true },
+            { "key": "p999", "label": "p99.9 (ms)", "align": "right", "numeric": true },
+            { "key": "factor", "label": "Factor ×", "align": "right", "numeric": true },
+            { "key": "shards", "label": "Shards", "align": "right", "numeric": true }
+          ],
+          "rows": [
+            { "region": "eu-central", "p50": 27, "p999": 540, "factor": 20.0, "shards": 48 },
+            { "region": "us-east",    "p50": 24, "p999": 612, "factor": 25.5, "shards": 64 },
+            { "region": "ap-south",   "p50": 31, "p999": 503, "factor": 16.2, "shards": 40 },
+            { "region": "sa-east",    "p50": 29, "p999": 689, "factor": 23.8, "shards": 56 }
+          ] },
+        { "type": "para", "html": "Decomposing the p99.9 commit time by pipeline stage (Figure 3) shows where the tail accumulates. Under the baseline, the cross-shard coordination stage alone contributes more than the other four stages combined. The <em>bounded-staleness</em> series applies the read path of Section 4, which collapses coordination while leaving persistence (<code>fsync</code>) and replication untouched." },
+        { "type": "figure", "id": "fig-mix", "number": 3,
+          "caption": "Mean contribution to the p99.9 commit time by pipeline stage, baseline versus the bounded-staleness read path. The cross-shard stage dominates the baseline tail and is the only stage materially reduced. Toggle a series in the legend, or show the data table for exact values.",
+          "chart": { "kind": "bar", "xLabel": "Pipeline stage", "yLabel": "Contribution to p99.9 (ms)",
+            "categories": ["queue", "validate", "cross-shard", "fsync", "replicate"],
+            "series": [
+              { "name": "baseline", "color": "navy", "values": [40, 70, 360, 55, 95] },
+              { "name": "bounded-staleness", "color": "ok", "values": [38, 66, 95, 52, 88] }
+            ],
+            "control": { "kind": "datatable" } } },
+        { "type": "para", "html": "Figure 4 expresses the same baseline decomposition as a share of the total tail: cross-shard coordination alone is more than half the p99.9 budget. Figure 5 then sweeps the full load×region grid, confirming the degradation is uniform across deployments rather than an artefact of one region." },
+        { "type": "figure", "id": "fig-share", "number": 4,
+          "caption": "Share of the baseline p99.9 commit time by pipeline stage. Cross-shard coordination dominates the budget. Hover a wedge for its exact value and percentage; click a legend entry to remove a stage.",
+          "chart": { "kind": "donut",
+            "series": [ { "name": "stages", "slices": [
+              { "name": "queue", "value": 40, "color": "ink" },
+              { "name": "validate", "value": 70, "color": "hold" },
+              { "name": "cross-shard", "value": 360, "color": "risk" },
+              { "name": "fsync", "value": 55, "color": "ok" },
+              { "name": "replicate", "value": 95, "color": "navy" }
+            ] } ],
+            "control": { "kind": "datatable" } } },
+        { "type": "figure", "id": "fig-grid", "number": 5,
+          "caption": "p99.9 commit time (ms) across the offered-load × region grid. The tail rises with load uniformly across regions. Hover a cell for its exact value; toggle the data table for the full matrix.",
+          "chart": { "kind": "heatmap", "xLabel": "Offered load (ktps)", "yLabel": "Region",
+            "xLabels": ["4", "8", "12", "16", "20"],
+            "yLabels": ["eu-central", "us-east", "ap-south", "sa-east"],
+            "z": [
+              [92, 168, 300, 540, 910],
+              [104, 190, 338, 612, 1010],
+              [86, 152, 274, 503, 845],
+              [110, 205, 372, 689, 1120]
+            ],
+            "control": { "kind": "datatable" } } }
+      ]
+    },
+    {
+      "id": "discuss", "number": "4", "heading": "A bounded-staleness read path",
+      "blocks": [
+        { "type": "para", "html": "The decomposition motivates a targeted change: serve reads from a quorum-acknowledged but not-yet-globally-committed snapshot, bounded by a staleness window &Delta;. Writes and the settlement commit are unchanged, so the correctness argument of [[cite:brandt2025]] still holds: no read observes a value that could later be rolled back, because the snapshot is already quorum-durable." },
+        { "type": "para", "html": "Empirically this removes 63% of the p99.9 tail (Figure 3) at the cost of a bounded read staleness of &Delta; &le; 40&nbsp;ms, which is well within the settlement window. The median is essentially unchanged, confirming that the intervention targets coordination rather than the common path." }
+      ]
+    },
+    {
+      "id": "concl", "number": "5", "heading": "Conclusion",
+      "blocks": [
+        { "type": "para", "html": "Tail latency in a sharded ledger is governed by cross-shard coordination and scales as a power law in offered load. A bounded-staleness read path removes the majority of the tail while preserving settlement correctness [[cite:brandt2025]]. The percentile-tracking methodology and the single-sweep model fit are directly reusable by operators. Future work will extend the model to multi-region quorum reconfiguration and to mixed read/write workloads under failover." }
+      ]
+    }
+  ],
+  "references": [
+    { "id": "dean2013", "authors": "Dean, J. and Barroso, L. A.", "title": "The tail at scale", "venue": "Communications of the ACM 56(2), 74–80", "year": 2013 },
+    { "id": "nishi2024", "authors": "Nishimura, K. and Adeyemi, T.", "title": "Coordination cost in sharded financial ledgers", "venue": "Proc. Symposium on Distributed Data Systems", "year": 2024 },
+    { "id": "brandt2025", "authors": "Brandt, L. and Okonkwo, M.", "title": "Bounded staleness for settlement-safe reads", "venue": "Journal of Banking Systems 12(4), 211–239", "year": 2025, "url": "doi:10.0000/jbs.2025.0042" },
+    { "id": "voss2026", "authors": "Voss, A. R. and Petrova, S.", "title": "A single-sweep method for fitting tail-latency models", "venue": "Technical Report NG-TR-2026-03, Northgate University", "year": 2026 }
+  ]
+}
+</script>
+
+<noscript>
+  <p class="noscript-note">This research paper is rendered from its embedded data with JavaScript.
+  Enable JavaScript to read the typeset article — abstract, numbered sections, interactive figures,
+  citations and references are built from the <code>#report-data</code> block above.</p>
+</noscript>
+
+<!-- floating outline nav (built by render) -->
+<nav class="rp-nav" id="rp-nav" aria-label="Contents" hidden></nav>
+
+<div class="rp-stage">
+  <article class="rp-page" id="paper"><!-- built by render() --></article>
+</div>
+
+<!-- shared floating tooltip (single instance) -->
+<div class="chart-tip" id="chart-tip" role="status" aria-live="polite"></div>
+
+<script>
+/* ============================================================
+   RESEARCH-PAPER RENDERER + INTERACTIONS  (vanilla JS, no libs)
+   - render()          : #report-data JSON -> the paper DOM
+   - charts            : inline-SVG charts (line/scatter/area/
+                         stacked-area/step/bubble/bar/stacked-bar/
+                         horizontal-bar/pie/donut/radar/histogram/
+                         box/heatmap/waterfall), hover tooltips
+                         (exact values) + legend toggle, a slider
+                         model overlay + a data-table toggle
+   - citations         : [[cite:id]] -> [n] links; hover tooltip +
+                         click-scroll-highlight
+   - outline nav       : click-to-jump + scroll-spy
+   - column toggle     : 1-col / 2-col body
+   - wireThemeSwitch() : canonical 9-preset .rc-theme dropdown (§3)
+   Reading requires JS (data-driven, per _DATA_DRIVEN §1); a
+   <noscript> notice + the raw JSON are provided above.
+   ============================================================ */
+(function(){
+  "use strict";
+
+  var DATA;
+  try { DATA = JSON.parse(document.getElementById('report-data').textContent); }
+  catch(e){ document.getElementById('paper').innerHTML =
+    '<p style="padding:24px;font:600 13px var(--sans);color:var(--risk)">Could not parse #report-data: '+esc(e.message)+'</p>'; return; }
+
+  var root  = document.documentElement;
+  var paper = document.getElementById('paper');
+  var navEl = document.getElementById('rp-nav');
+  var tip   = document.getElementById('chart-tip');
+
+  /* ---- helpers ---- */
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+  function fmtNum(v){ var n=+v; if(!isFinite(n)) return String(v);
+    return (Math.abs(n)>=100||n===Math.round(n)) ? String(Math.round(n)) : String(Math.round(n*100)/100); }
+  var COLORVAR = { navy:'var(--navy)', risk:'var(--risk)', ok:'var(--ok)', hold:'var(--hold)', ink:'var(--ink-soft)' };
+
+  /* ---- inline house SVG icons (24x24, stroke=currentColor) ---- */
+  var ICON = {
+    paper:'<path d="M6.5 3.5H13l4.5 4.5V20a.5.5 0 0 1-.5.5H6.5a.5.5 0 0 1-.5-.5V4a.5.5 0 0 1 .5-.5Z"/><path d="M13 3.5V7.5a.5.5 0 0 0 .5.5H17.5"/><path d="M9 13H15M9 15.5H15M9 18H12.5"/><rect x="9" y="8" width="3.5" height="2.5" rx="0.8" fill="currentColor" stroke="none"/>',
+    toc:'<path d="M8 6H20M8 10.5H17M8 15H20M8 19.5H17"/><rect x="3.5" y="4.5" width="3" height="3" rx="0.8" fill="currentColor" stroke="none"/><rect x="3.5" y="9" width="3" height="3" rx="0.8" fill="currentColor" stroke="none"/><rect x="3.5" y="13.5" width="3" height="3" rx="0.8" fill="currentColor" stroke="none"/><rect x="3.5" y="18" width="3" height="3" rx="0.8" fill="currentColor" stroke="none"/>',
+    refs:'<path d="M5 4.5h9a2 2 0 0 1 2 2V20l-3.5-2-3.5 2V6.5a2 2 0 0 0-2-2Z"/><path d="M16 6.5h1.5a1.5 1.5 0 0 1 1.5 1.5V20l-3-1.7"/>',
+    line:'<path d="M4 4V20H20"/><path d="M6.5 16 10 11 14 14 19 7"/><rect x="8.5" y="9.5" width="3" height="3" rx="1.2" fill="currentColor" stroke="none"/><rect x="12.5" y="12.5" width="3" height="3" rx="1.2" fill="currentColor" stroke="none"/>',
+    scatter:'<path d="M4 4V20H20"/><rect x="7" y="13.5" width="3" height="3" rx="1.2" fill="currentColor" stroke="none"/><rect x="11.5" y="8.5" width="3" height="3" rx="1.2" fill="currentColor" stroke="none"/><rect x="15.5" y="11" width="3" height="3" rx="1.2" fill="currentColor" stroke="none"/><rect x="8.5" y="7" width="3" height="3" rx="1.2" fill="currentColor" stroke="none"/>',
+    bar:'<path d="M4 4V20H20"/><rect x="6.75" y="12" width="3" height="8" rx="1.2"/><rect x="11.5" y="8" width="3" height="12" rx="1.2"/><rect x="16.25" y="14.5" width="3" height="5.5" rx="1.2"/>',
+    table:'<rect x="2.5" y="3.5" width="19" height="17" rx="2"/><path d="M2.5 8.5H21.5M9 3.5V20.5M15.5 3.5V20.5M2.5 13.5H21.5"/>',
+    one:'<rect x="6.5" y="4" width="11" height="16" rx="2"/><path d="M9.5 8.5h5M9.5 12h5M9.5 15.5h3"/>',
+    two:'<rect x="3.5" y="4" width="7.5" height="16" rx="1.6"/><rect x="13" y="4" width="7.5" height="16" rx="1.6"/>',
+    grid:'<rect x="6" y="6" width="12" height="12" rx="2"/><path d="M9 3.5v2.5M15 3.5v2.5M9 18v2.5M15 18v2.5M3.5 9H6M3.5 15H6M18 9h2.5M18 15h2.5"/>',
+    /* ---- chart-kind glyphs (24x24, stroke=currentColor) ---- */
+    area:'<path d="M4 4V20H20"/><path d="M6 16 10 10 14 13 19 7V18H6Z" fill="currentColor" fill-opacity="0.18"/><path d="M6 16 10 10 14 13 19 7"/>',
+    step:'<path d="M4 4V20H20"/><path d="M6 17H10V13H14V9H18"/>',
+    bubble:'<path d="M4 4V20H20"/><circle cx="9" cy="14" r="2.4"/><circle cx="15" cy="10" r="3.4"/><circle cx="17.5" cy="16" r="1.6"/>',
+    pie:'<circle cx="12" cy="12" r="8"/><path d="M12 12V4M12 12 18.5 9"/>',
+    donut:'<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3.4"/><path d="M12 8.6V4M12 8.6 16 6.4"/>',
+    radar:'<path d="M12 3 20 9 17 19H7L4 9Z"/><path d="M12 8 16 11 14.5 16H9.5L8 11Z"/><path d="M12 3V8M20 9 16 11M17 19 14.5 16M7 19 9.5 16M4 9 8 11"/>',
+    histogram:'<path d="M4 4V20H20"/><rect x="6" y="13" width="2.6" height="7"/><rect x="9" y="9" width="2.6" height="11"/><rect x="12" y="6.5" width="2.6" height="13.5"/><rect x="15" y="11" width="2.6" height="9"/><rect x="18" y="15" width="1.6" height="5"/>',
+    box:'<path d="M4 4V20H20"/><path d="M9 6V18M15 6V18"/><rect x="9" y="9" width="6" height="6"/><path d="M9 12.5H15"/>',
+    heatmap:'<rect x="4" y="4" width="16" height="16" rx="1.5"/><path d="M9.3 4V20M14.6 4V20M4 9.3H20M4 14.6H20"/><rect x="4" y="9.3" width="5.3" height="5.3" fill="currentColor" fill-opacity="0.32" stroke="none"/><rect x="14.6" y="4" width="5.4" height="5.3" fill="currentColor" fill-opacity="0.18" stroke="none"/>',
+    waterfall:'<path d="M4 4V20H20"/><rect x="6" y="13" width="2.6" height="4"/><rect x="9.3" y="9" width="2.6" height="4"/><rect x="12.6" y="11" width="2.6" height="4"/><rect x="16" y="9" width="2.6" height="8"/>'
+  };
+  function svg(name, cls){ return '<svg class="'+(cls||'icon')+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" '
+    + 'stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+(ICON[name]||'')+'</svg>'; }
+  var CHARTICON = {
+    line:'line', scatter:'scatter', area:'area', 'stacked-area':'area', step:'step', bubble:'bubble',
+    bar:'bar', 'stacked-bar':'bar', 'horizontal-bar':'bar', waterfall:'waterfall',
+    pie:'pie', donut:'donut', radar:'radar', histogram:'histogram', box:'box', heatmap:'heatmap'
+  };
+
+  /* ---- references: index by id -> {n, ref} ---- */
+  var REFS = DATA.references || [];
+  var REFIDX = {};
+  REFS.forEach(function(r,i){ REFIDX[r.id] = { n:i+1, ref:r }; });
+  function refTipHTML(r){
+    return '<div class="ct-h">['+REFIDX[r.id].n+'] '+esc(r.year)+'</div>'
+      + esc(r.authors)+' <i class="it">'+esc(r.title)+'.</i>'
+      + (r.venue?' '+esc(r.venue)+'.':'');
+  }
+
+  /* ---- rewrite [[cite:a,b]] markers into .rp-cite links ---- */
+  function rewriteCites(html){
+    return String(html||'').replace(/\[\[cite:([^\]]+)\]\]/g, function(_, ids){
+      var list = ids.split(',').map(function(s){ return s.trim(); }).filter(Boolean);
+      var nums = list.map(function(id){ return REFIDX[id] ? REFIDX[id].n : '?'; });
+      var first = list[0];
+      return '<a class="rp-cite" data-cref="'+esc(first)+'" data-crefs="'+esc(list.join(','))+'" '
+        + 'href="#ref-'+esc(first)+'" role="doc-noteref">['+nums.join(',')+']</a>';
+    });
+  }
+
+  /* state shared across interactions */
+  var FIGS = {};           /* figId -> {chart, hidden:Set, dom} */
+  var SECNODES = [];       /* {id, el} for scroll-spy */
+
+  /* ============================================================
+     RENDER — build the whole paper from DATA
+     ============================================================ */
+  var FIGNO = 0;
+  var pageMode = 'two';   /* 'two' = A4-paginated 2-column (default); 'one' = continuous single column */
+  var wired = false;
+  function render(){
+    var m = DATA.meta || {}, p = DATA.paper || {};
+    root.dataset.theme = m.theme || 'indigo';
+    document.title = (m.title || p.title || 'Research Paper') + ' — ' + (m.project || '');
+    SECNODES.length = 0; FIGS = {}; FIGNO = 0;   /* reset accumulating state so re-layout is clean */
+
+    /* ---- tools strip: column toggle + theme switcher ---- */
+    var themeSwitcher = '<label class="rc-theme" title="Brand colour">'
+      + '<span class="rc-theme-sw" aria-hidden="true"></span>'
+      + '<select class="rc-theme-sel" aria-label="Brand theme">'
+      + '<option value="blue">Blue</option><option value="purple">Purple</option>'
+      + '<option value="indigo">Indigo</option><option value="teal">Teal</option>'
+      + '<option value="cyan">Cyan</option><option value="green">Green</option>'
+      + '<option value="plum">Plum</option><option value="slate">Slate</option>'
+      + '<option value="black">Black</option></select></label>';
+    var colToggle = '<div class="rp-coltoggle" role="group" aria-label="Body layout">'
+      + '<button data-col="two"'+(pageMode!=='one'?' class="on"':'')+'>2 col</button>'
+      + '<button data-col="one"'+(pageMode==='one'?' class="on"':'')+'>1 col</button></div>';
+    /* ---- title block ---- */
+    var aff = p.affiliations || [];
+    var authorsHTML = (p.authors||[]).map(function(a){
+      var sups = (a.affil||[]).map(function(id){ return esc(id); }).join(',');
+      return '<span class="au'+(a.corresponding?' corr':'')+'">'+esc(a.name)
+        + (sups?'<sup>'+sups+'</sup>':'') + (a.corresponding?'<sup>*</sup>':'') + '</span>';
+    }).join('<span class="sep">, </span>');
+    var affHTML = aff.map(function(f){
+      return '<li><sup>'+esc(f.id)+'</sup><span>'+esc(f.name)+'</span></li>';
+    }).join('');
+    var corr = (p.authors||[]).filter(function(a){ return a.corresponding; })[0];
+    var mast = [];
+    if(corr) mast.push('<span class="m-corr"><b>'+esc(corr.name)+'</b>'+(corr.email?' · '+esc(corr.email):'')+'</span>');
+    if(p.venue) mast.push('<span>'+esc(p.venue)+'</span>');
+    mast.push('<span>'+esc(p.date || m.date || '')+'</span>');
+    var masthead = mast.join('<span class="sep">|</span>')
+      + (p.articleId?'<span class="m-id">'+esc(p.articleId)+'</span>':'');
+
+    var kw = (p.keywords||[]).map(function(k){ return '<span class="kw">'+esc(k)+'</span>'; }).join('');
+
+    var head = '<div class="rp-tools">'+colToggle+themeSwitcher+'</div>'
+      + '<div class="rp-eyebrow">'+svg('paper','icon-sm')+' '+esc(m.reportType||'Research Paper')+'</div>'
+      + '<h1 class="rp-title">'+esc(p.title||'')+'</h1>'
+      + '<p class="rp-authors">'+authorsHTML+'</p>'
+      + '<ul class="rp-affil">'+affHTML+'</ul>'
+      + '<div class="rp-masthead">'+masthead+'</div>'
+      + '<div class="rp-abstract"><h3>Abstract</h3><p>'+(p.abstract||'')+'</p></div>'
+      + (kw?'<p class="rp-keywords"><b>Keywords</b>'+kw+'</p>':'');
+
+    /* ---- sections ---- */
+    var body = '<div class="rp-body" id="rp-body"><div class="rp-flow">'
+      + (DATA.sections||[]).map(function(s){ return renderSection(s, 0); }).join('')
+      + '</div></div>';
+
+    /* ---- references ---- */
+    var refsHTML = '<section class="rp-refs" id="references"><h2>'+svg('refs','icon')+'References</h2>'
+      + '<ol class="rp-reflist">'
+      + REFS.map(function(r){
+          return '<li class="rp-ref" id="ref-'+esc(r.id)+'"><span class="rn"></span>'
+            + '<span class="rbody">'+esc(r.authors)+'. <span class="rtitle">'+esc(r.title)+'</span>. '
+            + (r.venue?'<span class="rvenue">'+esc(r.venue)+'</span>, ':'') + esc(r.year) + '.'
+            + (r.url?' <a href="#" data-url="'+esc(r.url)+'" title="'+esc(r.url)+'">'+svg('paper','icon-sm')+esc(r.url)+'</a>':'')
+            + '</span></li>';
+        }).join('')
+      + '</ol></section>';
+
+    var foot = '<div class="rp-foot"><span class="wm"><span class="sq"></span>'+esc(m.org||'{{ORG}}')+'</span>'
+      + '<span>'+esc(m.project||'{{PROJECT}}')+' · '+esc(m.date||'')+'</span></div>';
+
+    paper.innerHTML = head + body + refsHTML + foot;
+
+    buildNav();
+    drawAllFigures();
+    if(pageMode !== 'one') paginate();
+  }
+
+  /* recursive section render */
+  function renderSection(s, depth){
+    var hcls = depth===0 ? 'rp-h2' : 'rp-h3';
+    var blocks = (s.blocks||[]).map(renderBlock).join('');
+    var kids = (s.children||[]).map(function(c){ return renderSection(c, depth+1); }).join('');
+    SECNODES.push({ id:s.id, number:s.number, heading:s.heading, depth:depth });
+    return '<section class="rp-sec" data-depth="'+depth+'" id="'+esc(s.id)+'" data-secid="'+esc(s.id)+'">'
+      + '<div class="rp-h '+hcls+'"><span class="rp-secnum">'+esc(s.number)+'</span><span>'+esc(s.heading)+'</span></div>'
+      + blocks + kids + '</section>';
+  }
+
+  function renderBlock(b){
+    if(!b||!b.type) return '';
+    if(b.type==='para')     return '<p class="rp-para">'+rewriteCites(b.html)+'</p>';
+    if(b.type==='list'){
+      var tag = b.ordered ? 'ol' : 'ul';
+      return '<'+tag+' class="rp-list">'+(b.items||[]).map(function(it){ return '<li>'+rewriteCites(it)+'</li>'; }).join('')+'</'+tag+'>';
+    }
+    if(b.type==='equation') return '<div class="rp-eq"><span class="eqbody">'+(b.html||'')+'</span><span class="rp-eqnum">('+esc(b.number)+')</span></div>';
+    if(b.type==='figure')   return renderFigure(b);
+    if(b.type==='table')    return renderTable(b);
+    return '';
+  }
+
+  /* ---- chart-kind families (dispatch helpers) ---- */
+  var AXISLESS = { pie:1, donut:1, radar:1, heatmap:1 };
+  var POINTKIND = { line:1, scatter:1, area:1, 'stacked-area':1, step:1, bubble:1 };
+  function isAxisless(k){ return !!AXISLESS[k]; }
+
+  /* ---- figure shell (chart drawn after insert) ---- */
+  function renderFigure(b){
+    var fid = b.id || ('fig'+(++FIGNO));
+    if(b.image){
+      var im = b.image;
+      return '<figure class="rp-fig rp-fig-img" id="'+esc(fid)+'" data-figwrap="'+esc(fid)+'">'
+        + '<div class="fig-plot"><img class="rp-img" src="'+esc(im.src||'')+'" alt="'+esc(im.alt||b.caption||'')+'" loading="lazy"></div>'
+        + '<figcaption class="rp-figcap"><b>Figure '+esc(b.number)+'.</b> '+(b.caption||'')+'</figcaption>'
+        + '</figure>';
+    }
+    var c = b.chart||{};
+    FIGS[fid] = { chart:c, hidden:{}, ctrl:c.control||null };
+    /* legend: pie/donut toggle slices; histogram/heatmap have none; else toggle series */
+    var legend = '';
+    if(c.kind==='pie' || c.kind==='donut'){
+      var slices=(c.series&&c.series[0]&&c.series[0].slices)||[];
+      legend = slices.map(function(sl,i){
+        var col = COLORVAR[sl.color] || cycleColor(i);
+        return '<button class="lg-btn" data-fig="'+esc(fid)+'" data-si="'+i+'"><span class="sw" style="background:'+col+'"></span>'+esc(sl.name)+'</button>';
+      }).join('');
+    } else if(c.kind==='histogram' || c.kind==='heatmap'){
+      legend = '';
+    } else {
+      legend = (c.series||[]).map(function(se,i){
+        var col = COLORVAR[se.color] || cycleColor(i);
+        return '<button class="lg-btn" data-fig="'+esc(fid)+'" data-si="'+i+'"><span class="sw" style="background:'+col+'"></span>'+esc(se.name)+'</button>';
+      }).join('');
+    }
+    var tools = '';
+    if(c.control && c.control.kind==='slider'){
+      var cc=c.control;
+      tools = '<span class="fig-slider"><span>'+esc(cc.label||'param')+'</span>'
+        + '<input type="range" data-fig="'+esc(fid)+'" min="'+(cc.min)+'" max="'+(cc.max)+'" step="'+(cc.step||0.1)+'" value="'+(cc.value)+'">'
+        + '<span class="val" data-fig-val="'+esc(fid)+'">'+fmtNum(cc.value)+esc(cc.unit||'')+'</span></span>';
+    } else if(c.control && c.control.kind==='datatable'){
+      tools = '<button class="fig-dtbtn" data-fig-dt="'+esc(fid)+'">'+svg('table','icon-sm')+'Data table</button>';
+    }
+    return '<figure class="rp-fig" id="'+esc(fid)+'" data-figwrap="'+esc(fid)+'">'
+      + '<div class="fig-head"><div class="fig-legend">'+legend+'</div><div class="fig-tools">'+tools+'</div></div>'
+      + '<div class="fig-plot" data-figplot="'+esc(fid)+'"></div>'
+      + (c.control && c.control.kind==='datatable' ? '<div class="fig-dtable" data-figdt="'+esc(fid)+'"></div>' : '')
+      + '<figcaption class="rp-figcap"><b>Figure '+esc(b.number)+'.</b> '+(b.caption||'')+'</figcaption>'
+      + '</figure>';
+  }
+  function cycleColor(i){ var arr=['var(--navy)','var(--risk)','var(--ok)','var(--hold)']; return arr[i%arr.length]; }
+
+  /* ---- table (booktabs, sortable numeric cols) ---- */
+  function renderTable(b){
+    var cols=b.columns||[], rows=(b.rows||[]).slice();
+    var tid=b.id||('tab'+Math.random().toString(36).slice(2,7));
+    var thead = cols.map(function(c){
+      var numc=c.numeric?' num':'';
+      var sortc=c.numeric?' sortable':'';
+      return '<th class="'+(c.align==='right'||c.numeric?'num':'')+sortc+'" '
+        + (c.numeric?'data-sortkey="'+esc(c.key)+'" data-tid="'+esc(tid)+'"':'')+'>'+esc(c.label)
+        + (c.numeric?'<span class="sortarrow">↕</span>':'')+'</th>';
+    }).join('');
+    var tbody = rows.map(function(r){
+      return '<tr>'+cols.map(function(c){
+        var v=r[c.key]; var isnum=c.numeric||c.align==='right';
+        return '<td class="'+(isnum?'num':'')+'">'+esc(v)+'</td>';
+      }).join('')+'</tr>';
+    }).join('');
+    return '<div class="rp-tablewrap" id="'+esc(tid)+'" data-tableid="'+esc(tid)+'">'
+      + '<table class="rp-table"><thead><tr>'+thead+'</tr></thead><tbody>'+tbody+'</tbody></table>'
+      + '<div class="rp-tablecap"><b>Table '+esc(b.number)+'.</b> '+(b.caption||'')+'</div></div>';
+  }
+
+  /* ============================================================
+     CHARTS — inline SVG. drawFigure() dispatches on chart.kind:
+       point  : line, scatter, area, stacked-area, step, bubble
+       bar     : bar, stacked-bar, horizontal-bar, waterfall
+       binned  : histogram, box
+       radial  : pie, donut, radar
+       matrix  : heatmap
+     ============================================================ */
+  var VBW=560, VBH=300, PADL=52, PADR=16, PADT=14, PADB=40;
+  function plotRect(){ return { x0:PADL, y0:PADT, x1:VBW-PADR, y1:VBH-PADB, w:VBW-PADL-PADR, h:VBH-PADT-PADB }; }
+
+  function drawAllFigures(){
+    Object.keys(FIGS).forEach(function(fid){ drawFigure(fid); buildDataTable(fid); });
+  }
+
+  /* ---- paginate the rendered paper into stacked on-screen A4 sheets, each a 2-column flow ----
+     Front matter is a full-width banner on page 1; body + references flow into 2 columns per sheet
+     (column-fill:auto + a fixed column height => left column fills top-to-bottom, then the right),
+     and atoms are greedily packed: when content spills into a 3rd column the sheet is full, so the
+     overflowing atom starts the next sheet. Reads like a printed journal, on screen. */
+  function paginate(){
+    var bodyEl = paper.querySelector('.rp-body');
+    var refsEl = paper.querySelector('.rp-refs');
+    var footEl = paper.querySelector('.rp-foot');
+    if(!bodyEl) return;
+    if(footEl && footEl.parentNode) footEl.parentNode.removeChild(footEl);
+
+    /* front-matter banner: everything before .rp-body spans both columns at the top of page 1 */
+    var fm = document.createElement('div'); fm.className = 'rp-frontmatter';
+    while(paper.firstChild && paper.firstChild !== bodyEl){ fm.appendChild(paper.firstChild); }
+
+    /* ordered atoms: banner, then flattened section headings + blocks, then the references section */
+    var atoms = [fm];
+    flattenSection(bodyEl.querySelector('.rp-flow'), atoms);
+    if(refsEl) atoms.push(refsEl);
+
+    /* greedily pack atoms into sheets (live in the DOM so column overflow can be measured) */
+    paper.classList.add('paged');
+    var sheets = [];
+    function newSheet(){
+      var s = document.createElement('section'); s.className = 'rp-sheet';
+      var f = document.createElement('div'); f.className = 'rp-sheetflow';
+      s.appendChild(f); paper.appendChild(s); sheets.push(s); return f;
+    }
+    var flow = newSheet();
+    atoms.forEach(function(atom){
+      flow.appendChild(atom);
+      if(flow.scrollWidth > flow.clientWidth + 1 && flow.children.length > 1){
+        flow.removeChild(atom);
+        flow = newSheet();
+        flow.appendChild(atom);   /* if it still overflows alone it is simply too tall for one page */
+      }
+    });
+
+    if(bodyEl.parentNode) bodyEl.parentNode.removeChild(bodyEl);   /* drop the emptied source shell */
+    sheets.forEach(function(s, i){
+      var n = document.createElement('div'); n.className = 'rp-sheetno';
+      n.textContent = (i + 1) + ' / ' + sheets.length;
+      s.appendChild(n);
+    });
+    if(footEl) paper.appendChild(footEl);
+  }
+
+  /* flatten sections into ordered block-level atoms; move each section's anchor id onto its heading
+     so the outline nav and citation click-to-scroll keep working after the section wrappers are gone */
+  function flattenSection(container, atoms){
+    if(!container) return;
+    Array.prototype.slice.call(container.children).forEach(function(node){
+      if(!node.classList || !node.classList.contains('rp-sec')) return;
+      var secId = node.id || node.getAttribute('data-secid');
+      Array.prototype.slice.call(node.children).forEach(function(child){
+        if(child.classList.contains('rp-h')){
+          if(secId) child.id = secId;
+          atoms.push(child);
+        } else if(child.classList.contains('rp-sec')){
+          flattenSection({ children:[child] }, atoms);
+        } else {
+          atoms.push(child);
+        }
+      });
+      if(secId) node.removeAttribute('id');
+    });
+  }
+
+  function seriesExtent(c){
+    var xs=[], ys=[], minY=0;
+    if(c.kind==='bar' || c.kind==='horizontal-bar'){
+      (c.series||[]).forEach(function(se){ (se.values||[]).forEach(function(v){ ys.push(v); }); });
+    } else if(c.kind==='stacked-bar'){
+      /* stacked: y-extent is the per-category column sum */
+      var cats=c.categories||[];
+      cats.forEach(function(_,ci){ var sum=0; (c.series||[]).forEach(function(se){ sum+=(+(se.values||[])[ci]||0); }); ys.push(sum); });
+    } else if(c.kind==='waterfall'){
+      /* cumulative running total bounds */
+      var run=0, lo=0, hi=0;
+      ((c.series&&c.series[0]&&c.series[0].values)||[]).forEach(function(v){ run+=(+v||0); if(run<lo)lo=run; if(run>hi)hi=run; });
+      ys.push(lo, hi); minY=Math.min(0,lo);
+    } else if(c.kind==='stacked-area'){
+      var n=((c.series&&c.series[0]&&c.series[0].points)||[]).length;
+      for(var i=0;i<n;i++){ var sum=0; (c.series||[]).forEach(function(se){ var p=(se.points||[])[i]; if(p){ sum+=(+p[1]||0); } }); ys.push(sum); }
+      (c.series||[]).forEach(function(se){ (se.points||[]).forEach(function(pt){ xs.push(pt[0]); }); });
+    } else if(c.kind==='histogram'){
+      (c.bins||[]).forEach(function(bn){ xs.push(bn.x0, bn.x1); ys.push(bn.count); });
+    } else if(c.kind==='box'){
+      (c.series||[]).forEach(function(se){ (se.boxes||[]).forEach(function(bx){
+        ys.push(bx.min, bx.max); (bx.outliers||[]).forEach(function(o){ ys.push(o); }); }); });
+      minY=Math.min.apply(null, ys.concat(0));
+    } else { /* point kinds: line/scatter/area/step/bubble */
+      (c.series||[]).forEach(function(se){ (se.points||[]).forEach(function(pt){ xs.push(pt[0]); ys.push(pt[1]); }); });
+    }
+    var minX=xs.length?Math.min.apply(null,xs):0, maxX=xs.length?Math.max.apply(null,xs):1;
+    var maxY=ys.length?Math.max.apply(null,ys):1;
+    if(c.kind==='box' || c.kind==='waterfall'){
+      var pad=(maxY-minY)*0.1||1;
+      return { minX:minX, maxX:maxX, minY:minY-(minY<0?pad:0), maxY:maxY+pad };
+    }
+    return { minX:minX, maxX:maxX, minY:minY, maxY:maxY*1.12 || 1 };
+  }
+
+  /* central dispatch: route each kind to its draw path */
+  function drawFigure(fid){
+    var F=FIGS[fid], c=F.chart;
+    var host=document.querySelector('[data-figplot="'+cssq(fid)+'"]'); if(!host) return;
+    var R=plotRect(), E=seriesExtent(c);
+
+    /* axis-less kinds build their own SVG body (no x/y axes) */
+    if(isAxisless(c.kind)){
+      var bodyless='';
+      if(c.kind==='pie' || c.kind==='donut') bodyless=drawPie(F,c,R);
+      else if(c.kind==='radar')             bodyless=drawRadar(F,c,R);
+      else if(c.kind==='heatmap')           bodyless=drawHeatmap(F,c,R);
+      host.innerHTML = '<svg viewBox="0 0 '+VBW+' '+VBH+'" preserveAspectRatio="xMidYMid meet" role="img" '
+        + 'aria-label="'+esc(c.kind)+' chart">'+bodyless+'</svg>';
+      return;
+    }
+
+    function X(x){ if(E.maxX===E.minX) return R.x0; return R.x0 + (x-E.minX)/((E.maxX-E.minX)||1)*R.w; }
+    function Y(y){ return R.y1 - (y-E.minY)/((E.maxY-E.minY)||1)*R.h; }
+    var horiz=(c.kind==='horizontal-bar');
+
+    /* axes + gridlines + value ticks (swap roles for horizontal bar) */
+    var s='';
+    var yt=4; var ticks='';
+    for(var i=0;i<=yt;i++){
+      var yv=E.minY+(E.maxY-E.minY)*i/yt;
+      if(horiz){
+        var xx0=X(yv);
+        ticks += '<line class="grid-line" x1="'+xx0.toFixed(1)+'" y1="'+R.y0+'" x2="'+xx0.toFixed(1)+'" y2="'+R.y1+'"/>'
+          + '<text class="ax-tick" x="'+xx0.toFixed(1)+'" y="'+(R.y1+15)+'" text-anchor="middle">'+fmtNum(yv)+'</text>';
+      } else {
+        var yy=Y(yv);
+        ticks += '<line class="grid-line" x1="'+R.x0+'" y1="'+yy.toFixed(1)+'" x2="'+R.x1+'" y2="'+yy.toFixed(1)+'"/>'
+          + '<text class="ax-tick" x="'+(R.x0-7)+'" y="'+(yy+3).toFixed(1)+'" text-anchor="end">'+fmtNum(yv)+'</text>';
+      }
+    }
+    s += ticks;
+    s += '<line class="ax-line" x1="'+R.x0+'" y1="'+R.y0+'" x2="'+R.x0+'" y2="'+R.y1+'"/>';
+    s += '<line class="ax-line" x1="'+R.x0+'" y1="'+R.y1+'" x2="'+R.x1+'" y2="'+R.y1+'"/>';
+    if(E.minY<0){ var z=Y(0); s += '<line class="ax-line" x1="'+R.x0+'" y1="'+z.toFixed(1)+'" x2="'+R.x1+'" y2="'+z.toFixed(1)+'"/>'; }
+
+    /* category / numeric x ticks */
+    var catKind = (c.kind==='bar'||c.kind==='stacked-bar'||c.kind==='waterfall'||c.kind==='box');
+    if(horiz){
+      var hcats=c.categories||[]; var hn=hcats.length||1; var hband=R.h/hn;
+      hcats.forEach(function(cat,ci){
+        var cy=R.y0+hband*(ci+0.5);
+        s += '<text class="ax-tick" x="'+(R.x0-7)+'" y="'+(cy+3).toFixed(1)+'" text-anchor="end">'+esc(cat)+'</text>';
+      });
+    } else if(catKind){
+      var cats=(c.kind==='waterfall'&&c.total)?((c.categories||[]).concat('total')):(c.categories||[]);
+      var n=cats.length||1; var band=R.w/n;
+      cats.forEach(function(cat,ci){
+        var cx=R.x0+band*(ci+0.5);
+        s += '<text class="ax-tick" x="'+cx.toFixed(1)+'" y="'+(R.y1+15)+'" text-anchor="middle">'+esc(cat)+'</text>';
+      });
+    } else if(c.kind==='histogram'){
+      (c.bins||[]).forEach(function(bn,bi){
+        if(bi===0) s += '<text class="ax-tick" x="'+X(bn.x0).toFixed(1)+'" y="'+(R.y1+15)+'" text-anchor="middle">'+fmtNum(bn.x0)+'</text>';
+        s += '<text class="ax-tick" x="'+X(bn.x1).toFixed(1)+'" y="'+(R.y1+15)+'" text-anchor="middle">'+fmtNum(bn.x1)+'</text>';
+      });
+    } else {
+      var xt=Math.min(7,(c.series&&c.series[0]&&c.series[0].points||[]).length)||5;
+      for(var k=0;k<=xt;k++){
+        var xv=E.minX+(E.maxX-E.minX)*k/xt; var xx=X(xv);
+        s += '<text class="ax-tick" x="'+xx.toFixed(1)+'" y="'+(R.y1+15)+'" text-anchor="middle">'+fmtNum(xv)+'</text>';
+      }
+    }
+    /* axis titles */
+    var axx=horiz?(c.yLabel||''):(c.xLabel||''); var axy=horiz?(c.xLabel||''):(c.yLabel||'');
+    s += '<text class="ax-title" x="'+((R.x0+R.x1)/2).toFixed(1)+'" y="'+(VBH-6)+'" text-anchor="middle">'+esc(axx)+'</text>';
+    s += '<text class="ax-title" transform="translate(13,'+((R.y0+R.y1)/2).toFixed(1)+') rotate(-90)" text-anchor="middle">'+esc(axy)+'</text>';
+
+    /* series body (per kind) */
+    var out={ s:'', hot:'' };
+    if(c.kind==='bar')                 drawBars(F,c,R,Y,out);
+    else if(c.kind==='stacked-bar')    drawStackedBars(F,c,R,Y,out);
+    else if(c.kind==='horizontal-bar') drawBarsH(F,c,R,X,out);
+    else if(c.kind==='waterfall')      drawWaterfall(F,c,R,Y,out);
+    else if(c.kind==='histogram')      drawHistogram(F,c,R,X,Y,out);
+    else if(c.kind==='box')            drawBox(F,c,R,Y,out);
+    else if(c.kind==='stacked-area')   drawStackedArea(F,c,R,X,Y,out);
+    else                               drawPoints(F,c,R,X,Y,out); /* line/scatter/area/step/bubble */
+    s += out.s; var hot=out.hot;
+
+    /* slider model overlay (recomputed live) — point kinds only */
+    var modelPath='';
+    if(F.ctrl && F.ctrl.kind==='slider' && POINTKIND[c.kind]){
+      modelPath = '<path class="model-line" d="'+modelD(F, X, Y, E)+'"/>';
+    }
+
+    /* hover cursor dot */
+    var cursor='<circle class="fig-cursor-dot" id="cur-'+esc(fid)+'" r="4.5" fill="none" stroke="var(--ink)" stroke-width="1.6"/>';
+
+    host.innerHTML = '<svg viewBox="0 0 '+VBW+' '+VBH+'" preserveAspectRatio="xMidYMid meet" role="img" '
+      + 'aria-label="'+esc(c.yLabel||'')+' vs '+esc(c.xLabel||'')+'">'
+      + s + modelPath + cursor + hot + '</svg>';
+  }
+
+  /* ---- point kinds: line / scatter / area / step / bubble ---- */
+  function drawPoints(F,c,R,X,Y,out){
+    var s='', hot='';
+    (c.series||[]).forEach(function(se,si){
+      if(F.hidden[si]) return;
+      var col=COLORVAR[se.color]||cycleColor(si);
+      var pts=(se.points||[]).slice().sort(function(a,b){ return a[0]-b[0]; });
+      if(c.kind==='line'){
+        var d=pts.map(function(pt,j){ return (j?'L':'M')+X(pt[0]).toFixed(1)+','+Y(pt[1]).toFixed(1); }).join(' ');
+        s += '<path class="ser-line" d="'+d+'" stroke="'+col+'"/>';
+      } else if(c.kind==='step'){
+        var sd=''; pts.forEach(function(pt,j){
+          var px=X(pt[0]).toFixed(1), py=Y(pt[1]).toFixed(1);
+          if(j===0){ sd='M'+px+','+py; } else { sd+='H'+px+'V'+py; }
+        });
+        s += '<path class="ser-line" d="'+sd+'" stroke="'+col+'"/>';
+      } else if(c.kind==='area'){
+        var ld=pts.map(function(pt,j){ return (j?'L':'M')+X(pt[0]).toFixed(1)+','+Y(pt[1]).toFixed(1); }).join(' ');
+        if(pts.length){
+          var y0=Y(0).toFixed(1);
+          var fill=ld+' L'+X(pts[pts.length-1][0]).toFixed(1)+','+y0+' L'+X(pts[0][0]).toFixed(1)+','+y0+' Z';
+          s += '<path class="ser-area" d="'+fill+'" fill="'+col+'"/>';
+        }
+        s += '<path class="ser-line" d="'+ld+'" stroke="'+col+'"/>';
+      }
+      pts.forEach(function(pt){
+        var cx=X(pt[0]), cy=Y(pt[1]);
+        if(c.kind==='bubble'){
+          var rr=Math.max(3, Math.min(26, (+pt[2]||1)));
+          s += '<circle class="ser-bubble" cx="'+cx.toFixed(1)+'" cy="'+cy.toFixed(1)+'" r="'+rr.toFixed(1)+'" fill="'+col+'"/>';
+          hot += '<circle class="hotcell" cx="'+cx.toFixed(1)+'" cy="'+cy.toFixed(1)+'" r="'+rr.toFixed(1)+'" '
+            + 'data-kind="bubble" data-x="'+pt[0]+'" data-y="'+pt[1]+'" data-r="'+(pt[2]==null?'':pt[2])+'" data-ser="'+esc(se.name)+'" data-col="'+col+'" '
+            + 'data-px="'+cx.toFixed(1)+'" data-py="'+cy.toFixed(1)+'" data-xl="'+esc(c.xLabel||'x')+'" data-yl="'+esc(c.yLabel||'y')+'"/>';
+        } else {
+          s += '<circle class="ser-pt" cx="'+cx.toFixed(1)+'" cy="'+cy.toFixed(1)+'" r="'+(c.kind==='scatter'?4.2:3.4)+'" fill="'+col+'"/>';
+          hot += '<circle class="hotcell" cx="'+cx.toFixed(1)+'" cy="'+cy.toFixed(1)+'" r="10" '
+            + 'data-kind="pt" data-x="'+pt[0]+'" data-y="'+pt[1]+'" data-ser="'+esc(se.name)+'" data-col="'+col+'" '
+            + 'data-px="'+cx.toFixed(1)+'" data-py="'+cy.toFixed(1)+'" data-xl="'+esc(c.xLabel||'x')+'" data-yl="'+esc(c.yLabel||'y')+'"/>';
+        }
+      });
+    });
+    out.s+=s; out.hot+=hot;
+  }
+
+  /* ---- stacked area ---- */
+  function drawStackedArea(F,c,R,X,Y,out){
+    var s='', hot='';
+    var series=c.series||[];
+    var len=((series[0]&&series[0].points)||[]).length;
+    var cum=new Array(len).fill(0);
+    /* draw from last visible series down so earlier ones sit on top visually; stack bottom-up */
+    var prev=cum.slice();
+    series.forEach(function(se,si){
+      if(F.hidden[si]) return;
+      var col=COLORVAR[se.color]||cycleColor(si);
+      var pts=se.points||[];
+      var top=[], bot=[];
+      pts.forEach(function(pt,j){ var base=prev[j]||0; var v=base+(+pt[1]||0); top.push([pt[0],v]); bot.push([pt[0],base]); prev[j]=v; });
+      var dTop=top.map(function(pt,j){ return (j?'L':'M')+X(pt[0]).toFixed(1)+','+Y(pt[1]).toFixed(1); }).join(' ');
+      var dBot=bot.slice().reverse().map(function(pt){ return 'L'+X(pt[0]).toFixed(1)+','+Y(pt[1]).toFixed(1); }).join(' ');
+      s += '<path class="ser-area" d="'+dTop+' '+dBot+' Z" fill="'+col+'"/>';
+      s += '<path class="ser-line" d="'+dTop+'" stroke="'+col+'"/>';
+      top.forEach(function(pt,j){
+        var cx=X(pt[0]), cy=Y(pt[1]);
+        hot += '<circle class="hotcell" cx="'+cx.toFixed(1)+'" cy="'+cy.toFixed(1)+'" r="10" '
+          + 'data-kind="pt" data-x="'+pts[j][0]+'" data-y="'+pts[j][1]+'" data-ser="'+esc(se.name)+'" data-col="'+col+'" '
+          + 'data-px="'+cx.toFixed(1)+'" data-py="'+cy.toFixed(1)+'" data-xl="'+esc(c.xLabel||'x')+'" data-yl="'+esc(c.yLabel||'y')+'"/>';
+      });
+    });
+    out.s+=s; out.hot+=hot;
+  }
+
+  /* ---- grouped bars (unchanged behaviour from the original 'bar') ---- */
+  function drawBars(F,c,R,Y,out){
+    var s='', hot='';
+    var cats2=c.categories||[]; var n2=cats2.length||1; var band2=R.w/n2;
+    var vis=(c.series||[]).map(function(_,si){ return !F.hidden[si]; });
+    var nvis=vis.filter(Boolean).length||1; var gw=band2*0.62; var bw=gw/Math.max(1,nvis);
+    (c.series||[]).forEach(function(se,si){
+      if(F.hidden[si]) return;
+      var order=visIndex(vis,si);
+      var col=COLORVAR[se.color]||cycleColor(si);
+      (se.values||[]).forEach(function(v,ci){
+        var x0=R.x0+band2*ci+(band2-gw)/2 + order*bw;
+        var yy=Y(v); var bh=R.y1-yy;
+        s += '<rect class="ser-bar" x="'+x0.toFixed(1)+'" y="'+yy.toFixed(1)+'" width="'+(bw-2).toFixed(1)+'" height="'+Math.max(0,bh).toFixed(1)+'" rx="2.5" fill="'+col+'"/>';
+        hot += '<rect class="hotcell" x="'+x0.toFixed(1)+'" y="'+R.y0+'" width="'+(bw-2).toFixed(1)+'" height="'+(R.y1-R.y0).toFixed(1)+'" '
+          + 'data-kind="bar" data-cat="'+esc(cats2[ci])+'" data-ser="'+esc(se.name)+'" data-col="'+col+'" data-val="'+v+'" data-unit="'+esc(c.yLabel||'')+'"/>';
+      });
+    });
+    out.s+=s; out.hot+=hot;
+  }
+
+  /* ---- stacked bars ---- */
+  function drawStackedBars(F,c,R,Y,out){
+    var s='', hot='';
+    var cats=c.categories||[]; var n=cats.length||1; var band=R.w/n; var bw=band*0.6;
+    var cum=new Array(n).fill(0);
+    (c.series||[]).forEach(function(se,si){
+      if(F.hidden[si]) return;
+      var col=COLORVAR[se.color]||cycleColor(si);
+      (se.values||[]).forEach(function(v,ci){
+        var base=cum[ci]||0; var top=base+(+v||0);
+        var yTop=Y(top), yBase=Y(base); var bh=Math.max(0,yBase-yTop);
+        var x0=R.x0+band*ci+(band-bw)/2;
+        s += '<rect class="ser-bar" x="'+x0.toFixed(1)+'" y="'+yTop.toFixed(1)+'" width="'+bw.toFixed(1)+'" height="'+bh.toFixed(1)+'" rx="2" fill="'+col+'"/>';
+        hot += '<rect class="hotcell" x="'+x0.toFixed(1)+'" y="'+yTop.toFixed(1)+'" width="'+bw.toFixed(1)+'" height="'+bh.toFixed(1)+'" '
+          + 'data-kind="bar" data-cat="'+esc(cats[ci])+'" data-ser="'+esc(se.name)+'" data-col="'+col+'" data-val="'+v+'" data-unit="'+esc(c.yLabel||'')+'"/>';
+        cum[ci]=top;
+      });
+    });
+    out.s+=s; out.hot+=hot;
+  }
+
+  /* ---- horizontal bars (grouped) ---- */
+  function drawBarsH(F,c,R,X,out){
+    var s='', hot='';
+    var cats=c.categories||[]; var n=cats.length||1; var band=R.h/n;
+    var vis=(c.series||[]).map(function(_,si){ return !F.hidden[si]; });
+    var nvis=vis.filter(Boolean).length||1; var gh=band*0.62; var bh=gh/Math.max(1,nvis);
+    var x0base=X(0);
+    (c.series||[]).forEach(function(se,si){
+      if(F.hidden[si]) return;
+      var order=visIndex(vis,si);
+      var col=COLORVAR[se.color]||cycleColor(si);
+      (se.values||[]).forEach(function(v,ci){
+        var y0=R.y0+band*ci+(band-gh)/2 + order*bh;
+        var xv=X(v); var bw=Math.max(0,xv-x0base);
+        s += '<rect class="ser-bar" x="'+x0base.toFixed(1)+'" y="'+y0.toFixed(1)+'" width="'+bw.toFixed(1)+'" height="'+(bh-2).toFixed(1)+'" rx="2.5" fill="'+col+'"/>';
+        hot += '<rect class="hotcell" x="'+R.x0+'" y="'+y0.toFixed(1)+'" width="'+(R.x1-R.x0).toFixed(1)+'" height="'+(bh-2).toFixed(1)+'" '
+          + 'data-kind="bar" data-cat="'+esc(cats[ci])+'" data-ser="'+esc(se.name)+'" data-col="'+col+'" data-val="'+v+'" data-unit="'+esc(c.xLabel||'')+'"/>';
+      });
+    });
+    out.s+=s; out.hot+=hot;
+  }
+
+  /* ---- waterfall: signed deltas with a running cumulative ---- */
+  function drawWaterfall(F,c,R,Y,out){
+    if(F.hidden[0]) return;
+    var s='', hot='';
+    var vals=((c.series&&c.series[0]&&c.series[0].values)||[]).slice();
+    var cats=(c.categories||[]).slice();
+    var sname=(c.series&&c.series[0]&&c.series[0].name)||'value';
+    if(c.total){ var tot=vals.reduce(function(a,b){ return a+(+b||0); },0); vals.push(tot); cats.push('total'); }
+    var n=vals.length||1; var band=R.w/n; var bw=band*0.6;
+    var run=0;
+    vals.forEach(function(v,ci){
+      var isTotal=(c.total && ci===vals.length-1);
+      var start=isTotal?0:run; var end=isTotal?v:run+(+v||0);
+      var yTop=Y(Math.max(start,end)), yBot=Y(Math.min(start,end));
+      var bh=Math.max(1,yBot-yTop); var x0=R.x0+band*ci+(band-bw)/2;
+      var col=isTotal?COLORVAR.navy:((+v||0)>=0?COLORVAR.ok:COLORVAR.risk);
+      s += '<rect class="ser-bar" x="'+x0.toFixed(1)+'" y="'+yTop.toFixed(1)+'" width="'+bw.toFixed(1)+'" height="'+bh.toFixed(1)+'" rx="2" fill="'+col+'"/>';
+      /* connector to next */
+      if(ci<vals.length-1){ var yc=Y(end); s += '<line class="wf-conn" x1="'+(x0+bw).toFixed(1)+'" y1="'+yc.toFixed(1)+'" x2="'+(R.x0+band*(ci+1)+(band-bw)/2).toFixed(1)+'" y2="'+yc.toFixed(1)+'"/>'; }
+      hot += '<rect class="hotcell" x="'+(R.x0+band*ci).toFixed(1)+'" y="'+R.y0+'" width="'+band.toFixed(1)+'" height="'+(R.y1-R.y0).toFixed(1)+'" '
+        + 'data-kind="bar" data-cat="'+esc(cats[ci])+'" data-ser="'+esc(isTotal?'total':sname)+'" data-col="'+col+'" data-val="'+(isTotal?end:v)+'" data-unit="'+esc(c.yLabel||'')+'"/>';
+      if(!isTotal) run=end;
+    });
+    out.s+=s; out.hot+=hot;
+  }
+
+  /* ---- histogram: precomputed bins ---- */
+  function drawHistogram(F,c,R,X,Y,out){
+    var s='', hot='';
+    var col=COLORVAR[(c.series&&c.series[0]&&c.series[0].color)]||COLORVAR.navy;
+    (c.bins||[]).forEach(function(bn){
+      var x0=X(bn.x0), x1=X(bn.x1); var bw=Math.max(1,x1-x0-1);
+      var yy=Y(bn.count); var bh=Math.max(0,R.y1-yy);
+      s += '<rect class="ser-bar" x="'+(x0+0.5).toFixed(1)+'" y="'+yy.toFixed(1)+'" width="'+bw.toFixed(1)+'" height="'+bh.toFixed(1)+'" rx="1.5" fill="'+col+'"/>';
+      hot += '<rect class="hotcell" x="'+x0.toFixed(1)+'" y="'+R.y0+'" width="'+Math.max(1,x1-x0).toFixed(1)+'" height="'+(R.y1-R.y0).toFixed(1)+'" '
+        + 'data-kind="bin" data-x0="'+bn.x0+'" data-x1="'+bn.x1+'" data-col="'+col+'" data-val="'+bn.count+'" data-yl="'+esc(c.yLabel||'count')+'"/>';
+    });
+    out.s+=s; out.hot+=hot;
+  }
+
+  /* ---- box-and-whisker (precomputed five-number summary) ---- */
+  function drawBox(F,c,R,Y,out){
+    var s='', hot='';
+    var cats=c.categories||[]; var n=cats.length||1; var band=R.w/n;
+    var vis=(c.series||[]).map(function(_,si){ return !F.hidden[si]; });
+    var nvis=vis.filter(Boolean).length||1; var gw=band*0.5; var bw=gw/Math.max(1,nvis);
+    (c.series||[]).forEach(function(se,si){
+      if(F.hidden[si]) return;
+      var order=visIndex(vis,si);
+      var col=COLORVAR[se.color]||cycleColor(si);
+      (se.boxes||[]).forEach(function(bx,ci){
+        var cx=R.x0+band*ci+(band-gw)/2 + order*bw + bw/2;
+        var x0=cx-bw*0.42, x1=cx+bw*0.42;
+        var yMin=Y(bx.min), yQ1=Y(bx.q1), yMed=Y(bx.median), yQ3=Y(bx.q3), yMax=Y(bx.max);
+        /* whiskers */
+        s += '<line class="box-whisk" x1="'+cx.toFixed(1)+'" y1="'+yMax.toFixed(1)+'" x2="'+cx.toFixed(1)+'" y2="'+yQ3.toFixed(1)+'" stroke="'+col+'"/>';
+        s += '<line class="box-whisk" x1="'+cx.toFixed(1)+'" y1="'+yQ1.toFixed(1)+'" x2="'+cx.toFixed(1)+'" y2="'+yMin.toFixed(1)+'" stroke="'+col+'"/>';
+        s += '<line class="box-whisk" x1="'+x0.toFixed(1)+'" y1="'+yMax.toFixed(1)+'" x2="'+x1.toFixed(1)+'" y2="'+yMax.toFixed(1)+'" stroke="'+col+'"/>';
+        s += '<line class="box-whisk" x1="'+x0.toFixed(1)+'" y1="'+yMin.toFixed(1)+'" x2="'+x1.toFixed(1)+'" y2="'+yMin.toFixed(1)+'" stroke="'+col+'"/>';
+        /* IQR box */
+        s += '<rect class="box-iqr" x="'+x0.toFixed(1)+'" y="'+yQ3.toFixed(1)+'" width="'+(x1-x0).toFixed(1)+'" height="'+Math.max(1,yQ1-yQ3).toFixed(1)+'" fill="'+col+'" stroke="'+col+'"/>';
+        s += '<line class="box-med" x1="'+x0.toFixed(1)+'" y1="'+yMed.toFixed(1)+'" x2="'+x1.toFixed(1)+'" y2="'+yMed.toFixed(1)+'"/>';
+        (bx.outliers||[]).forEach(function(o){ s += '<circle class="box-out" cx="'+cx.toFixed(1)+'" cy="'+Y(o).toFixed(1)+'" r="2.4" stroke="'+col+'"/>'; });
+        hot += '<rect class="hotcell" x="'+(cx-bw/2).toFixed(1)+'" y="'+R.y0+'" width="'+bw.toFixed(1)+'" height="'+(R.y1-R.y0).toFixed(1)+'" '
+          + 'data-kind="box" data-cat="'+esc(cats[ci])+'" data-ser="'+esc(se.name)+'" data-col="'+col+'" '
+          + 'data-min="'+bx.min+'" data-q1="'+bx.q1+'" data-med="'+bx.median+'" data-q3="'+bx.q3+'" data-max="'+bx.max+'"/>';
+      });
+    });
+    out.s+=s; out.hot+=hot;
+  }
+
+  /* ---- pie / donut ---- */
+  function drawPie(F,c,R){
+    var slices=((c.series&&c.series[0]&&c.series[0].slices)||[]);
+    var cx=(R.x0+R.x1)/2, cy=(R.y0+R.y1)/2;
+    var rad=Math.min((R.x1-R.x0),(R.y1-R.y0))/2 - 6;
+    var inner=(c.kind==='donut')? rad*0.56 : 0;
+    var total=0; slices.forEach(function(sl,i){ if(!F.hidden[i]) total+=Math.max(0,+sl.value||0); });
+    if(total<=0) total=1;
+    var s='', hot='', a0=-Math.PI/2;
+    slices.forEach(function(sl,i){
+      if(F.hidden[i]) return;
+      var col=COLORVAR[sl.color]||cycleColor(i);
+      var frac=Math.max(0,+sl.value||0)/total; var a1=a0+frac*2*Math.PI;
+      var large=(a1-a0)>Math.PI?1:0;
+      var x0o=cx+rad*Math.cos(a0), y0o=cy+rad*Math.sin(a0);
+      var x1o=cx+rad*Math.cos(a1), y1o=cy+rad*Math.sin(a1);
+      var d;
+      if(inner>0){
+        var x0i=cx+inner*Math.cos(a1), y0i=cy+inner*Math.sin(a1);
+        var x1i=cx+inner*Math.cos(a0), y1i=cy+inner*Math.sin(a0);
+        d='M'+x0o.toFixed(1)+','+y0o.toFixed(1)+'A'+rad.toFixed(1)+','+rad.toFixed(1)+' 0 '+large+' 1 '+x1o.toFixed(1)+','+y1o.toFixed(1)
+          +'L'+x0i.toFixed(1)+','+y0i.toFixed(1)+'A'+inner.toFixed(1)+','+inner.toFixed(1)+' 0 '+large+' 0 '+x1i.toFixed(1)+','+y1i.toFixed(1)+'Z';
+      } else {
+        d='M'+cx.toFixed(1)+','+cy.toFixed(1)+'L'+x0o.toFixed(1)+','+y0o.toFixed(1)
+          +'A'+rad.toFixed(1)+','+rad.toFixed(1)+' 0 '+large+' 1 '+x1o.toFixed(1)+','+y1o.toFixed(1)+'Z';
+      }
+      s += '<path class="pie-slice" d="'+d+'" fill="'+col+'"/>';
+      var am=(a0+a1)/2, hr=(inner+rad)/2||rad*0.6;
+      hot += '<path class="hotcell" d="'+d+'" data-kind="slice" data-ser="'+esc(sl.name)+'" data-col="'+col+'" '
+        + 'data-val="'+(+sl.value||0)+'" data-pct="'+(frac*100).toFixed(1)+'" '
+        + 'data-px="'+(cx+hr*Math.cos(am)).toFixed(1)+'" data-py="'+(cy+hr*Math.sin(am)).toFixed(1)+'"/>';
+      a0=a1;
+    });
+    if(inner>0){
+      s += '<text class="pie-center" x="'+cx.toFixed(1)+'" y="'+(cy+4).toFixed(1)+'" text-anchor="middle">'+fmtNum(total)+'</text>';
+    }
+    return s+hot;
+  }
+
+  /* ---- radar (spider) ---- */
+  function drawRadar(F,c,R){
+    var axes=c.axes||[]; var na=axes.length||1;
+    var cx=(R.x0+R.x1)/2, cy=(R.y0+R.y1)/2;
+    var rad=Math.min((R.x1-R.x0),(R.y1-R.y0))/2 - 18;
+    var maxV=0; (c.series||[]).forEach(function(se){ (se.values||[]).forEach(function(v){ if(+v>maxV) maxV=+v; }); }); if(maxV<=0) maxV=1;
+    function ang(i){ return -Math.PI/2 + i/na*2*Math.PI; }
+    function pt(i,v){ var r=rad*(v/maxV); return [cx+r*Math.cos(ang(i)), cy+r*Math.sin(ang(i))]; }
+    var s='', hot='';
+    /* rings */
+    for(var g=1;g<=4;g++){
+      var rr=rad*g/4; var ring='';
+      for(var i=0;i<na;i++){ var px=cx+rr*Math.cos(ang(i)), py=cy+rr*Math.sin(ang(i)); ring += (i?'L':'M')+px.toFixed(1)+','+py.toFixed(1); }
+      s += '<path class="radar-grid" d="'+ring+' Z"/>';
+    }
+    /* spokes + labels */
+    axes.forEach(function(lab,i){
+      var px=cx+rad*Math.cos(ang(i)), py=cy+rad*Math.sin(ang(i));
+      s += '<line class="radar-grid" x1="'+cx.toFixed(1)+'" y1="'+cy.toFixed(1)+'" x2="'+px.toFixed(1)+'" y2="'+py.toFixed(1)+'"/>';
+      var lx=cx+(rad+12)*Math.cos(ang(i)), ly=cy+(rad+12)*Math.sin(ang(i));
+      var anch=Math.abs(Math.cos(ang(i)))<0.3?'middle':(Math.cos(ang(i))>0?'start':'end');
+      s += '<text class="ax-tick" x="'+lx.toFixed(1)+'" y="'+(ly+3).toFixed(1)+'" text-anchor="'+anch+'">'+esc(lab)+'</text>';
+    });
+    /* series polygons */
+    (c.series||[]).forEach(function(se,si){
+      if(F.hidden[si]) return;
+      var col=COLORVAR[se.color]||cycleColor(si);
+      var vals=se.values||[]; var d='';
+      vals.forEach(function(v,i){ var p=pt(i,+v||0); d += (i?'L':'M')+p[0].toFixed(1)+','+p[1].toFixed(1); });
+      s += '<path class="radar-area" d="'+d+' Z" fill="'+col+'" stroke="'+col+'"/>';
+      vals.forEach(function(v,i){ var p=pt(i,+v||0);
+        s += '<circle class="ser-pt" cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+'" r="3" fill="'+col+'"/>';
+        hot += '<circle class="hotcell" cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+'" r="9" '
+          + 'data-kind="radar" data-ser="'+esc(se.name)+'" data-col="'+col+'" data-axis="'+esc(axes[i]||'')+'" data-val="'+(+v||0)+'" '
+          + 'data-px="'+p[0].toFixed(1)+'" data-py="'+p[1].toFixed(1)+'"/>';
+      });
+    });
+    return s+hot;
+  }
+
+  /* ---- heatmap (matrix) ---- */
+  function drawHeatmap(F,c,R){
+    var z=c.z||[]; var rows=z.length||1; var cols=(z[0]||[]).length||1;
+    var xl=c.xLabels||[], yl=c.yLabels||[];
+    var gx=R.x0+8, gy=R.y0; var gw=R.x1-gx, gh=R.y1-gy-2;
+    var cw=gw/cols, ch=gh/rows;
+    var min=Infinity, max=-Infinity;
+    z.forEach(function(row){ row.forEach(function(v){ if(+v<min)min=+v; if(+v>max)max=+v; }); });
+    if(!isFinite(min)){ min=0; max=1; } if(max===min) max=min+1;
+    var s='', hot='';
+    for(var r=0;r<rows;r++){
+      for(var col=0;col<cols;col++){
+        var v=+(z[r][col]); var t=(v-min)/(max-min);
+        var x=gx+col*cw, y=gy+r*ch;
+        s += '<rect class="hm-cell" x="'+x.toFixed(1)+'" y="'+y.toFixed(1)+'" width="'+cw.toFixed(1)+'" height="'+ch.toFixed(1)+'" fill="var(--navy)" fill-opacity="'+(0.12+t*0.82).toFixed(3)+'"/>';
+        hot += '<rect class="hotcell" x="'+x.toFixed(1)+'" y="'+y.toFixed(1)+'" width="'+cw.toFixed(1)+'" height="'+ch.toFixed(1)+'" '
+          + 'data-kind="cell" data-xl="'+esc(xl[col]||col)+'" data-yl="'+esc(yl[r]||r)+'" data-val="'+v+'" data-col="var(--navy)"/>';
+      }
+    }
+    /* x labels (bottom) + y labels (left) */
+    xl.forEach(function(lab,ci){ s += '<text class="ax-tick" x="'+(gx+cw*(ci+0.5)).toFixed(1)+'" y="'+(R.y1+13)+'" text-anchor="middle">'+esc(lab)+'</text>'; });
+    yl.forEach(function(lab,ri){ s += '<text class="ax-tick" x="'+(gx-5).toFixed(1)+'" y="'+(gy+ch*(ri+0.5)+3).toFixed(1)+'" text-anchor="end">'+esc(lab)+'</text>'; });
+    return s+hot;
+  }
+  function visIndex(vis,si){ var k=0; for(var i=0;i<si;i++){ if(vis[i]) k++; } return k; }
+  function cssq(s){ return String(s).replace(/"/g,'\\"'); }
+
+  /* power/linear model fitted to first visible series, drawn across x-range */
+  function modelD(F, X, Y, E){
+    var c=F.chart, ctrl=F.ctrl;
+    var base=null;
+    for(var i=0;i<(c.series||[]).length;i++){ if(!F.hidden[i] && c.series[i].points){ base=c.series[i].points; break; } }
+    if(!base) base=(c.series&&c.series[0]&&c.series[0].points)||[];
+    var param=(ctrl._live!=null)?ctrl._live:ctrl.value;
+    /* fit scale so the model passes through the largest-x data point of the base series:
+       power  -> y = scale * x^param   (param is the exponent the slider drives)
+       linear -> y = param * x         (param is the slope the slider drives directly) */
+    var anchor=base.reduce(function(a,b){ return b[0]>a[0]?b:a; }, base[0]||[1,1]);
+    var ax=anchor[0]||1, ay=anchor[1]||1;
+    var power=(ctrl.model==='power');
+    var scale = power ? (ay/Math.pow(ax,param)) : null;
+    var d='', steps=48;
+    for(var s2=0;s2<=steps;s2++){
+      var x=E.minX+(E.maxX-E.minX)*s2/steps;
+      var y=power ? scale*Math.pow(x,param) : param*x;
+      y=Math.min(y, E.maxY);
+      d += (s2?'L':'M')+X(x).toFixed(1)+','+Y(y).toFixed(1);
+    }
+    return d;
+  }
+
+  /* under-figure data table — shape depends on the chart kind */
+  function buildDataTable(fid){
+    var F=FIGS[fid], c=F.chart;
+    if(!(F.ctrl && F.ctrl.kind==='datatable')) return;
+    var host=document.querySelector('[data-figdt="'+cssq(fid)+'"]'); if(!host) return;
+    var head, rowsHTML='';
+    var catKinds={ bar:1, 'stacked-bar':1, 'horizontal-bar':1, waterfall:1 };
+    if(catKinds[c.kind]){
+      var cats=c.categories||[];
+      head='<th>'+esc((c.kind==='horizontal-bar'?c.yLabel:c.xLabel)||'category')+'</th>'
+        + (c.series||[]).map(function(se){ return '<th>'+esc(se.name)+'</th>'; }).join('');
+      cats.forEach(function(cat,ci){
+        rowsHTML += '<tr><td>'+esc(cat)+'</td>'+(c.series||[]).map(function(se){ return '<td>'+esc((se.values||[])[ci]); }).join('')+'</tr>';
+      });
+    } else if(c.kind==='pie' || c.kind==='donut'){
+      head='<th>slice</th><th>value</th><th>share %</th>';
+      var slices=(c.series&&c.series[0]&&c.series[0].slices)||[];
+      var tot=slices.reduce(function(a,b){ return a+(+b.value||0); },0)||1;
+      slices.forEach(function(sl){ rowsHTML += '<tr><td>'+esc(sl.name)+'</td><td>'+esc(sl.value)+'</td><td>'+fmtNum((+sl.value||0)/tot*100)+'</td></tr>'; });
+    } else if(c.kind==='radar'){
+      head='<th>'+esc(c.xLabel||'axis')+'</th>'+(c.series||[]).map(function(se){ return '<th>'+esc(se.name)+'</th>'; }).join('');
+      (c.axes||[]).forEach(function(ax,ai){
+        rowsHTML += '<tr><td>'+esc(ax)+'</td>'+(c.series||[]).map(function(se){ return '<td>'+esc((se.values||[])[ai]); }).join('')+'</tr>';
+      });
+    } else if(c.kind==='histogram'){
+      head='<th>bin</th><th>'+esc(c.yLabel||'count')+'</th>';
+      (c.bins||[]).forEach(function(bn){ rowsHTML += '<tr><td>'+esc(bn.x0)+' – '+esc(bn.x1)+'</td><td>'+esc(bn.count)+'</td></tr>'; });
+    } else if(c.kind==='box'){
+      head='<th>'+esc(c.xLabel||'category')+'</th><th>min</th><th>q1</th><th>median</th><th>q3</th><th>max</th>';
+      var se0=(c.series&&c.series[0])||{};
+      (c.categories||[]).forEach(function(cat,ci){ var b=(se0.boxes||[])[ci]||{};
+        rowsHTML += '<tr><td>'+esc(cat)+'</td><td>'+esc(b.min)+'</td><td>'+esc(b.q1)+'</td><td>'+esc(b.median)+'</td><td>'+esc(b.q3)+'</td><td>'+esc(b.max)+'</td></tr>';
+      });
+    } else if(c.kind==='heatmap'){
+      head='<th></th>'+(c.xLabels||[]).map(function(x){ return '<th>'+esc(x)+'</th>'; }).join('');
+      (c.z||[]).forEach(function(rowv,ri){
+        rowsHTML += '<tr><td>'+esc((c.yLabels||[])[ri]||ri)+'</td>'+rowv.map(function(v){ return '<td>'+esc(v); }).join('')+'</tr>';
+      });
+    } else {
+      /* point kinds: aligned x across series (line/scatter/area/stacked-area/step/bubble) */
+      head='<th>'+esc(c.xLabel||'x')+'</th>'+(c.series||[]).map(function(se){ return '<th>'+esc(se.name)+'</th>'; }).join('');
+      var xkeys=(c.series&&c.series[0]&&c.series[0].points||[]).map(function(p){ return p[0]; });
+      xkeys.forEach(function(xv,xi){
+        rowsHTML += '<tr><td>'+esc(xv)+'</td>'+(c.series||[]).map(function(se){
+          var pt=(se.points||[])[xi]; return '<td>'+esc(pt?pt[1]:''); }).join('')+'</tr>';
+      });
+    }
+    host.innerHTML = '<table><thead><tr>'+head+'</tr></thead><tbody>'+rowsHTML+'</tbody></table>';
+  }
+
+  /* ============================================================
+     OUTLINE NAV (Contents) — build + scroll-spy
+     ============================================================ */
+  function buildNav(){
+    if(!SECNODES.length){ navEl.hidden=true; return; }
+    navEl.hidden=false;
+    navEl.innerHTML = '<h4>'+svg('toc','icon-sm')+'Contents</h4><ol>'
+      + SECNODES.map(function(n){
+          return '<li class="'+(n.depth>0?'sub':'')+'"><a data-jump="'+esc(n.id)+'" href="#'+esc(n.id)+'">'
+            + '<span class="n">'+esc(n.number)+'</span><span>'+esc(n.heading)+'</span></a></li>';
+        }).join('')
+      + '<li><a data-jump="references" href="#references"><span class="n">¶</span><span>References</span></a></li>'
+      + '</ol>';
+  }
+
+  /* ============================================================
+     INTERACTIONS
+     ============================================================ */
+  function show(html, x, y, cls){ tip.className='chart-tip show'+(cls?' '+cls:''); tip.innerHTML=html; tip.style.left=x+'px'; tip.style.top=(y-10)+'px'; }
+  function hideTip(){ tip.classList.remove('show'); }
+
+  function wireInteractions(){
+    if(!wired){
+    wired = true;
+
+    /* ---- legend series toggle ---- */
+    paper.addEventListener('click', function(e){
+      var lg=e.target.closest('.lg-btn'); if(!lg) return;
+      var fid=lg.dataset.fig, si=+lg.dataset.si; var F=FIGS[fid]; if(!F) return;
+      F.hidden[si] = !F.hidden[si];
+      lg.classList.toggle('off', !!F.hidden[si]);
+      drawFigure(fid); wireFigureHover(fid);
+    });
+
+    /* ---- slider model overlay ---- */
+    paper.addEventListener('input', function(e){
+      var sl=e.target.closest('input[type=range][data-fig]'); if(!sl) return;
+      var fid=sl.dataset.fig; var F=FIGS[fid]; if(!F||!F.ctrl) return;
+      F.ctrl._live=+sl.value;
+      var lab=paper.querySelector('[data-fig-val="'+cssq(fid)+'"]');
+      if(lab) lab.textContent=fmtNum(+sl.value)+(F.ctrl.unit||'');
+      drawFigure(fid); wireFigureHover(fid);
+    });
+
+    /* ---- data-table toggle ---- */
+    paper.addEventListener('click', function(e){
+      var b=e.target.closest('.fig-dtbtn'); if(!b) return;
+      var fid=b.dataset.figDt;
+      var dt=paper.querySelector('[data-figdt="'+cssq(fid)+'"]');
+      if(dt){ var on=dt.classList.toggle('show'); b.classList.toggle('on', on); }
+    });
+
+    /* ---- table sort ---- */
+    paper.addEventListener('click', function(e){
+      var th=e.target.closest('th.sortable'); if(!th) return;
+      sortTable(th);
+    });
+
+    /* ---- reference external-link (brand-neutral: no navigation) ---- */
+    paper.addEventListener('click', function(e){
+      var a=e.target.closest('.rp-ref a[data-url]'); if(!a) return;
+      e.preventDefault();
+    });
+
+    /* ---- citation: hover tooltip + click scroll/highlight ---- */
+    paper.addEventListener('mouseover', function(e){
+      var c=e.target.closest('.rp-cite'); if(!c) return;
+      var ids=(c.dataset.crefs||'').split(',').filter(Boolean);
+      var html=ids.map(function(id){ return REFIDX[id]?refTipHTML(REFIDX[id].ref):''; }).join('<div style="height:6px"></div>');
+      var r=c.getBoundingClientRect();
+      show(html, r.left+r.width/2, r.top, 'cite');
+    });
+    paper.addEventListener('mouseout', function(e){
+      if(e.target.closest('.rp-cite')) hideTip();
+    });
+    paper.addEventListener('click', function(e){
+      var c=e.target.closest('.rp-cite'); if(!c) return;
+      e.preventDefault();
+      var id=c.dataset.cref; var el=document.getElementById('ref-'+id);
+      if(el){ el.scrollIntoView({behavior:'smooth', block:'center'});
+        paper.querySelectorAll('.rp-ref.flash').forEach(function(x){ x.classList.remove('flash'); });
+        el.classList.add('flash');
+        setTimeout(function(){ el.classList.remove('flash'); }, 1800);
+      }
+    });
+
+    /* ---- outline nav jump ---- */
+    navEl.addEventListener('click', function(e){
+      var a=e.target.closest('a[data-jump]'); if(!a) return;
+      e.preventDefault();
+      var el=document.getElementById(a.dataset.jump);
+      if(el) el.scrollIntoView({behavior:'smooth', block:'start'});
+    });
+
+    /* ---- body layout toggle (2 col / 1 col) ---- */
+    paper.addEventListener('click', function(e){
+      var b=e.target.closest('.rp-coltoggle button[data-col]'); if(!b) return;
+      if(b.dataset.col===pageMode) return;
+      pageMode=b.dataset.col; relayout();
+    });
+    }  /* end one-time delegated wiring */
+
+    /* ---- figure hover (per figure) ---- */
+    Object.keys(FIGS).forEach(wireFigureHover);
+
+    /* ---- scroll-spy ---- */
+    wireScrollSpy();
+    wireThemeSwitch();
+  }
+
+  function relayout(){ render(); wireInteractions(); }
+
+  /* attach hover handlers to a figure's hotcells (re-called after redraw) */
+  function wireFigureHover(fid){
+    var plot=document.querySelector('[data-figplot="'+cssq(fid)+'"]'); if(!plot) return;
+    var svgEl=plot.querySelector('svg'); var cur=plot.querySelector('#cur-'+cssId(fid));
+    plot.querySelectorAll('.hotcell').forEach(function(h){
+      h.addEventListener('mousemove', function(ev){
+        var r=svgEl.getBoundingClientRect(); var d=h.dataset;
+        function sx(px){ return r.left + (px/VBW)*r.width; }
+        function sy(py){ return r.top + (py/VBH)*r.height; }
+        function row(lab,val){ return '<div class="ct-row"><i style="background:'+d.col+'"></i>'+esc(lab)+' <b>'+esc(val)+'</b></div>'; }
+        if(d.kind==='pt' || d.kind==='bubble'){
+          var px=+d.px, py=+d.py;
+          if(cur){ cur.setAttribute('cx',px); cur.setAttribute('cy',py); cur.style.opacity=1; cur.style.stroke=d.col; }
+          var body=row(d.xl, d.x)+row(d.yl, d.y) + (d.kind==='bubble'&&d.r!==''?row('size', d.r):'');
+          show('<div class="ct-h">'+esc(d.ser)+'</div>'+body, sx(px), sy(py));
+        } else if(d.kind==='slice'){
+          if(cur) cur.style.opacity=0;
+          show('<div class="ct-h">'+esc(d.ser)+'</div>'+row('value', d.val)+row('share', d.pct+'%'), sx(+d.px), sy(+d.py));
+        } else if(d.kind==='radar'){
+          var px2=+d.px, py2=+d.py;
+          if(cur){ cur.setAttribute('cx',px2); cur.setAttribute('cy',py2); cur.style.opacity=1; cur.style.stroke=d.col; }
+          show('<div class="ct-h">'+esc(d.ser)+'</div>'+row(d.axis, d.val), sx(px2), sy(py2));
+        } else if(d.kind==='bin'){
+          if(cur) cur.style.opacity=0;
+          show('<div class="ct-h">'+esc(d.x0)+' – '+esc(d.x1)+'</div>'+row(d.yl, d.val),
+            ev.clientX, r.top + (+h.getAttribute('y')/VBH)*r.height);
+        } else if(d.kind==='cell'){
+          if(cur) cur.style.opacity=0;
+          show('<div class="ct-h">'+esc(d.yl)+' · '+esc(d.xl)+'</div>'+row('value', d.val),
+            ev.clientX, r.top + (+h.getAttribute('y')/VBH)*r.height);
+        } else if(d.kind==='box'){
+          if(cur) cur.style.opacity=0;
+          show('<div class="ct-h">'+esc(d.cat)+' · '+esc(d.ser)+'</div>'
+            + row('max', d.max)+row('q3', d.q3)+row('median', d.med)+row('q1', d.q1)+row('min', d.min),
+            ev.clientX, r.top + (+h.getAttribute('y')/VBH)*r.height);
+        } else { /* bar / stacked / horizontal / waterfall */
+          if(cur) cur.style.opacity=0;
+          show('<div class="ct-h">'+esc(d.cat)+'</div>'+row(d.ser, d.val),
+            ev.clientX, r.top + (+h.getAttribute('y')/VBH)*r.height);
+        }
+      });
+      h.addEventListener('mouseleave', function(){ if(cur) cur.style.opacity=0; hideTip(); });
+    });
+  }
+  function cssId(s){ return String(s).replace(/[^a-zA-Z0-9_-]/g,'-'); }
+
+  /* table sort (numeric) */
+  function sortTable(th){
+    var tid=th.dataset.tid, key=th.dataset.sortkey;
+    var wrap=document.querySelector('[data-tableid="'+cssq(tid)+'"]'); if(!wrap) return;
+    var tbody=wrap.querySelector('tbody');
+    var rows=Array.prototype.slice.call(tbody.querySelectorAll('tr'));
+    var asc = !(th.dataset.dir==='asc'); th.dataset.dir = asc?'asc':'desc';
+    var idx = Array.prototype.indexOf.call(th.parentNode.children, th);
+    rows.sort(function(a,b){
+      var va=parseFloat(a.children[idx].textContent.replace(/[^0-9.\-]/g,''))||0;
+      var vb=parseFloat(b.children[idx].textContent.replace(/[^0-9.\-]/g,''))||0;
+      return asc ? va-vb : vb-va;
+    });
+    rows.forEach(function(r){ tbody.appendChild(r); });
+    wrap.querySelectorAll('th').forEach(function(x){ x.classList.remove('sorted'); var ar=x.querySelector('.sortarrow'); if(ar) ar.textContent='↕'; });
+    th.classList.add('sorted');
+    var arr=th.querySelector('.sortarrow'); if(arr) arr.textContent= asc?'↑':'↓';
+  }
+
+  /* scroll-spy: highlight the section nearest the top */
+  function wireScrollSpy(){
+    var links=Array.prototype.slice.call(navEl.querySelectorAll('a[data-jump]'));
+    var map={}; links.forEach(function(a){ map[a.dataset.jump]=a; });
+    var targets=SECNODES.map(function(n){ return document.getElementById(n.id); }).filter(Boolean);
+    var refEl=document.getElementById('references'); if(refEl) targets.push(refEl);
+    function onScroll(){
+      var top=window.scrollY+120; var cur=targets[0];
+      for(var i=0;i<targets.length;i++){ if(targets[i].getBoundingClientRect().top + window.scrollY <= top) cur=targets[i]; }
+      links.forEach(function(a){ a.classList.remove('active'); });
+      if(cur && map[cur.id]) map[cur.id].classList.add('active');
+    }
+    window.addEventListener('scroll', onScroll, { passive:true });
+    window.addEventListener('resize', onScroll);
+    onScroll();
+  }
+
+  /* ---- canonical dropdown theme switcher (per _DATA_DRIVEN §3) ---- */
+  function wireThemeSwitch(){
+    var rcSel = document.querySelector('.rc-theme-sel');
+    if (rcSel) {
+      rcSel.value = document.documentElement.dataset.theme || 'indigo';
+      rcSel.addEventListener('change', function(){ document.documentElement.dataset.theme = rcSel.value; });
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', function(){
+    render();
+    wireInteractions();
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,276 @@
+{
+  "line": {
+    "type": "figure",
+    "id": "fig-line",
+    "number": 1,
+    "caption": "Line chart with a live model overlay controlled by a parameter slider. Point kinds consume series[].points as [x, y] pairs.",
+    "chart": {
+      "kind": "line",
+      "xLabel": "Input",
+      "yLabel": "Measured output",
+      "series": [
+        { "name": "observed", "color": "navy", "points": [[1, 8], [2, 13], [4, 25], [8, 61]] },
+        { "name": "baseline", "color": "ok", "points": [[1, 7], [2, 10], [4, 17], [8, 29]] }
+      ],
+      "control": { "kind": "slider", "label": "model exponent α", "min": 1, "max": 3, "step": 0.05, "value": 1.8, "model": "power", "unit": "" }
+    }
+  },
+  "scatter": {
+    "type": "figure",
+    "id": "fig-scatter",
+    "number": 2,
+    "caption": "Scatter plot relating structural complexity to a measured outcome across two cohorts.",
+    "chart": {
+      "kind": "scatter",
+      "xLabel": "Complexity",
+      "yLabel": "Outcome",
+      "series": [
+        { "name": "cohort A", "color": "navy", "points": [[1, 12], [2, 18], [3, 27], [4, 39]] },
+        { "name": "cohort B", "color": "risk", "points": [[1, 16], [2, 28], [3, 41], [4, 63]] }
+      ]
+    }
+  },
+  "area": {
+    "type": "figure",
+    "id": "fig-area",
+    "number": 3,
+    "caption": "Area chart: a single measured trend filled to the baseline. Same [x, y] point shape as line.",
+    "chart": {
+      "kind": "area",
+      "xLabel": "Week",
+      "yLabel": "Active sessions (k)",
+      "series": [
+        { "name": "sessions", "color": "navy", "points": [[1, 12], [2, 19], [3, 24], [4, 31], [5, 44], [6, 52]] }
+      ],
+      "control": { "kind": "datatable" }
+    }
+  },
+  "stacked-area": {
+    "type": "figure",
+    "id": "fig-stacked-area",
+    "number": 4,
+    "caption": "Stacked-area chart: series are stacked cumulatively over a shared x-axis (aligned x across series).",
+    "chart": {
+      "kind": "stacked-area",
+      "xLabel": "Quarter",
+      "yLabel": "Requests (M)",
+      "series": [
+        { "name": "reads", "color": "navy", "points": [[1, 20], [2, 26], [3, 33], [4, 41]] },
+        { "name": "writes", "color": "ok", "points": [[1, 8], [2, 11], [3, 15], [4, 19]] },
+        { "name": "admin", "color": "hold", "points": [[1, 3], [2, 4], [3, 5], [4, 6]] }
+      ]
+    }
+  },
+  "step": {
+    "type": "figure",
+    "id": "fig-step",
+    "number": 5,
+    "caption": "Step line: values hold constant between samples then jump. Useful for rate limits or tier changes.",
+    "chart": {
+      "kind": "step",
+      "xLabel": "Time (h)",
+      "yLabel": "Provisioned shards",
+      "series": [
+        { "name": "shards", "color": "navy", "points": [[0, 4], [2, 4], [4, 8], [6, 8], [8, 16], [10, 12]] }
+      ]
+    }
+  },
+  "bubble": {
+    "type": "figure",
+    "id": "fig-bubble",
+    "number": 6,
+    "caption": "Bubble chart: scatter with a third size dimension. Points are [x, y, r] triples where r scales the marker.",
+    "chart": {
+      "kind": "bubble",
+      "xLabel": "Latency (ms)",
+      "yLabel": "Throughput (ktps)",
+      "series": [
+        { "name": "nodes", "color": "navy", "points": [[20, 12, 6], [35, 18, 12], [55, 9, 20], [70, 22, 9], [40, 30, 16]] }
+      ]
+    }
+  },
+  "bar": {
+    "type": "figure",
+    "id": "fig-bar",
+    "number": 7,
+    "caption": "Grouped bar chart with an expandable data table. Category kinds use categories[] + series[].values[].",
+    "chart": {
+      "kind": "bar",
+      "xLabel": "Component",
+      "yLabel": "Contribution",
+      "categories": ["collect", "process", "validate", "publish"],
+      "series": [
+        { "name": "baseline", "color": "navy", "values": [34, 52, 28, 19] },
+        { "name": "optimized", "color": "ok", "values": [24, 31, 21, 15] }
+      ],
+      "control": { "kind": "datatable" }
+    }
+  },
+  "stacked-bar": {
+    "type": "figure",
+    "id": "fig-stacked-bar",
+    "number": 8,
+    "caption": "Stacked bar chart: each series stacks within its category column. Same shape as grouped bar.",
+    "chart": {
+      "kind": "stacked-bar",
+      "xLabel": "Region",
+      "yLabel": "Requests (M)",
+      "categories": ["eu-central", "us-east", "ap-south"],
+      "series": [
+        { "name": "reads", "color": "navy", "values": [42, 55, 33] },
+        { "name": "writes", "color": "ok", "values": [18, 24, 15] },
+        { "name": "admin", "color": "hold", "values": [6, 8, 5] }
+      ],
+      "control": { "kind": "datatable" }
+    }
+  },
+  "horizontal-bar": {
+    "type": "figure",
+    "id": "fig-hbar",
+    "number": 9,
+    "caption": "Horizontal bar chart: categories run down the y-axis, values along x. Same categories[] + values[] shape.",
+    "chart": {
+      "kind": "horizontal-bar",
+      "xLabel": "Mean commit time (ms)",
+      "yLabel": "Stage",
+      "categories": ["queue", "validate", "cross-shard", "fsync", "replicate"],
+      "series": [
+        { "name": "baseline", "color": "navy", "values": [40, 70, 360, 55, 95] }
+      ]
+    }
+  },
+  "pie": {
+    "type": "figure",
+    "id": "fig-pie",
+    "number": 10,
+    "caption": "Pie chart: a single series carrying slices[]. Each slice is {name, value, color?}.",
+    "chart": {
+      "kind": "pie",
+      "series": [
+        { "name": "traffic", "slices": [
+          { "name": "reads", "value": 62, "color": "navy" },
+          { "name": "writes", "value": 26, "color": "ok" },
+          { "name": "admin", "value": 12, "color": "hold" }
+        ] }
+      ]
+    }
+  },
+  "donut": {
+    "type": "figure",
+    "id": "fig-donut",
+    "number": 11,
+    "caption": "Donut chart: like pie but with a centre hole showing the total. Single series with slices[].",
+    "chart": {
+      "kind": "donut",
+      "series": [
+        { "name": "budget", "slices": [
+          { "name": "compute", "value": 48, "color": "navy" },
+          { "name": "storage", "value": 22, "color": "ok" },
+          { "name": "network", "value": 18, "color": "hold" },
+          { "name": "other", "value": 12, "color": "ink" }
+        ] }
+      ],
+      "control": { "kind": "datatable" }
+    }
+  },
+  "radar": {
+    "type": "figure",
+    "id": "fig-radar",
+    "number": 12,
+    "caption": "Radar (spider) chart: axes[] are the spokes; each series[].values[] aligns to the axes.",
+    "chart": {
+      "kind": "radar",
+      "xLabel": "Capability",
+      "axes": ["latency", "throughput", "durability", "cost", "consistency"],
+      "series": [
+        { "name": "design A", "color": "navy", "values": [8, 6, 9, 5, 7] },
+        { "name": "design B", "color": "risk", "values": [5, 9, 6, 8, 5] }
+      ]
+    }
+  },
+  "histogram": {
+    "type": "figure",
+    "id": "fig-hist",
+    "number": 13,
+    "caption": "Histogram: precomputed bins[] as half-open intervals [x0, x1) with a count.",
+    "chart": {
+      "kind": "histogram",
+      "xLabel": "Commit time (ms)",
+      "yLabel": "Transactions",
+      "series": [ { "name": "commits", "color": "navy" } ],
+      "bins": [
+        { "x0": 0, "x1": 20, "count": 1240 },
+        { "x0": 20, "x1": 40, "count": 2810 },
+        { "x0": 40, "x1": 60, "count": 1960 },
+        { "x0": 60, "x1": 80, "count": 880 },
+        { "x0": 80, "x1": 100, "count": 410 },
+        { "x0": 100, "x1": 120, "count": 150 }
+      ],
+      "control": { "kind": "datatable" }
+    }
+  },
+  "box": {
+    "type": "figure",
+    "id": "fig-box",
+    "number": 14,
+    "caption": "Box-and-whisker: categories[] + series[].boxes[] as a precomputed five-number summary with optional outliers.",
+    "chart": {
+      "kind": "box",
+      "xLabel": "Region",
+      "yLabel": "Commit time (ms)",
+      "categories": ["eu-central", "us-east", "ap-south"],
+      "series": [
+        { "name": "latency", "color": "navy", "boxes": [
+          { "min": 12, "q1": 24, "median": 31, "q3": 48, "max": 92, "outliers": [128, 140] },
+          { "min": 14, "q1": 27, "median": 36, "q3": 55, "max": 110 },
+          { "min": 10, "q1": 22, "median": 29, "q3": 44, "max": 86, "outliers": [150] }
+        ] }
+      ]
+    }
+  },
+  "heatmap": {
+    "type": "figure",
+    "id": "fig-heatmap",
+    "number": 15,
+    "caption": "Heatmap: xLabels[]/yLabels[] index a z[][] matrix; cell tint interpolates the brand accent across the value range.",
+    "chart": {
+      "kind": "heatmap",
+      "xLabel": "Offered load (ktps)",
+      "yLabel": "Region",
+      "xLabels": ["4", "8", "12", "16", "20"],
+      "yLabels": ["eu-central", "us-east", "ap-south"],
+      "z": [
+        [92, 168, 300, 540, 910],
+        [104, 190, 338, 612, 1010],
+        [86, 152, 274, 503, 845]
+      ],
+      "control": { "kind": "datatable" }
+    }
+  },
+  "waterfall": {
+    "type": "figure",
+    "id": "fig-waterfall",
+    "number": 16,
+    "caption": "Waterfall: categories[] + a single series[].values[] of signed deltas; total:true appends a cumulative total bar.",
+    "chart": {
+      "kind": "waterfall",
+      "xLabel": "Stage",
+      "yLabel": "Latency delta (ms)",
+      "categories": ["base", "+coordination", "-batching", "+replication", "-cache"],
+      "total": true,
+      "series": [
+        { "name": "delta", "color": "navy", "values": [40, 320, -60, 95, -110] }
+      ]
+    }
+  },
+  "image": {
+    "type": "figure",
+    "id": "fig-image",
+    "number": 17,
+    "caption": "Image figure: embed a prepared image (photo, micrograph, diagram, screenshot) instead of a chart. Use a data: URI so the paper stays self-contained.",
+    "image": {
+      "src": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='240'%20height='120'%3E%3Crect%20width='240'%20height='120'%20fill='%23eef2f7'/%3E%3Ctext%20x='120'%20y='66'%20font-family='sans-serif'%20font-size='14'%20text-anchor='middle'%20fill='%23455566'%3Esample%20image%3C/text%3E%3C/svg%3E",
+      "alt": "Placeholder sample image embedded as a data URI."
+    }
+  }
+}

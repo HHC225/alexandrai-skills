@@ -1,0 +1,23 @@
+[
+  {"name":"user","file":"user.svg","category":"people","keywords":["person","profile","account","individual","member"]},
+  {"name":"user-check","file":"user-check.svg","category":"people","keywords":["person","verified","confirmed","approved","active"]},
+  {"name":"user-plus","file":"user-plus.svg","category":"people","keywords":["person","add","invite","create","new member"]},
+  {"name":"user-remove","file":"user-remove.svg","category":"people","keywords":["person","remove","delete","revoke","deactivate"]},
+  {"name":"users-team","file":"users-team.svg","category":"people","keywords":["team","members","multiple","people","pair"]},
+  {"name":"group","file":"group.svg","category":"people","keywords":["group","multiple users","crowd","many","audience"]},
+  {"name":"team-lead","file":"team-lead.svg","category":"people","keywords":["lead","leader","manager","primary","head"]},
+  {"name":"role","file":"role.svg","category":"people","keywords":["role","permission","label","function","designation"]},
+  {"name":"reviewer","file":"reviewer.svg","category":"people","keywords":["reviewer","review","inspect","check","audit person"]},
+  {"name":"approver","file":"approver.svg","category":"people","keywords":["approver","approve","sign-off","authorize","confirm"]},
+  {"name":"assignee","file":"assignee.svg","category":"people","keywords":["assignee","assigned to","responsible","owner","task person"]},
+  {"name":"owner","file":"owner.svg","category":"people","keywords":["owner","primary responsible","accountable","responsible party","DRI"]},
+  {"name":"stakeholder","file":"stakeholder.svg","category":"people","keywords":["stakeholder","interested party","sponsor","client","observer"]},
+  {"name":"on-call","file":"on-call.svg","category":"people","keywords":["on-call","pager","alert","duty","SRE","escalation duty"]},
+  {"name":"org-chart","file":"org-chart.svg","category":"people","keywords":["org chart","organization","hierarchy","reporting","structure"]},
+  {"name":"handoff-people","file":"handoff-people.svg","category":"people","keywords":["handoff","transfer","delegate","pass","transition"]},
+  {"name":"id-badge","file":"id-badge.svg","category":"people","keywords":["id","badge","credential","identity","card","employee"]},
+  {"name":"persona","file":"persona.svg","category":"people","keywords":["persona","archetype","user type","profile type","segment"]},
+  {"name":"mention","file":"mention.svg","category":"people","keywords":["mention","at","tag","notify","reference","@"]},
+  {"name":"contact","file":"contact.svg","category":"people","keywords":["contact","address book","directory","person info","details"]},
+  {"name":"escalation-contact","file":"escalation-contact.svg","category":"people","keywords":["escalation","contact","urgent","alert person","escalate to"]}
+]

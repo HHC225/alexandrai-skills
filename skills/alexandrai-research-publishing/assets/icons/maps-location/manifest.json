@@ -1,0 +1,20 @@
+[
+  {"name":"map","file":"map.svg","category":"maps-location","keywords":["map","cartography","region","territory","fold","geography"]},
+  {"name":"map-pin","file":"map-pin.svg","category":"maps-location","keywords":["pin","drop","location","place","point","marker","teardrop"]},
+  {"name":"location-dot","file":"location-dot.svg","category":"maps-location","keywords":["location","dot","position","current","here","gps"]},
+  {"name":"globe-geo","file":"globe-geo.svg","category":"maps-location","keywords":["globe","world","earth","meridian","latitude","longitude","international"]},
+  {"name":"compass","file":"compass.svg","category":"maps-location","keywords":["compass","bearing","heading","north","direction","orientation"]},
+  {"name":"route","file":"route.svg","category":"maps-location","keywords":["route","path","waypoint","journey","travel","node","trip"]},
+  {"name":"navigation","file":"navigation.svg","category":"maps-location","keywords":["navigation","cursor","pointer","arrow","navigate","gps"]},
+  {"name":"directions","file":"directions.svg","category":"maps-location","keywords":["directions","signpost","turn","guide","road","fork","sign"]},
+  {"name":"region-area","file":"region-area.svg","category":"maps-location","keywords":["region","area","zone","boundary","polygon","territory","dashed"]},
+  {"name":"geofence","file":"geofence.svg","category":"maps-location","keywords":["geofence","boundary","perimeter","zone","virtual","fence","radius"]},
+  {"name":"distance","file":"distance.svg","category":"maps-location","keywords":["distance","measure","length","ruler","span","range","scale"]},
+  {"name":"address-card","file":"address-card.svg","category":"maps-location","keywords":["address","card","contact","location","street","postal","detail"]},
+  {"name":"satellite","file":"satellite.svg","category":"maps-location","keywords":["satellite","orbit","gps","signal","space","tracking","aerial"]},
+  {"name":"layers-map","file":"layers-map.svg","category":"maps-location","keywords":["layers","stack","overlay","map","tile","level","depth"]},
+  {"name":"my-location","file":"my-location.svg","category":"maps-location","keywords":["my-location","current","position","locate","gps","crosshair","find-me"]},
+  {"name":"pin-off","file":"pin-off.svg","category":"maps-location","keywords":["pin-off","disabled","no-location","remove","unpin","slash","unavailable"]},
+  {"name":"marker-flag","file":"marker-flag.svg","category":"maps-location","keywords":["marker","flag","pole","waypoint","start","destination","finish"]},
+  {"name":"crosshair-locate","file":"crosshair-locate.svg","category":"maps-location","keywords":["crosshair","locate","target","precision","aim","reticle","center"]}
+]

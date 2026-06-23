@@ -1,0 +1,122 @@
+[
+  {
+    "name": "graduation-cap",
+    "file": "graduation-cap.svg",
+    "category": "education",
+    "keywords": ["graduation", "degree", "cap", "mortarboard", "commencement", "graduate"]
+  },
+  {
+    "name": "diploma",
+    "file": "diploma.svg",
+    "category": "education",
+    "keywords": ["diploma", "degree", "certificate", "credential", "document", "parchment"]
+  },
+  {
+    "name": "book-open",
+    "file": "book-open.svg",
+    "category": "education",
+    "keywords": ["book", "open", "read", "reading", "textbook", "study", "page"]
+  },
+  {
+    "name": "books-stack",
+    "file": "books-stack.svg",
+    "category": "education",
+    "keywords": ["books", "stack", "pile", "reading", "library", "collection", "volumes"]
+  },
+  {
+    "name": "school",
+    "file": "school.svg",
+    "category": "education",
+    "keywords": ["school", "building", "institution", "campus", "education", "academy"]
+  },
+  {
+    "name": "blackboard",
+    "file": "blackboard.svg",
+    "category": "education",
+    "keywords": ["blackboard", "chalkboard", "whiteboard", "board", "class", "lesson", "classroom"]
+  },
+  {
+    "name": "lecture",
+    "file": "lecture.svg",
+    "category": "education",
+    "keywords": ["lecture", "presentation", "screen", "projector", "class", "teaching", "seminar"]
+  },
+  {
+    "name": "student",
+    "file": "student.svg",
+    "category": "education",
+    "keywords": ["student", "learner", "pupil", "person", "user", "attendee", "trainee"]
+  },
+  {
+    "name": "teacher",
+    "file": "teacher.svg",
+    "category": "education",
+    "keywords": ["teacher", "instructor", "professor", "tutor", "educator", "trainer", "person"]
+  },
+  {
+    "name": "course",
+    "file": "course.svg",
+    "category": "education",
+    "keywords": ["course", "curriculum", "syllabus", "module", "lesson", "subject", "class"]
+  },
+  {
+    "name": "quiz",
+    "file": "quiz.svg",
+    "category": "education",
+    "keywords": ["quiz", "question", "test", "exercise", "assessment", "knowledge-check"]
+  },
+  {
+    "name": "exam",
+    "file": "exam.svg",
+    "category": "education",
+    "keywords": ["exam", "examination", "test", "assessment", "paper", "evaluation", "grading"]
+  },
+  {
+    "name": "backpack",
+    "file": "backpack.svg",
+    "category": "education",
+    "keywords": ["backpack", "bag", "school-bag", "rucksack", "student", "carry"]
+  },
+  {
+    "name": "pencil-ruler",
+    "file": "pencil-ruler.svg",
+    "category": "education",
+    "keywords": ["pencil", "ruler", "tools", "stationery", "design", "drafting", "drawing"]
+  },
+  {
+    "name": "abacus",
+    "file": "abacus.svg",
+    "category": "education",
+    "keywords": ["abacus", "counting", "arithmetic", "math", "beads", "calculation", "numeracy"]
+  },
+  {
+    "name": "library",
+    "file": "library.svg",
+    "category": "education",
+    "keywords": ["library", "books", "collection", "shelf", "bookshelf", "archive", "catalog"]
+  },
+  {
+    "name": "online-course",
+    "file": "online-course.svg",
+    "category": "education",
+    "keywords": ["online", "e-learning", "video", "stream", "play", "digital", "remote", "screen"]
+  },
+  {
+    "name": "flashcard",
+    "file": "flashcard.svg",
+    "category": "education",
+    "keywords": ["flashcard", "card", "memo", "review", "memorize", "recall", "study-card"]
+  },
+  {
+    "name": "certificate-academic",
+    "file": "certificate-academic.svg",
+    "category": "education",
+    "keywords": ["certificate", "academic", "award", "accreditation", "credential", "qualification"]
+  },
+  {
+    "name": "scholarship",
+    "file": "scholarship.svg",
+    "category": "education",
+    "keywords": ["scholarship", "grant", "funding", "award", "financial-aid", "stipend", "prize"]
+  }
+]

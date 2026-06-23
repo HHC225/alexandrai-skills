@@ -1,0 +1,10796 @@
+[
+  {
+    "name": "align-center",
+    "file": "annotation/align-center.svg",
+    "category": "annotation",
+    "keywords": [
+      "align",
+      "center",
+      "centre",
+      "paragraph",
+      "format",
+      "text"
+    ]
+  },
+  {
+    "name": "align-left",
+    "file": "annotation/align-left.svg",
+    "category": "annotation",
+    "keywords": [
+      "align",
+      "left",
+      "paragraph",
+      "format",
+      "justify",
+      "text"
+    ]
+  },
+  {
+    "name": "align-right",
+    "file": "annotation/align-right.svg",
+    "category": "annotation",
+    "keywords": [
+      "align",
+      "right",
+      "paragraph",
+      "format",
+      "text"
+    ]
+  },
+  {
+    "name": "code-inline",
+    "file": "annotation/code-inline.svg",
+    "category": "annotation",
+    "keywords": [
+      "code",
+      "inline",
+      "monospace",
+      "snippet",
+      "backtick",
+      "format"
+    ]
+  },
+  {
+    "name": "crop",
+    "file": "annotation/crop.svg",
+    "category": "annotation",
+    "keywords": [
+      "crop",
+      "trim",
+      "resize",
+      "frame",
+      "clip",
+      "selection"
+    ]
+  },
+  {
+    "name": "eraser",
+    "file": "annotation/eraser.svg",
+    "category": "annotation",
+    "keywords": [
+      "eraser",
+      "erase",
+      "delete",
+      "remove",
+      "clear",
+      "rubber"
+    ]
+  },
+  {
+    "name": "highlighter",
+    "file": "annotation/highlighter.svg",
+    "category": "annotation",
+    "keywords": [
+      "highlight",
+      "highlighter",
+      "mark",
+      "fluorescent",
+      "emphasis",
+      "annotate"
+    ]
+  },
+  {
+    "name": "indent",
+    "file": "annotation/indent.svg",
+    "category": "annotation",
+    "keywords": [
+      "indent",
+      "tab",
+      "paragraph",
+      "format",
+      "nested",
+      "shift-right"
+    ]
+  },
+  {
+    "name": "justify",
+    "file": "annotation/justify.svg",
+    "category": "annotation",
+    "keywords": [
+      "justify",
+      "full",
+      "paragraph",
+      "format",
+      "text",
+      "alignment"
+    ]
+  },
+  {
+    "name": "link-text",
+    "file": "annotation/link-text.svg",
+    "category": "annotation",
+    "keywords": [
+      "link",
+      "hyperlink",
+      "url",
+      "anchor",
+      "chain",
+      "connect"
+    ]
+  },
+  {
+    "name": "marker-pen",
+    "file": "annotation/marker-pen.svg",
+    "category": "annotation",
+    "keywords": [
+      "marker",
+      "pen",
+      "draw",
+      "annotate",
+      "edit",
+      "pencil"
+    ]
+  },
+  {
+    "name": "outdent",
+    "file": "annotation/outdent.svg",
+    "category": "annotation",
+    "keywords": [
+      "outdent",
+      "unindent",
+      "paragraph",
+      "format",
+      "shift-left",
+      "dedent"
+    ]
+  },
+  {
+    "name": "quote-block",
+    "file": "annotation/quote-block.svg",
+    "category": "annotation",
+    "keywords": [
+      "quote",
+      "blockquote",
+      "citation",
+      "indent",
+      "block",
+      "reference"
+    ]
+  },
+  {
+    "name": "strikethrough",
+    "file": "annotation/strikethrough.svg",
+    "category": "annotation",
+    "keywords": [
+      "strikethrough",
+      "strike",
+      "delete",
+      "format",
+      "cross-out",
+      "typography"
+    ]
+  },
+  {
+    "name": "subscript",
+    "file": "annotation/subscript.svg",
+    "category": "annotation",
+    "keywords": [
+      "subscript",
+      "sub",
+      "lower",
+      "chemical",
+      "formula",
+      "typography"
+    ]
+  },
+  {
+    "name": "superscript",
+    "file": "annotation/superscript.svg",
+    "category": "annotation",
+    "keywords": [
+      "superscript",
+      "sup",
+      "exponent",
+      "raise",
+      "power",
+      "typography"
+    ]
+  },
+  {
+    "name": "table-insert",
+    "file": "annotation/table-insert.svg",
+    "category": "annotation",
+    "keywords": [
+      "table",
+      "grid",
+      "insert",
+      "rows",
+      "columns",
+      "spreadsheet"
+    ]
+  },
+  {
+    "name": "text-bold",
+    "file": "annotation/text-bold.svg",
+    "category": "annotation",
+    "keywords": [
+      "bold",
+      "strong",
+      "format",
+      "weight",
+      "typography",
+      "B"
+    ]
+  },
+  {
+    "name": "text-cursor",
+    "file": "annotation/text-cursor.svg",
+    "category": "annotation",
+    "keywords": [
+      "cursor",
+      "caret",
+      "insert",
+      "text",
+      "position",
+      "I-beam"
+    ]
+  },
+  {
+    "name": "text-italic",
+    "file": "annotation/text-italic.svg",
+    "category": "annotation",
+    "keywords": [
+      "italic",
+      "emphasis",
+      "slant",
+      "format",
+      "typography",
+      "I"
+    ]
+  },
+  {
+    "name": "text-underline",
+    "file": "annotation/text-underline.svg",
+    "category": "annotation",
+    "keywords": [
+      "underline",
+      "underscore",
+      "format",
+      "typography",
+      "U"
+    ]
+  },
+  {
+    "name": "unlink",
+    "file": "annotation/unlink.svg",
+    "category": "annotation",
+    "keywords": [
+      "unlink",
+      "break",
+      "remove-link",
+      "detach",
+      "chain",
+      "disconnect"
+    ]
+  },
+  {
+    "name": "arrow-curve",
+    "file": "arrows/arrow-curve.svg",
+    "category": "arrows",
+    "keywords": [
+      "arrow",
+      "curve",
+      "curved",
+      "redirect",
+      "flow",
+      "path",
+      "bend"
+    ]
+  },
+  {
+    "name": "arrow-down-left",
+    "file": "arrows/arrow-down-left.svg",
+    "category": "arrows",
+    "keywords": [
+      "arrow",
+      "diagonal",
+      "down",
+      "left",
+      "southwest"
+    ]
+  },
+  {
+    "name": "arrow-down-right",
+    "file": "arrows/arrow-down-right.svg",
+    "category": "arrows",
+    "keywords": [
+      "arrow",
+      "diagonal",
+      "down",
+      "right",
+      "southeast"
+    ]
+  },
+  {
+    "name": "arrow-up-left",
+    "file": "arrows/arrow-up-left.svg",
+    "category": "arrows",
+    "keywords": [
+      "arrow",
+      "diagonal",
+      "up",
+      "left",
+      "northwest",
+      "back"
+    ]
+  },
+  {
+    "name": "arrows-horizontal",
+    "file": "arrows/arrows-horizontal.svg",
+    "category": "arrows",
+    "keywords": [
+      "arrows",
+      "horizontal",
+      "bidirectional",
+      "resize",
+      "width",
+      "stretch"
+    ]
+  },
+  {
+    "name": "arrows-vertical",
+    "file": "arrows/arrows-vertical.svg",
+    "category": "arrows",
+    "keywords": [
+      "arrows",
+      "vertical",
+      "bidirectional",
+      "resize",
+      "height",
+      "stretch"
+    ]
+  },
+  {
+    "name": "corner-down-right",
+    "file": "arrows/corner-down-right.svg",
+    "category": "arrows",
+    "keywords": [
+      "corner",
+      "down",
+      "right",
+      "redirect",
+      "turn",
+      "path",
+      "enter",
+      "indent"
+    ]
+  },
+  {
+    "name": "corner-up-right",
+    "file": "arrows/corner-up-right.svg",
+    "category": "arrows",
+    "keywords": [
+      "corner",
+      "up",
+      "right",
+      "redirect",
+      "turn",
+      "path"
+    ]
+  },
+  {
+    "name": "expand-diagonal",
+    "file": "arrows/expand-diagonal.svg",
+    "category": "arrows",
+    "keywords": [
+      "expand",
+      "diagonal",
+      "scale-out",
+      "enlarge",
+      "maximize",
+      "corner"
+    ]
+  },
+  {
+    "name": "maximize",
+    "file": "arrows/maximize.svg",
+    "category": "arrows",
+    "keywords": [
+      "maximize",
+      "expand",
+      "fullscreen",
+      "enlarge",
+      "corners",
+      "outward"
+    ]
+  },
+  {
+    "name": "merge-arrow",
+    "file": "arrows/merge-arrow.svg",
+    "category": "arrows",
+    "keywords": [
+      "merge",
+      "join",
+      "converge",
+      "combine",
+      "unify",
+      "two-way"
+    ]
+  },
+  {
+    "name": "minimize",
+    "file": "arrows/minimize.svg",
+    "category": "arrows",
+    "keywords": [
+      "minimize",
+      "collapse",
+      "shrink",
+      "compress",
+      "corners",
+      "inward"
+    ]
+  },
+  {
+    "name": "move",
+    "file": "arrows/move.svg",
+    "category": "arrows",
+    "keywords": [
+      "move",
+      "drag",
+      "pan",
+      "reposition",
+      "four-way",
+      "directions"
+    ]
+  },
+  {
+    "name": "redo",
+    "file": "arrows/redo.svg",
+    "category": "arrows",
+    "keywords": [
+      "redo",
+      "forward",
+      "history",
+      "repeat",
+      "circular"
+    ]
+  },
+  {
+    "name": "refresh",
+    "file": "arrows/refresh.svg",
+    "category": "arrows",
+    "keywords": [
+      "refresh",
+      "reload",
+      "sync",
+      "update",
+      "retry",
+      "circular"
+    ]
+  },
+  {
+    "name": "repeat",
+    "file": "arrows/repeat.svg",
+    "category": "arrows",
+    "keywords": [
+      "repeat",
+      "loop",
+      "cycle",
+      "replay",
+      "again",
+      "recurring"
+    ]
+  },
+  {
+    "name": "return-arrow",
+    "file": "arrows/return-arrow.svg",
+    "category": "arrows",
+    "keywords": [
+      "return",
+      "back",
+      "reply",
+      "enter",
+      "newline",
+      "reverse",
+      "path"
+    ]
+  },
+  {
+    "name": "rotate-ccw",
+    "file": "arrows/rotate-ccw.svg",
+    "category": "arrows",
+    "keywords": [
+      "rotate",
+      "counter-clockwise",
+      "ccw",
+      "spin",
+      "turn",
+      "circular"
+    ]
+  },
+  {
+    "name": "rotate-cw",
+    "file": "arrows/rotate-cw.svg",
+    "category": "arrows",
+    "keywords": [
+      "rotate",
+      "clockwise",
+      "cw",
+      "spin",
+      "turn",
+      "circular"
+    ]
+  },
+  {
+    "name": "shrink-diagonal",
+    "file": "arrows/shrink-diagonal.svg",
+    "category": "arrows",
+    "keywords": [
+      "shrink",
+      "diagonal",
+      "scale-in",
+      "compress",
+      "minimize",
+      "corner"
+    ]
+  },
+  {
+    "name": "shuffle",
+    "file": "arrows/shuffle.svg",
+    "category": "arrows",
+    "keywords": [
+      "shuffle",
+      "random",
+      "randomize",
+      "mix",
+      "reorder",
+      "cross"
+    ]
+  },
+  {
+    "name": "split-arrow",
+    "file": "arrows/split-arrow.svg",
+    "category": "arrows",
+    "keywords": [
+      "split",
+      "fork",
+      "branch",
+      "diverge",
+      "two-way",
+      "distribute"
+    ]
+  },
+  {
+    "name": "swap",
+    "file": "arrows/swap.svg",
+    "category": "arrows",
+    "keywords": [
+      "swap",
+      "exchange",
+      "switch",
+      "replace",
+      "toggle",
+      "transfer"
+    ]
+  },
+  {
+    "name": "undo",
+    "file": "arrows/undo.svg",
+    "category": "arrows",
+    "keywords": [
+      "undo",
+      "revert",
+      "back",
+      "history",
+      "previous",
+      "circular"
+    ]
+  },
+  {
+    "name": "assertion",
+    "file": "bug-qa/assertion.svg",
+    "category": "bug-qa",
+    "keywords": [
+      "assertion",
+      "assert",
+      "check",
+      "verify",
+      "test",
+      "pass",
+      "qa"
+    ]
+  },
+  {
+    "name": "bell-alert",
+    "file": "bug-qa/bell-alert.svg",
+    "category": "bug-qa",
+    "keywords": [
+      "bell",
+      "alert",
+      "notification",
+      "alarm",
+      "ring",
+      "warning"
+    ]
+  },
+  {
+    "name": "breakpoint",
+    "file": "bug-qa/breakpoint.svg",
+    "category": "bug-qa",
+    "keywords": [
+      "breakpoint",
+      "debug",
+      "pause",
+      "stop",
+      "crosshair",
+      "developer"
+    ]
+  },
+  {
+    "name": "bug-resolved",
+    "file": "bug-qa/bug-resolved.svg",
+    "category": "bug-qa",
+    "keywords": [
+      "bug",
+      "resolved",
+      "fixed",
+      "closed",
+      "done",
+      "qa"
+    ]
+  },
+  {
+    "name": "bug",
+    "file": "bug-qa/bug.svg",
+    "category": "bug-qa",
+    "keywords": [
+      "bug",
+      "defect",
+      "insect",
+      "issue",
+      "qa"
+    ]
+  },
+  {
+    "name": "coverage",
+    "file": "bug-qa/coverage.svg",
+    "category": "bug-qa",
+    "keywords": [
+      "coverage",
+      "test-coverage",
+      "metric",
+      "chart",
+      "qa",
+      "percentage"
+    ]
+  },
+  {
+    "name": "crash",
+    "file": "bug-qa/crash.svg",
+    "category": "bug-qa",
+    "keywords": [
+      "crash",
+      "system",
+      "error",
+      "lightning",
+      "monitor",
+      "outage",
+      "failure"
+    ]
+  },
+  {
+    "name": "defect",
+    "file": "bug-qa/defect.svg",
+    "category": "bug-qa",
+    "keywords": [
+      "defect",
+      "document",
+      "fault",
+      "issue",
+      "report",
+      "qa"
+    ]
+  },
+  {
+    "name": "escalate",
+    "file": "bug-qa/escalate.svg",
+    "category": "bug-qa",
+    "keywords": [
+      "escalate",
+      "escalation",
+      "raise",
+      "priority",
+      "up",
+      "incident"
+    ]
+  },
+  {
+    "name": "flask-test",
+    "file": "bug-qa/flask-test.svg",
+    "category": "bug-qa",
+    "keywords": [
+      "flask",
+      "test",
+      "experiment",
+      "lab",
+      "qa",
+      "chemistry"
+    ]
+  },
+  {
+    "name": "hotfix",
+    "file": "bug-qa/hotfix.svg",
+    "category": "bug-qa",
+    "keywords": [
+      "hotfix",
+      "fix",
+      "urgent",
+      "patch",
+      "release",
+      "emergency"
+    ]
+  },
+  {
+    "name": "incident-alert",
+    "file": "bug-qa/incident-alert.svg",
+    "category": "bug-qa",
+    "keywords": [
+      "incident",
+      "alert",
+      "warning",
+      "critical",
+      "triangle",
+      "outage"
+    ]
+  },
+  {
+    "name": "monkey-test",
+    "file": "bug-qa/monkey-test.svg",
+    "category": "bug-qa",
+    "keywords": [
+      "monkey-test",
+      "automation",
+      "random",
+      "fuzzing",
+      "qa",
+      "exploratory"
+    ]
+  },
+  {
+    "name": "regression",
+    "file": "bug-qa/regression.svg",
+    "category": "bug-qa",
+    "keywords": [
+      "regression",
+      "wave",
+      "cycle",
+      "reoccurrence",
+      "qa",
+      "pattern"
+    ]
+  },
+  {
+    "name": "retry",
+    "file": "bug-qa/retry.svg",
+    "category": "bug-qa",
+    "keywords": [
+      "retry",
+      "repeat",
+      "refresh",
+      "cycle",
+      "again",
+      "rerun",
+      "loop"
+    ]
+  },
+  {
+    "name": "root-cause",
+    "file": "bug-qa/root-cause.svg",
+    "category": "bug-qa",
+    "keywords": [
+      "root-cause",
+      "rca",
+      "analysis",
+      "origin",
+      "crosshair",
+      "investigation"
+    ]
+  },
+  {
+    "name": "severity-high",
+    "file": "bug-qa/severity-high.svg",
+    "category": "bug-qa",
+    "keywords": [
+      "severity",
+      "high",
+      "critical",
+      "bars",
+      "level",
+      "priority"
+    ]
+  },
+  {
+    "name": "severity-low",
+    "file": "bug-qa/severity-low.svg",
+    "category": "bug-qa",
+    "keywords": [
+      "severity",
+      "low",
+      "minor",
+      "bars",
+      "level",
+      "priority"
+    ]
+  },
+  {
+    "name": "severity-mid",
+    "file": "bug-qa/severity-mid.svg",
+    "category": "bug-qa",
+    "keywords": [
+      "severity",
+      "mid",
+      "medium",
+      "bars",
+      "level",
+      "priority",
+      "moderate"
+    ]
+  },
+  {
+    "name": "siren",
+    "file": "bug-qa/siren.svg",
+    "category": "bug-qa",
+    "keywords": [
+      "siren",
+      "alarm",
+      "emergency",
+      "alert",
+      "critical",
+      "incident",
+      "light"
+    ]
+  },
+  {
+    "name": "stack-trace",
+    "file": "bug-qa/stack-trace.svg",
+    "category": "bug-qa",
+    "keywords": [
+      "stack-trace",
+      "trace",
+      "log",
+      "stackframe",
+      "debug",
+      "error",
+      "lines"
+    ]
+  },
+  {
+    "name": "test-checklist",
+    "file": "bug-qa/test-checklist.svg",
+    "category": "bug-qa",
+    "keywords": [
+      "test",
+      "checklist",
+      "document",
+      "qa",
+      "pass",
+      "fail",
+      "cases"
+    ]
+  },
+  {
+    "name": "test-tube",
+    "file": "bug-qa/test-tube.svg",
+    "category": "bug-qa",
+    "keywords": [
+      "test-tube",
+      "test",
+      "lab",
+      "sample",
+      "qa",
+      "experiment"
+    ]
+  },
+  {
+    "name": "wrench-fix",
+    "file": "bug-qa/wrench-fix.svg",
+    "category": "bug-qa",
+    "keywords": [
+      "fix",
+      "wrench",
+      "repair",
+      "patch",
+      "tool",
+      "maintenance"
+    ]
+  },
+  {
+    "name": "api",
+    "file": "code/api.svg",
+    "category": "code",
+    "keywords": [
+      "api",
+      "interface",
+      "rest",
+      "http",
+      "endpoint",
+      "contract"
+    ]
+  },
+  {
+    "name": "branch",
+    "file": "code/branch.svg",
+    "category": "code",
+    "keywords": [
+      "branch",
+      "git",
+      "fork",
+      "feature",
+      "diverge",
+      "split"
+    ]
+  },
+  {
+    "name": "build",
+    "file": "code/build.svg",
+    "category": "code",
+    "keywords": [
+      "build",
+      "compile",
+      "pipeline",
+      "process",
+      "ci",
+      "artifact"
+    ]
+  },
+  {
+    "name": "cd",
+    "file": "code/cd.svg",
+    "category": "code",
+    "keywords": [
+      "cd",
+      "continuous-delivery",
+      "continuous-deployment",
+      "release",
+      "pipeline",
+      "automation",
+      "ship"
+    ]
+  },
+  {
+    "name": "ci",
+    "file": "code/ci.svg",
+    "category": "code",
+    "keywords": [
+      "ci",
+      "continuous-integration",
+      "test",
+      "build",
+      "pipeline",
+      "automation",
+      "check"
+    ]
+  },
+  {
+    "name": "code-diff",
+    "file": "code/code-diff.svg",
+    "category": "code",
+    "keywords": [
+      "diff",
+      "change",
+      "add",
+      "remove",
+      "patch",
+      "file"
+    ]
+  },
+  {
+    "name": "code-merge",
+    "file": "code/code-merge.svg",
+    "category": "code",
+    "keywords": [
+      "merge",
+      "git",
+      "branch",
+      "combine",
+      "integrate"
+    ]
+  },
+  {
+    "name": "code",
+    "file": "code/code.svg",
+    "category": "code",
+    "keywords": [
+      "code",
+      "programming",
+      "syntax",
+      "brackets",
+      "angle",
+      "chevron"
+    ]
+  },
+  {
+    "name": "commit",
+    "file": "code/commit.svg",
+    "category": "code",
+    "keywords": [
+      "commit",
+      "git",
+      "snapshot",
+      "change",
+      "node",
+      "history"
+    ]
+  },
+  {
+    "name": "cron-job",
+    "file": "code/cron-job.svg",
+    "category": "code",
+    "keywords": [
+      "cron",
+      "schedule",
+      "job",
+      "recurring",
+      "timer",
+      "automation",
+      "task"
+    ]
+  },
+  {
+    "name": "daemon",
+    "file": "code/daemon.svg",
+    "category": "code",
+    "keywords": [
+      "daemon",
+      "background",
+      "service",
+      "process",
+      "system",
+      "persistent",
+      "worker"
+    ]
+  },
+  {
+    "name": "database-search",
+    "file": "code/database-search.svg",
+    "category": "code",
+    "keywords": [
+      "database",
+      "query",
+      "search",
+      "sql",
+      "select",
+      "find"
+    ]
+  },
+  {
+    "name": "database",
+    "file": "code/database.svg",
+    "category": "code",
+    "keywords": [
+      "database",
+      "db",
+      "storage",
+      "records",
+      "rows",
+      "sql"
+    ]
+  },
+  {
+    "name": "debug",
+    "file": "code/debug.svg",
+    "category": "code",
+    "keywords": [
+      "debug",
+      "breakpoint",
+      "inspect",
+      "trace",
+      "step",
+      "bug",
+      "troubleshoot"
+    ]
+  },
+  {
+    "name": "deploy",
+    "file": "code/deploy.svg",
+    "category": "code",
+    "keywords": [
+      "deploy",
+      "release",
+      "upload",
+      "server",
+      "publish",
+      "ship"
+    ]
+  },
+  {
+    "name": "endpoint",
+    "file": "code/endpoint.svg",
+    "category": "code",
+    "keywords": [
+      "endpoint",
+      "route",
+      "url",
+      "path",
+      "rest",
+      "http",
+      "request"
+    ]
+  },
+  {
+    "name": "env-file",
+    "file": "code/env-file.svg",
+    "category": "code",
+    "keywords": [
+      "env",
+      "environment",
+      "dotenv",
+      "config",
+      "file",
+      "variables",
+      "secrets"
+    ]
+  },
+  {
+    "name": "feature-flag",
+    "file": "code/feature-flag.svg",
+    "category": "code",
+    "keywords": [
+      "feature",
+      "flag",
+      "toggle",
+      "experiment",
+      "rollout",
+      "ab-test",
+      "canary"
+    ]
+  },
+  {
+    "name": "file-diff",
+    "file": "code/file-diff.svg",
+    "category": "code",
+    "keywords": [
+      "file",
+      "diff",
+      "change",
+      "added",
+      "removed",
+      "patch"
+    ]
+  },
+  {
+    "name": "function",
+    "file": "code/function.svg",
+    "category": "code",
+    "keywords": [
+      "function",
+      "method",
+      "procedure",
+      "callable",
+      "curly",
+      "lambda"
+    ]
+  },
+  {
+    "name": "graphql",
+    "file": "code/graphql.svg",
+    "category": "code",
+    "keywords": [
+      "graphql",
+      "graph",
+      "schema",
+      "query",
+      "mutation",
+      "api",
+      "federation"
+    ]
+  },
+  {
+    "name": "grpc",
+    "file": "code/grpc.svg",
+    "category": "code",
+    "keywords": [
+      "grpc",
+      "rpc",
+      "protocol",
+      "protobuf",
+      "streaming",
+      "service",
+      "call"
+    ]
+  },
+  {
+    "name": "json",
+    "file": "code/json.svg",
+    "category": "code",
+    "keywords": [
+      "json",
+      "data",
+      "format",
+      "file",
+      "config",
+      "serialization",
+      "key-value"
+    ]
+  },
+  {
+    "name": "kafka-event",
+    "file": "code/kafka-event.svg",
+    "category": "code",
+    "keywords": [
+      "kafka",
+      "event",
+      "message",
+      "stream",
+      "publish",
+      "subscribe",
+      "broker"
+    ]
+  },
+  {
+    "name": "lambda-fn",
+    "file": "code/lambda-fn.svg",
+    "category": "code",
+    "keywords": [
+      "lambda",
+      "serverless",
+      "function",
+      "faas",
+      "event",
+      "aws",
+      "cloud"
+    ]
+  },
+  {
+    "name": "lint",
+    "file": "code/lint.svg",
+    "category": "code",
+    "keywords": [
+      "lint",
+      "linter",
+      "static-analysis",
+      "quality",
+      "rule",
+      "eslint",
+      "checkstyle"
+    ]
+  },
+  {
+    "name": "log-file",
+    "file": "code/log-file.svg",
+    "category": "code",
+    "keywords": [
+      "log",
+      "file",
+      "logging",
+      "output",
+      "trace",
+      "audit",
+      "events"
+    ]
+  },
+  {
+    "name": "microservice",
+    "file": "code/microservice.svg",
+    "category": "code",
+    "keywords": [
+      "microservice",
+      "service",
+      "architecture",
+      "distributed",
+      "component"
+    ]
+  },
+  {
+    "name": "package",
+    "file": "code/package.svg",
+    "category": "code",
+    "keywords": [
+      "package",
+      "library",
+      "module",
+      "dependency",
+      "artifact",
+      "bundle"
+    ]
+  },
+  {
+    "name": "pipeline",
+    "file": "code/pipeline.svg",
+    "category": "code",
+    "keywords": [
+      "pipeline",
+      "ci",
+      "cd",
+      "stage",
+      "workflow",
+      "automation"
+    ]
+  },
+  {
+    "name": "profiler",
+    "file": "code/profiler.svg",
+    "category": "code",
+    "keywords": [
+      "profiler",
+      "performance",
+      "flame",
+      "trace",
+      "benchmark",
+      "cpu",
+      "memory"
+    ]
+  },
+  {
+    "name": "pull-request",
+    "file": "code/pull-request.svg",
+    "category": "code",
+    "keywords": [
+      "pull-request",
+      "pr",
+      "review",
+      "merge",
+      "git",
+      "code-review"
+    ]
+  },
+  {
+    "name": "queue-message",
+    "file": "code/queue-message.svg",
+    "category": "code",
+    "keywords": [
+      "queue",
+      "message",
+      "mq",
+      "broker",
+      "async",
+      "buffer"
+    ]
+  },
+  {
+    "name": "repository",
+    "file": "code/repository.svg",
+    "category": "code",
+    "keywords": [
+      "repository",
+      "repo",
+      "git",
+      "source",
+      "folder",
+      "project"
+    ]
+  },
+  {
+    "name": "rest-api",
+    "file": "code/rest-api.svg",
+    "category": "code",
+    "keywords": [
+      "rest",
+      "http",
+      "api",
+      "endpoint",
+      "request",
+      "response",
+      "json"
+    ]
+  },
+  {
+    "name": "rollback",
+    "file": "code/rollback.svg",
+    "category": "code",
+    "keywords": [
+      "rollback",
+      "revert",
+      "undo",
+      "previous",
+      "version",
+      "restore"
+    ]
+  },
+  {
+    "name": "secret-key",
+    "file": "code/secret-key.svg",
+    "category": "code",
+    "keywords": [
+      "secret",
+      "key",
+      "credential",
+      "password",
+      "token",
+      "sensitive",
+      "security"
+    ]
+  },
+  {
+    "name": "sql",
+    "file": "code/sql.svg",
+    "category": "code",
+    "keywords": [
+      "sql",
+      "database",
+      "query",
+      "table",
+      "db",
+      "relational",
+      "select"
+    ]
+  },
+  {
+    "name": "table-schema",
+    "file": "code/table-schema.svg",
+    "category": "code",
+    "keywords": [
+      "table",
+      "schema",
+      "columns",
+      "rows",
+      "grid",
+      "structure",
+      "ddl"
+    ]
+  },
+  {
+    "name": "terminal",
+    "file": "code/terminal.svg",
+    "category": "code",
+    "keywords": [
+      "terminal",
+      "console",
+      "cli",
+      "shell",
+      "command",
+      "prompt"
+    ]
+  },
+  {
+    "name": "variable",
+    "file": "code/variable.svg",
+    "category": "code",
+    "keywords": [
+      "variable",
+      "parameter",
+      "value",
+      "assignment",
+      "symbol"
+    ]
+  },
+  {
+    "name": "version-tag",
+    "file": "code/version-tag.svg",
+    "category": "code",
+    "keywords": [
+      "version",
+      "tag",
+      "release",
+      "semver",
+      "label",
+      "git"
+    ]
+  },
+  {
+    "name": "webhook",
+    "file": "code/webhook.svg",
+    "category": "code",
+    "keywords": [
+      "webhook",
+      "callback",
+      "http",
+      "event",
+      "integration",
+      "notify"
+    ]
+  },
+  {
+    "name": "websocket",
+    "file": "code/websocket.svg",
+    "category": "code",
+    "keywords": [
+      "websocket",
+      "ws",
+      "realtime",
+      "bidirectional",
+      "socket",
+      "push",
+      "streaming"
+    ]
+  },
+  {
+    "name": "xml",
+    "file": "code/xml.svg",
+    "category": "code",
+    "keywords": [
+      "xml",
+      "markup",
+      "file",
+      "tags",
+      "format",
+      "soap",
+      "serialization"
+    ]
+  },
+  {
+    "name": "yaml",
+    "file": "code/yaml.svg",
+    "category": "code",
+    "keywords": [
+      "yaml",
+      "config",
+      "configuration",
+      "file",
+      "indent",
+      "markup",
+      "helm"
+    ]
+  },
+  {
+    "name": "barcode-scan",
+    "file": "commerce/barcode-scan.svg",
+    "category": "commerce",
+    "keywords": [
+      "barcode",
+      "scan",
+      "sku",
+      "product",
+      "upc",
+      "ean"
+    ]
+  },
+  {
+    "name": "basket",
+    "file": "commerce/basket.svg",
+    "category": "commerce",
+    "keywords": [
+      "basket",
+      "cart",
+      "purchase",
+      "items",
+      "order"
+    ]
+  },
+  {
+    "name": "cart-add",
+    "file": "commerce/cart-add.svg",
+    "category": "commerce",
+    "keywords": [
+      "cart",
+      "add",
+      "plus",
+      "shopping",
+      "add-to-cart"
+    ]
+  },
+  {
+    "name": "cart",
+    "file": "commerce/cart.svg",
+    "category": "commerce",
+    "keywords": [
+      "cart",
+      "shopping",
+      "trolley",
+      "purchase",
+      "basket"
+    ]
+  },
+  {
+    "name": "checkout",
+    "file": "commerce/checkout.svg",
+    "category": "commerce",
+    "keywords": [
+      "checkout",
+      "payment",
+      "confirm",
+      "purchase",
+      "complete"
+    ]
+  },
+  {
+    "name": "coupon",
+    "file": "commerce/coupon.svg",
+    "category": "commerce",
+    "keywords": [
+      "coupon",
+      "voucher",
+      "discount",
+      "promo",
+      "code"
+    ]
+  },
+  {
+    "name": "delivery-truck",
+    "file": "commerce/delivery-truck.svg",
+    "category": "commerce",
+    "keywords": [
+      "delivery",
+      "truck",
+      "shipping",
+      "transport",
+      "logistics"
+    ]
+  },
+  {
+    "name": "discount-tag",
+    "file": "commerce/discount-tag.svg",
+    "category": "commerce",
+    "keywords": [
+      "discount",
+      "tag",
+      "percent",
+      "sale",
+      "promo",
+      "offer"
+    ]
+  },
+  {
+    "name": "gift",
+    "file": "commerce/gift.svg",
+    "category": "commerce",
+    "keywords": [
+      "gift",
+      "present",
+      "reward",
+      "bonus",
+      "wrap"
+    ]
+  },
+  {
+    "name": "loyalty-card",
+    "file": "commerce/loyalty-card.svg",
+    "category": "commerce",
+    "keywords": [
+      "loyalty",
+      "card",
+      "points",
+      "membership",
+      "rewards"
+    ]
+  },
+  {
+    "name": "order-box",
+    "file": "commerce/order-box.svg",
+    "category": "commerce",
+    "keywords": [
+      "order",
+      "box",
+      "package",
+      "parcel",
+      "shipment"
+    ]
+  },
+  {
+    "name": "price-tag",
+    "file": "commerce/price-tag.svg",
+    "category": "commerce",
+    "keywords": [
+      "price",
+      "tag",
+      "label",
+      "cost",
+      "sku"
+    ]
+  },
+  {
+    "name": "refund",
+    "file": "commerce/refund.svg",
+    "category": "commerce",
+    "keywords": [
+      "refund",
+      "return",
+      "reversal",
+      "credit",
+      "chargeback"
+    ]
+  },
+  {
+    "name": "return-box",
+    "file": "commerce/return-box.svg",
+    "category": "commerce",
+    "keywords": [
+      "return",
+      "refund",
+      "box",
+      "reverse",
+      "logistics"
+    ]
+  },
+  {
+    "name": "sale",
+    "file": "commerce/sale.svg",
+    "category": "commerce",
+    "keywords": [
+      "sale",
+      "discount",
+      "percent",
+      "offer",
+      "promo",
+      "deal"
+    ]
+  },
+  {
+    "name": "shipping-box",
+    "file": "commerce/shipping-box.svg",
+    "category": "commerce",
+    "keywords": [
+      "shipping",
+      "box",
+      "package",
+      "parcel",
+      "dispatch"
+    ]
+  },
+  {
+    "name": "shopping-bag",
+    "file": "commerce/shopping-bag.svg",
+    "category": "commerce",
+    "keywords": [
+      "bag",
+      "shopping",
+      "purchase",
+      "retail"
+    ]
+  },
+  {
+    "name": "storefront",
+    "file": "commerce/storefront.svg",
+    "category": "commerce",
+    "keywords": [
+      "store",
+      "shop",
+      "retail",
+      "front",
+      "merchant"
+    ]
+  },
+  {
+    "name": "subscription",
+    "file": "commerce/subscription.svg",
+    "category": "commerce",
+    "keywords": [
+      "subscription",
+      "recurring",
+      "plan",
+      "billing",
+      "renewal"
+    ]
+  },
+  {
+    "name": "wishlist",
+    "file": "commerce/wishlist.svg",
+    "category": "commerce",
+    "keywords": [
+      "wishlist",
+      "bookmark",
+      "save",
+      "favourite",
+      "list"
+    ]
+  },
+  {
+    "name": "bell-off",
+    "file": "communication/bell-off.svg",
+    "category": "communication",
+    "keywords": [
+      "bell-off",
+      "mute",
+      "silent",
+      "disable",
+      "no-notification"
+    ]
+  },
+  {
+    "name": "broadcast-msg",
+    "file": "communication/broadcast-msg.svg",
+    "category": "communication",
+    "keywords": [
+      "broadcast",
+      "message",
+      "announcement",
+      "publish",
+      "mass"
+    ]
+  },
+  {
+    "name": "chat",
+    "file": "communication/chat.svg",
+    "category": "communication",
+    "keywords": [
+      "chat",
+      "message",
+      "conversation",
+      "dialogue",
+      "panel",
+      "bubble"
+    ]
+  },
+  {
+    "name": "comment",
+    "file": "communication/comment.svg",
+    "category": "communication",
+    "keywords": [
+      "comment",
+      "annotation",
+      "note",
+      "remark",
+      "feedback"
+    ]
+  },
+  {
+    "name": "comments",
+    "file": "communication/comments.svg",
+    "category": "communication",
+    "keywords": [
+      "comments",
+      "discussion",
+      "thread",
+      "conversation",
+      "multiple"
+    ]
+  },
+  {
+    "name": "contact-card",
+    "file": "communication/contact-card.svg",
+    "category": "communication",
+    "keywords": [
+      "contact",
+      "card",
+      "profile",
+      "vcard",
+      "person",
+      "address"
+    ]
+  },
+  {
+    "name": "forward",
+    "file": "communication/forward.svg",
+    "category": "communication",
+    "keywords": [
+      "forward",
+      "redirect",
+      "pass-on",
+      "send",
+      "arrow"
+    ]
+  },
+  {
+    "name": "inbox",
+    "file": "communication/inbox.svg",
+    "category": "communication",
+    "keywords": [
+      "inbox",
+      "tray",
+      "receive",
+      "incoming",
+      "messages"
+    ]
+  },
+  {
+    "name": "mail-open",
+    "file": "communication/mail-open.svg",
+    "category": "communication",
+    "keywords": [
+      "email",
+      "envelope",
+      "read",
+      "opened",
+      "message"
+    ]
+  },
+  {
+    "name": "mail",
+    "file": "communication/mail.svg",
+    "category": "communication",
+    "keywords": [
+      "email",
+      "envelope",
+      "message",
+      "letter"
+    ]
+  },
+  {
+    "name": "megaphone",
+    "file": "communication/megaphone.svg",
+    "category": "communication",
+    "keywords": [
+      "megaphone",
+      "announce",
+      "broadcast",
+      "alert",
+      "speaker",
+      "public"
+    ]
+  },
+  {
+    "name": "notification",
+    "file": "communication/notification.svg",
+    "category": "communication",
+    "keywords": [
+      "notification",
+      "bell",
+      "alert",
+      "remind",
+      "badge"
+    ]
+  },
+  {
+    "name": "phone-call",
+    "file": "communication/phone-call.svg",
+    "category": "communication",
+    "keywords": [
+      "phone-call",
+      "ringing",
+      "incoming",
+      "outgoing",
+      "signal"
+    ]
+  },
+  {
+    "name": "phone",
+    "file": "communication/phone.svg",
+    "category": "communication",
+    "keywords": [
+      "phone",
+      "telephone",
+      "call",
+      "handset",
+      "contact"
+    ]
+  },
+  {
+    "name": "reply-all",
+    "file": "communication/reply-all.svg",
+    "category": "communication",
+    "keywords": [
+      "reply-all",
+      "respond",
+      "group",
+      "broadcast",
+      "arrows"
+    ]
+  },
+  {
+    "name": "reply",
+    "file": "communication/reply.svg",
+    "category": "communication",
+    "keywords": [
+      "reply",
+      "respond",
+      "answer",
+      "return",
+      "arrow"
+    ]
+  },
+  {
+    "name": "rss",
+    "file": "communication/rss.svg",
+    "category": "communication",
+    "keywords": [
+      "rss",
+      "feed",
+      "subscribe",
+      "syndication",
+      "signal"
+    ]
+  },
+  {
+    "name": "send",
+    "file": "communication/send.svg",
+    "category": "communication",
+    "keywords": [
+      "send",
+      "submit",
+      "dispatch",
+      "paper-plane",
+      "transmit"
+    ]
+  },
+  {
+    "name": "share-node",
+    "file": "communication/share-node.svg",
+    "category": "communication",
+    "keywords": [
+      "share",
+      "distribute",
+      "nodes",
+      "network",
+      "broadcast",
+      "link"
+    ]
+  },
+  {
+    "name": "thread",
+    "file": "communication/thread.svg",
+    "category": "communication",
+    "keywords": [
+      "thread",
+      "reply-chain",
+      "nested",
+      "conversation",
+      "hierarchy"
+    ]
+  },
+  {
+    "name": "video-call",
+    "file": "communication/video-call.svg",
+    "category": "communication",
+    "keywords": [
+      "video-call",
+      "video",
+      "camera",
+      "conference",
+      "meeting"
+    ]
+  },
+  {
+    "name": "voicemail",
+    "file": "communication/voicemail.svg",
+    "category": "communication",
+    "keywords": [
+      "voicemail",
+      "voice",
+      "audio",
+      "message",
+      "tape"
+    ]
+  },
+  {
+    "name": "aggregate",
+    "file": "data/aggregate.svg",
+    "category": "data",
+    "keywords": [
+      "aggregate",
+      "sum",
+      "group",
+      "combine",
+      "merge",
+      "rollup",
+      "consolidate",
+      "total",
+      "collect",
+      "reduce"
+    ]
+  },
+  {
+    "name": "anomaly",
+    "file": "data/anomaly.svg",
+    "category": "data",
+    "keywords": [
+      "anomaly",
+      "outlier",
+      "spike",
+      "deviation",
+      "alert",
+      "unusual",
+      "detection",
+      "exception",
+      "abnormal",
+      "series"
+    ]
+  },
+  {
+    "name": "area-chart",
+    "file": "data/area-chart.svg",
+    "category": "data",
+    "keywords": [
+      "area",
+      "chart",
+      "fill",
+      "region",
+      "series",
+      "axis",
+      "cumulative"
+    ]
+  },
+  {
+    "name": "bar-chart-grouped",
+    "file": "data/bar-chart-grouped.svg",
+    "category": "data",
+    "keywords": [
+      "bar",
+      "grouped",
+      "clustered",
+      "comparison",
+      "bars",
+      "axis",
+      "multi"
+    ]
+  },
+  {
+    "name": "bar-chart",
+    "file": "data/bar-chart.svg",
+    "category": "data",
+    "keywords": [
+      "bar",
+      "chart",
+      "column",
+      "vertical",
+      "histogram",
+      "bars",
+      "axis"
+    ]
+  },
+  {
+    "name": "boxplot",
+    "file": "data/boxplot.svg",
+    "category": "data",
+    "keywords": [
+      "boxplot",
+      "box",
+      "whisker",
+      "quartile",
+      "median",
+      "distribution",
+      "outlier",
+      "spread",
+      "statistics",
+      "iqr"
+    ]
+  },
+  {
+    "name": "bubble-chart",
+    "file": "data/bubble-chart.svg",
+    "category": "data",
+    "keywords": [
+      "bubble",
+      "chart",
+      "scatter",
+      "size",
+      "three-variable",
+      "axis",
+      "circles",
+      "magnitude"
+    ]
+  },
+  {
+    "name": "candlestick",
+    "file": "data/candlestick.svg",
+    "category": "data",
+    "keywords": [
+      "candlestick",
+      "ohlc",
+      "open",
+      "close",
+      "high",
+      "low",
+      "finance",
+      "stock",
+      "trading",
+      "price",
+      "axis"
+    ]
+  },
+  {
+    "name": "cohort",
+    "file": "data/cohort.svg",
+    "category": "data",
+    "keywords": [
+      "cohort",
+      "retention",
+      "group",
+      "time",
+      "period",
+      "decay",
+      "table",
+      "analysis",
+      "funnel",
+      "user"
+    ]
+  },
+  {
+    "name": "combo-chart",
+    "file": "data/combo-chart.svg",
+    "category": "data",
+    "keywords": [
+      "combo",
+      "combination",
+      "mixed",
+      "bar",
+      "line",
+      "dual",
+      "axis",
+      "overlay",
+      "series",
+      "multi-type"
+    ]
+  },
+  {
+    "name": "dataset",
+    "file": "data/dataset.svg",
+    "category": "data",
+    "keywords": [
+      "dataset",
+      "data",
+      "store",
+      "collection",
+      "rows",
+      "database",
+      "cylinder",
+      "storage",
+      "records",
+      "bulk"
+    ]
+  },
+  {
+    "name": "delta",
+    "file": "data/delta.svg",
+    "category": "data",
+    "keywords": [
+      "delta",
+      "change",
+      "difference",
+      "variance",
+      "up",
+      "down",
+      "triangle",
+      "bidirectional"
+    ]
+  },
+  {
+    "name": "dimension",
+    "file": "data/dimension.svg",
+    "category": "data",
+    "keywords": [
+      "dimension",
+      "cube",
+      "3d",
+      "axis",
+      "data-model",
+      "olap",
+      "category",
+      "field",
+      "column",
+      "axis"
+    ]
+  },
+  {
+    "name": "distribution",
+    "file": "data/distribution.svg",
+    "category": "data",
+    "keywords": [
+      "distribution",
+      "bell",
+      "curve",
+      "normal",
+      "frequency",
+      "spread",
+      "axis"
+    ]
+  },
+  {
+    "name": "donut-chart",
+    "file": "data/donut-chart.svg",
+    "category": "data",
+    "keywords": [
+      "donut",
+      "doughnut",
+      "ring",
+      "chart",
+      "circle",
+      "segments",
+      "proportion"
+    ]
+  },
+  {
+    "name": "drill-down",
+    "file": "data/drill-down.svg",
+    "category": "data",
+    "keywords": [
+      "drill",
+      "down",
+      "expand",
+      "hierarchy",
+      "detail",
+      "zoom",
+      "level",
+      "nested",
+      "sub",
+      "decompose"
+    ]
+  },
+  {
+    "name": "etl",
+    "file": "data/etl.svg",
+    "category": "data",
+    "keywords": [
+      "etl",
+      "extract",
+      "transform",
+      "load",
+      "pipeline",
+      "data",
+      "flow",
+      "integration",
+      "ingestion",
+      "process"
+    ]
+  },
+  {
+    "name": "forecast",
+    "file": "data/forecast.svg",
+    "category": "data",
+    "keywords": [
+      "forecast",
+      "predict",
+      "projection",
+      "future",
+      "trend",
+      "model",
+      "dashed",
+      "extrapolate",
+      "estimate",
+      "time-series"
+    ]
+  },
+  {
+    "name": "funnel",
+    "file": "data/funnel.svg",
+    "category": "data",
+    "keywords": [
+      "funnel",
+      "filter",
+      "conversion",
+      "pipeline",
+      "stages",
+      "narrow",
+      "flow"
+    ]
+  },
+  {
+    "name": "gauge-full",
+    "file": "data/gauge-full.svg",
+    "category": "data",
+    "keywords": [
+      "gauge",
+      "full",
+      "needle",
+      "dial",
+      "speedometer",
+      "meter",
+      "kpi",
+      "radial",
+      "progress",
+      "pointer"
+    ]
+  },
+  {
+    "name": "gauge",
+    "file": "data/gauge.svg",
+    "category": "data",
+    "keywords": [
+      "gauge",
+      "speedometer",
+      "dial",
+      "meter",
+      "kpi",
+      "progress",
+      "radial",
+      "needle"
+    ]
+  },
+  {
+    "name": "heatmap",
+    "file": "data/heatmap.svg",
+    "category": "data",
+    "keywords": [
+      "heatmap",
+      "heat",
+      "map",
+      "grid",
+      "density",
+      "intensity",
+      "matrix",
+      "cells"
+    ]
+  },
+  {
+    "name": "histogram",
+    "file": "data/histogram.svg",
+    "category": "data",
+    "keywords": [
+      "histogram",
+      "frequency",
+      "distribution",
+      "bars",
+      "bins",
+      "axis",
+      "normal"
+    ]
+  },
+  {
+    "name": "kpi-card",
+    "file": "data/kpi-card.svg",
+    "category": "data",
+    "keywords": [
+      "kpi",
+      "card",
+      "tile",
+      "metric",
+      "key",
+      "performance",
+      "indicator",
+      "dashboard",
+      "stat",
+      "value",
+      "spark"
+    ]
+  },
+  {
+    "name": "kpi-tile",
+    "file": "data/kpi-tile.svg",
+    "category": "data",
+    "keywords": [
+      "kpi",
+      "tile",
+      "card",
+      "metric",
+      "dashboard",
+      "stat",
+      "key",
+      "performance",
+      "indicator"
+    ]
+  },
+  {
+    "name": "line-chart",
+    "file": "data/line-chart.svg",
+    "category": "data",
+    "keywords": [
+      "line",
+      "chart",
+      "series",
+      "time",
+      "trend",
+      "graph",
+      "axis",
+      "nodes"
+    ]
+  },
+  {
+    "name": "metric-down",
+    "file": "data/metric-down.svg",
+    "category": "data",
+    "keywords": [
+      "metric",
+      "down",
+      "stat",
+      "tile",
+      "decrease",
+      "negative",
+      "arrow",
+      "kpi",
+      "delta"
+    ]
+  },
+  {
+    "name": "metric-up",
+    "file": "data/metric-up.svg",
+    "category": "data",
+    "keywords": [
+      "metric",
+      "up",
+      "stat",
+      "tile",
+      "increase",
+      "positive",
+      "arrow",
+      "kpi",
+      "delta"
+    ]
+  },
+  {
+    "name": "percent-ring",
+    "file": "data/percent-ring.svg",
+    "category": "data",
+    "keywords": [
+      "percent",
+      "ring",
+      "circle",
+      "progress",
+      "ratio",
+      "proportion",
+      "arc",
+      "donut",
+      "completion"
+    ]
+  },
+  {
+    "name": "pie-chart",
+    "file": "data/pie-chart.svg",
+    "category": "data",
+    "keywords": [
+      "pie",
+      "chart",
+      "circle",
+      "segments",
+      "proportion",
+      "share",
+      "breakdown"
+    ]
+  },
+  {
+    "name": "pivot",
+    "file": "data/pivot.svg",
+    "category": "data",
+    "keywords": [
+      "pivot",
+      "table",
+      "cross",
+      "tab",
+      "crosstab",
+      "aggregate",
+      "rows",
+      "columns",
+      "summary"
+    ]
+  },
+  {
+    "name": "query",
+    "file": "data/query.svg",
+    "category": "data",
+    "keywords": [
+      "query",
+      "sql",
+      "search",
+      "lookup",
+      "find",
+      "filter",
+      "database",
+      "magnifier",
+      "select",
+      "fetch"
+    ]
+  },
+  {
+    "name": "radar-chart",
+    "file": "data/radar-chart.svg",
+    "category": "data",
+    "keywords": [
+      "radar",
+      "spider",
+      "web",
+      "radial",
+      "polygon",
+      "axis",
+      "multi-dimension",
+      "star",
+      "metrics"
+    ]
+  },
+  {
+    "name": "retention-curve",
+    "file": "data/retention-curve.svg",
+    "category": "data",
+    "keywords": [
+      "retention",
+      "curve",
+      "decay",
+      "churn",
+      "survival",
+      "cohort",
+      "user",
+      "time",
+      "axis",
+      "drop-off"
+    ]
+  },
+  {
+    "name": "sankey",
+    "file": "data/sankey.svg",
+    "category": "data",
+    "keywords": [
+      "sankey",
+      "flow",
+      "stream",
+      "network",
+      "bandwidth",
+      "allocation",
+      "path",
+      "energy",
+      "transition"
+    ]
+  },
+  {
+    "name": "scatter-plot",
+    "file": "data/scatter-plot.svg",
+    "category": "data",
+    "keywords": [
+      "scatter",
+      "plot",
+      "points",
+      "correlation",
+      "distribution",
+      "nodes",
+      "axis",
+      "dots"
+    ]
+  },
+  {
+    "name": "sparkline",
+    "file": "data/sparkline.svg",
+    "category": "data",
+    "keywords": [
+      "sparkline",
+      "inline",
+      "mini",
+      "chart",
+      "trend",
+      "small",
+      "compact"
+    ]
+  },
+  {
+    "name": "table-grid",
+    "file": "data/table-grid.svg",
+    "category": "data",
+    "keywords": [
+      "table",
+      "grid",
+      "rows",
+      "columns",
+      "data",
+      "cells",
+      "matrix",
+      "spreadsheet"
+    ]
+  },
+  {
+    "name": "target",
+    "file": "data/target.svg",
+    "category": "data",
+    "keywords": [
+      "target",
+      "goal",
+      "objective",
+      "aim",
+      "bullseye",
+      "crosshair",
+      "circles",
+      "kpi"
+    ]
+  },
+  {
+    "name": "treemap",
+    "file": "data/treemap.svg",
+    "category": "data",
+    "keywords": [
+      "treemap",
+      "tree",
+      "hierarchical",
+      "nested",
+      "rectangles",
+      "proportion",
+      "size",
+      "breakdown",
+      "partition"
+    ]
+  },
+  {
+    "name": "trend-down",
+    "file": "data/trend-down.svg",
+    "category": "data",
+    "keywords": [
+      "trend",
+      "down",
+      "decrease",
+      "decline",
+      "arrow",
+      "falling",
+      "downward",
+      "negative"
+    ]
+  },
+  {
+    "name": "trend-up",
+    "file": "data/trend-up.svg",
+    "category": "data",
+    "keywords": [
+      "trend",
+      "up",
+      "increase",
+      "growth",
+      "arrow",
+      "rising",
+      "upward",
+      "positive"
+    ]
+  },
+  {
+    "name": "waterfall",
+    "file": "data/waterfall.svg",
+    "category": "data",
+    "keywords": [
+      "waterfall",
+      "bridge",
+      "cumulative",
+      "variance",
+      "incremental",
+      "bars",
+      "axis",
+      "delta",
+      "positive",
+      "negative"
+    ]
+  },
+  {
+    "name": "barcode",
+    "file": "device/barcode.svg",
+    "category": "device",
+    "keywords": [
+      "barcode",
+      "scan",
+      "stripe",
+      "ean",
+      "product",
+      "upc"
+    ]
+  },
+  {
+    "name": "battery-low",
+    "file": "device/battery-low.svg",
+    "category": "device",
+    "keywords": [
+      "battery-low",
+      "low",
+      "charge",
+      "warning",
+      "power"
+    ]
+  },
+  {
+    "name": "battery",
+    "file": "device/battery.svg",
+    "category": "device",
+    "keywords": [
+      "battery",
+      "charge",
+      "full",
+      "power",
+      "energy"
+    ]
+  },
+  {
+    "name": "bluetooth",
+    "file": "device/bluetooth.svg",
+    "category": "device",
+    "keywords": [
+      "bluetooth",
+      "wireless",
+      "pair",
+      "signal",
+      "radio"
+    ]
+  },
+  {
+    "name": "desktop",
+    "file": "device/desktop.svg",
+    "category": "device",
+    "keywords": [
+      "desktop",
+      "monitor",
+      "computer",
+      "screen",
+      "display",
+      "workstation"
+    ]
+  },
+  {
+    "name": "hard-drive",
+    "file": "device/hard-drive.svg",
+    "category": "device",
+    "keywords": [
+      "hard-drive",
+      "hdd",
+      "disk",
+      "storage",
+      "drive"
+    ]
+  },
+  {
+    "name": "headset",
+    "file": "device/headset.svg",
+    "category": "device",
+    "keywords": [
+      "headset",
+      "headphone",
+      "audio",
+      "call",
+      "microphone",
+      "support"
+    ]
+  },
+  {
+    "name": "keyboard",
+    "file": "device/keyboard.svg",
+    "category": "device",
+    "keywords": [
+      "keyboard",
+      "keys",
+      "input",
+      "typing",
+      "hardware"
+    ]
+  },
+  {
+    "name": "laptop",
+    "file": "device/laptop.svg",
+    "category": "device",
+    "keywords": [
+      "laptop",
+      "notebook",
+      "computer",
+      "portable",
+      "screen",
+      "lid"
+    ]
+  },
+  {
+    "name": "mobile",
+    "file": "device/mobile.svg",
+    "category": "device",
+    "keywords": [
+      "mobile",
+      "phone",
+      "smartphone",
+      "handset",
+      "cell"
+    ]
+  },
+  {
+    "name": "mouse",
+    "file": "device/mouse.svg",
+    "category": "device",
+    "keywords": [
+      "mouse",
+      "pointer",
+      "cursor",
+      "click",
+      "input"
+    ]
+  },
+  {
+    "name": "power-plug",
+    "file": "device/power-plug.svg",
+    "category": "device",
+    "keywords": [
+      "power",
+      "plug",
+      "electricity",
+      "connect",
+      "charger",
+      "outlet"
+    ]
+  },
+  {
+    "name": "printer",
+    "file": "device/printer.svg",
+    "category": "device",
+    "keywords": [
+      "printer",
+      "print",
+      "paper",
+      "output",
+      "document"
+    ]
+  },
+  {
+    "name": "qr-code",
+    "file": "device/qr-code.svg",
+    "category": "device",
+    "keywords": [
+      "qr",
+      "code",
+      "scan",
+      "matrix",
+      "barcode",
+      "2d"
+    ]
+  },
+  {
+    "name": "router-device",
+    "file": "device/router-device.svg",
+    "category": "device",
+    "keywords": [
+      "router",
+      "network",
+      "gateway",
+      "wifi",
+      "antenna",
+      "hub"
+    ]
+  },
+  {
+    "name": "scanner",
+    "file": "device/scanner.svg",
+    "category": "device",
+    "keywords": [
+      "scanner",
+      "scan",
+      "flatbed",
+      "digitize",
+      "ocr"
+    ]
+  },
+  {
+    "name": "sensor",
+    "file": "device/sensor.svg",
+    "category": "device",
+    "keywords": [
+      "sensor",
+      "iot",
+      "signal",
+      "detect",
+      "proximity",
+      "broadcast"
+    ]
+  },
+  {
+    "name": "sim-card",
+    "file": "device/sim-card.svg",
+    "category": "device",
+    "keywords": [
+      "sim",
+      "card",
+      "mobile",
+      "carrier",
+      "chip",
+      "cellular"
+    ]
+  },
+  {
+    "name": "smartwatch",
+    "file": "device/smartwatch.svg",
+    "category": "device",
+    "keywords": [
+      "smartwatch",
+      "watch",
+      "wearable",
+      "wrist",
+      "strap",
+      "time"
+    ]
+  },
+  {
+    "name": "speaker-device",
+    "file": "device/speaker-device.svg",
+    "category": "device",
+    "keywords": [
+      "speaker",
+      "audio",
+      "sound",
+      "output",
+      "device"
+    ]
+  },
+  {
+    "name": "tablet",
+    "file": "device/tablet.svg",
+    "category": "device",
+    "keywords": [
+      "tablet",
+      "ipad",
+      "slate",
+      "touch",
+      "screen"
+    ]
+  },
+  {
+    "name": "usb",
+    "file": "device/usb.svg",
+    "category": "device",
+    "keywords": [
+      "usb",
+      "connector",
+      "port",
+      "peripheral",
+      "bus"
+    ]
+  },
+  {
+    "name": "webcam",
+    "file": "device/webcam.svg",
+    "category": "device",
+    "keywords": [
+      "webcam",
+      "camera",
+      "video",
+      "stream",
+      "call"
+    ]
+  },
+  {
+    "name": "wifi",
+    "file": "device/wifi.svg",
+    "category": "device",
+    "keywords": [
+      "wifi",
+      "wireless",
+      "signal",
+      "network",
+      "connect",
+      "internet"
+    ]
+  },
+  {
+    "name": "archive-box",
+    "file": "document/archive-box.svg",
+    "category": "document",
+    "keywords": [
+      "archive",
+      "box",
+      "storage",
+      "history",
+      "old",
+      "filed"
+    ]
+  },
+  {
+    "name": "attachment",
+    "file": "document/attachment.svg",
+    "category": "document",
+    "keywords": [
+      "attachment",
+      "paperclip",
+      "attach",
+      "clip",
+      "link",
+      "file"
+    ]
+  },
+  {
+    "name": "clipboard-check",
+    "file": "document/clipboard-check.svg",
+    "category": "document",
+    "keywords": [
+      "clipboard",
+      "check",
+      "complete",
+      "done",
+      "form",
+      "approved"
+    ]
+  },
+  {
+    "name": "clipboard-list",
+    "file": "document/clipboard-list.svg",
+    "category": "document",
+    "keywords": [
+      "clipboard",
+      "list",
+      "items",
+      "tasks",
+      "checklist",
+      "bullet"
+    ]
+  },
+  {
+    "name": "clipboard",
+    "file": "document/clipboard.svg",
+    "category": "document",
+    "keywords": [
+      "clipboard",
+      "form",
+      "checklist",
+      "pad",
+      "notes"
+    ]
+  },
+  {
+    "name": "copy",
+    "file": "document/copy.svg",
+    "category": "document",
+    "keywords": [
+      "copy",
+      "duplicate",
+      "clone",
+      "paste",
+      "replicate"
+    ]
+  },
+  {
+    "name": "doc-compare",
+    "file": "document/doc-compare.svg",
+    "category": "document",
+    "keywords": [
+      "compare",
+      "diff",
+      "side-by-side",
+      "review",
+      "contrast",
+      "two-docs"
+    ]
+  },
+  {
+    "name": "document-check",
+    "file": "document/document-check.svg",
+    "category": "document",
+    "keywords": [
+      "doc",
+      "approved",
+      "verified",
+      "check",
+      "sign-off"
+    ]
+  },
+  {
+    "name": "document-lock",
+    "file": "document/document-lock.svg",
+    "category": "document",
+    "keywords": [
+      "doc",
+      "locked",
+      "secure",
+      "confidential",
+      "restricted"
+    ]
+  },
+  {
+    "name": "document-report",
+    "file": "document/document-report.svg",
+    "category": "document",
+    "keywords": [
+      "report",
+      "doc",
+      "analysis",
+      "lines",
+      "page"
+    ]
+  },
+  {
+    "name": "document-search",
+    "file": "document/document-search.svg",
+    "category": "document",
+    "keywords": [
+      "doc",
+      "find",
+      "search",
+      "magnify",
+      "lookup"
+    ]
+  },
+  {
+    "name": "document",
+    "file": "document/document.svg",
+    "category": "document",
+    "keywords": [
+      "doc",
+      "file",
+      "page",
+      "blank"
+    ]
+  },
+  {
+    "name": "file-code",
+    "file": "document/file-code.svg",
+    "category": "document",
+    "keywords": [
+      "file",
+      "code",
+      "source",
+      "script",
+      "program",
+      "dev"
+    ]
+  },
+  {
+    "name": "file-data",
+    "file": "document/file-data.svg",
+    "category": "document",
+    "keywords": [
+      "file",
+      "data",
+      "chart",
+      "bars",
+      "csv",
+      "numbers"
+    ]
+  },
+  {
+    "name": "file-text",
+    "file": "document/file-text.svg",
+    "category": "document",
+    "keywords": [
+      "file",
+      "text",
+      "document",
+      "content",
+      "lines"
+    ]
+  },
+  {
+    "name": "folder-open",
+    "file": "document/folder-open.svg",
+    "category": "document",
+    "keywords": [
+      "folder",
+      "open",
+      "browse",
+      "files",
+      "directory",
+      "expanded"
+    ]
+  },
+  {
+    "name": "folder",
+    "file": "document/folder.svg",
+    "category": "document",
+    "keywords": [
+      "folder",
+      "directory",
+      "storage",
+      "files",
+      "container"
+    ]
+  },
+  {
+    "name": "page",
+    "file": "document/page.svg",
+    "category": "document",
+    "keywords": [
+      "page",
+      "leaf",
+      "sheet",
+      "blank",
+      "simple"
+    ]
+  },
+  {
+    "name": "pages-stack",
+    "file": "document/pages-stack.svg",
+    "category": "document",
+    "keywords": [
+      "pages",
+      "stack",
+      "multiple",
+      "documents",
+      "pile"
+    ]
+  },
+  {
+    "name": "paragraph",
+    "file": "document/paragraph.svg",
+    "category": "document",
+    "keywords": [
+      "paragraph",
+      "pilcrow",
+      "text",
+      "format",
+      "section",
+      "writing"
+    ]
+  },
+  {
+    "name": "signature-doc",
+    "file": "document/signature-doc.svg",
+    "category": "document",
+    "keywords": [
+      "signature",
+      "sign",
+      "doc",
+      "approval",
+      "signed",
+      "formal"
+    ]
+  },
+  {
+    "name": "summary-lines",
+    "file": "document/summary-lines.svg",
+    "category": "document",
+    "keywords": [
+      "summary",
+      "lines",
+      "text",
+      "paragraph",
+      "body",
+      "content"
+    ]
+  },
+  {
+    "name": "table-of-contents",
+    "file": "document/table-of-contents.svg",
+    "category": "document",
+    "keywords": [
+      "toc",
+      "contents",
+      "index",
+      "navigation",
+      "sections",
+      "outline"
+    ]
+  },
+  {
+    "name": "asterisk",
+    "file": "editorial/asterisk.svg",
+    "category": "editorial",
+    "keywords": [
+      "asterisk",
+      "footnote",
+      "star",
+      "reference",
+      "caveat"
+    ]
+  },
+  {
+    "name": "bookmark",
+    "file": "editorial/bookmark.svg",
+    "category": "editorial",
+    "keywords": [
+      "save",
+      "mark",
+      "flag",
+      "reference",
+      "saved"
+    ]
+  },
+  {
+    "name": "callout",
+    "file": "editorial/callout.svg",
+    "category": "editorial",
+    "keywords": [
+      "callout",
+      "aside",
+      "annotation",
+      "comment",
+      "remark"
+    ]
+  },
+  {
+    "name": "divider",
+    "file": "editorial/divider.svg",
+    "category": "editorial",
+    "keywords": [
+      "divider",
+      "separator",
+      "rule",
+      "break",
+      "section"
+    ]
+  },
+  {
+    "name": "exhibit-mark",
+    "file": "editorial/exhibit-mark.svg",
+    "category": "editorial",
+    "keywords": [
+      "exhibit",
+      "figure",
+      "table",
+      "attachment",
+      "reference"
+    ]
+  },
+  {
+    "name": "footnote",
+    "file": "editorial/footnote.svg",
+    "category": "editorial",
+    "keywords": [
+      "footnote",
+      "reference",
+      "endnote",
+      "citation",
+      "source"
+    ]
+  },
+  {
+    "name": "highlight",
+    "file": "editorial/highlight.svg",
+    "category": "editorial",
+    "keywords": [
+      "highlight",
+      "mark",
+      "emphasize",
+      "underline",
+      "annotate"
+    ]
+  },
+  {
+    "name": "info-note",
+    "file": "editorial/info-note.svg",
+    "category": "editorial",
+    "keywords": [
+      "info",
+      "information",
+      "note",
+      "tip",
+      "guidance"
+    ]
+  },
+  {
+    "name": "insight",
+    "file": "editorial/insight.svg",
+    "category": "editorial",
+    "keywords": [
+      "insight",
+      "finding",
+      "analysis",
+      "magnifier",
+      "data-bar"
+    ]
+  },
+  {
+    "name": "key-point",
+    "file": "editorial/key-point.svg",
+    "category": "editorial",
+    "keywords": [
+      "key-point",
+      "takeaway",
+      "summary",
+      "highlight",
+      "bar-mark"
+    ]
+  },
+  {
+    "name": "label",
+    "file": "editorial/label.svg",
+    "category": "editorial",
+    "keywords": [
+      "label",
+      "badge",
+      "flag",
+      "ribbon",
+      "annotate"
+    ]
+  },
+  {
+    "name": "list-bullet",
+    "file": "editorial/list-bullet.svg",
+    "category": "editorial",
+    "keywords": [
+      "list",
+      "bullet",
+      "unordered",
+      "items",
+      "points"
+    ]
+  },
+  {
+    "name": "list-numbered",
+    "file": "editorial/list-numbered.svg",
+    "category": "editorial",
+    "keywords": [
+      "list",
+      "numbered",
+      "ordered",
+      "sequence",
+      "steps"
+    ]
+  },
+  {
+    "name": "note",
+    "file": "editorial/note.svg",
+    "category": "editorial",
+    "keywords": [
+      "note",
+      "sticky",
+      "memo",
+      "annotation",
+      "comment"
+    ]
+  },
+  {
+    "name": "pin",
+    "file": "editorial/pin.svg",
+    "category": "editorial",
+    "keywords": [
+      "pin",
+      "attach",
+      "stick",
+      "anchor",
+      "tack"
+    ]
+  },
+  {
+    "name": "quote",
+    "file": "editorial/quote.svg",
+    "category": "editorial",
+    "keywords": [
+      "quotation",
+      "citation",
+      "blockquote",
+      "pullquote",
+      "reference"
+    ]
+  },
+  {
+    "name": "recommendation",
+    "file": "editorial/recommendation.svg",
+    "category": "editorial",
+    "keywords": [
+      "recommendation",
+      "action",
+      "suggest",
+      "checklist",
+      "proposal"
+    ]
+  },
+  {
+    "name": "section-mark",
+    "file": "editorial/section-mark.svg",
+    "category": "editorial",
+    "keywords": [
+      "section",
+      "chapter",
+      "heading",
+      "outline",
+      "structure"
+    ]
+  },
+  {
+    "name": "tag",
+    "file": "editorial/tag.svg",
+    "category": "editorial",
+    "keywords": [
+      "tag",
+      "label",
+      "marker",
+      "category",
+      "classify"
+    ]
+  },
+  {
+    "name": "warning-note",
+    "file": "editorial/warning-note.svg",
+    "category": "editorial",
+    "keywords": [
+      "warning",
+      "caution",
+      "alert",
+      "caveat",
+      "notice"
+    ]
+  },
+  {
+    "name": "abacus",
+    "file": "education/abacus.svg",
+    "category": "education",
+    "keywords": [
+      "abacus",
+      "counting",
+      "arithmetic",
+      "math",
+      "beads",
+      "calculation",
+      "numeracy"
+    ]
+  },
+  {
+    "name": "backpack",
+    "file": "education/backpack.svg",
+    "category": "education",
+    "keywords": [
+      "backpack",
+      "bag",
+      "school-bag",
+      "rucksack",
+      "student",
+      "carry"
+    ]
+  },
+  {
+    "name": "blackboard",
+    "file": "education/blackboard.svg",
+    "category": "education",
+    "keywords": [
+      "blackboard",
+      "chalkboard",
+      "whiteboard",
+      "board",
+      "class",
+      "lesson",
+      "classroom"
+    ]
+  },
+  {
+    "name": "book-open",
+    "file": "education/book-open.svg",
+    "category": "education",
+    "keywords": [
+      "book",
+      "open",
+      "read",
+      "reading",
+      "textbook",
+      "study",
+      "page"
+    ]
+  },
+  {
+    "name": "books-stack",
+    "file": "education/books-stack.svg",
+    "category": "education",
+    "keywords": [
+      "books",
+      "stack",
+      "pile",
+      "reading",
+      "library",
+      "collection",
+      "volumes"
+    ]
+  },
+  {
+    "name": "certificate-academic",
+    "file": "education/certificate-academic.svg",
+    "category": "education",
+    "keywords": [
+      "certificate",
+      "academic",
+      "award",
+      "accreditation",
+      "credential",
+      "qualification"
+    ]
+  },
+  {
+    "name": "course",
+    "file": "education/course.svg",
+    "category": "education",
+    "keywords": [
+      "course",
+      "curriculum",
+      "syllabus",
+      "module",
+      "lesson",
+      "subject",
+      "class"
+    ]
+  },
+  {
+    "name": "diploma",
+    "file": "education/diploma.svg",
+    "category": "education",
+    "keywords": [
+      "diploma",
+      "degree",
+      "certificate",
+      "credential",
+      "document",
+      "parchment"
+    ]
+  },
+  {
+    "name": "exam",
+    "file": "education/exam.svg",
+    "category": "education",
+    "keywords": [
+      "exam",
+      "examination",
+      "test",
+      "assessment",
+      "paper",
+      "evaluation",
+      "grading"
+    ]
+  },
+  {
+    "name": "flashcard",
+    "file": "education/flashcard.svg",
+    "category": "education",
+    "keywords": [
+      "flashcard",
+      "card",
+      "memo",
+      "review",
+      "memorize",
+      "recall",
+      "study-card"
+    ]
+  },
+  {
+    "name": "graduation-cap",
+    "file": "education/graduation-cap.svg",
+    "category": "education",
+    "keywords": [
+      "graduation",
+      "degree",
+      "cap",
+      "mortarboard",
+      "commencement",
+      "graduate"
+    ]
+  },
+  {
+    "name": "lecture",
+    "file": "education/lecture.svg",
+    "category": "education",
+    "keywords": [
+      "lecture",
+      "presentation",
+      "screen",
+      "projector",
+      "class",
+      "teaching",
+      "seminar"
+    ]
+  },
+  {
+    "name": "library",
+    "file": "education/library.svg",
+    "category": "education",
+    "keywords": [
+      "library",
+      "books",
+      "collection",
+      "shelf",
+      "bookshelf",
+      "archive",
+      "catalog"
+    ]
+  },
+  {
+    "name": "online-course",
+    "file": "education/online-course.svg",
+    "category": "education",
+    "keywords": [
+      "online",
+      "e-learning",
+      "video",
+      "stream",
+      "play",
+      "digital",
+      "remote",
+      "screen"
+    ]
+  },
+  {
+    "name": "pencil-ruler",
+    "file": "education/pencil-ruler.svg",
+    "category": "education",
+    "keywords": [
+      "pencil",
+      "ruler",
+      "tools",
+      "stationery",
+      "design",
+      "drafting",
+      "drawing"
+    ]
+  },
+  {
+    "name": "quiz",
+    "file": "education/quiz.svg",
+    "category": "education",
+    "keywords": [
+      "quiz",
+      "question",
+      "test",
+      "exercise",
+      "assessment",
+      "knowledge-check"
+    ]
+  },
+  {
+    "name": "scholarship",
+    "file": "education/scholarship.svg",
+    "category": "education",
+    "keywords": [
+      "scholarship",
+      "grant",
+      "funding",
+      "award",
+      "financial-aid",
+      "stipend",
+      "prize"
+    ]
+  },
+  {
+    "name": "school",
+    "file": "education/school.svg",
+    "category": "education",
+    "keywords": [
+      "school",
+      "building",
+      "institution",
+      "campus",
+      "education",
+      "academy"
+    ]
+  },
+  {
+    "name": "student",
+    "file": "education/student.svg",
+    "category": "education",
+    "keywords": [
+      "student",
+      "learner",
+      "pupil",
+      "person",
+      "user",
+      "attendee",
+      "trainee"
+    ]
+  },
+  {
+    "name": "teacher",
+    "file": "education/teacher.svg",
+    "category": "education",
+    "keywords": [
+      "teacher",
+      "instructor",
+      "professor",
+      "tutor",
+      "educator",
+      "trainer",
+      "person"
+    ]
+  },
+  {
+    "name": "account",
+    "file": "finance/account.svg",
+    "category": "finance",
+    "keywords": [
+      "account",
+      "passbook",
+      "statement",
+      "bankbook",
+      "ledger"
+    ]
+  },
+  {
+    "name": "aml",
+    "file": "finance/aml.svg",
+    "category": "finance",
+    "keywords": [
+      "anti-money laundering",
+      "compliance",
+      "suspicious",
+      "monitoring",
+      "screening"
+    ]
+  },
+  {
+    "name": "atm",
+    "file": "finance/atm.svg",
+    "category": "finance",
+    "keywords": [
+      "atm",
+      "cash machine",
+      "dispenser",
+      "withdrawal",
+      "cash point"
+    ]
+  },
+  {
+    "name": "balance-scale",
+    "file": "finance/balance-scale.svg",
+    "category": "finance",
+    "keywords": [
+      "balance",
+      "scale",
+      "equity",
+      "justice",
+      "comparison",
+      "fair value"
+    ]
+  },
+  {
+    "name": "bank",
+    "file": "finance/bank.svg",
+    "category": "finance",
+    "keywords": [
+      "bank",
+      "building",
+      "institution",
+      "branch",
+      "financial"
+    ]
+  },
+  {
+    "name": "banknote",
+    "file": "finance/banknote.svg",
+    "category": "finance",
+    "keywords": [
+      "banknote",
+      "bill",
+      "cash",
+      "note",
+      "paper money",
+      "currency"
+    ]
+  },
+  {
+    "name": "card-credit",
+    "file": "finance/card-credit.svg",
+    "category": "finance",
+    "keywords": [
+      "credit card",
+      "debit card",
+      "card",
+      "payment",
+      "card payment"
+    ]
+  },
+  {
+    "name": "coin-yen",
+    "file": "finance/coin-yen.svg",
+    "category": "finance",
+    "keywords": [
+      "coin",
+      "yen",
+      "jpy",
+      "currency",
+      "money",
+      "cash"
+    ]
+  },
+  {
+    "name": "coins-stack",
+    "file": "finance/coins-stack.svg",
+    "category": "finance",
+    "keywords": [
+      "coins",
+      "stack",
+      "pile",
+      "cash",
+      "funds",
+      "accumulation"
+    ]
+  },
+  {
+    "name": "collateral",
+    "file": "finance/collateral.svg",
+    "category": "finance",
+    "keywords": [
+      "collateral",
+      "security",
+      "pledge",
+      "margin",
+      "guarantee",
+      "asset backing"
+    ]
+  },
+  {
+    "name": "credit-score",
+    "file": "finance/credit-score.svg",
+    "category": "finance",
+    "keywords": [
+      "credit score",
+      "rating",
+      "creditworthiness",
+      "risk score",
+      "gauge"
+    ]
+  },
+  {
+    "name": "deposit",
+    "file": "finance/deposit.svg",
+    "category": "finance",
+    "keywords": [
+      "deposit",
+      "credit",
+      "incoming",
+      "add funds",
+      "pay in"
+    ]
+  },
+  {
+    "name": "dividend",
+    "file": "finance/dividend.svg",
+    "category": "finance",
+    "keywords": [
+      "dividend",
+      "distribution",
+      "equity",
+      "shareholder",
+      "yield",
+      "payout"
+    ]
+  },
+  {
+    "name": "escrow",
+    "file": "finance/escrow.svg",
+    "category": "finance",
+    "keywords": [
+      "escrow",
+      "trust",
+      "held",
+      "conditional",
+      "third party",
+      "lockup"
+    ]
+  },
+  {
+    "name": "exchange",
+    "file": "finance/exchange.svg",
+    "category": "finance",
+    "keywords": [
+      "exchange",
+      "swap",
+      "convert",
+      "forex",
+      "rate",
+      "currency exchange"
+    ]
+  },
+  {
+    "name": "fraud-alert",
+    "file": "finance/fraud-alert.svg",
+    "category": "finance",
+    "keywords": [
+      "fraud",
+      "alert",
+      "suspicious",
+      "anomaly",
+      "risk",
+      "detection",
+      "warning"
+    ]
+  },
+  {
+    "name": "fx-rate",
+    "file": "finance/fx-rate.svg",
+    "category": "finance",
+    "keywords": [
+      "fx",
+      "foreign exchange",
+      "rate",
+      "currency",
+      "conversion",
+      "spot rate",
+      "forex"
+    ]
+  },
+  {
+    "name": "iban",
+    "file": "finance/iban.svg",
+    "category": "finance",
+    "keywords": [
+      "iban",
+      "account number",
+      "international",
+      "bank account",
+      "routing"
+    ]
+  },
+  {
+    "name": "invoice",
+    "file": "finance/invoice.svg",
+    "category": "finance",
+    "keywords": [
+      "invoice",
+      "bill",
+      "charge",
+      "billing",
+      "document",
+      "payable"
+    ]
+  },
+  {
+    "name": "kyc",
+    "file": "finance/kyc.svg",
+    "category": "finance",
+    "keywords": [
+      "know your customer",
+      "identity",
+      "verification",
+      "compliance",
+      "onboarding",
+      "customer due diligence"
+    ]
+  },
+  {
+    "name": "ledger",
+    "file": "finance/ledger.svg",
+    "category": "finance",
+    "keywords": [
+      "ledger",
+      "book",
+      "accounts",
+      "journal",
+      "general ledger"
+    ]
+  },
+  {
+    "name": "limit-gauge",
+    "file": "finance/limit-gauge.svg",
+    "category": "finance",
+    "keywords": [
+      "limit",
+      "gauge",
+      "threshold",
+      "cap",
+      "ceiling",
+      "credit limit"
+    ]
+  },
+  {
+    "name": "loan",
+    "file": "finance/loan.svg",
+    "category": "finance",
+    "keywords": [
+      "loan",
+      "credit",
+      "borrowing",
+      "principal",
+      "repayment",
+      "lending"
+    ]
+  },
+  {
+    "name": "mortgage",
+    "file": "finance/mortgage.svg",
+    "category": "finance",
+    "keywords": [
+      "mortgage",
+      "home loan",
+      "property",
+      "real estate",
+      "housing",
+      "lien"
+    ]
+  },
+  {
+    "name": "overdraft",
+    "file": "finance/overdraft.svg",
+    "category": "finance",
+    "keywords": [
+      "overdraft",
+      "negative balance",
+      "facility",
+      "drawdown",
+      "overdrawn"
+    ]
+  },
+  {
+    "name": "payout",
+    "file": "finance/payout.svg",
+    "category": "finance",
+    "keywords": [
+      "payout",
+      "disbursement",
+      "payment out",
+      "remittance",
+      "settlement payment"
+    ]
+  },
+  {
+    "name": "percent-interest",
+    "file": "finance/percent-interest.svg",
+    "category": "finance",
+    "keywords": [
+      "percent",
+      "interest",
+      "rate",
+      "apr",
+      "yield",
+      "percentage"
+    ]
+  },
+  {
+    "name": "portfolio",
+    "file": "finance/portfolio.svg",
+    "category": "finance",
+    "keywords": [
+      "portfolio",
+      "investments",
+      "holdings",
+      "assets",
+      "allocation",
+      "positions"
+    ]
+  },
+  {
+    "name": "receipt",
+    "file": "finance/receipt.svg",
+    "category": "finance",
+    "keywords": [
+      "receipt",
+      "voucher",
+      "proof",
+      "ticket",
+      "slip",
+      "record"
+    ]
+  },
+  {
+    "name": "reconciliation",
+    "file": "finance/reconciliation.svg",
+    "category": "finance",
+    "keywords": [
+      "reconciliation",
+      "matching",
+      "balancing",
+      "discrepancy",
+      "compare",
+      "ledger"
+    ]
+  },
+  {
+    "name": "savings",
+    "file": "finance/savings.svg",
+    "category": "finance",
+    "keywords": [
+      "savings",
+      "accumulate",
+      "grow",
+      "deposit",
+      "reserve",
+      "nest egg"
+    ]
+  },
+  {
+    "name": "settlement",
+    "file": "finance/settlement.svg",
+    "category": "finance",
+    "keywords": [
+      "settlement",
+      "clearing",
+      "finality",
+      "dvp",
+      "netting",
+      "clearing house"
+    ]
+  },
+  {
+    "name": "statement",
+    "file": "finance/statement.svg",
+    "category": "finance",
+    "keywords": [
+      "statement",
+      "account statement",
+      "summary",
+      "period",
+      "history",
+      "balance"
+    ]
+  },
+  {
+    "name": "swift",
+    "file": "finance/swift.svg",
+    "category": "finance",
+    "keywords": [
+      "swift",
+      "bic",
+      "international",
+      "messaging",
+      "interbank",
+      "network"
+    ]
+  },
+  {
+    "name": "tax",
+    "file": "finance/tax.svg",
+    "category": "finance",
+    "keywords": [
+      "tax",
+      "withholding",
+      "vat",
+      "gst",
+      "fiscal",
+      "duty",
+      "levy"
+    ]
+  },
+  {
+    "name": "transaction-list",
+    "file": "finance/transaction-list.svg",
+    "category": "finance",
+    "keywords": [
+      "transactions",
+      "list",
+      "history",
+      "statement",
+      "log",
+      "entries"
+    ]
+  },
+  {
+    "name": "transaction",
+    "file": "finance/transaction.svg",
+    "category": "finance",
+    "keywords": [
+      "transaction",
+      "payment",
+      "confirmed",
+      "settled",
+      "processed"
+    ]
+  },
+  {
+    "name": "transfer-arrows",
+    "file": "finance/transfer-arrows.svg",
+    "category": "finance",
+    "keywords": [
+      "transfer",
+      "swap",
+      "bidirectional",
+      "move",
+      "exchange arrows"
+    ]
+  },
+  {
+    "name": "transfer",
+    "file": "finance/transfer.svg",
+    "category": "finance",
+    "keywords": [
+      "transfer",
+      "move",
+      "send",
+      "remit",
+      "between accounts"
+    ]
+  },
+  {
+    "name": "vault",
+    "file": "finance/vault.svg",
+    "category": "finance",
+    "keywords": [
+      "vault",
+      "safe",
+      "secure",
+      "strongbox",
+      "storage",
+      "reserve"
+    ]
+  },
+  {
+    "name": "wallet",
+    "file": "finance/wallet.svg",
+    "category": "finance",
+    "keywords": [
+      "wallet",
+      "purse",
+      "funds",
+      "payment",
+      "cash"
+    ]
+  },
+  {
+    "name": "wire-transfer",
+    "file": "finance/wire-transfer.svg",
+    "category": "finance",
+    "keywords": [
+      "wire",
+      "remittance",
+      "bank-to-bank",
+      "electronic",
+      "funds transfer"
+    ]
+  },
+  {
+    "name": "withdrawal",
+    "file": "finance/withdrawal.svg",
+    "category": "finance",
+    "keywords": [
+      "withdrawal",
+      "debit",
+      "outgoing",
+      "withdraw",
+      "cash out"
+    ]
+  },
+  {
+    "name": "ambulance",
+    "file": "healthcare/ambulance.svg",
+    "category": "healthcare",
+    "keywords": [
+      "ambulance",
+      "emergency",
+      "rescue",
+      "transport",
+      "vehicle",
+      "ems"
+    ]
+  },
+  {
+    "name": "bandage",
+    "file": "healthcare/bandage.svg",
+    "category": "healthcare",
+    "keywords": [
+      "bandage",
+      "plaster",
+      "wound",
+      "dressing",
+      "injury",
+      "heal"
+    ]
+  },
+  {
+    "name": "blood-drop",
+    "file": "healthcare/blood-drop.svg",
+    "category": "healthcare",
+    "keywords": [
+      "blood",
+      "drop",
+      "sample",
+      "test",
+      "type",
+      "donation",
+      "hematology"
+    ]
+  },
+  {
+    "name": "bone",
+    "file": "healthcare/bone.svg",
+    "category": "healthcare",
+    "keywords": [
+      "bone",
+      "skeleton",
+      "orthopedic",
+      "fracture",
+      "anatomy",
+      "x-ray"
+    ]
+  },
+  {
+    "name": "capsule",
+    "file": "healthcare/capsule.svg",
+    "category": "healthcare",
+    "keywords": [
+      "capsule",
+      "medicine",
+      "drug",
+      "pharmaceutical",
+      "dose"
+    ]
+  },
+  {
+    "name": "fever-thermometer",
+    "file": "healthcare/fever-thermometer.svg",
+    "category": "healthcare",
+    "keywords": [
+      "thermometer",
+      "fever",
+      "temperature",
+      "clinical",
+      "measurement",
+      "vital"
+    ]
+  },
+  {
+    "name": "first-aid",
+    "file": "healthcare/first-aid.svg",
+    "category": "healthcare",
+    "keywords": [
+      "first-aid",
+      "kit",
+      "box",
+      "emergency",
+      "medical",
+      "treatment"
+    ]
+  },
+  {
+    "name": "heart-pulse",
+    "file": "healthcare/heart-pulse.svg",
+    "category": "healthcare",
+    "keywords": [
+      "heart",
+      "pulse",
+      "cardiac",
+      "vital",
+      "ecg",
+      "waveform"
+    ]
+  },
+  {
+    "name": "heartbeat-line",
+    "file": "healthcare/heartbeat-line.svg",
+    "category": "healthcare",
+    "keywords": [
+      "heartbeat",
+      "ecg",
+      "ekg",
+      "waveform",
+      "pulse",
+      "monitor"
+    ]
+  },
+  {
+    "name": "hospital",
+    "file": "healthcare/hospital.svg",
+    "category": "healthcare",
+    "keywords": [
+      "hospital",
+      "clinic",
+      "building",
+      "facility",
+      "medical center",
+      "ward"
+    ]
+  },
+  {
+    "name": "lungs",
+    "file": "healthcare/lungs.svg",
+    "category": "healthcare",
+    "keywords": [
+      "lungs",
+      "respiratory",
+      "pulmonary",
+      "breath",
+      "bronchial",
+      "anatomy"
+    ]
+  },
+  {
+    "name": "medical-cross",
+    "file": "healthcare/medical-cross.svg",
+    "category": "healthcare",
+    "keywords": [
+      "cross",
+      "medical",
+      "health",
+      "plus",
+      "emergency",
+      "aid"
+    ]
+  },
+  {
+    "name": "medical-mask",
+    "file": "healthcare/medical-mask.svg",
+    "category": "healthcare",
+    "keywords": [
+      "mask",
+      "protective",
+      "surgical",
+      "ppe",
+      "infection",
+      "prevention",
+      "respiratory"
+    ]
+  },
+  {
+    "name": "pill",
+    "file": "healthcare/pill.svg",
+    "category": "healthcare",
+    "keywords": [
+      "pill",
+      "medication",
+      "tablet",
+      "drug",
+      "dosage",
+      "pharmacy"
+    ]
+  },
+  {
+    "name": "prescription",
+    "file": "healthcare/prescription.svg",
+    "category": "healthcare",
+    "keywords": [
+      "prescription",
+      "rx",
+      "document",
+      "medication",
+      "order",
+      "pharmacy"
+    ]
+  },
+  {
+    "name": "pulse-monitor",
+    "file": "healthcare/pulse-monitor.svg",
+    "category": "healthcare",
+    "keywords": [
+      "monitor",
+      "pulse",
+      "screen",
+      "ecg",
+      "vitals",
+      "display",
+      "icu"
+    ]
+  },
+  {
+    "name": "stethoscope",
+    "file": "healthcare/stethoscope.svg",
+    "category": "healthcare",
+    "keywords": [
+      "stethoscope",
+      "doctor",
+      "physician",
+      "auscultation",
+      "diagnosis",
+      "clinical"
+    ]
+  },
+  {
+    "name": "syringe",
+    "file": "healthcare/syringe.svg",
+    "category": "healthcare",
+    "keywords": [
+      "syringe",
+      "injection",
+      "needle",
+      "vaccine",
+      "dose",
+      "shot"
+    ]
+  },
+  {
+    "name": "tooth",
+    "file": "healthcare/tooth.svg",
+    "category": "healthcare",
+    "keywords": [
+      "tooth",
+      "dental",
+      "dentist",
+      "oral",
+      "molar",
+      "cavity"
+    ]
+  },
+  {
+    "name": "vaccine",
+    "file": "healthcare/vaccine.svg",
+    "category": "healthcare",
+    "keywords": [
+      "vaccine",
+      "vaccination",
+      "immunization",
+      "injection",
+      "shot",
+      "prevention"
+    ]
+  },
+  {
+    "name": "virus",
+    "file": "healthcare/virus.svg",
+    "category": "healthcare",
+    "keywords": [
+      "virus",
+      "pathogen",
+      "infection",
+      "microbe",
+      "disease",
+      "contagion"
+    ]
+  },
+  {
+    "name": "wheelchair",
+    "file": "healthcare/wheelchair.svg",
+    "category": "healthcare",
+    "keywords": [
+      "wheelchair",
+      "mobility",
+      "disability",
+      "accessibility",
+      "patient",
+      "rehabilitation"
+    ]
+  },
+  {
+    "name": "attendance",
+    "file": "hr-recruiting/attendance.svg",
+    "category": "hr-recruiting",
+    "keywords": [
+      "attendance",
+      "presence",
+      "check-in",
+      "roster",
+      "workdays",
+      "absence"
+    ]
+  },
+  {
+    "name": "benefits",
+    "file": "hr-recruiting/benefits.svg",
+    "category": "hr-recruiting",
+    "keywords": [
+      "benefits",
+      "perks",
+      "package",
+      "welfare",
+      "allowance",
+      "entitlements"
+    ]
+  },
+  {
+    "name": "candidate",
+    "file": "hr-recruiting/candidate.svg",
+    "category": "hr-recruiting",
+    "keywords": [
+      "candidate",
+      "applicant",
+      "job seeker",
+      "prospect",
+      "interviewee"
+    ]
+  },
+  {
+    "name": "cv",
+    "file": "hr-recruiting/cv.svg",
+    "category": "hr-recruiting",
+    "keywords": [
+      "cv",
+      "curriculum vitae",
+      "document",
+      "application",
+      "qualifications"
+    ]
+  },
+  {
+    "name": "employee-record",
+    "file": "hr-recruiting/employee-record.svg",
+    "category": "hr-recruiting",
+    "keywords": [
+      "employee record",
+      "personnel file",
+      "HR file",
+      "staff profile",
+      "master data"
+    ]
+  },
+  {
+    "name": "headcount",
+    "file": "hr-recruiting/headcount.svg",
+    "category": "hr-recruiting",
+    "keywords": [
+      "headcount",
+      "workforce",
+      "staff count",
+      "FTE",
+      "team size"
+    ]
+  },
+  {
+    "name": "hiring",
+    "file": "hr-recruiting/hiring.svg",
+    "category": "hr-recruiting",
+    "keywords": [
+      "hiring",
+      "recruit",
+      "add staff",
+      "new position",
+      "open role"
+    ]
+  },
+  {
+    "name": "interview",
+    "file": "hr-recruiting/interview.svg",
+    "category": "hr-recruiting",
+    "keywords": [
+      "interview",
+      "screening",
+      "assessment",
+      "evaluation",
+      "meeting"
+    ]
+  },
+  {
+    "name": "job-offer",
+    "file": "hr-recruiting/job-offer.svg",
+    "category": "hr-recruiting",
+    "keywords": [
+      "job offer",
+      "offer letter",
+      "contract",
+      "acceptance",
+      "hiring document"
+    ]
+  },
+  {
+    "name": "offboarding",
+    "file": "hr-recruiting/offboarding.svg",
+    "category": "hr-recruiting",
+    "keywords": [
+      "offboarding",
+      "exit",
+      "departure",
+      "termination",
+      "resignation"
+    ]
+  },
+  {
+    "name": "onboarding",
+    "file": "hr-recruiting/onboarding.svg",
+    "category": "hr-recruiting",
+    "keywords": [
+      "onboarding",
+      "new hire",
+      "joining",
+      "induction",
+      "orientation"
+    ]
+  },
+  {
+    "name": "payroll",
+    "file": "hr-recruiting/payroll.svg",
+    "category": "hr-recruiting",
+    "keywords": [
+      "payroll",
+      "payment",
+      "compensation",
+      "wage",
+      "salary run"
+    ]
+  },
+  {
+    "name": "performance-review",
+    "file": "hr-recruiting/performance-review.svg",
+    "category": "hr-recruiting",
+    "keywords": [
+      "performance review",
+      "appraisal",
+      "evaluation",
+      "assessment",
+      "KPI",
+      "1-on-1"
+    ]
+  },
+  {
+    "name": "promotion",
+    "file": "hr-recruiting/promotion.svg",
+    "category": "hr-recruiting",
+    "keywords": [
+      "promotion",
+      "career advancement",
+      "level up",
+      "grade",
+      "raise",
+      "elevation"
+    ]
+  },
+  {
+    "name": "recruitment-funnel",
+    "file": "hr-recruiting/recruitment-funnel.svg",
+    "category": "hr-recruiting",
+    "keywords": [
+      "recruitment funnel",
+      "pipeline",
+      "stages",
+      "conversion",
+      "applicant flow"
+    ]
+  },
+  {
+    "name": "resume",
+    "file": "hr-recruiting/resume.svg",
+    "category": "hr-recruiting",
+    "keywords": [
+      "resume",
+      "profile",
+      "person document",
+      "application",
+      "biography"
+    ]
+  },
+  {
+    "name": "salary",
+    "file": "hr-recruiting/salary.svg",
+    "category": "hr-recruiting",
+    "keywords": [
+      "salary",
+      "compensation",
+      "pay",
+      "wage",
+      "remuneration",
+      "income"
+    ]
+  },
+  {
+    "name": "talent-pool",
+    "file": "hr-recruiting/talent-pool.svg",
+    "category": "hr-recruiting",
+    "keywords": [
+      "talent pool",
+      "pipeline",
+      "candidates",
+      "bench",
+      "sourcing",
+      "prospects"
+    ]
+  },
+  {
+    "name": "timesheet",
+    "file": "hr-recruiting/timesheet.svg",
+    "category": "hr-recruiting",
+    "keywords": [
+      "timesheet",
+      "hours",
+      "time tracking",
+      "work log",
+      "overtime",
+      "clocking"
+    ]
+  },
+  {
+    "name": "vacation",
+    "file": "hr-recruiting/vacation.svg",
+    "category": "hr-recruiting",
+    "keywords": [
+      "vacation",
+      "leave",
+      "holiday",
+      "time off",
+      "PTO",
+      "annual leave"
+    ]
+  },
+  {
+    "name": "availability-zone",
+    "file": "infra/availability-zone.svg",
+    "category": "infra",
+    "keywords": [
+      "availability",
+      "zone",
+      "az",
+      "redundancy",
+      "ha",
+      "multi-zone",
+      "failover",
+      "resilience"
+    ]
+  },
+  {
+    "name": "cache",
+    "file": "infra/cache.svg",
+    "category": "infra",
+    "keywords": [
+      "cache",
+      "redis",
+      "memcached",
+      "storage",
+      "layer",
+      "fast",
+      "ttl"
+    ]
+  },
+  {
+    "name": "cloud",
+    "file": "infra/cloud.svg",
+    "category": "infra",
+    "keywords": [
+      "cloud",
+      "computing",
+      "hosted",
+      "saas",
+      "paas",
+      "iaas",
+      "remote"
+    ]
+  },
+  {
+    "name": "cluster",
+    "file": "infra/cluster.svg",
+    "category": "infra",
+    "keywords": [
+      "cluster",
+      "group",
+      "nodes",
+      "distributed",
+      "kubernetes",
+      "pool",
+      "ensemble"
+    ]
+  },
+  {
+    "name": "container",
+    "file": "infra/container.svg",
+    "category": "infra",
+    "keywords": [
+      "container",
+      "docker",
+      "kubernetes",
+      "pod",
+      "image",
+      "runtime",
+      "isolated"
+    ]
+  },
+  {
+    "name": "cpu",
+    "file": "infra/cpu.svg",
+    "category": "infra",
+    "keywords": [
+      "cpu",
+      "processor",
+      "chip",
+      "core",
+      "compute",
+      "hardware",
+      "vcpu"
+    ]
+  },
+  {
+    "name": "disk-storage",
+    "file": "infra/disk-storage.svg",
+    "category": "infra",
+    "keywords": [
+      "disk",
+      "storage",
+      "drive",
+      "hdd",
+      "ssd",
+      "persistent",
+      "block",
+      "volume"
+    ]
+  },
+  {
+    "name": "dns",
+    "file": "infra/dns.svg",
+    "category": "infra",
+    "keywords": [
+      "dns",
+      "domain",
+      "name",
+      "resolution",
+      "resolver",
+      "record",
+      "hostname"
+    ]
+  },
+  {
+    "name": "firewall",
+    "file": "infra/firewall.svg",
+    "category": "infra",
+    "keywords": [
+      "firewall",
+      "security",
+      "rule",
+      "filter",
+      "acl",
+      "network",
+      "protection",
+      "perimeter"
+    ]
+  },
+  {
+    "name": "gateway",
+    "file": "infra/gateway.svg",
+    "category": "infra",
+    "keywords": [
+      "gateway",
+      "api",
+      "ingress",
+      "proxy",
+      "edge",
+      "entry",
+      "routing"
+    ]
+  },
+  {
+    "name": "instance",
+    "file": "infra/instance.svg",
+    "category": "infra",
+    "keywords": [
+      "instance",
+      "vm",
+      "machine",
+      "ec2",
+      "compute",
+      "virtual",
+      "running"
+    ]
+  },
+  {
+    "name": "load-balancer",
+    "file": "infra/load-balancer.svg",
+    "category": "infra",
+    "keywords": [
+      "load",
+      "balancer",
+      "traffic",
+      "distribute",
+      "nginx",
+      "haproxy",
+      "routing",
+      "lb"
+    ]
+  },
+  {
+    "name": "memory-ram",
+    "file": "infra/memory-ram.svg",
+    "category": "infra",
+    "keywords": [
+      "memory",
+      "ram",
+      "dimm",
+      "module",
+      "heap",
+      "volatile",
+      "hardware"
+    ]
+  },
+  {
+    "name": "monitor",
+    "file": "infra/monitor.svg",
+    "category": "infra",
+    "keywords": [
+      "monitor",
+      "display",
+      "dashboard",
+      "metrics",
+      "observability",
+      "apm",
+      "screen"
+    ]
+  },
+  {
+    "name": "network-nodes",
+    "file": "infra/network-nodes.svg",
+    "category": "infra",
+    "keywords": [
+      "network",
+      "nodes",
+      "grid",
+      "topology",
+      "mesh",
+      "interconnect",
+      "fabric"
+    ]
+  },
+  {
+    "name": "node-network",
+    "file": "infra/node-network.svg",
+    "category": "infra",
+    "keywords": [
+      "network",
+      "node",
+      "graph",
+      "topology",
+      "mesh",
+      "tree",
+      "connection"
+    ]
+  },
+  {
+    "name": "pipeline",
+    "file": "infra/pipeline.svg",
+    "category": "infra",
+    "keywords": [
+      "pipeline",
+      "stage",
+      "step",
+      "ci",
+      "cd",
+      "workflow",
+      "build",
+      "deploy",
+      "chain"
+    ]
+  },
+  {
+    "name": "queue",
+    "file": "infra/queue.svg",
+    "category": "infra",
+    "keywords": [
+      "queue",
+      "message",
+      "broker",
+      "fifo",
+      "buffer",
+      "async",
+      "kafka",
+      "mq"
+    ]
+  },
+  {
+    "name": "region-zone",
+    "file": "infra/region-zone.svg",
+    "category": "infra",
+    "keywords": [
+      "region",
+      "zone",
+      "datacenter",
+      "geo",
+      "location",
+      "availability",
+      "aws",
+      "gcp"
+    ]
+  },
+  {
+    "name": "scale-up",
+    "file": "infra/scale-up.svg",
+    "category": "infra",
+    "keywords": [
+      "scale",
+      "up",
+      "scaling",
+      "grow",
+      "expand",
+      "autoscale",
+      "vertical",
+      "horizontal",
+      "resize"
+    ]
+  },
+  {
+    "name": "server-stack",
+    "file": "infra/server-stack.svg",
+    "category": "infra",
+    "keywords": [
+      "server",
+      "stack",
+      "rack",
+      "multiple",
+      "cluster",
+      "hardware",
+      "servers"
+    ]
+  },
+  {
+    "name": "server",
+    "file": "infra/server.svg",
+    "category": "infra",
+    "keywords": [
+      "server",
+      "machine",
+      "host",
+      "rack",
+      "hardware",
+      "compute"
+    ]
+  },
+  {
+    "name": "vm",
+    "file": "infra/vm.svg",
+    "category": "infra",
+    "keywords": [
+      "vm",
+      "virtual",
+      "machine",
+      "instance",
+      "hypervisor",
+      "virtualization",
+      "guest"
+    ]
+  },
+  {
+    "name": "amendment",
+    "file": "legal-governance/amendment.svg",
+    "category": "legal-governance",
+    "keywords": [
+      "amendment",
+      "revision",
+      "change",
+      "modify",
+      "edit",
+      "update",
+      "legal"
+    ]
+  },
+  {
+    "name": "clause",
+    "file": "legal-governance/clause.svg",
+    "category": "legal-governance",
+    "keywords": [
+      "clause",
+      "section",
+      "paragraph",
+      "provision",
+      "term",
+      "article",
+      "legal"
+    ]
+  },
+  {
+    "name": "compliance-doc",
+    "file": "legal-governance/compliance-doc.svg",
+    "category": "legal-governance",
+    "keywords": [
+      "compliance",
+      "document",
+      "check",
+      "verify",
+      "audit",
+      "approved",
+      "conform"
+    ]
+  },
+  {
+    "name": "contract-sign",
+    "file": "legal-governance/contract-sign.svg",
+    "category": "legal-governance",
+    "keywords": [
+      "contract",
+      "sign",
+      "signature",
+      "execute",
+      "countersign",
+      "agreement"
+    ]
+  },
+  {
+    "name": "contract",
+    "file": "legal-governance/contract.svg",
+    "category": "legal-governance",
+    "keywords": [
+      "contract",
+      "agreement",
+      "document",
+      "legal",
+      "terms",
+      "binding"
+    ]
+  },
+  {
+    "name": "court-building",
+    "file": "legal-governance/court-building.svg",
+    "category": "legal-governance",
+    "keywords": [
+      "court",
+      "building",
+      "tribunal",
+      "judiciary",
+      "institution",
+      "hall",
+      "justice"
+    ]
+  },
+  {
+    "name": "evidence-bag",
+    "file": "legal-governance/evidence-bag.svg",
+    "category": "legal-governance",
+    "keywords": [
+      "evidence",
+      "bag",
+      "exhibit",
+      "forensic",
+      "proof",
+      "item",
+      "custody"
+    ]
+  },
+  {
+    "name": "gavel",
+    "file": "legal-governance/gavel.svg",
+    "category": "legal-governance",
+    "keywords": [
+      "gavel",
+      "judge",
+      "court",
+      "decision",
+      "ruling",
+      "verdict",
+      "hammer"
+    ]
+  },
+  {
+    "name": "law-book",
+    "file": "legal-governance/law-book.svg",
+    "category": "legal-governance",
+    "keywords": [
+      "law",
+      "book",
+      "statute",
+      "code",
+      "legislation",
+      "legal",
+      "volume"
+    ]
+  },
+  {
+    "name": "license-legal",
+    "file": "legal-governance/license-legal.svg",
+    "category": "legal-governance",
+    "keywords": [
+      "license",
+      "permit",
+      "credential",
+      "authorisation",
+      "legal",
+      "card",
+      "certificate"
+    ]
+  },
+  {
+    "name": "mandate",
+    "file": "legal-governance/mandate.svg",
+    "category": "legal-governance",
+    "keywords": [
+      "mandate",
+      "order",
+      "directive",
+      "requirement",
+      "obligation",
+      "instruction",
+      "authority"
+    ]
+  },
+  {
+    "name": "notary",
+    "file": "legal-governance/notary.svg",
+    "category": "legal-governance",
+    "keywords": [
+      "notary",
+      "notarise",
+      "authenticate",
+      "witness",
+      "certify",
+      "official",
+      "stamp"
+    ]
+  },
+  {
+    "name": "regulation",
+    "file": "legal-governance/regulation.svg",
+    "category": "legal-governance",
+    "keywords": [
+      "regulation",
+      "rule",
+      "law",
+      "policy",
+      "directive",
+      "requirement",
+      "standard"
+    ]
+  },
+  {
+    "name": "ruling",
+    "file": "legal-governance/ruling.svg",
+    "category": "legal-governance",
+    "keywords": [
+      "ruling",
+      "verdict",
+      "judgment",
+      "court",
+      "decision",
+      "decree",
+      "official"
+    ]
+  },
+  {
+    "name": "scales-justice",
+    "file": "legal-governance/scales-justice.svg",
+    "category": "legal-governance",
+    "keywords": [
+      "scales",
+      "justice",
+      "balance",
+      "fairness",
+      "law",
+      "equity",
+      "weigh"
+    ]
+  },
+  {
+    "name": "seal-stamp",
+    "file": "legal-governance/seal-stamp.svg",
+    "category": "legal-governance",
+    "keywords": [
+      "seal",
+      "stamp",
+      "official",
+      "authenticate",
+      "certify",
+      "notarise",
+      "emboss"
+    ]
+  },
+  {
+    "name": "airplane-cargo",
+    "file": "logistics/airplane-cargo.svg",
+    "category": "logistics",
+    "keywords": [
+      "airplane",
+      "aircraft",
+      "air-freight",
+      "flight",
+      "air-cargo",
+      "aviation"
+    ]
+  },
+  {
+    "name": "cargo-ship",
+    "file": "logistics/cargo-ship.svg",
+    "category": "logistics",
+    "keywords": [
+      "ship",
+      "vessel",
+      "maritime",
+      "sea-freight",
+      "container-ship",
+      "ocean",
+      "cargo"
+    ]
+  },
+  {
+    "name": "container-shipping",
+    "file": "logistics/container-shipping.svg",
+    "category": "logistics",
+    "keywords": [
+      "container",
+      "iso-container",
+      "intermodal",
+      "shipping",
+      "TEU",
+      "cargo-container"
+    ]
+  },
+  {
+    "name": "customs",
+    "file": "logistics/customs.svg",
+    "category": "logistics",
+    "keywords": [
+      "customs",
+      "clearance",
+      "border",
+      "declaration",
+      "import",
+      "export",
+      "duty"
+    ]
+  },
+  {
+    "name": "dispatch",
+    "file": "logistics/dispatch.svg",
+    "category": "logistics",
+    "keywords": [
+      "dispatch",
+      "send",
+      "outbound",
+      "departure",
+      "assignment",
+      "release",
+      "ship-out"
+    ]
+  },
+  {
+    "name": "fleet",
+    "file": "logistics/fleet.svg",
+    "category": "logistics",
+    "keywords": [
+      "fleet",
+      "vehicles",
+      "fleet-management",
+      "multiple-trucks",
+      "fleet-ops",
+      "transport-pool"
+    ]
+  },
+  {
+    "name": "forklift",
+    "file": "logistics/forklift.svg",
+    "category": "logistics",
+    "keywords": [
+      "forklift",
+      "lift",
+      "warehouse",
+      "pallet",
+      "material-handling",
+      "fork"
+    ]
+  },
+  {
+    "name": "freight-train",
+    "file": "logistics/freight-train.svg",
+    "category": "logistics",
+    "keywords": [
+      "train",
+      "rail",
+      "freight-train",
+      "railway",
+      "rail-freight",
+      "locomotive"
+    ]
+  },
+  {
+    "name": "last-mile",
+    "file": "logistics/last-mile.svg",
+    "category": "logistics",
+    "keywords": [
+      "last-mile",
+      "delivery",
+      "destination",
+      "drop-off",
+      "home-delivery",
+      "final-leg"
+    ]
+  },
+  {
+    "name": "loading-dock",
+    "file": "logistics/loading-dock.svg",
+    "category": "logistics",
+    "keywords": [
+      "loading-dock",
+      "dock",
+      "bay",
+      "receiving",
+      "unloading",
+      "staging",
+      "ramp"
+    ]
+  },
+  {
+    "name": "pallet",
+    "file": "logistics/pallet.svg",
+    "category": "logistics",
+    "keywords": [
+      "pallet",
+      "skid",
+      "storage",
+      "stacking",
+      "goods",
+      "shipping-unit"
+    ]
+  },
+  {
+    "name": "parcel-tracking",
+    "file": "logistics/parcel-tracking.svg",
+    "category": "logistics",
+    "keywords": [
+      "parcel",
+      "package",
+      "tracking",
+      "scan",
+      "barcode",
+      "shipment",
+      "trace"
+    ]
+  },
+  {
+    "name": "route-tracking",
+    "file": "logistics/route-tracking.svg",
+    "category": "logistics",
+    "keywords": [
+      "route",
+      "tracking",
+      "waypoint",
+      "itinerary",
+      "path",
+      "journey",
+      "nodes"
+    ]
+  },
+  {
+    "name": "supply-chain",
+    "file": "logistics/supply-chain.svg",
+    "category": "logistics",
+    "keywords": [
+      "supply-chain",
+      "network",
+      "flow",
+      "nodes",
+      "procurement",
+      "chain",
+      "distribution"
+    ]
+  },
+  {
+    "name": "truck",
+    "file": "logistics/truck.svg",
+    "category": "logistics",
+    "keywords": [
+      "truck",
+      "vehicle",
+      "delivery",
+      "transport",
+      "freight",
+      "lorry"
+    ]
+  },
+  {
+    "name": "van",
+    "file": "logistics/van.svg",
+    "category": "logistics",
+    "keywords": [
+      "van",
+      "vehicle",
+      "delivery",
+      "courier",
+      "light-freight",
+      "panel-van"
+    ]
+  },
+  {
+    "name": "warehouse",
+    "file": "logistics/warehouse.svg",
+    "category": "logistics",
+    "keywords": [
+      "warehouse",
+      "storage",
+      "depot",
+      "fulfillment",
+      "distribution-center",
+      "building"
+    ]
+  },
+  {
+    "name": "address-card",
+    "file": "maps-location/address-card.svg",
+    "category": "maps-location",
+    "keywords": [
+      "address",
+      "card",
+      "contact",
+      "location",
+      "street",
+      "postal",
+      "detail"
+    ]
+  },
+  {
+    "name": "compass",
+    "file": "maps-location/compass.svg",
+    "category": "maps-location",
+    "keywords": [
+      "compass",
+      "bearing",
+      "heading",
+      "north",
+      "direction",
+      "orientation"
+    ]
+  },
+  {
+    "name": "crosshair-locate",
+    "file": "maps-location/crosshair-locate.svg",
+    "category": "maps-location",
+    "keywords": [
+      "crosshair",
+      "locate",
+      "target",
+      "precision",
+      "aim",
+      "reticle",
+      "center"
+    ]
+  },
+  {
+    "name": "directions",
+    "file": "maps-location/directions.svg",
+    "category": "maps-location",
+    "keywords": [
+      "directions",
+      "signpost",
+      "turn",
+      "guide",
+      "road",
+      "fork",
+      "sign"
+    ]
+  },
+  {
+    "name": "distance",
+    "file": "maps-location/distance.svg",
+    "category": "maps-location",
+    "keywords": [
+      "distance",
+      "measure",
+      "length",
+      "ruler",
+      "span",
+      "range",
+      "scale"
+    ]
+  },
+  {
+    "name": "geofence",
+    "file": "maps-location/geofence.svg",
+    "category": "maps-location",
+    "keywords": [
+      "geofence",
+      "boundary",
+      "perimeter",
+      "zone",
+      "virtual",
+      "fence",
+      "radius"
+    ]
+  },
+  {
+    "name": "globe-geo",
+    "file": "maps-location/globe-geo.svg",
+    "category": "maps-location",
+    "keywords": [
+      "globe",
+      "world",
+      "earth",
+      "meridian",
+      "latitude",
+      "longitude",
+      "international"
+    ]
+  },
+  {
+    "name": "layers-map",
+    "file": "maps-location/layers-map.svg",
+    "category": "maps-location",
+    "keywords": [
+      "layers",
+      "stack",
+      "overlay",
+      "map",
+      "tile",
+      "level",
+      "depth"
+    ]
+  },
+  {
+    "name": "location-dot",
+    "file": "maps-location/location-dot.svg",
+    "category": "maps-location",
+    "keywords": [
+      "location",
+      "dot",
+      "position",
+      "current",
+      "here",
+      "gps"
+    ]
+  },
+  {
+    "name": "map-pin",
+    "file": "maps-location/map-pin.svg",
+    "category": "maps-location",
+    "keywords": [
+      "pin",
+      "drop",
+      "location",
+      "place",
+      "point",
+      "marker",
+      "teardrop"
+    ]
+  },
+  {
+    "name": "map",
+    "file": "maps-location/map.svg",
+    "category": "maps-location",
+    "keywords": [
+      "map",
+      "cartography",
+      "region",
+      "territory",
+      "fold",
+      "geography"
+    ]
+  },
+  {
+    "name": "marker-flag",
+    "file": "maps-location/marker-flag.svg",
+    "category": "maps-location",
+    "keywords": [
+      "marker",
+      "flag",
+      "pole",
+      "waypoint",
+      "start",
+      "destination",
+      "finish"
+    ]
+  },
+  {
+    "name": "my-location",
+    "file": "maps-location/my-location.svg",
+    "category": "maps-location",
+    "keywords": [
+      "my-location",
+      "current",
+      "position",
+      "locate",
+      "gps",
+      "crosshair",
+      "find-me"
+    ]
+  },
+  {
+    "name": "navigation",
+    "file": "maps-location/navigation.svg",
+    "category": "maps-location",
+    "keywords": [
+      "navigation",
+      "cursor",
+      "pointer",
+      "arrow",
+      "navigate",
+      "gps"
+    ]
+  },
+  {
+    "name": "pin-off",
+    "file": "maps-location/pin-off.svg",
+    "category": "maps-location",
+    "keywords": [
+      "pin-off",
+      "disabled",
+      "no-location",
+      "remove",
+      "unpin",
+      "slash",
+      "unavailable"
+    ]
+  },
+  {
+    "name": "region-area",
+    "file": "maps-location/region-area.svg",
+    "category": "maps-location",
+    "keywords": [
+      "region",
+      "area",
+      "zone",
+      "boundary",
+      "polygon",
+      "territory",
+      "dashed"
+    ]
+  },
+  {
+    "name": "route",
+    "file": "maps-location/route.svg",
+    "category": "maps-location",
+    "keywords": [
+      "route",
+      "path",
+      "waypoint",
+      "journey",
+      "travel",
+      "node",
+      "trip"
+    ]
+  },
+  {
+    "name": "satellite",
+    "file": "maps-location/satellite.svg",
+    "category": "maps-location",
+    "keywords": [
+      "satellite",
+      "orbit",
+      "gps",
+      "signal",
+      "space",
+      "tracking",
+      "aerial"
+    ]
+  },
+  {
+    "name": "approximately",
+    "file": "math-units/approximately.svg",
+    "category": "math-units",
+    "keywords": [
+      "approximately",
+      "circa",
+      "about",
+      "roughly",
+      "estimate",
+      "tilde"
+    ]
+  },
+  {
+    "name": "average",
+    "file": "math-units/average.svg",
+    "category": "math-units",
+    "keywords": [
+      "mean",
+      "average",
+      "arithmetic mean",
+      "x-bar",
+      "statistics"
+    ]
+  },
+  {
+    "name": "calculator",
+    "file": "math-units/calculator.svg",
+    "category": "math-units",
+    "keywords": [
+      "calculator",
+      "compute",
+      "arithmetic",
+      "math tool",
+      "keypad"
+    ]
+  },
+  {
+    "name": "currency-bitcoin",
+    "file": "math-units/currency-bitcoin.svg",
+    "category": "math-units",
+    "keywords": [
+      "bitcoin",
+      "BTC",
+      "crypto",
+      "cryptocurrency",
+      "digital currency"
+    ]
+  },
+  {
+    "name": "currency-dollar",
+    "file": "math-units/currency-dollar.svg",
+    "category": "math-units",
+    "keywords": [
+      "dollar",
+      "USD",
+      "currency",
+      "money",
+      "price",
+      "cost"
+    ]
+  },
+  {
+    "name": "currency-euro",
+    "file": "math-units/currency-euro.svg",
+    "category": "math-units",
+    "keywords": [
+      "euro",
+      "EUR",
+      "currency",
+      "europe",
+      "money",
+      "price"
+    ]
+  },
+  {
+    "name": "currency-pound",
+    "file": "math-units/currency-pound.svg",
+    "category": "math-units",
+    "keywords": [
+      "pound",
+      "GBP",
+      "sterling",
+      "currency",
+      "uk",
+      "money"
+    ]
+  },
+  {
+    "name": "equals",
+    "file": "math-units/equals.svg",
+    "category": "math-units",
+    "keywords": [
+      "equals",
+      "equal",
+      "equation",
+      "result",
+      "balance"
+    ]
+  },
+  {
+    "name": "function-fx",
+    "file": "math-units/function-fx.svg",
+    "category": "math-units",
+    "keywords": [
+      "function",
+      "fx",
+      "formula",
+      "expression",
+      "mapping",
+      "math function"
+    ]
+  },
+  {
+    "name": "greater-equal",
+    "file": "math-units/greater-equal.svg",
+    "category": "math-units",
+    "keywords": [
+      "greater than or equal",
+      "gte",
+      "minimum",
+      "threshold",
+      "at least"
+    ]
+  },
+  {
+    "name": "infinity",
+    "file": "math-units/infinity.svg",
+    "category": "math-units",
+    "keywords": [
+      "infinity",
+      "infinite",
+      "unlimited",
+      "unbounded",
+      "lemniscate"
+    ]
+  },
+  {
+    "name": "less-equal",
+    "file": "math-units/less-equal.svg",
+    "category": "math-units",
+    "keywords": [
+      "less than or equal",
+      "lte",
+      "maximum",
+      "at most",
+      "ceiling"
+    ]
+  },
+  {
+    "name": "measure-tape",
+    "file": "math-units/measure-tape.svg",
+    "category": "math-units",
+    "keywords": [
+      "tape measure",
+      "measurement",
+      "distance",
+      "length",
+      "size"
+    ]
+  },
+  {
+    "name": "not-equal",
+    "file": "math-units/not-equal.svg",
+    "category": "math-units",
+    "keywords": [
+      "not equal",
+      "inequality",
+      "different",
+      "mismatch",
+      "unequal"
+    ]
+  },
+  {
+    "name": "pi",
+    "file": "math-units/pi.svg",
+    "category": "math-units",
+    "keywords": [
+      "pi",
+      "3.14",
+      "circle constant",
+      "greek letter",
+      "geometry"
+    ]
+  },
+  {
+    "name": "plus-minus",
+    "file": "math-units/plus-minus.svg",
+    "category": "math-units",
+    "keywords": [
+      "plus minus",
+      "tolerance",
+      "margin",
+      "error",
+      "uncertainty"
+    ]
+  },
+  {
+    "name": "ratio",
+    "file": "math-units/ratio.svg",
+    "category": "math-units",
+    "keywords": [
+      "ratio",
+      "proportion",
+      "fraction",
+      "rate",
+      "comparison",
+      "divide"
+    ]
+  },
+  {
+    "name": "ruler",
+    "file": "math-units/ruler.svg",
+    "category": "math-units",
+    "keywords": [
+      "ruler",
+      "measure",
+      "length",
+      "scale",
+      "dimension"
+    ]
+  },
+  {
+    "name": "sigma",
+    "file": "math-units/sigma.svg",
+    "category": "math-units",
+    "keywords": [
+      "sigma",
+      "standard deviation",
+      "greek letter",
+      "statistics",
+      "variance"
+    ]
+  },
+  {
+    "name": "speed-gauge",
+    "file": "math-units/speed-gauge.svg",
+    "category": "math-units",
+    "keywords": [
+      "speedometer",
+      "gauge",
+      "velocity",
+      "rate",
+      "performance",
+      "tachometer"
+    ]
+  },
+  {
+    "name": "square-root",
+    "file": "math-units/square-root.svg",
+    "category": "math-units",
+    "keywords": [
+      "square root",
+      "radical",
+      "sqrt",
+      "root",
+      "vinculum"
+    ]
+  },
+  {
+    "name": "sum",
+    "file": "math-units/sum.svg",
+    "category": "math-units",
+    "keywords": [
+      "summation",
+      "sigma notation",
+      "total",
+      "aggregate",
+      "add up"
+    ]
+  },
+  {
+    "name": "thermometer",
+    "file": "math-units/thermometer.svg",
+    "category": "math-units",
+    "keywords": [
+      "thermometer",
+      "temperature",
+      "celsius",
+      "fahrenheit",
+      "heat"
+    ]
+  },
+  {
+    "name": "audio-wave",
+    "file": "media/audio-wave.svg",
+    "category": "media",
+    "keywords": [
+      "audio",
+      "waveform",
+      "sound",
+      "wave",
+      "equalizer",
+      "signal"
+    ]
+  },
+  {
+    "name": "camera",
+    "file": "media/camera.svg",
+    "category": "media",
+    "keywords": [
+      "camera",
+      "photo",
+      "capture",
+      "snapshot",
+      "lens"
+    ]
+  },
+  {
+    "name": "film",
+    "file": "media/film.svg",
+    "category": "media",
+    "keywords": [
+      "film",
+      "filmstrip",
+      "cinema",
+      "movie",
+      "reel",
+      "video"
+    ]
+  },
+  {
+    "name": "headphones",
+    "file": "media/headphones.svg",
+    "category": "media",
+    "keywords": [
+      "headphones",
+      "audio",
+      "listen",
+      "earphones",
+      "sound"
+    ]
+  },
+  {
+    "name": "image",
+    "file": "media/image.svg",
+    "category": "media",
+    "keywords": [
+      "image",
+      "picture",
+      "photo",
+      "landscape",
+      "gallery"
+    ]
+  },
+  {
+    "name": "live-dot",
+    "file": "media/live-dot.svg",
+    "category": "media",
+    "keywords": [
+      "live",
+      "broadcast",
+      "streaming",
+      "signal",
+      "real-time",
+      "on-air"
+    ]
+  },
+  {
+    "name": "mic-off",
+    "file": "media/mic-off.svg",
+    "category": "media",
+    "keywords": [
+      "mic",
+      "microphone",
+      "mute",
+      "disabled",
+      "silent"
+    ]
+  },
+  {
+    "name": "mic",
+    "file": "media/mic.svg",
+    "category": "media",
+    "keywords": [
+      "mic",
+      "microphone",
+      "record",
+      "voice",
+      "audio",
+      "input"
+    ]
+  },
+  {
+    "name": "music-note",
+    "file": "media/music-note.svg",
+    "category": "media",
+    "keywords": [
+      "music",
+      "note",
+      "audio",
+      "song",
+      "melody",
+      "tune"
+    ]
+  },
+  {
+    "name": "mute",
+    "file": "media/mute.svg",
+    "category": "media",
+    "keywords": [
+      "mute",
+      "silent",
+      "volume-off",
+      "speaker",
+      "no-sound"
+    ]
+  },
+  {
+    "name": "pause",
+    "file": "media/pause.svg",
+    "category": "media",
+    "keywords": [
+      "pause",
+      "hold",
+      "suspend",
+      "wait",
+      "playback"
+    ]
+  },
+  {
+    "name": "photo-stack",
+    "file": "media/photo-stack.svg",
+    "category": "media",
+    "keywords": [
+      "photo",
+      "stack",
+      "album",
+      "gallery",
+      "collection",
+      "images"
+    ]
+  },
+  {
+    "name": "play",
+    "file": "media/play.svg",
+    "category": "media",
+    "keywords": [
+      "play",
+      "start",
+      "playback",
+      "run",
+      "media"
+    ]
+  },
+  {
+    "name": "playlist",
+    "file": "media/playlist.svg",
+    "category": "media",
+    "keywords": [
+      "playlist",
+      "queue",
+      "list",
+      "tracks",
+      "media"
+    ]
+  },
+  {
+    "name": "record",
+    "file": "media/record.svg",
+    "category": "media",
+    "keywords": [
+      "record",
+      "recording",
+      "capture",
+      "circle",
+      "dot"
+    ]
+  },
+  {
+    "name": "screen-share",
+    "file": "media/screen-share.svg",
+    "category": "media",
+    "keywords": [
+      "screen-share",
+      "present",
+      "cast",
+      "broadcast",
+      "display",
+      "mirror"
+    ]
+  },
+  {
+    "name": "skip-back",
+    "file": "media/skip-back.svg",
+    "category": "media",
+    "keywords": [
+      "skip",
+      "back",
+      "previous",
+      "rewind",
+      "seek"
+    ]
+  },
+  {
+    "name": "skip-forward",
+    "file": "media/skip-forward.svg",
+    "category": "media",
+    "keywords": [
+      "skip",
+      "forward",
+      "next",
+      "advance",
+      "seek"
+    ]
+  },
+  {
+    "name": "slideshow",
+    "file": "media/slideshow.svg",
+    "category": "media",
+    "keywords": [
+      "slideshow",
+      "presentation",
+      "slides",
+      "deck",
+      "display"
+    ]
+  },
+  {
+    "name": "stop",
+    "file": "media/stop.svg",
+    "category": "media",
+    "keywords": [
+      "stop",
+      "halt",
+      "end",
+      "playback"
+    ]
+  },
+  {
+    "name": "subtitle",
+    "file": "media/subtitle.svg",
+    "category": "media",
+    "keywords": [
+      "subtitle",
+      "caption",
+      "text",
+      "transcript",
+      "accessibility"
+    ]
+  },
+  {
+    "name": "video",
+    "file": "media/video.svg",
+    "category": "media",
+    "keywords": [
+      "video",
+      "camera",
+      "recording",
+      "clip",
+      "footage"
+    ]
+  },
+  {
+    "name": "volume",
+    "file": "media/volume.svg",
+    "category": "media",
+    "keywords": [
+      "volume",
+      "sound",
+      "speaker",
+      "audio",
+      "loud"
+    ]
+  },
+  {
+    "name": "anchor-link",
+    "file": "nav/anchor-link.svg",
+    "category": "nav",
+    "keywords": [
+      "anchor",
+      "link",
+      "chain",
+      "hyperlink",
+      "url",
+      "href"
+    ]
+  },
+  {
+    "name": "arrow-down",
+    "file": "nav/arrow-down.svg",
+    "category": "nav",
+    "keywords": [
+      "arrow",
+      "down",
+      "descend",
+      "decrease",
+      "navigate"
+    ]
+  },
+  {
+    "name": "arrow-left",
+    "file": "nav/arrow-left.svg",
+    "category": "nav",
+    "keywords": [
+      "arrow",
+      "left",
+      "back",
+      "navigate",
+      "return"
+    ]
+  },
+  {
+    "name": "arrow-right",
+    "file": "nav/arrow-right.svg",
+    "category": "nav",
+    "keywords": [
+      "arrow",
+      "right",
+      "next",
+      "navigate",
+      "forward"
+    ]
+  },
+  {
+    "name": "arrow-up-right",
+    "file": "nav/arrow-up-right.svg",
+    "category": "nav",
+    "keywords": [
+      "arrow",
+      "diagonal",
+      "up-right",
+      "northeast",
+      "direction"
+    ]
+  },
+  {
+    "name": "arrow-up",
+    "file": "nav/arrow-up.svg",
+    "category": "nav",
+    "keywords": [
+      "arrow",
+      "up",
+      "ascend",
+      "increase",
+      "navigate"
+    ]
+  },
+  {
+    "name": "back-to-top",
+    "file": "nav/back-to-top.svg",
+    "category": "nav",
+    "keywords": [
+      "back",
+      "top",
+      "scroll",
+      "up",
+      "return",
+      "navigate"
+    ]
+  },
+  {
+    "name": "chevron-double-right",
+    "file": "nav/chevron-double-right.svg",
+    "category": "nav",
+    "keywords": [
+      "chevron",
+      "double",
+      "right",
+      "skip",
+      "fast-forward"
+    ]
+  },
+  {
+    "name": "chevron-down",
+    "file": "nav/chevron-down.svg",
+    "category": "nav",
+    "keywords": [
+      "chevron",
+      "down",
+      "expand",
+      "caret",
+      "descend"
+    ]
+  },
+  {
+    "name": "chevron-left",
+    "file": "nav/chevron-left.svg",
+    "category": "nav",
+    "keywords": [
+      "chevron",
+      "left",
+      "previous",
+      "back",
+      "caret"
+    ]
+  },
+  {
+    "name": "chevron-right",
+    "file": "nav/chevron-right.svg",
+    "category": "nav",
+    "keywords": [
+      "chevron",
+      "right",
+      "next",
+      "forward",
+      "caret"
+    ]
+  },
+  {
+    "name": "chevron-up",
+    "file": "nav/chevron-up.svg",
+    "category": "nav",
+    "keywords": [
+      "chevron",
+      "up",
+      "collapse",
+      "caret",
+      "ascend"
+    ]
+  },
+  {
+    "name": "close",
+    "file": "nav/close.svg",
+    "category": "nav",
+    "keywords": [
+      "close",
+      "dismiss",
+      "remove",
+      "cancel",
+      "x",
+      "cross"
+    ]
+  },
+  {
+    "name": "collapse",
+    "file": "nav/collapse.svg",
+    "category": "nav",
+    "keywords": [
+      "collapse",
+      "minimize",
+      "shrink",
+      "close",
+      "compress"
+    ]
+  },
+  {
+    "name": "expand-all",
+    "file": "nav/expand-all.svg",
+    "category": "nav",
+    "keywords": [
+      "expand",
+      "all",
+      "unfold",
+      "show",
+      "reveal"
+    ]
+  },
+  {
+    "name": "expand",
+    "file": "nav/expand.svg",
+    "category": "nav",
+    "keywords": [
+      "expand",
+      "fullscreen",
+      "enlarge",
+      "maximize",
+      "open"
+    ]
+  },
+  {
+    "name": "external-link",
+    "file": "nav/external-link.svg",
+    "category": "nav",
+    "keywords": [
+      "external",
+      "link",
+      "open",
+      "new-tab",
+      "redirect",
+      "outbound"
+    ]
+  },
+  {
+    "name": "filter",
+    "file": "nav/filter.svg",
+    "category": "nav",
+    "keywords": [
+      "filter",
+      "funnel",
+      "narrow",
+      "refine",
+      "criteria"
+    ]
+  },
+  {
+    "name": "fullscreen",
+    "file": "nav/fullscreen.svg",
+    "category": "nav",
+    "keywords": [
+      "fullscreen",
+      "maximize",
+      "corners",
+      "zoom",
+      "view"
+    ]
+  },
+  {
+    "name": "menu",
+    "file": "nav/menu.svg",
+    "category": "nav",
+    "keywords": [
+      "menu",
+      "hamburger",
+      "lines",
+      "navigation",
+      "sidebar",
+      "list"
+    ]
+  },
+  {
+    "name": "minus",
+    "file": "nav/minus.svg",
+    "category": "nav",
+    "keywords": [
+      "minus",
+      "remove",
+      "subtract",
+      "reduce",
+      "delete",
+      "collapse"
+    ]
+  },
+  {
+    "name": "more-horizontal",
+    "file": "nav/more-horizontal.svg",
+    "category": "nav",
+    "keywords": [
+      "more",
+      "horizontal",
+      "ellipsis",
+      "overflow",
+      "actions",
+      "options"
+    ]
+  },
+  {
+    "name": "plus",
+    "file": "nav/plus.svg",
+    "category": "nav",
+    "keywords": [
+      "plus",
+      "add",
+      "create",
+      "new",
+      "insert",
+      "append"
+    ]
+  },
+  {
+    "name": "search",
+    "file": "nav/search.svg",
+    "category": "nav",
+    "keywords": [
+      "search",
+      "find",
+      "magnify",
+      "lookup",
+      "query",
+      "filter"
+    ]
+  },
+  {
+    "name": "sort-asc",
+    "file": "nav/sort-asc.svg",
+    "category": "nav",
+    "keywords": [
+      "sort",
+      "ascending",
+      "asc",
+      "order",
+      "alphabetical",
+      "a-z"
+    ]
+  },
+  {
+    "name": "sort-desc",
+    "file": "nav/sort-desc.svg",
+    "category": "nav",
+    "keywords": [
+      "sort",
+      "descending",
+      "desc",
+      "order",
+      "reverse",
+      "z-a"
+    ]
+  },
+  {
+    "name": "approver",
+    "file": "people/approver.svg",
+    "category": "people",
+    "keywords": [
+      "approver",
+      "approve",
+      "sign-off",
+      "authorize",
+      "confirm"
+    ]
+  },
+  {
+    "name": "assignee",
+    "file": "people/assignee.svg",
+    "category": "people",
+    "keywords": [
+      "assignee",
+      "assigned to",
+      "responsible",
+      "owner",
+      "task person"
+    ]
+  },
+  {
+    "name": "contact",
+    "file": "people/contact.svg",
+    "category": "people",
+    "keywords": [
+      "contact",
+      "address book",
+      "directory",
+      "person info",
+      "details"
+    ]
+  },
+  {
+    "name": "escalation-contact",
+    "file": "people/escalation-contact.svg",
+    "category": "people",
+    "keywords": [
+      "escalation",
+      "contact",
+      "urgent",
+      "alert person",
+      "escalate to"
+    ]
+  },
+  {
+    "name": "group",
+    "file": "people/group.svg",
+    "category": "people",
+    "keywords": [
+      "group",
+      "multiple users",
+      "crowd",
+      "many",
+      "audience"
+    ]
+  },
+  {
+    "name": "handoff-people",
+    "file": "people/handoff-people.svg",
+    "category": "people",
+    "keywords": [
+      "handoff",
+      "transfer",
+      "delegate",
+      "pass",
+      "transition"
+    ]
+  },
+  {
+    "name": "id-badge",
+    "file": "people/id-badge.svg",
+    "category": "people",
+    "keywords": [
+      "id",
+      "badge",
+      "credential",
+      "identity",
+      "card",
+      "employee"
+    ]
+  },
+  {
+    "name": "mention",
+    "file": "people/mention.svg",
+    "category": "people",
+    "keywords": [
+      "mention",
+      "at",
+      "tag",
+      "notify",
+      "reference",
+      "@"
+    ]
+  },
+  {
+    "name": "on-call",
+    "file": "people/on-call.svg",
+    "category": "people",
+    "keywords": [
+      "on-call",
+      "pager",
+      "alert",
+      "duty",
+      "SRE",
+      "escalation duty"
+    ]
+  },
+  {
+    "name": "org-chart",
+    "file": "people/org-chart.svg",
+    "category": "people",
+    "keywords": [
+      "org chart",
+      "organization",
+      "hierarchy",
+      "reporting",
+      "structure"
+    ]
+  },
+  {
+    "name": "owner",
+    "file": "people/owner.svg",
+    "category": "people",
+    "keywords": [
+      "owner",
+      "primary responsible",
+      "accountable",
+      "responsible party",
+      "DRI"
+    ]
+  },
+  {
+    "name": "persona",
+    "file": "people/persona.svg",
+    "category": "people",
+    "keywords": [
+      "persona",
+      "archetype",
+      "user type",
+      "profile type",
+      "segment"
+    ]
+  },
+  {
+    "name": "reviewer",
+    "file": "people/reviewer.svg",
+    "category": "people",
+    "keywords": [
+      "reviewer",
+      "review",
+      "inspect",
+      "check",
+      "audit person"
+    ]
+  },
+  {
+    "name": "role",
+    "file": "people/role.svg",
+    "category": "people",
+    "keywords": [
+      "role",
+      "permission",
+      "label",
+      "function",
+      "designation"
+    ]
+  },
+  {
+    "name": "stakeholder",
+    "file": "people/stakeholder.svg",
+    "category": "people",
+    "keywords": [
+      "stakeholder",
+      "interested party",
+      "sponsor",
+      "client",
+      "observer"
+    ]
+  },
+  {
+    "name": "team-lead",
+    "file": "people/team-lead.svg",
+    "category": "people",
+    "keywords": [
+      "lead",
+      "leader",
+      "manager",
+      "primary",
+      "head"
+    ]
+  },
+  {
+    "name": "user-check",
+    "file": "people/user-check.svg",
+    "category": "people",
+    "keywords": [
+      "person",
+      "verified",
+      "confirmed",
+      "approved",
+      "active"
+    ]
+  },
+  {
+    "name": "user-plus",
+    "file": "people/user-plus.svg",
+    "category": "people",
+    "keywords": [
+      "person",
+      "add",
+      "invite",
+      "create",
+      "new member"
+    ]
+  },
+  {
+    "name": "user-remove",
+    "file": "people/user-remove.svg",
+    "category": "people",
+    "keywords": [
+      "person",
+      "remove",
+      "delete",
+      "revoke",
+      "deactivate"
+    ]
+  },
+  {
+    "name": "user",
+    "file": "people/user.svg",
+    "category": "people",
+    "keywords": [
+      "person",
+      "profile",
+      "account",
+      "individual",
+      "member"
+    ]
+  },
+  {
+    "name": "users-team",
+    "file": "people/users-team.svg",
+    "category": "people",
+    "keywords": [
+      "team",
+      "members",
+      "multiple",
+      "people",
+      "pair"
+    ]
+  },
+  {
+    "name": "approval-chain",
+    "file": "process/approval-chain.svg",
+    "category": "process",
+    "keywords": [
+      "approval",
+      "chain",
+      "multi-step",
+      "sign-off",
+      "authorize",
+      "sequential",
+      "workflow"
+    ]
+  },
+  {
+    "name": "approval-gate",
+    "file": "process/approval-gate.svg",
+    "category": "process",
+    "keywords": [
+      "approval",
+      "gate",
+      "signoff",
+      "accepted",
+      "passed",
+      "review",
+      "quality"
+    ]
+  },
+  {
+    "name": "backlog",
+    "file": "process/backlog.svg",
+    "category": "process",
+    "keywords": [
+      "backlog",
+      "queue",
+      "items",
+      "stack",
+      "pending",
+      "stories",
+      "agile"
+    ]
+  },
+  {
+    "name": "blocker-link",
+    "file": "process/blocker-link.svg",
+    "category": "process",
+    "keywords": [
+      "blocker",
+      "blocked",
+      "obstacle",
+      "impediment",
+      "link",
+      "prevent",
+      "halt"
+    ]
+  },
+  {
+    "name": "bottleneck",
+    "file": "process/bottleneck.svg",
+    "category": "process",
+    "keywords": [
+      "bottleneck",
+      "constraint",
+      "choke",
+      "limit",
+      "congestion",
+      "capacity",
+      "flow"
+    ]
+  },
+  {
+    "name": "burndown",
+    "file": "process/burndown.svg",
+    "category": "process",
+    "keywords": [
+      "burndown",
+      "chart",
+      "remaining",
+      "trend",
+      "sprint",
+      "progress",
+      "agile"
+    ]
+  },
+  {
+    "name": "change-request",
+    "file": "process/change-request.svg",
+    "category": "process",
+    "keywords": [
+      "change-request",
+      "cr",
+      "change",
+      "modification",
+      "request",
+      "proposal",
+      "amendment"
+    ]
+  },
+  {
+    "name": "checklist",
+    "file": "process/checklist.svg",
+    "category": "process",
+    "keywords": [
+      "checklist",
+      "todo",
+      "tasks",
+      "items",
+      "list",
+      "verify",
+      "done"
+    ]
+  },
+  {
+    "name": "critical-path",
+    "file": "process/critical-path.svg",
+    "category": "process",
+    "keywords": [
+      "critical",
+      "path",
+      "cpm",
+      "duration",
+      "schedule",
+      "longest",
+      "constraint"
+    ]
+  },
+  {
+    "name": "cycle",
+    "file": "process/cycle.svg",
+    "category": "process",
+    "keywords": [
+      "cycle",
+      "repeat",
+      "refresh",
+      "rotate",
+      "circular",
+      "recurring",
+      "loop"
+    ]
+  },
+  {
+    "name": "decision-diamond",
+    "file": "process/decision-diamond.svg",
+    "category": "process",
+    "keywords": [
+      "decision",
+      "diamond",
+      "branch",
+      "condition",
+      "if",
+      "yes-no",
+      "choice"
+    ]
+  },
+  {
+    "name": "dependency-graph",
+    "file": "process/dependency-graph.svg",
+    "category": "process",
+    "keywords": [
+      "dependency",
+      "graph",
+      "network",
+      "links",
+      "prerequisites",
+      "relations",
+      "dag"
+    ]
+  },
+  {
+    "name": "dependency",
+    "file": "process/dependency.svg",
+    "category": "process",
+    "keywords": [
+      "dependency",
+      "depends",
+      "requires",
+      "link",
+      "relation",
+      "prerequisite",
+      "blocked-by"
+    ]
+  },
+  {
+    "name": "escalation",
+    "file": "process/escalation.svg",
+    "category": "process",
+    "keywords": [
+      "escalation",
+      "escalate",
+      "raise",
+      "elevate",
+      "urgent",
+      "critical",
+      "priority"
+    ]
+  },
+  {
+    "name": "flow-arrow",
+    "file": "process/flow-arrow.svg",
+    "category": "process",
+    "keywords": [
+      "flow",
+      "arrow",
+      "next",
+      "step",
+      "transition",
+      "direction",
+      "sequence"
+    ]
+  },
+  {
+    "name": "fork-path",
+    "file": "process/fork-path.svg",
+    "category": "process",
+    "keywords": [
+      "fork",
+      "split",
+      "diverge",
+      "branch",
+      "parallel",
+      "multiple",
+      "paths"
+    ]
+  },
+  {
+    "name": "gate-check",
+    "file": "process/gate-check.svg",
+    "category": "process",
+    "keywords": [
+      "gate-check",
+      "passed",
+      "approved",
+      "cleared",
+      "checkpoint",
+      "review",
+      "ok"
+    ]
+  },
+  {
+    "name": "gate-review",
+    "file": "process/gate-review.svg",
+    "category": "process",
+    "keywords": [
+      "gate-review",
+      "stage-gate",
+      "inspection",
+      "quality",
+      "decision",
+      "tollgate",
+      "checkpoint"
+    ]
+  },
+  {
+    "name": "gate",
+    "file": "process/gate.svg",
+    "category": "process",
+    "keywords": [
+      "gate",
+      "checkpoint",
+      "review",
+      "approval",
+      "quality",
+      "decision"
+    ]
+  },
+  {
+    "name": "handoff",
+    "file": "process/handoff.svg",
+    "category": "process",
+    "keywords": [
+      "handoff",
+      "transfer",
+      "pass",
+      "delegate",
+      "transition",
+      "handover"
+    ]
+  },
+  {
+    "name": "kanban-flow",
+    "file": "process/kanban-flow.svg",
+    "category": "process",
+    "keywords": [
+      "kanban",
+      "board",
+      "columns",
+      "wip",
+      "flow",
+      "todo",
+      "done",
+      "in-progress"
+    ]
+  },
+  {
+    "name": "loop",
+    "file": "process/loop.svg",
+    "category": "process",
+    "keywords": [
+      "loop",
+      "iterate",
+      "repeat",
+      "back",
+      "retry",
+      "cycle",
+      "feedback"
+    ]
+  },
+  {
+    "name": "merge-path",
+    "file": "process/merge-path.svg",
+    "category": "process",
+    "keywords": [
+      "merge",
+      "join",
+      "converge",
+      "combine",
+      "reunite",
+      "paths",
+      "branch"
+    ]
+  },
+  {
+    "name": "milestone",
+    "file": "process/milestone.svg",
+    "category": "process",
+    "keywords": [
+      "milestone",
+      "checkpoint",
+      "marker",
+      "event",
+      "target",
+      "goal"
+    ]
+  },
+  {
+    "name": "node-end",
+    "file": "process/node-end.svg",
+    "category": "process",
+    "keywords": [
+      "end",
+      "finish",
+      "terminate",
+      "complete",
+      "exit",
+      "final",
+      "stop"
+    ]
+  },
+  {
+    "name": "node-start",
+    "file": "process/node-start.svg",
+    "category": "process",
+    "keywords": [
+      "start",
+      "begin",
+      "entry",
+      "trigger",
+      "initiate",
+      "first",
+      "launch"
+    ]
+  },
+  {
+    "name": "parallel-tracks",
+    "file": "process/parallel-tracks.svg",
+    "category": "process",
+    "keywords": [
+      "parallel",
+      "tracks",
+      "concurrent",
+      "simultaneous",
+      "lanes",
+      "multi-stream"
+    ]
+  },
+  {
+    "name": "phase",
+    "file": "process/phase.svg",
+    "category": "process",
+    "keywords": [
+      "phase",
+      "stage",
+      "segment",
+      "period",
+      "iteration",
+      "block"
+    ]
+  },
+  {
+    "name": "process-flow",
+    "file": "process/process-flow.svg",
+    "category": "process",
+    "keywords": [
+      "process",
+      "flow",
+      "workflow",
+      "steps",
+      "chain",
+      "sequence",
+      "diagram"
+    ]
+  },
+  {
+    "name": "raci",
+    "file": "process/raci.svg",
+    "category": "process",
+    "keywords": [
+      "raci",
+      "responsible",
+      "accountable",
+      "consulted",
+      "informed",
+      "matrix",
+      "roles",
+      "governance"
+    ]
+  },
+  {
+    "name": "retrospective",
+    "file": "process/retrospective.svg",
+    "category": "process",
+    "keywords": [
+      "retrospective",
+      "retro",
+      "reflection",
+      "review",
+      "look-back",
+      "agile",
+      "improvement"
+    ]
+  },
+  {
+    "name": "review-cycle",
+    "file": "process/review-cycle.svg",
+    "category": "process",
+    "keywords": [
+      "review",
+      "cycle",
+      "iterate",
+      "feedback",
+      "loop",
+      "revision",
+      "round-trip"
+    ]
+  },
+  {
+    "name": "roadmap",
+    "file": "process/roadmap.svg",
+    "category": "process",
+    "keywords": [
+      "roadmap",
+      "plan",
+      "quarters",
+      "future",
+      "strategy",
+      "overview",
+      "timeline"
+    ]
+  },
+  {
+    "name": "rollout",
+    "file": "process/rollout.svg",
+    "category": "process",
+    "keywords": [
+      "rollout",
+      "deploy",
+      "release",
+      "staged",
+      "gradual",
+      "launch",
+      "publish"
+    ]
+  },
+  {
+    "name": "sign-off",
+    "file": "process/sign-off.svg",
+    "category": "process",
+    "keywords": [
+      "sign-off",
+      "signature",
+      "endorse",
+      "authorize",
+      "finalize",
+      "approve",
+      "sign"
+    ]
+  },
+  {
+    "name": "sprint-review",
+    "file": "process/sprint-review.svg",
+    "category": "process",
+    "keywords": [
+      "sprint-review",
+      "demo",
+      "showcase",
+      "delivery",
+      "sprint",
+      "agile",
+      "complete"
+    ]
+  },
+  {
+    "name": "sprint",
+    "file": "process/sprint.svg",
+    "category": "process",
+    "keywords": [
+      "sprint",
+      "iteration",
+      "agile",
+      "scrum",
+      "board",
+      "backlog",
+      "delivery"
+    ]
+  },
+  {
+    "name": "standup",
+    "file": "process/standup.svg",
+    "category": "process",
+    "keywords": [
+      "standup",
+      "daily",
+      "scrum",
+      "sync",
+      "meeting",
+      "team",
+      "status"
+    ]
+  },
+  {
+    "name": "step-sequence",
+    "file": "process/step-sequence.svg",
+    "category": "process",
+    "keywords": [
+      "step",
+      "sequence",
+      "ordered",
+      "numbered",
+      "stages",
+      "flow",
+      "consecutive"
+    ]
+  },
+  {
+    "name": "swimlane",
+    "file": "process/swimlane.svg",
+    "category": "process",
+    "keywords": [
+      "swimlane",
+      "lane",
+      "row",
+      "track",
+      "parallel",
+      "actor",
+      "process-diagram"
+    ]
+  },
+  {
+    "name": "throughput",
+    "file": "process/throughput.svg",
+    "category": "process",
+    "keywords": [
+      "throughput",
+      "rate",
+      "flow",
+      "velocity",
+      "output",
+      "capacity",
+      "performance"
+    ]
+  },
+  {
+    "name": "timeline",
+    "file": "process/timeline.svg",
+    "category": "process",
+    "keywords": [
+      "timeline",
+      "history",
+      "sequence",
+      "rail",
+      "schedule",
+      "horizontal"
+    ]
+  },
+  {
+    "name": "value-stream",
+    "file": "process/value-stream.svg",
+    "category": "process",
+    "keywords": [
+      "value-stream",
+      "vsm",
+      "flow",
+      "lean",
+      "end-to-end",
+      "delivery",
+      "map"
+    ]
+  },
+  {
+    "name": "wip-limit",
+    "file": "process/wip-limit.svg",
+    "category": "process",
+    "keywords": [
+      "wip",
+      "work-in-progress",
+      "limit",
+      "kanban",
+      "cap",
+      "constraint",
+      "board"
+    ]
+  },
+  {
+    "name": "atom",
+    "file": "science-rnd/atom.svg",
+    "category": "science-rnd",
+    "keywords": [
+      "atom",
+      "atomic",
+      "nuclear",
+      "element",
+      "particle",
+      "physics"
+    ]
+  },
+  {
+    "name": "beaker",
+    "file": "science-rnd/beaker.svg",
+    "category": "science-rnd",
+    "keywords": [
+      "beaker",
+      "flask",
+      "liquid",
+      "chemistry",
+      "lab",
+      "vessel"
+    ]
+  },
+  {
+    "name": "biotech",
+    "file": "science-rnd/biotech.svg",
+    "category": "science-rnd",
+    "keywords": [
+      "biotech",
+      "biotechnology",
+      "helix",
+      "strand",
+      "biology",
+      "engineering"
+    ]
+  },
+  {
+    "name": "chemistry",
+    "file": "science-rnd/chemistry.svg",
+    "category": "science-rnd",
+    "keywords": [
+      "chemistry",
+      "flask",
+      "reaction",
+      "compound",
+      "lab",
+      "chemical"
+    ]
+  },
+  {
+    "name": "dna",
+    "file": "science-rnd/dna.svg",
+    "category": "science-rnd",
+    "keywords": [
+      "dna",
+      "genetics",
+      "helix",
+      "genome",
+      "biology",
+      "sequence"
+    ]
+  },
+  {
+    "name": "electron-orbit",
+    "file": "science-rnd/electron-orbit.svg",
+    "category": "science-rnd",
+    "keywords": [
+      "electron",
+      "orbit",
+      "shell",
+      "atomic",
+      "quantum",
+      "physics"
+    ]
+  },
+  {
+    "name": "experiment",
+    "file": "science-rnd/experiment.svg",
+    "category": "science-rnd",
+    "keywords": [
+      "experiment",
+      "test",
+      "trial",
+      "flask",
+      "procedure",
+      "science"
+    ]
+  },
+  {
+    "name": "formula",
+    "file": "science-rnd/formula.svg",
+    "category": "science-rnd",
+    "keywords": [
+      "formula",
+      "equation",
+      "math",
+      "expression",
+      "calculation",
+      "symbol"
+    ]
+  },
+  {
+    "name": "gravity",
+    "file": "science-rnd/gravity.svg",
+    "category": "science-rnd",
+    "keywords": [
+      "gravity",
+      "fall",
+      "force",
+      "mass",
+      "physics",
+      "attraction"
+    ]
+  },
+  {
+    "name": "hypothesis",
+    "file": "science-rnd/hypothesis.svg",
+    "category": "science-rnd",
+    "keywords": [
+      "hypothesis",
+      "question",
+      "theory",
+      "conjecture",
+      "assumption",
+      "document"
+    ]
+  },
+  {
+    "name": "magnet",
+    "file": "science-rnd/magnet.svg",
+    "category": "science-rnd",
+    "keywords": [
+      "magnet",
+      "magnetic",
+      "field",
+      "attract",
+      "force",
+      "physics"
+    ]
+  },
+  {
+    "name": "microscope",
+    "file": "science-rnd/microscope.svg",
+    "category": "science-rnd",
+    "keywords": [
+      "microscope",
+      "observe",
+      "magnify",
+      "biology",
+      "lab",
+      "sample"
+    ]
+  },
+  {
+    "name": "molecule",
+    "file": "science-rnd/molecule.svg",
+    "category": "science-rnd",
+    "keywords": [
+      "molecule",
+      "compound",
+      "bond",
+      "chemistry",
+      "structure",
+      "molecular"
+    ]
+  },
+  {
+    "name": "optics-lens",
+    "file": "science-rnd/optics-lens.svg",
+    "category": "science-rnd",
+    "keywords": [
+      "lens",
+      "optics",
+      "focus",
+      "refraction",
+      "light",
+      "magnify"
+    ]
+  },
+  {
+    "name": "petri-dish",
+    "file": "science-rnd/petri-dish.svg",
+    "category": "science-rnd",
+    "keywords": [
+      "petri",
+      "dish",
+      "culture",
+      "biology",
+      "microbiology",
+      "colony"
+    ]
+  },
+  {
+    "name": "physics",
+    "file": "science-rnd/physics.svg",
+    "category": "science-rnd",
+    "keywords": [
+      "physics",
+      "orbital",
+      "field",
+      "mechanics",
+      "quantum",
+      "waves"
+    ]
+  },
+  {
+    "name": "pipette",
+    "file": "science-rnd/pipette.svg",
+    "category": "science-rnd",
+    "keywords": [
+      "pipette",
+      "dropper",
+      "transfer",
+      "lab",
+      "measure",
+      "liquid"
+    ]
+  },
+  {
+    "name": "prism",
+    "file": "science-rnd/prism.svg",
+    "category": "science-rnd",
+    "keywords": [
+      "prism",
+      "refraction",
+      "spectrum",
+      "optics",
+      "light",
+      "dispersion"
+    ]
+  },
+  {
+    "name": "radioactive",
+    "file": "science-rnd/radioactive.svg",
+    "category": "science-rnd",
+    "keywords": [
+      "radioactive",
+      "radiation",
+      "nuclear",
+      "hazard",
+      "decay",
+      "trefoil"
+    ]
+  },
+  {
+    "name": "research-paper",
+    "file": "science-rnd/research-paper.svg",
+    "category": "science-rnd",
+    "keywords": [
+      "research",
+      "paper",
+      "publication",
+      "document",
+      "study",
+      "journal"
+    ]
+  },
+  {
+    "name": "sample-vial",
+    "file": "science-rnd/sample-vial.svg",
+    "category": "science-rnd",
+    "keywords": [
+      "vial",
+      "sample",
+      "tube",
+      "specimen",
+      "lab",
+      "container"
+    ]
+  },
+  {
+    "name": "telescope",
+    "file": "science-rnd/telescope.svg",
+    "category": "science-rnd",
+    "keywords": [
+      "telescope",
+      "astronomy",
+      "optics",
+      "observe",
+      "space",
+      "star"
+    ]
+  },
+  {
+    "name": "access-deny",
+    "file": "security/access-deny.svg",
+    "category": "security",
+    "keywords": [
+      "access deny",
+      "forbidden",
+      "unauthorized",
+      "rejected",
+      "block",
+      "revoke"
+    ]
+  },
+  {
+    "name": "access-grant",
+    "file": "security/access-grant.svg",
+    "category": "security",
+    "keywords": [
+      "access grant",
+      "allow",
+      "permit",
+      "authorized",
+      "approved",
+      "user access"
+    ]
+  },
+  {
+    "name": "audit-magnifier",
+    "file": "security/audit-magnifier.svg",
+    "category": "security",
+    "keywords": [
+      "audit",
+      "magnifier",
+      "inspect",
+      "review",
+      "investigate",
+      "search",
+      "log"
+    ]
+  },
+  {
+    "name": "backup-shield",
+    "file": "security/backup-shield.svg",
+    "category": "security",
+    "keywords": [
+      "backup",
+      "restore",
+      "recovery",
+      "shield",
+      "data protection",
+      "backup shield",
+      "resilience"
+    ]
+  },
+  {
+    "name": "breach",
+    "file": "security/breach.svg",
+    "category": "security",
+    "keywords": [
+      "breach",
+      "data breach",
+      "incident",
+      "compromise",
+      "crack",
+      "intrusion",
+      "leak",
+      "attack"
+    ]
+  },
+  {
+    "name": "certificate",
+    "file": "security/certificate.svg",
+    "category": "security",
+    "keywords": [
+      "certificate",
+      "cert",
+      "credential",
+      "seal",
+      "medal",
+      "award",
+      "ssl",
+      "tls"
+    ]
+  },
+  {
+    "name": "compliance-check",
+    "file": "security/compliance-check.svg",
+    "category": "security",
+    "keywords": [
+      "compliance",
+      "check",
+      "pass",
+      "regulation",
+      "audit pass",
+      "verified",
+      "conformance"
+    ]
+  },
+  {
+    "name": "cve",
+    "file": "security/cve.svg",
+    "category": "security",
+    "keywords": [
+      "cve",
+      "common vulnerabilities",
+      "exposures",
+      "vulnerability id",
+      "security advisory",
+      "patch"
+    ]
+  },
+  {
+    "name": "encryption",
+    "file": "security/encryption.svg",
+    "category": "security",
+    "keywords": [
+      "encryption",
+      "encrypt",
+      "lock",
+      "cipher",
+      "data protection",
+      "at rest"
+    ]
+  },
+  {
+    "name": "failover",
+    "file": "security/failover.svg",
+    "category": "security",
+    "keywords": [
+      "failover",
+      "high availability",
+      "redundancy",
+      "switchover",
+      "disaster recovery",
+      "server",
+      "resilience"
+    ]
+  },
+  {
+    "name": "fingerprint",
+    "file": "security/fingerprint.svg",
+    "category": "security",
+    "keywords": [
+      "fingerprint",
+      "biometric",
+      "identity",
+      "unique",
+      "biom",
+      "identity verification"
+    ]
+  },
+  {
+    "name": "ids",
+    "file": "security/ids.svg",
+    "category": "security",
+    "keywords": [
+      "ids",
+      "intrusion detection",
+      "anomaly detection",
+      "network monitoring",
+      "threat detection",
+      "inspect"
+    ]
+  },
+  {
+    "name": "key",
+    "file": "security/key.svg",
+    "category": "security",
+    "keywords": [
+      "key",
+      "credential",
+      "secret",
+      "auth",
+      "password"
+    ]
+  },
+  {
+    "name": "lock-open",
+    "file": "security/lock-open.svg",
+    "category": "security",
+    "keywords": [
+      "unlocked",
+      "open",
+      "unsecured",
+      "accessible"
+    ]
+  },
+  {
+    "name": "lock",
+    "file": "security/lock.svg",
+    "category": "security",
+    "keywords": [
+      "locked",
+      "padlock",
+      "secure",
+      "closed",
+      "protected"
+    ]
+  },
+  {
+    "name": "malware",
+    "file": "security/malware.svg",
+    "category": "security",
+    "keywords": [
+      "malware",
+      "virus",
+      "bug",
+      "infection",
+      "malicious software",
+      "threat",
+      "code"
+    ]
+  },
+  {
+    "name": "mfa",
+    "file": "security/mfa.svg",
+    "category": "security",
+    "keywords": [
+      "mfa",
+      "2fa",
+      "two factor",
+      "multi factor",
+      "otp",
+      "authentication",
+      "phone"
+    ]
+  },
+  {
+    "name": "oauth",
+    "file": "security/oauth.svg",
+    "category": "security",
+    "keywords": [
+      "oauth",
+      "oauth2",
+      "delegated auth",
+      "authorization",
+      "token",
+      "access delegation",
+      "api auth"
+    ]
+  },
+  {
+    "name": "patch",
+    "file": "security/patch.svg",
+    "category": "security",
+    "keywords": [
+      "patch",
+      "fix",
+      "remediation",
+      "update",
+      "hotfix",
+      "security patch"
+    ]
+  },
+  {
+    "name": "phishing",
+    "file": "security/phishing.svg",
+    "category": "security",
+    "keywords": [
+      "phishing",
+      "social engineering",
+      "email attack",
+      "fishing",
+      "credential theft",
+      "deception"
+    ]
+  },
+  {
+    "name": "policy-doc",
+    "file": "security/policy-doc.svg",
+    "category": "security",
+    "keywords": [
+      "policy",
+      "document",
+      "rules",
+      "regulation",
+      "procedure",
+      "compliance"
+    ]
+  },
+  {
+    "name": "quarantine",
+    "file": "security/quarantine.svg",
+    "category": "security",
+    "keywords": [
+      "quarantine",
+      "isolation",
+      "containment",
+      "sandboxed",
+      "blocked",
+      "quarantined file",
+      "security isolation"
+    ]
+  },
+  {
+    "name": "ransomware",
+    "file": "security/ransomware.svg",
+    "category": "security",
+    "keywords": [
+      "ransomware",
+      "ransom",
+      "extortion",
+      "data hostage",
+      "encryption attack",
+      "lock",
+      "coin"
+    ]
+  },
+  {
+    "name": "rbac",
+    "file": "security/rbac.svg",
+    "category": "security",
+    "keywords": [
+      "rbac",
+      "role-based access",
+      "access control",
+      "permissions",
+      "roles",
+      "authorization",
+      "hierarchy"
+    ]
+  },
+  {
+    "name": "redact",
+    "file": "security/redact.svg",
+    "category": "security",
+    "keywords": [
+      "redact",
+      "censor",
+      "mask",
+      "hide",
+      "blackout",
+      "classified",
+      "pii"
+    ]
+  },
+  {
+    "name": "secret-vault",
+    "file": "security/secret-vault.svg",
+    "category": "security",
+    "keywords": [
+      "secret",
+      "vault",
+      "secrets manager",
+      "key vault",
+      "password store",
+      "credential store",
+      "safe"
+    ]
+  },
+  {
+    "name": "security-scan",
+    "file": "security/security-scan.svg",
+    "category": "security",
+    "keywords": [
+      "scan",
+      "security scan",
+      "vulnerability scan",
+      "pentest",
+      "assessment",
+      "sweep",
+      "scanner"
+    ]
+  },
+  {
+    "name": "shield-keyhole",
+    "file": "security/shield-keyhole.svg",
+    "category": "security",
+    "keywords": [
+      "shield",
+      "lock",
+      "protected",
+      "keyhole",
+      "access control"
+    ]
+  },
+  {
+    "name": "shield",
+    "file": "security/shield.svg",
+    "category": "security",
+    "keywords": [
+      "shield",
+      "protect",
+      "defense",
+      "guard",
+      "safe"
+    ]
+  },
+  {
+    "name": "siem",
+    "file": "security/siem.svg",
+    "category": "security",
+    "keywords": [
+      "siem",
+      "security information",
+      "event management",
+      "log analysis",
+      "security monitoring",
+      "alert",
+      "dashboard"
+    ]
+  },
+  {
+    "name": "signature-pen",
+    "file": "security/signature-pen.svg",
+    "category": "security",
+    "keywords": [
+      "signature",
+      "sign",
+      "pen",
+      "esign",
+      "digital signature",
+      "approve"
+    ]
+  },
+  {
+    "name": "soc",
+    "file": "security/soc.svg",
+    "category": "security",
+    "keywords": [
+      "soc",
+      "security operations center",
+      "monitor",
+      "operations",
+      "security team",
+      "command center"
+    ]
+  },
+  {
+    "name": "sso",
+    "file": "security/sso.svg",
+    "category": "security",
+    "keywords": [
+      "sso",
+      "single sign-on",
+      "federation",
+      "unified login",
+      "identity",
+      "authentication",
+      "key"
+    ]
+  },
+  {
+    "name": "threat-actor",
+    "file": "security/threat-actor.svg",
+    "category": "security",
+    "keywords": [
+      "threat actor",
+      "attacker",
+      "adversary",
+      "hacker",
+      "malicious user",
+      "threat",
+      "risk"
+    ]
+  },
+  {
+    "name": "token",
+    "file": "security/token.svg",
+    "category": "security",
+    "keywords": [
+      "token",
+      "bearer",
+      "jwt",
+      "api key",
+      "auth token",
+      "chip",
+      "card"
+    ]
+  },
+  {
+    "name": "vpn",
+    "file": "security/vpn.svg",
+    "category": "security",
+    "keywords": [
+      "vpn",
+      "tunnel",
+      "encrypted tunnel",
+      "virtual private network",
+      "network security",
+      "privacy"
+    ]
+  },
+  {
+    "name": "vulnerability",
+    "file": "security/vulnerability.svg",
+    "category": "security",
+    "keywords": [
+      "vulnerability",
+      "vuln",
+      "cve",
+      "risk",
+      "warning",
+      "security flaw",
+      "exposure"
+    ]
+  },
+  {
+    "name": "waf",
+    "file": "security/waf.svg",
+    "category": "security",
+    "keywords": [
+      "waf",
+      "web application firewall",
+      "firewall",
+      "traffic filter",
+      "application security",
+      "filter"
+    ]
+  },
+  {
+    "name": "zero-trust",
+    "file": "security/zero-trust.svg",
+    "category": "security",
+    "keywords": [
+      "zero trust",
+      "never trust",
+      "always verify",
+      "zero-trust",
+      "access control",
+      "security model"
+    ]
+  },
+  {
+    "name": "blob",
+    "file": "shapes/blob.svg",
+    "category": "shapes",
+    "keywords": [
+      "blob",
+      "organic",
+      "freeform",
+      "amorphous",
+      "fluid",
+      "primitive",
+      "geometry"
+    ]
+  },
+  {
+    "name": "chevron-shape",
+    "file": "shapes/chevron-shape.svg",
+    "category": "shapes",
+    "keywords": [
+      "chevron",
+      "arrow-shape",
+      "directional",
+      "banner",
+      "primitive",
+      "geometry"
+    ]
+  },
+  {
+    "name": "circle",
+    "file": "shapes/circle.svg",
+    "category": "shapes",
+    "keywords": [
+      "circle",
+      "round",
+      "disc",
+      "dot",
+      "primitive",
+      "geometry"
+    ]
+  },
+  {
+    "name": "cone",
+    "file": "shapes/cone.svg",
+    "category": "shapes",
+    "keywords": [
+      "cone",
+      "3d",
+      "pyramid",
+      "funnel",
+      "primitive",
+      "geometry"
+    ]
+  },
+  {
+    "name": "cube-shape",
+    "file": "shapes/cube-shape.svg",
+    "category": "shapes",
+    "keywords": [
+      "cube",
+      "3d",
+      "box",
+      "isometric",
+      "primitive",
+      "geometry"
+    ]
+  },
+  {
+    "name": "cylinder-shape",
+    "file": "shapes/cylinder-shape.svg",
+    "category": "shapes",
+    "keywords": [
+      "cylinder",
+      "3d",
+      "drum",
+      "tube",
+      "primitive",
+      "geometry"
+    ]
+  },
+  {
+    "name": "dashed-line",
+    "file": "shapes/dashed-line.svg",
+    "category": "shapes",
+    "keywords": [
+      "dashed",
+      "dash",
+      "dotted",
+      "line",
+      "connector",
+      "primitive",
+      "geometry"
+    ]
+  },
+  {
+    "name": "diamond",
+    "file": "shapes/diamond.svg",
+    "category": "shapes",
+    "keywords": [
+      "diamond",
+      "rhombus",
+      "rotated-square",
+      "primitive",
+      "geometry"
+    ]
+  },
+  {
+    "name": "hexagon",
+    "file": "shapes/hexagon.svg",
+    "category": "shapes",
+    "keywords": [
+      "hexagon",
+      "6-sided",
+      "hex",
+      "polygon",
+      "primitive",
+      "geometry"
+    ]
+  },
+  {
+    "name": "line-shape",
+    "file": "shapes/line-shape.svg",
+    "category": "shapes",
+    "keywords": [
+      "line",
+      "stroke",
+      "rule",
+      "divider",
+      "primitive",
+      "geometry"
+    ]
+  },
+  {
+    "name": "octagon",
+    "file": "shapes/octagon.svg",
+    "category": "shapes",
+    "keywords": [
+      "octagon",
+      "8-sided",
+      "stop",
+      "polygon",
+      "primitive",
+      "geometry"
+    ]
+  },
+  {
+    "name": "oval",
+    "file": "shapes/oval.svg",
+    "category": "shapes",
+    "keywords": [
+      "oval",
+      "ellipse",
+      "egg",
+      "primitive",
+      "geometry"
+    ]
+  },
+  {
+    "name": "parallelogram",
+    "file": "shapes/parallelogram.svg",
+    "category": "shapes",
+    "keywords": [
+      "parallelogram",
+      "slant",
+      "skew",
+      "primitive",
+      "geometry"
+    ]
+  },
+  {
+    "name": "pentagon",
+    "file": "shapes/pentagon.svg",
+    "category": "shapes",
+    "keywords": [
+      "pentagon",
+      "5-sided",
+      "polygon",
+      "primitive",
+      "geometry"
+    ]
+  },
+  {
+    "name": "polygon",
+    "file": "shapes/polygon.svg",
+    "category": "shapes",
+    "keywords": [
+      "polygon",
+      "7-sided",
+      "heptagon",
+      "multi-sided",
+      "primitive",
+      "geometry"
+    ]
+  },
+  {
+    "name": "rectangle",
+    "file": "shapes/rectangle.svg",
+    "category": "shapes",
+    "keywords": [
+      "rectangle",
+      "rect",
+      "oblong",
+      "primitive",
+      "geometry"
+    ]
+  },
+  {
+    "name": "ring",
+    "file": "shapes/ring.svg",
+    "category": "shapes",
+    "keywords": [
+      "ring",
+      "annulus",
+      "donut",
+      "concentric",
+      "hollow",
+      "primitive",
+      "geometry"
+    ]
+  },
+  {
+    "name": "rounded-rect",
+    "file": "shapes/rounded-rect.svg",
+    "category": "shapes",
+    "keywords": [
+      "rounded-rect",
+      "rounded",
+      "rect",
+      "pill",
+      "panel",
+      "primitive",
+      "geometry"
+    ]
+  },
+  {
+    "name": "semicircle",
+    "file": "shapes/semicircle.svg",
+    "category": "shapes",
+    "keywords": [
+      "semicircle",
+      "half-circle",
+      "arc",
+      "primitive",
+      "geometry"
+    ]
+  },
+  {
+    "name": "sphere",
+    "file": "shapes/sphere.svg",
+    "category": "shapes",
+    "keywords": [
+      "sphere",
+      "3d",
+      "globe",
+      "ball",
+      "primitive",
+      "geometry"
+    ]
+  },
+  {
+    "name": "square",
+    "file": "shapes/square.svg",
+    "category": "shapes",
+    "keywords": [
+      "square",
+      "box",
+      "quad",
+      "primitive",
+      "geometry"
+    ]
+  },
+  {
+    "name": "star-outline",
+    "file": "shapes/star-outline.svg",
+    "category": "shapes",
+    "keywords": [
+      "star",
+      "5-point",
+      "asterisk",
+      "outline",
+      "primitive",
+      "geometry"
+    ]
+  },
+  {
+    "name": "trapezoid",
+    "file": "shapes/trapezoid.svg",
+    "category": "shapes",
+    "keywords": [
+      "trapezoid",
+      "trapezium",
+      "frustum",
+      "primitive",
+      "geometry"
+    ]
+  },
+  {
+    "name": "triangle",
+    "file": "shapes/triangle.svg",
+    "category": "shapes",
+    "keywords": [
+      "triangle",
+      "delta",
+      "3-sided",
+      "primitive",
+      "geometry"
+    ]
+  },
+  {
+    "name": "source-chat",
+    "file": "source/source-chat.svg",
+    "category": "source",
+    "keywords": [
+      "chat",
+      "slack",
+      "message",
+      "conversation",
+      "panel",
+      "thread",
+      "comment",
+      "discussion",
+      "messenger"
+    ]
+  },
+  {
+    "name": "source-console",
+    "file": "source/source-console.svg",
+    "category": "source",
+    "keywords": [
+      "console",
+      "terminal",
+      "cli",
+      "shell",
+      "command-line",
+      "prompt",
+      "gcp",
+      "kubectl",
+      "bash"
+    ]
+  },
+  {
+    "name": "source-datamodel",
+    "file": "source/source-datamodel.svg",
+    "category": "source",
+    "keywords": [
+      "datamodel",
+      "data-model",
+      "schema",
+      "erd",
+      "entity",
+      "relation",
+      "table",
+      "database",
+      "diagram",
+      "spanner"
+    ]
+  },
+  {
+    "name": "source-design-doc",
+    "file": "source/source-design-doc.svg",
+    "category": "source",
+    "keywords": [
+      "design-doc",
+      "design",
+      "drawing",
+      "engineering",
+      "ruler",
+      "blueprint",
+      "architecture",
+      "technical-doc",
+      "hld",
+      "lld"
+    ]
+  },
+  {
+    "name": "source-email",
+    "file": "source/source-email.svg",
+    "category": "source",
+    "keywords": [
+      "email",
+      "mail",
+      "envelope",
+      "message",
+      "inbox",
+      "correspondence",
+      "notification",
+      "contact"
+    ]
+  },
+  {
+    "name": "source-external",
+    "file": "source/source-external.svg",
+    "category": "source",
+    "keywords": [
+      "external",
+      "link",
+      "outbound",
+      "outside",
+      "third-party",
+      "external-source",
+      "out-arrow",
+      "reference",
+      "open"
+    ]
+  },
+  {
+    "name": "source-logs",
+    "file": "source/source-logs.svg",
+    "category": "source",
+    "keywords": [
+      "log",
+      "logs",
+      "logfile",
+      "lines",
+      "console",
+      "output",
+      "trace",
+      "audit-log",
+      "text"
+    ]
+  },
+  {
+    "name": "source-monitoring",
+    "file": "source/source-monitoring.svg",
+    "category": "source",
+    "keywords": [
+      "monitoring",
+      "monitor",
+      "dashboard",
+      "panel",
+      "waveform",
+      "alert",
+      "metric",
+      "newrelic",
+      "observability"
+    ]
+  },
+  {
+    "name": "source-news",
+    "file": "source/source-news.svg",
+    "category": "source",
+    "keywords": [
+      "news",
+      "newspaper",
+      "article",
+      "columns",
+      "headlines",
+      "media",
+      "publication",
+      "feed",
+      "journal"
+    ]
+  },
+  {
+    "name": "source-press",
+    "file": "source/source-press.svg",
+    "category": "source",
+    "keywords": [
+      "press",
+      "announcement",
+      "release",
+      "publication",
+      "newspaper",
+      "columns",
+      "article",
+      "newsletter",
+      "bulletin"
+    ]
+  },
+  {
+    "name": "source-rca",
+    "file": "source/source-rca.svg",
+    "category": "source",
+    "keywords": [
+      "rca",
+      "root-cause",
+      "analysis",
+      "magnifier",
+      "investigation",
+      "incident",
+      "postmortem",
+      "search-doc",
+      "cause"
+    ]
+  },
+  {
+    "name": "source-regulator",
+    "file": "source/source-regulator.svg",
+    "category": "source",
+    "keywords": [
+      "regulator",
+      "regulatory",
+      "official",
+      "authority",
+      "government",
+      "building",
+      "compliance",
+      "fsa",
+      "regulation",
+      "institutional"
+    ]
+  },
+  {
+    "name": "source-repo",
+    "file": "source/source-repo.svg",
+    "category": "source",
+    "keywords": [
+      "repo",
+      "repository",
+      "git",
+      "gitlab",
+      "github",
+      "branch",
+      "version",
+      "code",
+      "vcs"
+    ]
+  },
+  {
+    "name": "source-spec",
+    "file": "source/source-spec.svg",
+    "category": "source",
+    "keywords": [
+      "spec",
+      "specification",
+      "requirement",
+      "requirements",
+      "srs",
+      "clause",
+      "structured",
+      "formal",
+      "contract"
+    ]
+  },
+  {
+    "name": "source-ticket",
+    "file": "source/source-ticket.svg",
+    "category": "source",
+    "keywords": [
+      "ticket",
+      "issue",
+      "task",
+      "jira",
+      "card",
+      "notch",
+      "tracker",
+      "story",
+      "defect"
+    ]
+  },
+  {
+    "name": "source-wiki",
+    "file": "source/source-wiki.svg",
+    "category": "source",
+    "keywords": [
+      "wiki",
+      "confluence",
+      "knowledge-base",
+      "book",
+      "pages",
+      "documentation",
+      "open-book",
+      "manual"
+    ]
+  },
+  {
+    "name": "archived",
+    "file": "status/archived.svg",
+    "category": "status",
+    "keywords": [
+      "archived",
+      "archive",
+      "stored",
+      "retired",
+      "inactive",
+      "closed",
+      "history",
+      "box"
+    ]
+  },
+  {
+    "name": "ban",
+    "file": "status/ban.svg",
+    "category": "status",
+    "keywords": [
+      "ban",
+      "forbidden",
+      "prohibited",
+      "not-allowed",
+      "banned",
+      "restrict",
+      "circle",
+      "slash",
+      "deny"
+    ]
+  },
+  {
+    "name": "beta",
+    "file": "status/beta.svg",
+    "category": "status",
+    "keywords": [
+      "beta",
+      "preview",
+      "experimental",
+      "draft",
+      "dashed",
+      "badge",
+      "unstable",
+      "pre-release",
+      "testing"
+    ]
+  },
+  {
+    "name": "blocked",
+    "file": "status/blocked.svg",
+    "category": "status",
+    "keywords": [
+      "blocked",
+      "prohibited",
+      "stopped",
+      "no-entry",
+      "circle",
+      "slash",
+      "disabled"
+    ]
+  },
+  {
+    "name": "check-circle",
+    "file": "status/check-circle.svg",
+    "category": "status",
+    "keywords": [
+      "tick",
+      "done",
+      "complete",
+      "pass",
+      "ok",
+      "success",
+      "approve",
+      "verified",
+      "circle"
+    ]
+  },
+  {
+    "name": "check",
+    "file": "status/check.svg",
+    "category": "status",
+    "keywords": [
+      "tick",
+      "done",
+      "complete",
+      "pass",
+      "ok",
+      "success",
+      "correct"
+    ]
+  },
+  {
+    "name": "clock-pending",
+    "file": "status/clock-pending.svg",
+    "category": "status",
+    "keywords": [
+      "pending",
+      "waiting",
+      "clock",
+      "time",
+      "in-progress",
+      "scheduled",
+      "queue"
+    ]
+  },
+  {
+    "name": "cross-circle",
+    "file": "status/cross-circle.svg",
+    "category": "status",
+    "keywords": [
+      "x",
+      "close",
+      "error",
+      "fail",
+      "reject",
+      "cancel",
+      "circle",
+      "deny"
+    ]
+  },
+  {
+    "name": "cross",
+    "file": "status/cross.svg",
+    "category": "status",
+    "keywords": [
+      "x",
+      "close",
+      "remove",
+      "delete",
+      "fail",
+      "error",
+      "no",
+      "reject",
+      "cancel"
+    ]
+  },
+  {
+    "name": "deprecated",
+    "file": "status/deprecated.svg",
+    "category": "status",
+    "keywords": [
+      "deprecated",
+      "obsolete",
+      "sunset",
+      "retired",
+      "slash",
+      "warning",
+      "circle",
+      "end-of-life",
+      "legacy"
+    ]
+  },
+  {
+    "name": "dot-hold",
+    "file": "status/dot-hold.svg",
+    "category": "status",
+    "keywords": [
+      "dot",
+      "hold",
+      "pause",
+      "paused",
+      "indicator",
+      "status",
+      "on-hold",
+      "suspended",
+      "stop"
+    ]
+  },
+  {
+    "name": "dot-ok",
+    "file": "status/dot-ok.svg",
+    "category": "status",
+    "keywords": [
+      "dot",
+      "ok",
+      "green",
+      "indicator",
+      "status",
+      "online",
+      "active",
+      "healthy",
+      "pass"
+    ]
+  },
+  {
+    "name": "dot-risk",
+    "file": "status/dot-risk.svg",
+    "category": "status",
+    "keywords": [
+      "dot",
+      "risk",
+      "amber",
+      "warning",
+      "indicator",
+      "status",
+      "caution",
+      "watch"
+    ]
+  },
+  {
+    "name": "draft-status",
+    "file": "status/draft-status.svg",
+    "category": "status",
+    "keywords": [
+      "draft",
+      "editing",
+      "wip",
+      "work-in-progress",
+      "pencil",
+      "document",
+      "unfinished",
+      "unpublished"
+    ]
+  },
+  {
+    "name": "error-filled",
+    "file": "status/error-filled.svg",
+    "category": "status",
+    "keywords": [
+      "error",
+      "fail",
+      "failure",
+      "reject",
+      "filled",
+      "solid",
+      "negative",
+      "denied",
+      "cross",
+      "circle"
+    ]
+  },
+  {
+    "name": "escalated",
+    "file": "status/escalated.svg",
+    "category": "status",
+    "keywords": [
+      "escalated",
+      "escalation",
+      "elevated",
+      "urgent",
+      "raised",
+      "chevron",
+      "double-up",
+      "severity-raised"
+    ]
+  },
+  {
+    "name": "flag-filled",
+    "file": "status/flag-filled.svg",
+    "category": "status",
+    "keywords": [
+      "flag",
+      "filled",
+      "marked",
+      "flagged",
+      "attention",
+      "report",
+      "critical",
+      "urgent"
+    ]
+  },
+  {
+    "name": "flag",
+    "file": "status/flag.svg",
+    "category": "status",
+    "keywords": [
+      "flag",
+      "mark",
+      "attention",
+      "report",
+      "signal",
+      "review",
+      "attention"
+    ]
+  },
+  {
+    "name": "hourglass",
+    "file": "status/hourglass.svg",
+    "category": "status",
+    "keywords": [
+      "hourglass",
+      "wait",
+      "loading",
+      "processing",
+      "time",
+      "elapsed",
+      "pending",
+      "countdown"
+    ]
+  },
+  {
+    "name": "indeterminate",
+    "file": "status/indeterminate.svg",
+    "category": "status",
+    "keywords": [
+      "indeterminate",
+      "unknown",
+      "uncertain",
+      "dash",
+      "dashed",
+      "circle",
+      "undetermined",
+      "unclear",
+      "mixed"
+    ]
+  },
+  {
+    "name": "info-circle",
+    "file": "status/info-circle.svg",
+    "category": "status",
+    "keywords": [
+      "info",
+      "information",
+      "note",
+      "detail",
+      "hint",
+      "circle",
+      "about"
+    ]
+  },
+  {
+    "name": "locked-status",
+    "file": "status/locked-status.svg",
+    "category": "status",
+    "keywords": [
+      "locked",
+      "lock",
+      "restricted",
+      "protected",
+      "immutable",
+      "secure",
+      "closed",
+      "no-edit"
+    ]
+  },
+  {
+    "name": "new-badge",
+    "file": "status/new-badge.svg",
+    "category": "status",
+    "keywords": [
+      "new",
+      "badge",
+      "fresh",
+      "recently-added",
+      "starburst",
+      "seal",
+      "indicator",
+      "just-added"
+    ]
+  },
+  {
+    "name": "offline",
+    "file": "status/offline.svg",
+    "category": "status",
+    "keywords": [
+      "offline",
+      "disconnected",
+      "unavailable",
+      "inactive",
+      "slash",
+      "circle",
+      "node",
+      "down"
+    ]
+  },
+  {
+    "name": "on-hold",
+    "file": "status/on-hold.svg",
+    "category": "status",
+    "keywords": [
+      "on-hold",
+      "hold",
+      "paused",
+      "suspended",
+      "frozen",
+      "pause",
+      "circle",
+      "bars",
+      "waiting",
+      "deferred"
+    ]
+  },
+  {
+    "name": "online",
+    "file": "status/online.svg",
+    "category": "status",
+    "keywords": [
+      "online",
+      "connected",
+      "active",
+      "available",
+      "live",
+      "circle",
+      "node",
+      "up",
+      "healthy"
+    ]
+  },
+  {
+    "name": "partial-check",
+    "file": "status/partial-check.svg",
+    "category": "status",
+    "keywords": [
+      "partial",
+      "partial-check",
+      "semi",
+      "halfway",
+      "dash",
+      "circle",
+      "incomplete",
+      "mixed",
+      "some-passed"
+    ]
+  },
+  {
+    "name": "priority-high",
+    "file": "status/priority-high.svg",
+    "category": "status",
+    "keywords": [
+      "priority",
+      "high",
+      "urgent",
+      "critical",
+      "important",
+      "triangle",
+      "exclamation",
+      "severe",
+      "top"
+    ]
+  },
+  {
+    "name": "priority-low",
+    "file": "status/priority-low.svg",
+    "category": "status",
+    "keywords": [
+      "priority",
+      "low",
+      "minor",
+      "trivial",
+      "triangle",
+      "down",
+      "less-urgent",
+      "backlog"
+    ]
+  },
+  {
+    "name": "progress-half",
+    "file": "status/progress-half.svg",
+    "category": "status",
+    "keywords": [
+      "progress",
+      "half",
+      "partial",
+      "halfway",
+      "in-progress",
+      "50%",
+      "incomplete"
+    ]
+  },
+  {
+    "name": "published",
+    "file": "status/published.svg",
+    "category": "status",
+    "keywords": [
+      "published",
+      "live",
+      "released",
+      "finalized",
+      "document",
+      "check",
+      "approved",
+      "deployed"
+    ]
+  },
+  {
+    "name": "question-circle",
+    "file": "status/question-circle.svg",
+    "category": "status",
+    "keywords": [
+      "question",
+      "help",
+      "unknown",
+      "unclear",
+      "query",
+      "doubt",
+      "circle"
+    ]
+  },
+  {
+    "name": "shield-alert",
+    "file": "status/shield-alert.svg",
+    "category": "status",
+    "keywords": [
+      "shield",
+      "alert",
+      "warning",
+      "vulnerable",
+      "risk",
+      "security",
+      "exclamation"
+    ]
+  },
+  {
+    "name": "shield-check",
+    "file": "status/shield-check.svg",
+    "category": "status",
+    "keywords": [
+      "shield",
+      "secure",
+      "protected",
+      "verified",
+      "compliant",
+      "safe",
+      "check",
+      "approved"
+    ]
+  },
+  {
+    "name": "snooze",
+    "file": "status/snooze.svg",
+    "category": "status",
+    "keywords": [
+      "snooze",
+      "snoozed",
+      "alarm",
+      "clock",
+      "defer",
+      "delayed",
+      "muted",
+      "postponed",
+      "reminder"
+    ]
+  },
+  {
+    "name": "stamp-approved",
+    "file": "status/stamp-approved.svg",
+    "category": "status",
+    "keywords": [
+      "stamp",
+      "approved",
+      "endorsed",
+      "signed-off",
+      "formal",
+      "official",
+      "authorized",
+      "check"
+    ]
+  },
+  {
+    "name": "stamp-rejected",
+    "file": "status/stamp-rejected.svg",
+    "category": "status",
+    "keywords": [
+      "stamp",
+      "rejected",
+      "declined",
+      "denied",
+      "refused",
+      "formal",
+      "official",
+      "cross"
+    ]
+  },
+  {
+    "name": "success-filled",
+    "file": "status/success-filled.svg",
+    "category": "status",
+    "keywords": [
+      "success",
+      "done",
+      "complete",
+      "pass",
+      "filled",
+      "solid",
+      "positive",
+      "approved",
+      "check",
+      "circle"
+    ]
+  },
+  {
+    "name": "syncing",
+    "file": "status/syncing.svg",
+    "category": "status",
+    "keywords": [
+      "sync",
+      "syncing",
+      "refresh",
+      "loading",
+      "updating",
+      "arrows",
+      "rotate",
+      "in-progress",
+      "data-sync"
+    ]
+  },
+  {
+    "name": "unlocked-status",
+    "file": "status/unlocked-status.svg",
+    "category": "status",
+    "keywords": [
+      "unlocked",
+      "open",
+      "editable",
+      "accessible",
+      "lock-open",
+      "mutable",
+      "unrestricted"
+    ]
+  },
+  {
+    "name": "verified",
+    "file": "status/verified.svg",
+    "category": "status",
+    "keywords": [
+      "verified",
+      "official",
+      "certified",
+      "endorsed",
+      "badge",
+      "authenticated",
+      "approved",
+      "seal"
+    ]
+  },
+  {
+    "name": "warning-octagon",
+    "file": "status/warning-octagon.svg",
+    "category": "status",
+    "keywords": [
+      "warning",
+      "stop",
+      "danger",
+      "critical",
+      "halt",
+      "alert",
+      "octagon",
+      "exclamation"
+    ]
+  },
+  {
+    "name": "warning-triangle",
+    "file": "status/warning-triangle.svg",
+    "category": "status",
+    "keywords": [
+      "warning",
+      "caution",
+      "alert",
+      "risk",
+      "danger",
+      "attention",
+      "triangle",
+      "exclamation"
+    ]
+  },
+  {
+    "name": "battery-eco",
+    "file": "sustainability/battery-eco.svg",
+    "category": "sustainability",
+    "keywords": [
+      "battery",
+      "eco",
+      "storage",
+      "energy",
+      "charge",
+      "green",
+      "power"
+    ]
+  },
+  {
+    "name": "biodiversity",
+    "file": "sustainability/biodiversity.svg",
+    "category": "sustainability",
+    "keywords": [
+      "biodiversity",
+      "ecosystem",
+      "nature",
+      "species",
+      "habitat",
+      "tnfd",
+      "environment"
+    ]
+  },
+  {
+    "name": "carbon",
+    "file": "sustainability/carbon.svg",
+    "category": "sustainability",
+    "keywords": [
+      "carbon",
+      "co2",
+      "emissions",
+      "greenhouse",
+      "gas",
+      "climate",
+      "dioxide"
+    ]
+  },
+  {
+    "name": "charging",
+    "file": "sustainability/charging.svg",
+    "category": "sustainability",
+    "keywords": [
+      "charging",
+      "ev",
+      "electric",
+      "vehicle",
+      "battery",
+      "bolt",
+      "energy",
+      "charge"
+    ]
+  },
+  {
+    "name": "circular-economy",
+    "file": "sustainability/circular-economy.svg",
+    "category": "sustainability",
+    "keywords": [
+      "circular",
+      "economy",
+      "loop",
+      "cycle",
+      "reuse",
+      "waste",
+      "lifecycle"
+    ]
+  },
+  {
+    "name": "eco-globe",
+    "file": "sustainability/eco-globe.svg",
+    "category": "sustainability",
+    "keywords": [
+      "globe",
+      "earth",
+      "world",
+      "planet",
+      "global",
+      "environment",
+      "esg"
+    ]
+  },
+  {
+    "name": "emissions",
+    "file": "sustainability/emissions.svg",
+    "category": "sustainability",
+    "keywords": [
+      "emissions",
+      "exhaust",
+      "pollution",
+      "ghg",
+      "scope",
+      "co2",
+      "greenhouse"
+    ]
+  },
+  {
+    "name": "energy-bolt",
+    "file": "sustainability/energy-bolt.svg",
+    "category": "sustainability",
+    "keywords": [
+      "energy",
+      "bolt",
+      "lightning",
+      "electricity",
+      "power",
+      "flash",
+      "electric"
+    ]
+  },
+  {
+    "name": "footprint",
+    "file": "sustainability/footprint.svg",
+    "category": "sustainability",
+    "keywords": [
+      "footprint",
+      "carbon-footprint",
+      "impact",
+      "trace",
+      "environment",
+      "scope"
+    ]
+  },
+  {
+    "name": "leaf",
+    "file": "sustainability/leaf.svg",
+    "category": "sustainability",
+    "keywords": [
+      "leaf",
+      "plant",
+      "green",
+      "nature",
+      "organic",
+      "eco",
+      "foliage"
+    ]
+  },
+  {
+    "name": "recycle",
+    "file": "sustainability/recycle.svg",
+    "category": "sustainability",
+    "keywords": [
+      "recycle",
+      "recycling",
+      "loop",
+      "circular",
+      "waste",
+      "reuse",
+      "arrows"
+    ]
+  },
+  {
+    "name": "renewable",
+    "file": "sustainability/renewable.svg",
+    "category": "sustainability",
+    "keywords": [
+      "renewable",
+      "clean",
+      "energy",
+      "cycle",
+      "sustainable",
+      "circular",
+      "refresh"
+    ]
+  },
+  {
+    "name": "solar-panel",
+    "file": "sustainability/solar-panel.svg",
+    "category": "sustainability",
+    "keywords": [
+      "solar",
+      "panel",
+      "photovoltaic",
+      "pv",
+      "sun",
+      "energy",
+      "power",
+      "renewable"
+    ]
+  },
+  {
+    "name": "tree",
+    "file": "sustainability/tree.svg",
+    "category": "sustainability",
+    "keywords": [
+      "tree",
+      "forest",
+      "nature",
+      "carbon-offset",
+      "planting",
+      "green",
+      "afforestation"
+    ]
+  },
+  {
+    "name": "water-drop",
+    "file": "sustainability/water-drop.svg",
+    "category": "sustainability",
+    "keywords": [
+      "water",
+      "drop",
+      "droplet",
+      "liquid",
+      "hydro",
+      "conservation",
+      "resource"
+    ]
+  },
+  {
+    "name": "wind-turbine",
+    "file": "sustainability/wind-turbine.svg",
+    "category": "sustainability",
+    "keywords": [
+      "wind",
+      "turbine",
+      "windmill",
+      "energy",
+      "power",
+      "renewable",
+      "generator"
+    ]
+  },
+  {
+    "name": "calendar-check",
+    "file": "time/calendar-check.svg",
+    "category": "time",
+    "keywords": [
+      "calendar-check",
+      "completed",
+      "done",
+      "verified-date",
+      "confirmed"
+    ]
+  },
+  {
+    "name": "calendar-event",
+    "file": "time/calendar-event.svg",
+    "category": "time",
+    "keywords": [
+      "calendar-event",
+      "event",
+      "appointment",
+      "booking",
+      "date-mark"
+    ]
+  },
+  {
+    "name": "calendar-range",
+    "file": "time/calendar-range.svg",
+    "category": "time",
+    "keywords": [
+      "calendar-range",
+      "date-range",
+      "from-to",
+      "period",
+      "span",
+      "interval"
+    ]
+  },
+  {
+    "name": "calendar",
+    "file": "time/calendar.svg",
+    "category": "time",
+    "keywords": [
+      "calendar",
+      "date",
+      "month",
+      "day",
+      "schedule"
+    ]
+  },
+  {
+    "name": "clock-alert",
+    "file": "time/clock-alert.svg",
+    "category": "time",
+    "keywords": [
+      "clock-alert",
+      "time-warning",
+      "overrun",
+      "breach",
+      "late",
+      "alert"
+    ]
+  },
+  {
+    "name": "clock",
+    "file": "time/clock.svg",
+    "category": "time",
+    "keywords": [
+      "clock",
+      "time",
+      "hour",
+      "watch",
+      "current-time"
+    ]
+  },
+  {
+    "name": "deadline",
+    "file": "time/deadline.svg",
+    "category": "time",
+    "keywords": [
+      "deadline",
+      "due-date",
+      "cutoff",
+      "target-date",
+      "flag",
+      "milestone-date"
+    ]
+  },
+  {
+    "name": "duration",
+    "file": "time/duration.svg",
+    "category": "time",
+    "keywords": [
+      "duration",
+      "span",
+      "interval",
+      "length",
+      "time-span",
+      "elapsed-total"
+    ]
+  },
+  {
+    "name": "elapsed",
+    "file": "time/elapsed.svg",
+    "category": "time",
+    "keywords": [
+      "elapsed",
+      "time-passed",
+      "progress-time",
+      "consumed",
+      "spent-time",
+      "partial"
+    ]
+  },
+  {
+    "name": "history",
+    "file": "time/history.svg",
+    "category": "time",
+    "keywords": [
+      "history",
+      "undo",
+      "past",
+      "previous",
+      "revert",
+      "back-in-time",
+      "restore"
+    ]
+  },
+  {
+    "name": "overdue",
+    "file": "time/overdue.svg",
+    "category": "time",
+    "keywords": [
+      "overdue",
+      "past-due",
+      "missed",
+      "expired",
+      "late",
+      "failed-deadline"
+    ]
+  },
+  {
+    "name": "recurring",
+    "file": "time/recurring.svg",
+    "category": "time",
+    "keywords": [
+      "recurring",
+      "repeat",
+      "cycle",
+      "periodic",
+      "cron",
+      "scheduled-repeat",
+      "loop"
+    ]
+  },
+  {
+    "name": "schedule",
+    "file": "time/schedule.svg",
+    "category": "time",
+    "keywords": [
+      "schedule",
+      "plan",
+      "agenda",
+      "timetable",
+      "task-list",
+      "calendar-list"
+    ]
+  },
+  {
+    "name": "sla-clock",
+    "file": "time/sla-clock.svg",
+    "category": "time",
+    "keywords": [
+      "sla-clock",
+      "sla",
+      "service-level",
+      "threshold",
+      "compliance-time",
+      "sla-breach"
+    ]
+  },
+  {
+    "name": "stopwatch",
+    "file": "time/stopwatch.svg",
+    "category": "time",
+    "keywords": [
+      "stopwatch",
+      "measure-time",
+      "lap",
+      "split-time",
+      "performance",
+      "benchmark"
+    ]
+  },
+  {
+    "name": "timer",
+    "file": "time/timer.svg",
+    "category": "time",
+    "keywords": [
+      "timer",
+      "countdown",
+      "preset",
+      "timeout",
+      "alarm",
+      "set-time"
+    ]
+  },
+  {
+    "name": "timezone",
+    "file": "time/timezone.svg",
+    "category": "time",
+    "keywords": [
+      "timezone",
+      "zone",
+      "utc",
+      "offset",
+      "region-time",
+      "global-time",
+      "meridian"
+    ]
+  },
+  {
+    "name": "accordion",
+    "file": "ui-controls/accordion.svg",
+    "category": "ui-controls",
+    "keywords": [
+      "accordion",
+      "collapse",
+      "expand",
+      "section",
+      "panel",
+      "disclosure"
+    ]
+  },
+  {
+    "name": "breadcrumb",
+    "file": "ui-controls/breadcrumb.svg",
+    "category": "ui-controls",
+    "keywords": [
+      "breadcrumb",
+      "navigation",
+      "path",
+      "trail",
+      "hierarchy",
+      "location"
+    ]
+  },
+  {
+    "name": "button",
+    "file": "ui-controls/button.svg",
+    "category": "ui-controls",
+    "keywords": [
+      "button",
+      "cta",
+      "action",
+      "click",
+      "control",
+      "submit"
+    ]
+  },
+  {
+    "name": "checkbox-checked",
+    "file": "ui-controls/checkbox-checked.svg",
+    "category": "ui-controls",
+    "keywords": [
+      "checkbox",
+      "checked",
+      "tick",
+      "selected",
+      "done",
+      "form"
+    ]
+  },
+  {
+    "name": "checkbox",
+    "file": "ui-controls/checkbox.svg",
+    "category": "ui-controls",
+    "keywords": [
+      "checkbox",
+      "tick",
+      "empty",
+      "unchecked",
+      "form",
+      "input"
+    ]
+  },
+  {
+    "name": "color-swatch",
+    "file": "ui-controls/color-swatch.svg",
+    "category": "ui-controls",
+    "keywords": [
+      "color",
+      "swatch",
+      "palette",
+      "picker",
+      "theme",
+      "sample"
+    ]
+  },
+  {
+    "name": "date-picker",
+    "file": "ui-controls/date-picker.svg",
+    "category": "ui-controls",
+    "keywords": [
+      "date",
+      "picker",
+      "calendar",
+      "input",
+      "schedule",
+      "select"
+    ]
+  },
+  {
+    "name": "drag-handle",
+    "file": "ui-controls/drag-handle.svg",
+    "category": "ui-controls",
+    "keywords": [
+      "drag",
+      "handle",
+      "move",
+      "reorder",
+      "grip",
+      "dnd"
+    ]
+  },
+  {
+    "name": "dropdown",
+    "file": "ui-controls/dropdown.svg",
+    "category": "ui-controls",
+    "keywords": [
+      "dropdown",
+      "select",
+      "menu",
+      "list",
+      "chevron",
+      "combobox"
+    ]
+  },
+  {
+    "name": "modal",
+    "file": "ui-controls/modal.svg",
+    "category": "ui-controls",
+    "keywords": [
+      "modal",
+      "dialog",
+      "overlay",
+      "popup",
+      "window",
+      "lightbox"
+    ]
+  },
+  {
+    "name": "pagination",
+    "file": "ui-controls/pagination.svg",
+    "category": "ui-controls",
+    "keywords": [
+      "pagination",
+      "page",
+      "navigate",
+      "prev",
+      "next",
+      "list"
+    ]
+  },
+  {
+    "name": "progress-bar",
+    "file": "ui-controls/progress-bar.svg",
+    "category": "ui-controls",
+    "keywords": [
+      "progress",
+      "bar",
+      "loading",
+      "fill",
+      "status",
+      "completion"
+    ]
+  },
+  {
+    "name": "radio-selected",
+    "file": "ui-controls/radio-selected.svg",
+    "category": "ui-controls",
+    "keywords": [
+      "radio",
+      "selected",
+      "filled",
+      "option",
+      "choice",
+      "form"
+    ]
+  },
+  {
+    "name": "radio",
+    "file": "ui-controls/radio.svg",
+    "category": "ui-controls",
+    "keywords": [
+      "radio",
+      "button",
+      "circle",
+      "unselected",
+      "option",
+      "form"
+    ]
+  },
+  {
+    "name": "resize-handle",
+    "file": "ui-controls/resize-handle.svg",
+    "category": "ui-controls",
+    "keywords": [
+      "resize",
+      "handle",
+      "scale",
+      "corner",
+      "drag",
+      "size"
+    ]
+  },
+  {
+    "name": "slider",
+    "file": "ui-controls/slider.svg",
+    "category": "ui-controls",
+    "keywords": [
+      "slider",
+      "range",
+      "track",
+      "handle",
+      "input",
+      "scrub"
+    ]
+  },
+  {
+    "name": "spinner",
+    "file": "ui-controls/spinner.svg",
+    "category": "ui-controls",
+    "keywords": [
+      "spinner",
+      "loading",
+      "indicator",
+      "wait",
+      "busy",
+      "circular"
+    ]
+  },
+  {
+    "name": "stepper",
+    "file": "ui-controls/stepper.svg",
+    "category": "ui-controls",
+    "keywords": [
+      "stepper",
+      "steps",
+      "wizard",
+      "progress",
+      "flow",
+      "onboarding"
+    ]
+  },
+  {
+    "name": "tabs",
+    "file": "ui-controls/tabs.svg",
+    "category": "ui-controls",
+    "keywords": [
+      "tabs",
+      "navigation",
+      "panel",
+      "switch",
+      "active",
+      "tab"
+    ]
+  },
+  {
+    "name": "text-field",
+    "file": "ui-controls/text-field.svg",
+    "category": "ui-controls",
+    "keywords": [
+      "text",
+      "field",
+      "input",
+      "cursor",
+      "form",
+      "textbox"
+    ]
+  },
+  {
+    "name": "toggle-off",
+    "file": "ui-controls/toggle-off.svg",
+    "category": "ui-controls",
+    "keywords": [
+      "toggle",
+      "switch",
+      "off",
+      "disabled",
+      "inactive",
+      "control"
+    ]
+  },
+  {
+    "name": "toggle-on",
+    "file": "ui-controls/toggle-on.svg",
+    "category": "ui-controls",
+    "keywords": [
+      "toggle",
+      "switch",
+      "on",
+      "enabled",
+      "active",
+      "control"
+    ]
+  },
+  {
+    "name": "tooltip",
+    "file": "ui-controls/tooltip.svg",
+    "category": "ui-controls",
+    "keywords": [
+      "tooltip",
+      "popover",
+      "hint",
+      "callout",
+      "info",
+      "label"
+    ]
+  },
+  {
+    "name": "zoom-in",
+    "file": "ui-controls/zoom-in.svg",
+    "category": "ui-controls",
+    "keywords": [
+      "zoom",
+      "in",
+      "magnify",
+      "enlarge",
+      "scale",
+      "search"
+    ]
+  },
+  {
+    "name": "zoom-out",
+    "file": "ui-controls/zoom-out.svg",
+    "category": "ui-controls",
+    "keywords": [
+      "zoom",
+      "out",
+      "shrink",
+      "reduce",
+      "scale",
+      "search"
+    ]
+  },
+  {
+    "name": "cloud-moon",
+    "file": "weather/cloud-moon.svg",
+    "category": "weather",
+    "keywords": [
+      "cloud-moon",
+      "partly-cloudy-night",
+      "overcast-night",
+      "broken-clouds-night"
+    ]
+  },
+  {
+    "name": "cloud-sun",
+    "file": "weather/cloud-sun.svg",
+    "category": "weather",
+    "keywords": [
+      "cloud-sun",
+      "partly-cloudy",
+      "partly-sunny",
+      "mixed",
+      "broken-clouds"
+    ]
+  },
+  {
+    "name": "cloud",
+    "file": "weather/cloud.svg",
+    "category": "weather",
+    "keywords": [
+      "cloud",
+      "cloudy",
+      "overcast",
+      "sky",
+      "cumulus"
+    ]
+  },
+  {
+    "name": "drizzle",
+    "file": "weather/drizzle.svg",
+    "category": "weather",
+    "keywords": [
+      "drizzle",
+      "light-rain",
+      "sprinkle",
+      "mizzle",
+      "fine-rain"
+    ]
+  },
+  {
+    "name": "fog",
+    "file": "weather/fog.svg",
+    "category": "weather",
+    "keywords": [
+      "fog",
+      "foggy",
+      "low-visibility",
+      "obscured",
+      "haze",
+      "dense-fog"
+    ]
+  },
+  {
+    "name": "hail",
+    "file": "weather/hail.svg",
+    "category": "weather",
+    "keywords": [
+      "hail",
+      "hailstone",
+      "ice-ball",
+      "frozen-precipitation",
+      "severe"
+    ]
+  },
+  {
+    "name": "heavy-rain",
+    "file": "weather/heavy-rain.svg",
+    "category": "weather",
+    "keywords": [
+      "heavy-rain",
+      "downpour",
+      "pouring",
+      "intense-rain",
+      "storm-rain",
+      "deluge"
+    ]
+  },
+  {
+    "name": "humidity",
+    "file": "weather/humidity.svg",
+    "category": "weather",
+    "keywords": [
+      "humidity",
+      "moisture",
+      "dew",
+      "water-content",
+      "relative-humidity",
+      "damp"
+    ]
+  },
+  {
+    "name": "lightning",
+    "file": "weather/lightning.svg",
+    "category": "weather",
+    "keywords": [
+      "lightning",
+      "bolt",
+      "strike",
+      "thunder",
+      "flash",
+      "electrical",
+      "high-voltage"
+    ]
+  },
+  {
+    "name": "mist",
+    "file": "weather/mist.svg",
+    "category": "weather",
+    "keywords": [
+      "mist",
+      "misty",
+      "haze",
+      "light-fog",
+      "murky",
+      "humid-haze"
+    ]
+  },
+  {
+    "name": "moon",
+    "file": "weather/moon.svg",
+    "category": "weather",
+    "keywords": [
+      "moon",
+      "night",
+      "lunar",
+      "crescent",
+      "clear-night",
+      "nighttime"
+    ]
+  },
+  {
+    "name": "rain",
+    "file": "weather/rain.svg",
+    "category": "weather",
+    "keywords": [
+      "rain",
+      "rainy",
+      "shower",
+      "precipitation",
+      "wet",
+      "downpour"
+    ]
+  },
+  {
+    "name": "rainbow",
+    "file": "weather/rainbow.svg",
+    "category": "weather",
+    "keywords": [
+      "rainbow",
+      "arc",
+      "spectrum",
+      "post-rain",
+      "prismatic",
+      "colour-arc"
+    ]
+  },
+  {
+    "name": "sleet",
+    "file": "weather/sleet.svg",
+    "category": "weather",
+    "keywords": [
+      "sleet",
+      "wintry-mix",
+      "freezing-rain",
+      "ice-pellets",
+      "mixed-precipitation"
+    ]
+  },
+  {
+    "name": "snow",
+    "file": "weather/snow.svg",
+    "category": "weather",
+    "keywords": [
+      "snow",
+      "snowy",
+      "snowfall",
+      "flurry",
+      "blizzard",
+      "winter",
+      "frozen"
+    ]
+  },
+  {
+    "name": "sun",
+    "file": "weather/sun.svg",
+    "category": "weather",
+    "keywords": [
+      "sun",
+      "sunny",
+      "clear",
+      "solar",
+      "bright",
+      "daylight",
+      "fair"
+    ]
+  },
+  {
+    "name": "sunrise",
+    "file": "weather/sunrise.svg",
+    "category": "weather",
+    "keywords": [
+      "sunrise",
+      "dawn",
+      "morning",
+      "first-light",
+      "sun-up",
+      "daybreak"
+    ]
+  },
+  {
+    "name": "sunset",
+    "file": "weather/sunset.svg",
+    "category": "weather",
+    "keywords": [
+      "sunset",
+      "dusk",
+      "evening",
+      "twilight",
+      "sun-down",
+      "golden-hour"
+    ]
+  },
+  {
+    "name": "temperature-cold",
+    "file": "weather/temperature-cold.svg",
+    "category": "weather",
+    "keywords": [
+      "temperature-cold",
+      "thermometer",
+      "cold",
+      "freeze",
+      "low-temp",
+      "chill",
+      "frost"
+    ]
+  },
+  {
+    "name": "temperature-hot",
+    "file": "weather/temperature-hot.svg",
+    "category": "weather",
+    "keywords": [
+      "temperature-hot",
+      "thermometer",
+      "hot",
+      "warm",
+      "heat",
+      "high-temp",
+      "thermal"
+    ]
+  },
+  {
+    "name": "thunderstorm",
+    "file": "weather/thunderstorm.svg",
+    "category": "weather",
+    "keywords": [
+      "thunderstorm",
+      "storm",
+      "thunder",
+      "lightning-bolt",
+      "severe",
+      "electrical-storm"
+    ]
+  },
+  {
+    "name": "tornado",
+    "file": "weather/tornado.svg",
+    "category": "weather",
+    "keywords": [
+      "tornado",
+      "twister",
+      "funnel",
+      "cyclone",
+      "vortex",
+      "severe"
+    ]
+  },
+  {
+    "name": "uv-index",
+    "file": "weather/uv-index.svg",
+    "category": "weather",
+    "keywords": [
+      "uv-index",
+      "ultraviolet",
+      "sun-exposure",
+      "radiation",
+      "spf",
+      "uv"
+    ]
+  },
+  {
+    "name": "wind",
+    "file": "weather/wind.svg",
+    "category": "weather",
+    "keywords": [
+      "wind",
+      "windy",
+      "breeze",
+      "gust",
+      "blustery",
+      "air-flow"
+    ]
+  }
+]

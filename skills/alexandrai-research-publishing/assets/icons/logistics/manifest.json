@@ -1,0 +1,104 @@
+[
+  {
+    "name": "truck",
+    "file": "truck.svg",
+    "category": "logistics",
+    "keywords": ["truck", "vehicle", "delivery", "transport", "freight", "lorry"]
+  },
+  {
+    "name": "van",
+    "file": "van.svg",
+    "category": "logistics",
+    "keywords": ["van", "vehicle", "delivery", "courier", "light-freight", "panel-van"]
+  },
+  {
+    "name": "cargo-ship",
+    "file": "cargo-ship.svg",
+    "category": "logistics",
+    "keywords": ["ship", "vessel", "maritime", "sea-freight", "container-ship", "ocean", "cargo"]
+  },
+  {
+    "name": "airplane-cargo",
+    "file": "airplane-cargo.svg",
+    "category": "logistics",
+    "keywords": ["airplane", "aircraft", "air-freight", "flight", "air-cargo", "aviation"]
+  },
+  {
+    "name": "freight-train",
+    "file": "freight-train.svg",
+    "category": "logistics",
+    "keywords": ["train", "rail", "freight-train", "railway", "rail-freight", "locomotive"]
+  },
+  {
+    "name": "forklift",
+    "file": "forklift.svg",
+    "category": "logistics",
+    "keywords": ["forklift", "lift", "warehouse", "pallet", "material-handling", "fork"]
+  },
+  {
+    "name": "warehouse",
+    "file": "warehouse.svg",
+    "category": "logistics",
+    "keywords": ["warehouse", "storage", "depot", "fulfillment", "distribution-center", "building"]
+  },
+  {
+    "name": "pallet",
+    "file": "pallet.svg",
+    "category": "logistics",
+    "keywords": ["pallet", "skid", "storage", "stacking", "goods", "shipping-unit"]
+  },
+  {
+    "name": "container-shipping",
+    "file": "container-shipping.svg",
+    "category": "logistics",
+    "keywords": ["container", "iso-container", "intermodal", "shipping", "TEU", "cargo-container"]
+  },
+  {
+    "name": "route-tracking",
+    "file": "route-tracking.svg",
+    "category": "logistics",
+    "keywords": ["route", "tracking", "waypoint", "itinerary", "path", "journey", "nodes"]
+  },
+  {
+    "name": "customs",
+    "file": "customs.svg",
+    "category": "logistics",
+    "keywords": ["customs", "clearance", "border", "declaration", "import", "export", "duty"]
+  },
+  {
+    "name": "dispatch",
+    "file": "dispatch.svg",
+    "category": "logistics",
+    "keywords": ["dispatch", "send", "outbound", "departure", "assignment", "release", "ship-out"]
+  },
+  {
+    "name": "last-mile",
+    "file": "last-mile.svg",
+    "category": "logistics",
+    "keywords": ["last-mile", "delivery", "destination", "drop-off", "home-delivery", "final-leg"]
+  },
+  {
+    "name": "fleet",
+    "file": "fleet.svg",
+    "category": "logistics",
+    "keywords": ["fleet", "vehicles", "fleet-management", "multiple-trucks", "fleet-ops", "transport-pool"]
+  },
+  {
+    "name": "loading-dock",
+    "file": "loading-dock.svg",
+    "category": "logistics",
+    "keywords": ["loading-dock", "dock", "bay", "receiving", "unloading", "staging", "ramp"]
+  },
+  {
+    "name": "supply-chain",
+    "file": "supply-chain.svg",
+    "category": "logistics",
+    "keywords": ["supply-chain", "network", "flow", "nodes", "procurement", "chain", "distribution"]
+  },
+  {
+    "name": "parcel-tracking",
+    "file": "parcel-tracking.svg",
+    "category": "logistics",
+    "keywords": ["parcel", "package", "tracking", "scan", "barcode", "shipment", "trace"]
+  }
+]

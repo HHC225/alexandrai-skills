@@ -1,0 +1,22 @@
+[
+  {"name":"json","file":"json.svg","category":"code","keywords":["json","data","format","file","config","serialization","key-value"]},
+  {"name":"yaml","file":"yaml.svg","category":"code","keywords":["yaml","config","configuration","file","indent","markup","helm"]},
+  {"name":"xml","file":"xml.svg","category":"code","keywords":["xml","markup","file","tags","format","soap","serialization"]},
+  {"name":"sql","file":"sql.svg","category":"code","keywords":["sql","database","query","table","db","relational","select"]},
+  {"name":"env-file","file":"env-file.svg","category":"code","keywords":["env","environment","dotenv","config","file","variables","secrets"]},
+  {"name":"secret-key","file":"secret-key.svg","category":"code","keywords":["secret","key","credential","password","token","sensitive","security"]},
+  {"name":"feature-flag","file":"feature-flag.svg","category":"code","keywords":["feature","flag","toggle","experiment","rollout","ab-test","canary"]},
+  {"name":"lambda-fn","file":"lambda-fn.svg","category":"code","keywords":["lambda","serverless","function","faas","event","aws","cloud"]},
+  {"name":"debug","file":"debug.svg","category":"code","keywords":["debug","breakpoint","inspect","trace","step","bug","troubleshoot"]},
+  {"name":"profiler","file":"profiler.svg","category":"code","keywords":["profiler","performance","flame","trace","benchmark","cpu","memory"]},
+  {"name":"lint","file":"lint.svg","category":"code","keywords":["lint","linter","static-analysis","quality","rule","eslint","checkstyle"]},
+  {"name":"ci","file":"ci.svg","category":"code","keywords":["ci","continuous-integration","test","build","pipeline","automation","check"]},
+  {"name":"cd","file":"cd.svg","category":"code","keywords":["cd","continuous-delivery","continuous-deployment","release","pipeline","automation","ship"]},
+  {"name":"graphql","file":"graphql.svg","category":"code","keywords":["graphql","graph","schema","query","mutation","api","federation"]},
+  {"name":"rest-api","file":"rest-api.svg","category":"code","keywords":["rest","http","api","endpoint","request","response","json"]},
+  {"name":"grpc","file":"grpc.svg","category":"code","keywords":["grpc","rpc","protocol","protobuf","streaming","service","call"]},
+  {"name":"websocket","file":"websocket.svg","category":"code","keywords":["websocket","ws","realtime","bidirectional","socket","push","streaming"]},
+  {"name":"cron-job","file":"cron-job.svg","category":"code","keywords":["cron","schedule","job","recurring","timer","automation","task"]},
+  {"name":"daemon","file":"daemon.svg","category":"code","keywords":["daemon","background","service","process","system","persistent","worker"]},
+  {"name":"log-file","file":"log-file.svg","category":"code","keywords":["log","file","logging","output","trace","audit","events"]}
+]

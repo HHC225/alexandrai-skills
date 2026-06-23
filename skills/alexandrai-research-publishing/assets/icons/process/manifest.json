@@ -1,0 +1,158 @@
+[
+  {
+    "name": "timeline",
+    "file": "timeline.svg",
+    "category": "process",
+    "keywords": ["timeline", "history", "sequence", "rail", "schedule", "horizontal"]
+  },
+  {
+    "name": "milestone",
+    "file": "milestone.svg",
+    "category": "process",
+    "keywords": ["milestone", "checkpoint", "marker", "event", "target", "goal"]
+  },
+  {
+    "name": "phase",
+    "file": "phase.svg",
+    "category": "process",
+    "keywords": ["phase", "stage", "segment", "period", "iteration", "block"]
+  },
+  {
+    "name": "flow-arrow",
+    "file": "flow-arrow.svg",
+    "category": "process",
+    "keywords": ["flow", "arrow", "next", "step", "transition", "direction", "sequence"]
+  },
+  {
+    "name": "gate",
+    "file": "gate.svg",
+    "category": "process",
+    "keywords": ["gate", "checkpoint", "review", "approval", "quality", "decision"]
+  },
+  {
+    "name": "gate-check",
+    "file": "gate-check.svg",
+    "category": "process",
+    "keywords": ["gate-check", "passed", "approved", "cleared", "checkpoint", "review", "ok"]
+  },
+  {
+    "name": "checklist",
+    "file": "checklist.svg",
+    "category": "process",
+    "keywords": ["checklist", "todo", "tasks", "items", "list", "verify", "done"]
+  },
+  {
+    "name": "cycle",
+    "file": "cycle.svg",
+    "category": "process",
+    "keywords": ["cycle", "repeat", "refresh", "rotate", "circular", "recurring", "loop"]
+  },
+  {
+    "name": "loop",
+    "file": "loop.svg",
+    "category": "process",
+    "keywords": ["loop", "iterate", "repeat", "back", "retry", "cycle", "feedback"]
+  },
+  {
+    "name": "handoff",
+    "file": "handoff.svg",
+    "category": "process",
+    "keywords": ["handoff", "transfer", "pass", "delegate", "transition", "handover"]
+  },
+  {
+    "name": "escalation",
+    "file": "escalation.svg",
+    "category": "process",
+    "keywords": ["escalation", "escalate", "raise", "elevate", "urgent", "critical", "priority"]
+  },
+  {
+    "name": "swimlane",
+    "file": "swimlane.svg",
+    "category": "process",
+    "keywords": ["swimlane", "lane", "row", "track", "parallel", "actor", "process-diagram"]
+  },
+  {
+    "name": "decision-diamond",
+    "file": "decision-diamond.svg",
+    "category": "process",
+    "keywords": ["decision", "diamond", "branch", "condition", "if", "yes-no", "choice"]
+  },
+  {
+    "name": "node-start",
+    "file": "node-start.svg",
+    "category": "process",
+    "keywords": ["start", "begin", "entry", "trigger", "initiate", "first", "launch"]
+  },
+  {
+    "name": "node-end",
+    "file": "node-end.svg",
+    "category": "process",
+    "keywords": ["end", "finish", "terminate", "complete", "exit", "final", "stop"]
+  },
+  {
+    "name": "step-sequence",
+    "file": "step-sequence.svg",
+    "category": "process",
+    "keywords": ["step", "sequence", "ordered", "numbered", "stages", "flow", "consecutive"]
+  },
+  {
+    "name": "dependency",
+    "file": "dependency.svg",
+    "category": "process",
+    "keywords": ["dependency", "depends", "requires", "link", "relation", "prerequisite", "blocked-by"]
+  },
+  {
+    "name": "blocker-link",
+    "file": "blocker-link.svg",
+    "category": "process",
+    "keywords": ["blocker", "blocked", "obstacle", "impediment", "link", "prevent", "halt"]
+  },
+  {
+    "name": "roadmap",
+    "file": "roadmap.svg",
+    "category": "process",
+    "keywords": ["roadmap", "plan", "quarters", "future", "strategy", "overview", "timeline"]
+  },
+  {
+    "name": "sprint",
+    "file": "sprint.svg",
+    "category": "process",
+    "keywords": ["sprint", "iteration", "agile", "scrum", "board", "backlog", "delivery"]
+  },
+  {
+    "name": "kanban-flow",
+    "file": "kanban-flow.svg",
+    "category": "process",
+    "keywords": ["kanban", "board", "columns", "wip", "flow", "todo", "done", "in-progress"]
+  },
+  {
+    "name": "fork-path",
+    "file": "fork-path.svg",
+    "category": "process",
+    "keywords": ["fork", "split", "diverge", "branch", "parallel", "multiple", "paths"]
+  },
+  {
+    "name": "merge-path",
+    "file": "merge-path.svg",
+    "category": "process",
+    "keywords": ["merge", "join", "converge", "combine", "reunite", "paths", "branch"]
+  },
+  {
+    "name": "approval-gate",
+    "file": "approval-gate.svg",
+    "category": "process",
+    "keywords": ["approval", "gate", "signoff", "accepted", "passed", "review", "quality"]
+  },
+  {
+    "name": "process-flow",
+    "file": "process-flow.svg",
+    "category": "process",
+    "keywords": ["process", "flow", "workflow", "steps", "chain", "sequence", "diagram"]
+  },
+  {
+    "name": "parallel-tracks",
+    "file": "parallel-tracks.svg",
+    "category": "process",
+    "keywords": ["parallel", "tracks", "concurrent", "simultaneous", "lanes", "multi-stream"]
+  }
+]

@@ -1,0 +1,417 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://genesis.local/schemas/research-paper.schema.json",
+  "title": "Research Paper",
+  "description": "Data contract for the research-paper format: a self-contained, themeable, interactive HTML rendering of a formal academic / journal article. The whole #report-data instance is rendered by an inline render() into a centred serif 'paper page'. Apparatus is academic: title block with superscript affiliations, abstract box + keywords, numbered sections/subsections, inline numbered citations, numbered HTML equations, interactive figures (charts), ruled tables, and a numbered References list. Inline citations live inside para.html as the marker [[cite:<refId>]] (and grouped [[cite:r1,r3]]) which the renderer rewrites into .rp-cite links to references[].id.",
+  "type": "object",
+  "required": ["meta", "paper", "sections", "references", "aipaper"],
+  "properties": {
+    "aipaper": {
+      "type": "object",
+      "description": "Platform metadata required by the AlexandrAI server. Identifies the template/skill versions that produced the document and classifies it against the publishing taxonomy (language + category + topics).",
+      "required": ["templateVersion", "skillVersion", "language", "primaryCategory", "secondaryCategories", "topics"],
+      "properties": {
+        "templateVersion": { "const": "research-paper@1", "description": "Template contract version; must be exactly 'research-paper@1' for this shell." },
+        "skillVersion": { "type": "string", "description": "Version string of the skill that generated the document, e.g. 'alexandrai-research-publishing@0.1.0'." },
+        "language": { "type": "string", "description": "Taxonomy language id (e.g. 'en')." },
+        "primaryCategory": { "type": "string", "description": "Primary taxonomy category id (e.g. 'computer-science.distributed-systems')." },
+        "secondaryCategories": { "type": "array", "description": "Additional taxonomy category ids.", "items": { "type": "string" } },
+        "topics": { "type": "array", "description": "Free-form topic tags for discovery.", "items": { "type": "string" } }
+      }
+    },
+    "meta": {
+      "type": "object",
+      "description": "Shared report-chrome object common to every format in the system. Brand-neutral: keep {{ORG}} / {{PROJECT}} / {{AUTHOR}} placeholders unless real values are supplied. meta.theme sets the initial brand accent applied to <html data-theme> on render.",
+      "required": ["org", "project", "reportType", "title", "subtitle", "date", "author", "theme"],
+      "properties": {
+        "org": { "type": "string", "description": "Publishing organisation / institution placeholder.", "default": "{{ORG}}" },
+        "project": { "type": "string", "description": "Project or programme placeholder.", "default": "{{PROJECT}}" },
+        "reportType": { "type": "string", "description": "Document-type label; for this format use 'Research Paper'.", "examples": ["Research Paper"] },
+        "title": { "type": "string", "description": "Document title for the <title> tag / chrome (usually mirrors paper.title)." },
+        "subtitle": { "type": "string", "description": "Short standfirst / venue line for chrome." },
+        "date": { "type": "string", "description": "Publication date, ISO 8601 (YYYY-MM-DD).", "examples": ["2026-06-22"] },
+        "author": { "type": "string", "description": "Authoring credit placeholder for chrome.", "default": "{{AUTHOR}}" },
+        "theme": {
+          "type": "string",
+          "description": "Initial brand accent preset; one of the 9 presets (Black mandatory).",
+          "enum": ["blue", "purple", "indigo", "teal", "cyan", "green", "plum", "slate", "black"]
+        }
+      }
+    },
+    "paper": {
+      "type": "object",
+      "description": "The article front-matter: title, author list with affiliation links, the affiliation directory, abstract, keywords, and DOI-like identifiers.",
+      "required": ["title", "authors", "affiliations", "abstract", "keywords"],
+      "properties": {
+        "title": { "type": "string", "description": "Full paper title (rendered large in serif in .rp-title)." },
+        "authors": {
+          "type": "array",
+          "description": "Ordered author list. Each author's affiliation markers are rendered as superscripts keyed to affiliations[].id.",
+          "items": {
+            "type": "object",
+            "required": ["name", "affil"],
+            "properties": {
+              "name": { "type": "string", "description": "Author display name." },
+              "affil": {
+                "type": "array",
+                "description": "Affiliation ids this author belongs to (must match affiliations[].id); rendered as superscript markers in order.",
+                "items": { "type": "string" }
+              },
+              "corresponding": { "type": "boolean", "description": "If true, marked as the corresponding author (asterisk + corresponding-author line)." },
+              "email": { "type": "string", "description": "Contact email shown on the corresponding-author line (optional)." }
+            }
+          }
+        },
+        "affiliations": {
+          "type": "array",
+          "description": "Affiliation directory rendered as a numbered/lettered list under the author line; ids are referenced by authors[].affil.",
+          "items": {
+            "type": "object",
+            "required": ["id", "name"],
+            "properties": {
+              "id": { "type": "string", "description": "Stable affiliation id used as the superscript marker (e.g. 'a', 'b' or '1', '2')." },
+              "name": { "type": "string", "description": "Affiliation full name / address line." }
+            }
+          }
+        },
+        "date": { "type": "string", "description": "Submission / version date shown in the article masthead (optional; falls back to meta.date)." },
+        "venue": { "type": "string", "description": "Journal / conference / preprint venue line (optional)." },
+        "articleId": { "type": "string", "description": "Optional external identifier shown in mono in the masthead. Use only a REAL id (such as a DOI); otherwise omit it. Never invent an arXiv number — the AlexandrAI site assigns the canonical id on upload." },
+        "abstract": { "type": "string", "description": "Abstract paragraph(s); plain prose rendered in the bordered/tinted .rp-abstract box. Inline HTML emphasis (<em>/<strong>) allowed; no citations in the abstract." },
+        "keywords": {
+          "type": "array",
+          "description": "Keyword terms rendered on the 'Keywords:' line under the abstract.",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "sections": {
+      "type": "array",
+      "description": "Ordered, recursively-nestable numbered sections. Each section renders a serif heading prefixed by its number and a stack of content blocks; child sections become subsections (e.g. 1.1, 1.2).",
+      "items": { "$ref": "#/$defs/section" }
+    },
+    "references": {
+      "type": "array",
+      "description": "Numbered reference list (the citation targets). Render order defines [n]; each entry's id is the target of [[cite:id]] markers and of citation click-to-scroll.",
+      "items": {
+        "type": "object",
+        "required": ["id", "authors", "title", "year"],
+        "properties": {
+          "id": { "type": "string", "description": "Stable reference id referenced by inline [[cite:id]] markers." },
+          "authors": { "type": "string", "description": "Author string for the reference, e.g. 'Okabe T., Lindgren A.'." },
+          "title": { "type": "string", "description": "Work title." },
+          "venue": { "type": "string", "description": "Journal / conference / publisher (optional)." },
+          "year": { "type": ["integer", "string"], "description": "Publication year." },
+          "url": { "type": "string", "description": "Optional link; rendered as an external-link affordance (kept brand-neutral / may be a DOI-style string)." }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "section": {
+      "type": "object",
+      "description": "A numbered section or subsection. 'number' is the display label (e.g. '2', '2.1'); 'children' (if present) render as subsections.",
+      "required": ["id", "number", "heading", "blocks"],
+      "properties": {
+        "id": { "type": "string", "description": "Stable section id; used as the scroll anchor and the outline-nav target." },
+        "number": { "type": "string", "description": "Display section number, e.g. '1', '2', '2.1'." },
+        "heading": { "type": "string", "description": "Section heading text (rendered in serif)." },
+        "blocks": {
+          "type": "array",
+          "description": "Ordered content blocks for this section.",
+          "items": { "$ref": "#/$defs/block" }
+        },
+        "children": {
+          "type": "array",
+          "description": "Optional nested subsections.",
+          "items": { "$ref": "#/$defs/section" }
+        }
+      }
+    },
+    "block": {
+      "type": "object",
+      "description": "One content block. Discriminated by 'type'. para = justified serif paragraph (HTML, may carry [[cite:id]] citation markers); equation = numbered centred HTML/Unicode equation; figure = an interactive chart (or an embedded image) with caption; table = a ruled booktabs-style table; list = an ordered/unordered list.",
+      "required": ["type"],
+      "properties": {
+        "type": { "type": "string", "enum": ["para", "equation", "figure", "table", "list"], "description": "Block discriminator." },
+        "html": { "type": "string", "description": "para: paragraph HTML (inline <em>/<strong>/<code> allowed). Citation markers [[cite:refId]] or grouped [[cite:r1,r3]] are rewritten by the renderer into .rp-cite links. equation: the equation body as HTML using <sup>/<sub>/Unicode math (NO external math library)." },
+        "number": { "type": ["integer", "string"], "description": "equation: display number rendered right-aligned as '(n)'." },
+        "id": { "type": "string", "description": "figure/table: stable id; used as the scroll anchor and referenced by captions." },
+        "caption": { "type": "string", "description": "figure/table: caption text rendered after the bold 'Figure N.' / 'Table N.' label." },
+        "chart": { "$ref": "#/$defs/chart", "description": "figure: the interactive chart definition. A figure carries EITHER a chart OR an image." },
+        "image": {
+          "type": "object",
+          "description": "figure: embed an image instead of a chart (photo, micrograph, diagram, screenshot). Prefer a data: URI so the document stays self-contained; external http(s) URLs may be blocked.",
+          "required": ["src"],
+          "properties": {
+            "src": { "type": "string", "description": "Image source — preferably a data: URI (e.g. 'data:image/png;base64,iVBORw0KGgo...'). An http(s) URL works only if the host permits it." },
+            "alt": { "type": "string", "description": "Accessible alternative text (falls back to the caption)." }
+          }
+        },
+        "columns": {
+          "type": "array",
+          "description": "table: column definitions (header label + alignment + optional numeric flag for sorting).",
+          "items": {
+            "type": "object",
+            "required": ["key", "label"],
+            "properties": {
+              "key": { "type": "string", "description": "Row-object key this column reads." },
+              "label": { "type": "string", "description": "Column header text." },
+              "align": { "type": "string", "enum": ["left", "right", "center"], "description": "Cell alignment (numeric columns usually 'right')." },
+              "numeric": { "type": "boolean", "description": "If true, the column sorts numerically and uses tabular figures." }
+            }
+          }
+        },
+        "rows": {
+          "type": "array",
+          "description": "table: row objects keyed by columns[].key.",
+          "items": { "type": "object" }
+        },
+        "ordered": { "type": "boolean", "description": "list: render as an ordered <ol> when true, else an unordered list." },
+        "items": {
+          "type": "array",
+          "description": "list: item strings (inline HTML + [[cite:id]] markers allowed).",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "chart": {
+      "type": "object",
+      "description": "An interactive figure chart drawn with inline SVG (no chart library). Every chart supports hover tooltips with exact values; multi-series kinds add a clickable legend that toggles series. 'control' optionally adds a per-figure parameter control. The data shape depends on 'kind' — see the per-property notes below. Renderer dispatch lives in drawFigure(); axis-less kinds (pie/donut/radar/heatmap) skip x/y axes.",
+      "required": ["kind"],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": ["line", "scatter", "area", "stacked-area", "step", "bubble", "bar", "stacked-bar", "horizontal-bar", "pie", "donut", "radar", "histogram", "box", "heatmap", "waterfall"],
+          "description": "Chart type, governing the data shape consumed. POINT kinds (series[].points): line/scatter/area/stacked-area/step use [x,y]; bubble uses [x,y,r]. CATEGORY kinds (categories[] + series[].values[]): bar (grouped), stacked-bar (stacked), horizontal-bar (rotated bar), waterfall (signed deltas). SLICE kinds (single series.slices[]): pie, donut. radar uses axes[] + series[].values[]. histogram uses bins[]. box uses categories[] + series[].boxes[]. heatmap uses xLabels[]/yLabels[]/z[][]."
+        },
+        "xLabel": { "type": "string", "description": "X-axis title (ignored by axis-less kinds: pie/donut/radar/heatmap)." },
+        "yLabel": { "type": "string", "description": "Y-axis title (ignored by axis-less kinds)." },
+        "categories": {
+          "type": "array",
+          "description": "bar/stacked-bar/horizontal-bar/box/waterfall: category labels along the category axis (aligned to each series' values[]/boxes[]).",
+          "items": { "type": "string" }
+        },
+        "axes": {
+          "type": "array",
+          "description": "radar: spoke labels (one per axis), aligned to each series' values[].",
+          "items": { "type": "string" }
+        },
+        "xLabels": {
+          "type": "array",
+          "description": "heatmap: column labels along the x-axis (length = number of columns in z).",
+          "items": { "type": "string" }
+        },
+        "yLabels": {
+          "type": "array",
+          "description": "heatmap: row labels along the y-axis (length = number of rows in z).",
+          "items": { "type": "string" }
+        },
+        "z": {
+          "type": "array",
+          "description": "heatmap: matrix of numeric cell values; z[row][col] aligned to yLabels[row]/xLabels[col]. Cell tint interpolates the brand accent across the value range.",
+          "items": { "type": "array", "items": { "type": "number" } }
+        },
+        "bins": {
+          "type": "array",
+          "description": "histogram: precomputed bins. Each bin is the half-open interval [x0, x1) with the given count.",
+          "items": {
+            "type": "object",
+            "required": ["x0", "x1", "count"],
+            "properties": {
+              "x0": { "type": "number", "description": "Bin lower edge (inclusive)." },
+              "x1": { "type": "number", "description": "Bin upper edge (exclusive)." },
+              "count": { "type": "number", "description": "Number of observations in the bin." }
+            }
+          }
+        },
+        "total": { "type": "boolean", "description": "waterfall: when true, append a final 'total' bar equal to the running cumulative sum of the deltas." },
+        "series": {
+          "type": "array",
+          "description": "Plotted data series; each gets a legend entry and a distinct accent (the brand accent for the primary series). Toggling a legend entry hides/shows that series. Pie/donut use a single series carrying slices[]; histogram and heatmap ignore series.",
+          "items": {
+            "type": "object",
+            "required": ["name"],
+            "properties": {
+              "name": { "type": "string", "description": "Series name (legend label + tooltip label)." },
+              "color": { "type": "string", "enum": ["navy", "risk", "hold", "ok", "ink"], "description": "Semantic accent token for the series (default cycles starting at the brand accent 'navy'). No 4th invented colour." },
+              "points": {
+                "type": "array",
+                "description": "line/scatter/area/stacked-area/step: ordered [x, y] numeric pairs. bubble: [x, y, r] triples (r = bubble radius value).",
+                "items": { "type": "array", "items": { "type": "number" }, "minItems": 2, "maxItems": 3 }
+              },
+              "values": {
+                "type": "array",
+                "description": "bar/stacked-bar/horizontal-bar/waterfall: numeric values aligned to chart.categories. radar: numeric values aligned to chart.axes. waterfall values are signed deltas.",
+                "items": { "type": "number" }
+              },
+              "slices": {
+                "type": "array",
+                "description": "pie/donut: the wedges of the single series. Each slice is a named value; optional per-slice color token (else cycles the semantic palette).",
+                "items": {
+                  "type": "object",
+                  "required": ["name", "value"],
+                  "properties": {
+                    "name": { "type": "string", "description": "Slice label (legend + tooltip)." },
+                    "value": { "type": "number", "description": "Slice magnitude (non-negative); rendered proportional to the sum." },
+                    "color": { "type": "string", "enum": ["navy", "risk", "hold", "ok", "ink"], "description": "Optional semantic accent token for this slice." }
+                  }
+                }
+              },
+              "boxes": {
+                "type": "array",
+                "description": "box: one five-number summary per category (aligned to chart.categories).",
+                "items": {
+                  "type": "object",
+                  "required": ["min", "q1", "median", "q3", "max"],
+                  "properties": {
+                    "min": { "type": "number", "description": "Lower whisker." },
+                    "q1": { "type": "number", "description": "First quartile (box bottom)." },
+                    "median": { "type": "number", "description": "Median line." },
+                    "q3": { "type": "number", "description": "Third quartile (box top)." },
+                    "max": { "type": "number", "description": "Upper whisker." },
+                    "outliers": { "type": "array", "description": "Optional individual outlier points beyond the whiskers.", "items": { "type": "number" } }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "control": {
+          "type": "object",
+          "description": "Optional per-figure parameter control. kind:'slider' overlays a fitted model curve y = f(x; param) recomputed live as the slider moves (point kinds: line/scatter/area/step); kind:'datatable' adds a show/hide toggle that reveals the figure's underlying values as a small ruled table (supported wherever a tabular view makes sense).",
+          "required": ["kind"],
+          "properties": {
+            "kind": { "type": "string", "enum": ["slider", "datatable"], "description": "Control type." },
+            "label": { "type": "string", "description": "Control label (e.g. the parameter name)." },
+            "min": { "type": "number", "description": "slider: minimum value." },
+            "max": { "type": "number", "description": "slider: maximum value." },
+            "step": { "type": "number", "description": "slider: step." },
+            "value": { "type": "number", "description": "slider: initial value." },
+            "model": { "type": "string", "enum": ["linear", "power"], "description": "slider: overlay model — 'linear' draws y = value·x; 'power' draws y = c·x^value fitted to the first series. Recomputed live." },
+            "unit": { "type": "string", "description": "slider: unit suffix for the live read-out." }
+          }
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "aipaper": {
+        "templateVersion": "research-paper@1",
+        "skillVersion": "alexandrai-research-publishing@0.1.0",
+        "language": "en",
+        "primaryCategory": "computer-science.distributed-systems",
+        "secondaryCategories": [],
+        "topics": ["tail latency", "sharded ledger"]
+      },
+      "meta": {
+        "org": "{{ORG}}",
+        "project": "{{PROJECT}}",
+        "reportType": "Research Paper",
+        "title": "Tail-Latency Behaviour of Sharded Ledger Commit Under Bursty Load",
+        "subtitle": "A measurement study of distributed banking-core transaction pipelines",
+        "date": "2026-06-22",
+        "author": "{{AUTHOR}}",
+        "theme": "indigo"
+      },
+      "paper": {
+        "title": "Tail-Latency Behaviour of Sharded Ledger Commit Under Bursty Load: A Measurement Study",
+        "authors": [
+          { "name": "A. R. Voss", "affil": ["a"], "corresponding": true, "email": "voss@example.edu" },
+          { "name": "M. Okonkwo", "affil": ["a", "b"] },
+          { "name": "L. Brandt", "affil": ["b"] }
+        ],
+        "affiliations": [
+          { "id": "a", "name": "Institute for Distributed Systems, Northgate University" },
+          { "id": "b", "name": "Centre for Financial Computing, Meridian Institute of Technology" }
+        ],
+        "venue": "Preprint — under review",
+        "abstract": "We present a measurement study of commit latency in a horizontally sharded ledger across 18 weeks of production-shadow traffic. Under bursty arrivals the 99.9th-percentile commit time degrades up to 7x faster than the median, driven primarily by cross-shard coordination rather than disk I/O. We characterise the degradation as a power law in offered load and show that a bounded-staleness read path removes 63% of the tail without weakening settlement guarantees.",
+        "keywords": ["tail latency", "distributed ledger", "sharding", "quorum commit", "banking systems"]
+      },
+      "sections": [
+        {
+          "id": "intro",
+          "number": "1",
+          "heading": "Introduction",
+          "blocks": [
+            { "type": "para", "html": "Latency tails dominate the user-visible cost of distributed commit paths. Prior work establishes that medians are poor predictors of tail behaviour under contention [[cite:dean2013]], yet most ledger benchmarks still report means [[cite:nishi2024,brandt2025]]." },
+            { "type": "list", "ordered": true, "items": [
+              "a longitudinal characterisation of p50/p99/p99.9 commit latency under real bursts;",
+              "a fitted power-law model relating tail latency to offered load;",
+              "a bounded-staleness read path that cuts the tail without weakening guarantees."
+            ] }
+          ]
+        },
+        {
+          "id": "method",
+          "number": "2",
+          "heading": "Method",
+          "blocks": [
+            { "type": "para", "html": "We model offered load <em>L</em> against the 99.9th-percentile commit time <em>T</em><sub>p99.9</sub> and fit a power law, following the contention analysis of [[cite:dean2013]]." },
+            { "type": "equation", "number": 1, "html": "T<sub>p99.9</sub> &nbsp;=&nbsp; c &middot; L<sup>&alpha;</sup> &nbsp;+&nbsp; T<sub>0</sub>" }
+          ],
+          "children": [
+            {
+              "id": "method-data",
+              "number": "2.1",
+              "heading": "Data collection",
+              "blocks": [
+                { "type": "figure", "id": "fig-tail", "number": 1, "caption": "Commit latency percentiles versus offered load (transactions per second). Tail percentiles rise super-linearly; drag the exponent to overlay the fitted power-law model.",
+                  "chart": { "kind": "line", "xLabel": "Offered load (ktps)", "yLabel": "Commit latency (ms)",
+                    "series": [
+                      { "name": "p50", "color": "ok", "points": [[1,8],[2,9],[4,11],[8,14],[12,19],[16,27],[20,41]] },
+                      { "name": "p99", "color": "navy", "points": [[1,22],[2,28],[4,39],[8,63],[12,104],[16,182],[20,310]] },
+                      { "name": "p99.9", "color": "risk", "points": [[1,41],[2,57],[4,92],[8,168],[12,300],[16,540],[20,910]] }
+                    ],
+                    "control": { "kind": "slider", "label": "model exponent α", "min": 1, "max": 3, "step": 0.05, "value": 2.1, "model": "power", "unit": "" } } }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "results",
+          "number": "3",
+          "heading": "Results",
+          "blocks": [
+            { "type": "para", "html": "Table 1 summarises the per-region degradation. Cross-shard coordination accounts for the majority of the tail in every region [[cite:nishi2024]]." },
+            { "type": "table", "id": "tab-region", "number": 1, "caption": "Tail-latency degradation factor (p99.9 / p50) by region at 16 ktps.",
+              "columns": [
+                { "key": "region", "label": "Region", "align": "left" },
+                { "key": "p50", "label": "p50 (ms)", "align": "right", "numeric": true },
+                { "key": "p999", "label": "p99.9 (ms)", "align": "right", "numeric": true },
+                { "key": "factor", "label": "Factor", "align": "right", "numeric": true }
+              ],
+              "rows": [
+                { "region": "eu-central", "p50": 27, "p999": 540, "factor": 20.0 },
+                { "region": "us-east", "p50": 24, "p999": 612, "factor": 25.5 },
+                { "region": "ap-south", "p50": 31, "p999": 503, "factor": 16.2 }
+              ] },
+            { "type": "figure", "id": "fig-mix", "number": 2, "caption": "Where the tail goes: mean contribution to p99.9 commit time by stage. Toggle the legend to isolate a stage.",
+              "chart": { "kind": "bar", "xLabel": "Pipeline stage", "yLabel": "Contribution (ms)",
+                "categories": ["queue", "validate", "cross-shard", "fsync", "replicate"],
+                "series": [
+                  { "name": "baseline", "color": "navy", "values": [40, 70, 360, 55, 95] },
+                  { "name": "bounded-staleness", "color": "ok", "values": [38, 66, 95, 52, 88] }
+                ],
+                "control": { "kind": "datatable" } } }
+          ]
+        },
+        {
+          "id": "concl",
+          "number": "4",
+          "heading": "Conclusion",
+          "blocks": [
+            { "type": "para", "html": "A bounded-staleness read path removes 63% of the p99.9 tail while preserving settlement correctness [[cite:brandt2025]]. Future work will extend the model to multi-region quorum reconfiguration." }
+          ]
+        }
+      ],
+      "references": [
+        { "id": "dean2013", "authors": "Dean J., Barroso L. A.", "title": "The tail at scale", "venue": "Communications of the ACM 56(2)", "year": 2013 },
+        { "id": "nishi2024", "authors": "Nishimura K., Adeyemi T.", "title": "Coordination cost in sharded financial ledgers", "venue": "Proc. Symp. on Distributed Data", "year": 2024 },
+        { "id": "brandt2025", "authors": "Brandt L., Okonkwo M.", "title": "Bounded staleness for settlement-safe reads", "venue": "Journal of Banking Systems 12(4)", "year": 2025, "url": "doi:10.0000/jbs.2025.0042" }
+      ]
+    }
+  ]
+}
