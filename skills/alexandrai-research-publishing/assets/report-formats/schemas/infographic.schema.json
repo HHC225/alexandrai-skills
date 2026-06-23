@@ -1,0 +1,232 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://genesis.local/html_report_design/schemas/infographic.schema.json",
+  "title": "Infographic report",
+  "description": "Data contract for the infographic format: a full-bleed vertical visual-narrative poster. The page is a vertical stack of 100vw coloured bands (alternating white / --navy-bg tint / --bg-band soft / one --bg-deep dark). Each band is one poster stage identified by a kicker number and kind. Oversized tnum numbers lead every stage; CSS/SVG-drawn diagram primitives (hero stat bursts, process flow, funnel, pyramid, cycle, comparison block) carry the story. Captions replace paragraphs. Default theme: Green. The sample's full HTML is the canonical rendered instance of this schema.",
+  "type": "object",
+  "required": ["meta", "bands"],
+  "additionalProperties": false,
+  "properties": {
+    "meta": {
+      "type": "object",
+      "description": "Shared report chrome (org / project / title / theme). Brand-neutral: keep {{ORG}} / {{PROJECT}} / {{AUTHOR}} placeholders unless real values are supplied.",
+      "required": ["org", "project", "reportType", "title", "date", "theme"],
+      "additionalProperties": false,
+      "properties": {
+        "org": { "type": "string", "description": "Organisation name or {{ORG}} placeholder.", "default": "{{ORG}}" },
+        "project": { "type": "string", "description": "Project / programme name or {{PROJECT}} placeholder.", "default": "{{PROJECT}}" },
+        "reportType": { "type": "string", "description": "Eyebrow category label shown in the hero band, e.g. 'State of Digital Onboarding' or {{REPORT_TYPE}}." },
+        "title": { "type": "string", "description": "Poster main title shown oversized in the hero band, e.g. 'The State of Digital Onboarding 2026'." },
+        "subtitle": { "type": "string", "description": "Optional standfirst sentence (2–3 lines) that appears directly under the title in the hero band." },
+        "date": { "type": "string", "description": "ISO date the infographic was produced (YYYY-MM-DD).", "format": "date" },
+        "author": { "type": "string", "description": "Author / owning team or {{AUTHOR}} placeholder.", "default": "{{AUTHOR}}" },
+        "chips": {
+          "type": "array",
+          "description": "Optional mono pills shown in the hero band under the standfirst, e.g. survey scope or methodology chips.",
+          "items": { "type": "string", "description": "Chip label text, e.g. 'SURVEY N = 4,206,118', 'FY2025 · 18 MARKETS'." }
+        },
+        "theme": {
+          "type": "string",
+          "description": "Initial brand theme; applied as <html data-theme>. Infographic default is 'green'.",
+          "enum": ["blue", "purple", "indigo", "teal", "cyan", "green", "plum", "slate", "black"],
+          "default": "green"
+        }
+      }
+    },
+    "bands": {
+      "type": "array",
+      "description": "Ordered sequence of poster bands. The first band should be kind='hero'. Subsequent bands each carry one diagram kind. The last content band is typically kind='takeaway' before the source footer.",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "kind"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "description": "Stable unique band key, e.g. 'hero', 'process', 'funnel', 'pyramid'." },
+          "kind": {
+            "type": "string",
+            "description": "The poster diagram / layout type for this band. 'hero' = opening stat-burst row with title and standfirst. 'stat' = one or more large tnum numbers (stat-burst grid). 'process' = horizontal numbered process-flow steps (proc-flow). 'funnel' = tapering funnel stages with values and drop-off labels. 'pyramid' = layered value/maturity pyramid (pyr-tier stack). 'cycle' = continuous lifecycle/improvement cycle ring with nodes. 'compare' = two-column then/now or A-vs-B comparison on a dark band. 'takeaway' = closing single stat-burst + lede sentence.",
+            "enum": ["hero", "stat", "process", "funnel", "pyramid", "cycle", "compare", "takeaway"]
+          },
+          "bg": {
+            "type": "string",
+            "description": "Band background variant. 'white' = plain white (default); 'tint' = --navy-bg brand tint (.band--tint); 'soft' = --bg-band soft grey (.band--soft); 'deep' = --bg-deep dark inverted (.band--deep, light ink).",
+            "enum": ["white", "tint", "soft", "deep"],
+            "default": "white"
+          },
+          "kicker": { "type": "string", "description": "Optional mono kicker label for this stage, e.g. '01 / THE JOURNEY'. The number prefix is rendered in the brand accent colour. Omit for the hero band." },
+          "heading": { "type": "string", "description": "Optional stage heading shown at 24–34px/800 (band-head) below the kicker." },
+          "subtext": { "type": "string", "description": "Optional 1–2 sentence caption (band-sub) beneath the heading. This is the maximum prose for any band; one line is ideal." },
+          "items": {
+            "type": "array",
+            "description": "Band content items. Shape varies by kind. hero/stat: each item is a stat-burst ({bignum, unit, label, note, delta, deltaDir, state}). process: each item is a step ({n, title, desc, stat}). funnel: each item is a stage ({label, sublabel, value, widthPct, dropLabel?}). pyramid: each item is a tier ({label, sublabel, value}). cycle: each item is a node ({label, desc}). compare: two items (each {tag, bignum, unit, caption, rows:[{label,value}], state?}). takeaway: single stat-burst item.",
+            "items": {
+              "type": "object",
+              "additionalProperties": true,
+              "description": "Band item. Required fields vary by band kind — see 'items' description above."
+            }
+          },
+          "stats": {
+            "type": "array",
+            "description": "Alias for 'items' used specifically for stat-burst collections (hero burst-row and stat bands). Kept as an alternative key for clarity in hero bands.",
+            "items": {
+              "type": "object",
+              "required": ["bignum", "label"],
+              "additionalProperties": false,
+              "properties": {
+                "bignum": { "type": "string", "description": "Oversized tnum number shown in the burst (string to preserve formatting), e.g. '68', '4', '$1.4'." },
+                "unit": { "type": "string", "description": "Unit shown in a smaller superscript after the bignum, e.g. '%', 'm 51s', 'B'." },
+                "label": { "type": "string", "description": "Tracked mono label under the bignum, e.g. 'End-to-end completion'." },
+                "note": { "type": "string", "description": "Optional one-sentence burst note under the label." },
+                "delta": { "type": "string", "description": "Optional delta label, e.g. '14 pts YoY', '−47% faster'." },
+                "deltaDir": {
+                  "type": "string",
+                  "description": "Direction of the delta arrow: 'up' (ok colour), 'down' (risk colour).",
+                  "enum": ["up", "down"]
+                },
+                "state": {
+                  "type": "string",
+                  "description": "Optional semantic colour for the bignum itself: 'ok' = brand ok green, 'hold' = amber, 'risk' = bordeaux, omit for the default brand navy.",
+                  "enum": ["ok", "hold", "risk"]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "source": {
+      "type": "object",
+      "description": "Source / methodology footnote block rendered in the poster footer band.",
+      "additionalProperties": false,
+      "properties": {
+        "notes": {
+          "type": "array",
+          "description": "One or more source note lines. Each line is rendered as a small mono paragraph prefixed with 'Source:' or 'Compiled:' as appropriate.",
+          "items": { "type": "string", "description": "A source note line, e.g. '{{PROJECT}} Onboarding Analytics warehouse (event-level, FY2025); KYC decision logs; cohort funnel reconstructed from 4,206,118 sessions across 18 markets. Figures rounded.'." }
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "meta": {
+        "org": "{{ORG}}",
+        "project": "{{PROJECT}}",
+        "reportType": "State of Digital Onboarding",
+        "title": "The State of Digital Onboarding 2026",
+        "subtitle": "How 4.2 million prospective customers moved from first tap to a funded account this year — the numbers, the funnel, and where the journey still leaks.",
+        "date": "2026-06-22",
+        "author": "{{AUTHOR}}",
+        "chips": ["SURVEY N = 4,206,118", "FY2025 · 18 MARKETS", "UPDATED {{DATE}}"],
+        "theme": "green"
+      },
+      "bands": [
+        {
+          "id": "hero",
+          "kind": "hero",
+          "bg": "white",
+          "stats": [
+            { "bignum": "68", "unit": "%",    "label": "End-to-end completion",  "note": "Applicants who reached a funded account, up from 54% a year ago.",   "delta": "14 pts YoY",  "deltaDir": "up",   "state": "ok" },
+            { "bignum": "4",  "unit": "m 51s","label": "Median time to fund",    "note": "From app open to first deposit — nearly half of last year's 9m 12s.", "delta": "−47% faster", "deltaDir": "up" },
+            { "bignum": "22", "unit": "%",    "label": "Identity-step drop-off", "note": "The single largest leak in the funnel — still the priority to fix.",  "delta": "+3 pts YoY",  "deltaDir": "down", "state": "hold" }
+          ]
+        },
+        {
+          "id": "process",
+          "kind": "process",
+          "bg": "tint",
+          "kicker": "01 / THE JOURNEY",
+          "heading": "Four steps from first tap to funded",
+          "subtext": "Every onboarding now follows one streamlined path. Median minutes spent at each stage are shown below the step.",
+          "items": [
+            { "n": "1", "title": "Sign up",        "desc": "Email or phone, single screen, no password required up front.",              "stat": "0m 38s" },
+            { "n": "2", "title": "Verify identity","desc": "Document scan plus liveness check; auto-decision in seconds.",                "stat": "2m 04s" },
+            { "n": "3", "title": "Open account",   "desc": "Product selected, terms accepted, account number issued instantly.",          "stat": "1m 12s" },
+            { "n": "4", "title": "Fund & activate","desc": "First deposit lands; card and app fully active.",                             "stat": "0m 57s" }
+          ]
+        },
+        {
+          "id": "funnel",
+          "kind": "funnel",
+          "bg": "white",
+          "kicker": "02 / THE FUNNEL",
+          "heading": "Where the 4.2 million go",
+          "subtext": "Of everyone who opened the app, just over two-thirds reach a funded account. The widest leak is still identity verification.",
+          "items": [
+            { "label": "App opened",         "sublabel": "Reached the start screen",           "value": "4,206,118", "widthPct": 100 },
+            { "dropLabel": "▼ 9% abandon before sign-up" },
+            { "label": "Sign-up completed",  "sublabel": "Email or phone confirmed",            "value": "3,827,567", "widthPct": 86 },
+            { "dropLabel": "▼ 22% lost at identity step" },
+            { "label": "Identity verified",  "sublabel": "Passed KYC and liveness",             "value": "2,985,502", "widthPct": 68 },
+            { "dropLabel": "▼ 6% drop selecting a product" },
+            { "label": "Account opened",     "sublabel": "Number issued, terms accepted",       "value": "2,806,373", "widthPct": 60 },
+            { "dropLabel": "▼ 2% never make a first deposit" },
+            { "label": "Funded & active",    "sublabel": "First deposit received",              "value": "2,860,160", "widthPct": 54 }
+          ]
+        },
+        {
+          "id": "pyramid",
+          "kind": "pyramid",
+          "bg": "soft",
+          "kicker": "03 / THE VALUE LADDER",
+          "heading": "Not all funded accounts are equal",
+          "subtext": "Funded customers stratify into a value pyramid — a narrow base of premium relationships sits above a wide foundation of everyday accounts.",
+          "items": [
+            { "label": "Premium / advised",   "sublabel": "Multi-product, wealth-tier",      "value": "4%" },
+            { "label": "Engaged primary",     "sublabel": "Salary in, >5 txns / week",       "value": "19%" },
+            { "label": "Active everyday",     "sublabel": "Regular but secondary use",        "value": "41%" },
+            { "label": "Funded, low-activity","sublabel": "Opened, lightly used",             "value": "36%" }
+          ]
+        },
+        {
+          "id": "compare",
+          "kind": "compare",
+          "bg": "deep",
+          "kicker": "04 / THEN vs NOW",
+          "heading": "Two years of compounding gains",
+          "subtext": "The same onboarding flow, measured in 2024 and again in 2026, after the streamlined identity step shipped.",
+          "items": [
+            {
+              "tag": "FY2024 · Baseline",
+              "bignum": "54", "unit": "%",
+              "caption": "Completion when onboarding ran on the legacy seven-screen flow.",
+              "rows": [
+                { "label": "Median time to fund",    "value": "9m 12s" },
+                { "label": "Support contacts / 1k",  "value": "38" },
+                { "label": "Cost to acquire",         "value": "$41.20" }
+              ]
+            },
+            {
+              "tag": "FY2025 · Today",
+              "bignum": "68", "unit": "%",
+              "caption": "Completion on the four-step flow with instant identity decisions.",
+              "state": "ok",
+              "rows": [
+                { "label": "Median time to fund",    "value": "4m 51s" },
+                { "label": "Support contacts / 1k",  "value": "17" },
+                { "label": "Cost to acquire",         "value": "$26.80" }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "takeaway",
+          "kind": "takeaway",
+          "bg": "white",
+          "kicker": "05 / THE TAKEAWAY",
+          "subtext": "Faster, simpler onboarding now brings in $1.4 billion in new deposits a year. Close the 22% identity-step leak and another ~850,000 accounts reach funding — the clearest growth lever for 2026.",
+          "stats": [
+            { "bignum": "$1.4", "unit": "B", "label": "Deposits onboarded in FY2025", "state": "ok" }
+          ]
+        }
+      ],
+      "source": {
+        "notes": [
+          "{{PROJECT}} Onboarding Analytics warehouse (event-level, FY2025); KYC decision logs; cohort funnel reconstructed from 4,206,118 sessions across 18 markets. Figures rounded.",
+          "Compiled: {{AUTHOR}} · {{DATE}} · figures illustrative / fictional."
+        ]
+      }
+    }
+  ]
+}

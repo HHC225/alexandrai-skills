@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="plum">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>{{PROJECT}} · Vendor Cup Bracket — {{ORG}}</title>
+
+<!-- ============================================================
+     DATA-DRIVEN: the ONLY content source. render() builds the
+     whole bracket DOM from this JSON on DOMContentLoaded; it is a
+     valid instance of designs/schemas/bracket.schema.json.
+     Champion is COMPUTED from the final's winner (not stored).
+     Connector geometry is COMPUTED from live card positions at
+     render time — never hard-coded pixels in the data.
+     ============================================================ -->
+<script type="application/json" id="report-data">
+{
+  "meta": {
+    "org": "{{ORG}}",
+    "project": "{{PROJECT}}",
+    "reportType": "Vendor Bake-off",
+    "title": "Core-Platform Vendor Cup 2026",
+    "subtitle": "16 vendors · single elimination · scored 0–100",
+    "date": "2026-06-22",
+    "author": "{{AUTHOR}}",
+    "theme": "plum"
+  },
+  "format": "single",
+  "scoreUnit": "pts",
+  "rounds": [
+    { "id": "r16",   "name": "Round of 16",  "order": 0 },
+    { "id": "qf",    "name": "Quarterfinals","order": 1 },
+    { "id": "sf",    "name": "Semifinals",   "order": 2 },
+    { "id": "final", "name": "Final",        "order": 3 }
+  ],
+  "matches": [
+    { "id": "m-r16-1", "roundId": "r16", "slot": 0, "status": "done", "winner": "a", "feedsInto": "m-qf-1",
+      "a": { "seed": 1,  "name": "Nimbus Core",  "score": 87, "detail": "Group A · cloud-native ledger" },
+      "b": { "seed": 16, "name": "Beacon Stack", "score": 54, "detail": "Group A · monolith-first" },
+      "time": "2026-06-16 09:00", "venue": "Stage A — Evaluation Lab", "note": "Top seed cruised on TCO and security posture." },
+    { "id": "m-r16-2", "roundId": "r16", "slot": 1, "status": "done", "winner": "b", "feedsInto": "m-qf-1",
+      "a": { "seed": 9,  "name": "Forge Data",   "score": 61, "detail": "Group A · data-mesh" },
+      "b": { "seed": 8,  "name": "Vela Systems", "score": 73, "detail": "Group A · event-driven" },
+      "time": "2026-06-16 11:00", "venue": "Stage A — Evaluation Lab", "note": "Vela edged it on integration latency." },
+    { "id": "m-r16-3", "roundId": "r16", "slot": 2, "status": "done", "winner": "a", "feedsInto": "m-qf-2",
+      "a": { "seed": 4,  "name": "Atlas Ledger", "score": 78, "detail": "Group B · ISO-20022 native" },
+      "b": { "seed": 13, "name": "Quill Pay",    "score": 66, "detail": "Group B · payments-first" },
+      "time": "2026-06-16 13:00", "venue": "Stage B — Evaluation Lab", "note": "Atlas won on compliance coverage." },
+    { "id": "m-r16-4", "roundId": "r16", "slot": 3, "status": "done", "winner": "a", "feedsInto": "m-qf-2",
+      "a": { "seed": 5,  "name": "Orbit Core",   "score": 70, "detail": "Group B · microservices" },
+      "b": { "seed": 12, "name": "Cedar Bank",   "score": 69, "detail": "Group B · low-code" },
+      "time": "2026-06-16 15:00", "venue": "Stage B — Evaluation Lab", "note": "Decided by one point on resilience drills." },
+    { "id": "m-r16-5", "roundId": "r16", "slot": 4, "status": "done", "winner": "b", "feedsInto": "m-qf-3",
+      "a": { "seed": 6,  "name": "Pylon Pay",    "score": 58, "detail": "Group C · gateway-led" },
+      "b": { "seed": 3,  "name": "Helix Bank",   "score": 81, "detail": "Group C · API-first" },
+      "time": "2026-06-17 09:00", "venue": "Stage A — Evaluation Lab", "note": "Helix dominant on throughput." },
+    { "id": "m-r16-6", "roundId": "r16", "slot": 5, "status": "done", "winner": "a", "feedsInto": "m-qf-3",
+      "a": { "seed": 11, "name": "Slate Rail",   "score": 64, "detail": "Group C · rails-native" },
+      "b": { "seed": 14, "name": "Mint Stack",   "score": 49, "detail": "Group C · starter-tier" },
+      "time": "2026-06-17 11:00", "venue": "Stage A — Evaluation Lab", "note": "Upset over the higher seed on cost." },
+    { "id": "m-r16-7", "roundId": "r16", "slot": 6, "status": "done", "winner": "a", "feedsInto": "m-qf-4",
+      "a": { "seed": 7,  "name": "Tessera",      "score": 75, "detail": "Group D · modular-core" },
+      "b": { "seed": 10, "name": "Verde Pay",    "score": 60, "detail": "Group D · green-cloud" },
+      "time": "2026-06-17 13:00", "venue": "Stage B — Evaluation Lab", "note": "Tessera clean across all rubrics." },
+    { "id": "m-r16-8", "roundId": "r16", "slot": 7, "status": "done", "winner": "b", "feedsInto": "m-qf-4",
+      "a": { "seed": 15, "name": "Drift Core",   "score": 52, "detail": "Group D · serverless" },
+      "b": { "seed": 2,  "name": "Aegis Bank",   "score": 84, "detail": "Group D · security-first" },
+      "time": "2026-06-17 15:00", "venue": "Stage B — Evaluation Lab", "note": "Second seed comfortable." },
+
+    { "id": "m-qf-1", "roundId": "qf", "slot": 0, "status": "done", "winner": "a", "feedsInto": "m-sf-1",
+      "a": { "seed": 1, "name": "Nimbus Core",  "score": 82, "detail": "Group A · cloud-native ledger" },
+      "b": { "seed": 8, "name": "Vela Systems", "score": 68, "detail": "Group A · event-driven" },
+      "time": "2026-06-19 09:00", "venue": "Stage A — Evaluation Lab", "note": "Nimbus held a steady lead on data integrity." },
+    { "id": "m-qf-2", "roundId": "qf", "slot": 1, "status": "done", "winner": "a", "feedsInto": "m-sf-1",
+      "a": { "seed": 4, "name": "Atlas Ledger", "score": 76, "detail": "Group B · ISO-20022 native" },
+      "b": { "seed": 5, "name": "Orbit Core",   "score": 71, "detail": "Group B · microservices" },
+      "time": "2026-06-19 11:00", "venue": "Stage B — Evaluation Lab", "note": "Atlas through on regulatory fit." },
+    { "id": "m-qf-3", "roundId": "qf", "slot": 2, "status": "done", "winner": "a", "feedsInto": "m-sf-2",
+      "a": { "seed": 3,  "name": "Helix Bank", "score": 79, "detail": "Group C · API-first" },
+      "b": { "seed": 11, "name": "Slate Rail",  "score": 62, "detail": "Group C · rails-native" },
+      "time": "2026-06-19 13:00", "venue": "Stage A — Evaluation Lab", "note": "Helix advanced; latency the differentiator." },
+    { "id": "m-qf-4", "roundId": "qf", "slot": 3, "status": "done", "winner": "b", "feedsInto": "m-sf-2",
+      "a": { "seed": 7, "name": "Tessera",    "score": 70, "detail": "Group D · modular-core" },
+      "b": { "seed": 2, "name": "Aegis Bank", "score": 80, "detail": "Group D · security-first" },
+      "time": "2026-06-19 15:00", "venue": "Stage B — Evaluation Lab", "note": "Aegis security score decisive." },
+
+    { "id": "m-sf-1", "roundId": "sf", "slot": 0, "status": "done", "winner": "a", "feedsInto": "m-final",
+      "a": { "seed": 1, "name": "Nimbus Core",  "score": 85, "detail": "Group A · cloud-native ledger" },
+      "b": { "seed": 4, "name": "Atlas Ledger", "score": 77, "detail": "Group B · ISO-20022 native" },
+      "time": "2026-06-21 10:00", "venue": "Main Hall", "note": "Nimbus to the final on architecture and TCO." },
+    { "id": "m-sf-2", "roundId": "sf", "slot": 1, "status": "live", "feedsInto": "m-final",
+      "a": { "seed": 3, "name": "Helix Bank",  "score": 48, "detail": "Group C · API-first" },
+      "b": { "seed": 2, "name": "Aegis Bank",  "score": 45, "detail": "Group D · security-first" },
+      "time": "2026-06-21 14:00", "venue": "Main Hall", "note": "Live — final resilience drill underway; scores partial." },
+
+    { "id": "m-final", "roundId": "final", "slot": 0, "status": "scheduled",
+      "a": { "seed": 1, "name": "Nimbus Core", "detail": "Group A · cloud-native ledger" },
+      "b": {},
+      "time": "2026-06-22 15:00", "venue": "Main Hall — Final", "note": "Awaiting the SF-2 winner. Pick a side to project the champion." }
+  ]
+}
+</script>
+
+<style>
+/* ============================================================
+   BRACKET — tournament knockout (rounds-as-columns → champion)
+   Inherits the family DNA from designs/_FOUNDATION.md.
+   Default theme: Plum (shipped in :root override below).
+   Self-contained. Body built from #report-data by render().
+   ============================================================ */
+
+/* ---- 1. tokens (Purple is the :root default per _FOUNDATION) ---- */
+:root{
+  /* surfaces */
+  --bg:#fff; --bg-band:#f6f6f8; --bg-subtle:#fafafb; --bg-deep:#15131a;
+  --rule:#dcdce2; --rule-soft:#ebebef;
+  /* ink */
+  --ink:#11131a; --ink-mid:#33363f; --ink-soft:#5a5e68; --ink-faint:#868b95;
+  /* brand accent (Purple default) */
+  --navy:#a100ff; --navy-deep:#7a00c2; --navy-bg:#f3e8ff; --navy-line:#d9bef5;
+  /* cleared / approved */
+  --ok:#5a2f8a; --ok-bg:#efe8f5; --ok-line:#d0b5e0;
+  /* semantic states — CONSTANT across all themes */
+  --risk:#b3261e; --risk-bg:#fbeceb; --risk-line:#edc7c4;
+  --hold:#8a6d00; --hold-bg:#fbf3da; --hold-line:#e7d8a4;
+  /* type stacks (CJK-aware --sans, copied verbatim from foundation) */
+  --mono:ui-monospace,"JetBrains Mono","SFMono-Regular",Menlo,Consolas,monospace;
+  --sans:-apple-system,"Segoe UI",system-ui,Roboto,"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic UI","Apple SD Gothic Neo","Malgun Gothic","PingFang SC","Microsoft YaHei","Noto Sans CJK JP","Noto Sans CJK KR","Noto Sans CJK SC","Noto Sans JP","Noto Sans KR","Noto Sans SC","Noto Sans",sans-serif;
+  /* bracket geometry */
+  --shadow:0 1px 2px rgba(17,19,26,.045);
+  --shadow-rail:0 1px 3px rgba(17,19,26,.05);
+  --wire:#c7c8d0;
+}
+/* ---- alternate theme swaps (all 9 per _FOUNDATION §1 / _DATA_DRIVEN §3 — Black mandatory) ---- */
+html[data-theme="blue"]{   --navy:#0b5fd4; --navy-deep:#0842a0; --navy-bg:#e8f1fc; --navy-line:#bcd6f5; --ok:#1a4f9c; --ok-bg:#e9f0fa; --ok-line:#b7cdea; }
+html[data-theme="purple"]{ --navy:#a100ff; --navy-deep:#7a00c2; --navy-bg:#f3e8ff; --navy-line:#d9bef5; --ok:#5a2f8a; --ok-bg:#efe8f5; --ok-line:#d0b5e0; }
+html[data-theme="indigo"]{ --navy:#4338ca; --navy-deep:#312c92; --navy-bg:#ebebfb; --navy-line:#c7c3f0; --ok:#3730a3; --ok-bg:#ebeaf7; --ok-line:#c5c2ea; }
+html[data-theme="teal"]{   --navy:#0e7c86; --navy-deep:#095861; --navy-bg:#e0f3f4; --navy-line:#a9dade; --ok:#0f5d54; --ok-bg:#e3f3ef; --ok-line:#b3ddd4; }
+html[data-theme="cyan"]{   --navy:#0891b2; --navy-deep:#0e6f88; --navy-bg:#e2f4f9; --navy-line:#abdde9; --ok:#0e6b7a; --ok-bg:#e4f3f4; --ok-line:#b0dde2; }
+html[data-theme="green"]{  --navy:#1f7a44; --navy-deep:#155730; --navy-bg:#e6f4ea; --navy-line:#b3dcc1; --ok:#2f6b3c; --ok-bg:#e9f3ea; --ok-line:#bedcc4; }
+html[data-theme="plum"]{   --navy:#a21d6e; --navy-deep:#7c1450; --navy-bg:#fbe8f2; --navy-line:#e8b9d4; --ok:#6d2356; --ok-bg:#f6e8f0; --ok-line:#e3bcd5; }
+html[data-theme="slate"]{  --navy:#3f4f63; --navy-deep:#29384b; --navy-bg:#eef1f5; --navy-line:#c2ccd8; --ok:#34495e; --ok-bg:#eef1f5; --ok-line:#c2ccd8; }
+html[data-theme="black"]{  --navy:#000000; --navy-deep:#000000; --navy-bg:#f1f1f3; --navy-line:#d6d6db; --ok:#3f3f46; --ok-bg:#f1f1f3; --ok-line:#cfcfd6; }
+html[data-theme="black"]{ --wire:#bdbdc4; }
+
+*{ box-sizing:border-box; }
+html,body{ margin:0; height:100%; }
+body{
+  font:13px/1.6 var(--sans); color:var(--ink);
+  background:var(--bg-band);
+  -webkit-font-smoothing:antialiased;
+}
+.tnum{ font-feature-settings:"tnum" 1; font-variant-numeric:tabular-nums; }
+
+/* ---- icons ---- */
+.icon{ width:1.15em; height:1.15em; display:inline-block; vertical-align:-.18em; color:inherit; }
+.icon-sm{ width:14px; height:14px; }
+.icon-lg{ width:20px; height:20px; }
+
+/* ---- shared primitives: status badge / dot / chip ---- */
+.st-badge{
+  display:inline-flex; align-items:center; gap:.4em;
+  font:600 11px/1 var(--sans); padding:4px 8px 4px 7px; border-radius:6px;
+  border:1px solid var(--rule); color:var(--ink-mid); background:var(--bg); white-space:nowrap;
+}
+.st-badge::before{ content:""; width:7px; height:7px; border-radius:50%; background:var(--ink-faint); }
+.st-ok{ color:var(--ok); background:var(--ok-bg); border-color:var(--ok-line); }
+.st-ok::before{ background:var(--ok); }
+.st-risk{ color:var(--risk); background:var(--risk-bg); border-color:var(--risk-line); }
+.st-risk::before{ background:var(--risk); }
+.st-hold{ color:var(--hold); background:var(--hold-bg); border-color:var(--hold-line); }
+.st-hold::before{ background:var(--hold); }
+.mini-dot{ display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--ink-faint); vertical-align:-1px; }
+.mini-dot.ok{ background:var(--ok); } .mini-dot.risk{ background:var(--risk); } .mini-dot.hold{ background:var(--hold); }
+.chip{
+  display:inline-flex; align-items:center; gap:.35em;
+  font:600 10.5px/1 var(--mono); letter-spacing:.02em;
+  padding:3px 7px; border-radius:6px;
+  background:var(--navy-bg); color:var(--navy-deep); border:1px solid var(--navy-line);
+}
+.muted{ color:var(--ink-faint); }
+.mlabel{ font:600 10px/1.4 var(--mono); letter-spacing:.1em; text-transform:uppercase; color:var(--ink-faint); }
+
+/* ---- noscript banner ---- */
+.noscript-note{
+  margin:0; padding:14px 22px; background:var(--hold-bg); color:var(--hold);
+  border-bottom:1px solid var(--hold-line); font:600 12.5px/1.5 var(--sans);
+}
+.noscript-note code{ font:600 11.5px/1 var(--mono); }
+
+/* ============================================================
+   2. BRACKET SHELL — toolbar + full-bleed canvas + side panel
+   ============================================================ */
+.bk-shell{
+  display:grid;
+  grid-template-columns:1fr 308px;
+  grid-template-rows:auto 1fr auto;
+  grid-template-areas:
+    "toolbar toolbar"
+    "canvas  side"
+    "foot    foot";
+  height:100vh; min-height:0;
+}
+
+/* ---- slim TOOLBAR (the signature top control bar) ---- */
+.bk-toolbar{
+  grid-area:toolbar;
+  display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+  background:rgba(255,255,255,.94); backdrop-filter:saturate(1.2) blur(4px);
+  border-bottom:1px solid var(--rule);
+  padding:10px 20px;
+  box-shadow:var(--shadow-rail); z-index:20;
+}
+.bk-mark{
+  width:34px; height:34px; border-radius:10px; flex:none;
+  background:var(--navy); color:#fff; display:grid; place-items:center;
+  box-shadow:0 1px 0 rgba(255,255,255,.12) inset;
+}
+.bk-mark .icon{ width:20px; height:20px; }
+.bk-head{ display:flex; flex-direction:column; gap:2px; min-width:0; }
+.bk-title{ font:800 15px/1.1 var(--sans); letter-spacing:-.01em; }
+.bk-title b{ color:var(--navy-deep); }
+.bk-sub{ font:600 11px/1 var(--mono); letter-spacing:.03em; color:var(--ink-faint); white-space:nowrap; }
+.bk-elim{
+  font:700 10px/1 var(--mono); letter-spacing:.08em; text-transform:uppercase;
+  padding:5px 9px; border-radius:6px; background:var(--navy-bg); color:var(--navy-deep);
+  border:1px solid var(--navy-line); white-space:nowrap;
+}
+.bk-tb-spacer{ flex:1 1 auto; }
+
+/* toolbar control group (a labelled select) */
+.bk-ctl{ display:inline-flex; align-items:center; gap:6px; }
+.bk-ctl > .mlabel{ white-space:nowrap; }
+.bk-sel-wrap{
+  display:inline-flex; align-items:center; gap:6px;
+  border:1px solid var(--rule); border-radius:7px; padding:3px 6px 3px 8px; background:var(--bg);
+}
+.bk-sel-wrap .icon{ width:13px; height:13px; color:var(--navy); }
+.bk-sel{
+  border:0; background:none; font:600 11px/1 var(--mono); letter-spacing:.02em;
+  color:var(--ink-mid); cursor:pointer; outline:none; padding:2px 0; max-width:190px;
+}
+.bk-btn{
+  display:inline-flex; align-items:center; gap:6px; cursor:pointer;
+  font:600 11px/1 var(--sans); color:var(--ink-soft);
+  border:1px solid var(--rule); background:var(--bg); border-radius:7px; padding:6px 10px;
+  transition:background .12s,color .12s,border-color .12s;
+}
+.bk-btn:hover{ border-color:var(--navy-line); color:var(--navy-deep); background:var(--navy-bg); }
+.bk-btn .icon{ width:14px; height:14px; }
+
+/* zoom cluster */
+.bk-zoom{ display:inline-flex; align-items:center; gap:4px; border:1px solid var(--rule); border-radius:8px; padding:4px; background:var(--bg); }
+.bk-zoom button{
+  width:26px; height:26px; display:inline-flex; align-items:center; justify-content:center; cursor:pointer;
+  color:var(--ink-mid); background:var(--bg); border:1px solid var(--rule); border-radius:6px; padding:0;
+}
+.bk-zoom button:hover{ color:var(--navy-deep); border-color:var(--navy-line); background:var(--navy-bg); }
+.bk-zoom button .icon{ width:14px; height:14px; }
+.bk-zoom-val{ min-width:38px; text-align:center; font:600 10px/1 var(--mono); color:var(--ink-soft); }
+
+/* theme switcher (MANDATORY, canonical dropdown per _DATA_DRIVEN §3) */
+.rc-theme{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--rule);border-radius:7px;padding:3px 4px 3px 7px;background:var(--bg);}
+.rc-theme-sw{width:12px;height:12px;border-radius:50%;background:var(--navy);box-shadow:0 0 0 1px var(--rule);flex:none;}
+.rc-theme-sel{border:0;background:none;font:600 11px/1 var(--mono);color:var(--ink-mid);cursor:pointer;outline:none;padding:2px;}
+@media print{.rc-theme{display:none;}}
+
+/* ============================================================
+   3. CANVAS — full-bleed pan/zoom viewport + transformed stage
+   ============================================================ */
+.bk-canvas{
+  grid-area:canvas; position:relative; overflow:hidden; cursor:grab; min-width:0; min-height:0;
+  background:
+    radial-gradient(circle, var(--rule-soft) 1px, transparent 1.4px) 0 0/24px 24px,
+    var(--bg-subtle);
+}
+.bk-canvas.is-panning{ cursor:grabbing; }
+.bk-stage{ position:absolute; top:0; left:0; transform-origin:0 0; will-change:transform; }
+
+/* connector SVG overlay — sits inside the transformed stage, behind cards */
+svg.bk-connector{ position:absolute; top:0; left:0; overflow:visible; pointer-events:none; z-index:0; }
+svg.bk-connector path{ fill:none; stroke:var(--wire); stroke-width:2; stroke-linecap:round; stroke-linejoin:round; transition:stroke .14s ease, opacity .14s ease; }
+svg.bk-connector path.bk-edge-lit{ stroke:var(--navy); stroke-width:2.5; }
+svg.bk-connector path.bk-edge-dim{ opacity:.28; }
+
+/* the round columns laid out left → right inside the stage */
+.bk-rounds{ position:relative; display:flex; align-items:stretch; gap:64px; padding:30px 34px; z-index:1; }
+.bk-round{ display:flex; flex-direction:column; transition:opacity .15s; }
+.bk-round.is-dim{ opacity:.3; }
+.bk-round-head{
+  display:flex; align-items:center; gap:7px; margin-bottom:10px; padding-left:2px;
+  position:sticky; top:0;
+}
+.bk-round-name{ font:700 11px/1 var(--mono); letter-spacing:.1em; text-transform:uppercase; color:var(--ink-soft); }
+.bk-round-count{ font:600 9.5px/1 var(--mono); letter-spacing:.04em; color:var(--ink-faint); padding:3px 6px; border-radius:5px; background:var(--bg); border:1px solid var(--rule-soft); }
+.bk-round-col{ position:relative; display:flex; flex-direction:column; flex:1 1 auto; }
+
+/* ---- 3a. MATCH CARD ---- */
+.bk-match{
+  position:absolute; left:0; width:210px;
+  background:var(--bg); border:1px solid var(--rule); border-radius:11px;
+  box-shadow:var(--shadow); overflow:hidden; cursor:pointer;
+  transition:border-color .13s, box-shadow .13s, opacity .15s, transform .13s;
+}
+.bk-match:hover{ border-color:var(--navy-line); box-shadow:0 2px 10px rgba(17,19,26,.10); }
+.bk-match.is-sel{ border-color:var(--navy); box-shadow:0 0 0 2px var(--navy-bg), 0 2px 12px rgba(17,19,26,.12); }
+.bk-match.is-path{ border-color:var(--navy-line); }
+.bk-match.is-dim{ opacity:.34; filter:saturate(.6); }
+.bk-match-head{
+  display:flex; align-items:center; gap:6px;
+  padding:5px 9px; border-bottom:1px solid var(--rule-soft); background:var(--bg-subtle);
+}
+.bk-mid{ font:600 9px/1 var(--mono); letter-spacing:.06em; text-transform:uppercase; color:var(--ink-faint); }
+.bk-status{ margin-left:auto; display:inline-flex; align-items:center; gap:4px; font:600 9px/1 var(--mono); letter-spacing:.05em; text-transform:uppercase; color:var(--ink-faint); }
+.bk-status .dot{ width:7px; height:7px; border-radius:50%; background:var(--ink-faint); }
+.bk-status.is-done .dot{ background:var(--ok); } .bk-status.is-done{ color:var(--ok); }
+.bk-status.is-live .dot{ background:var(--risk); animation:bkpulse 1.8s ease-out infinite; } .bk-status.is-live{ color:var(--risk); }
+.bk-status.is-scheduled .dot{ background:var(--hold); } .bk-status.is-scheduled{ color:var(--hold); }
+@keyframes bkpulse{ 0%{ box-shadow:0 0 0 0 rgba(179,38,30,.5);} 70%{ box-shadow:0 0 0 5px rgba(179,38,30,0);} 100%{ box-shadow:0 0 0 0 rgba(179,38,30,0);} }
+
+/* competitor row */
+.bk-side{
+  display:grid; grid-template-columns:24px 1fr auto; align-items:center; gap:8px;
+  padding:7px 9px; position:relative; min-width:0;
+  border-bottom:1px solid var(--rule-soft);
+}
+.bk-side:last-child{ border-bottom:0; }
+.bk-seed{
+  font:700 10px/1 var(--mono); color:var(--ink-soft); text-align:center;
+  background:var(--bg-band); border:1px solid var(--rule-soft); border-radius:5px; padding:3px 0;
+}
+.bk-name{ font:600 12.5px/1.2 var(--sans); color:var(--ink-mid); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0; }
+.bk-score{ font:700 13px/1 var(--mono); color:var(--ink); text-align:right; }
+.bk-side.is-winner{ background:var(--navy-bg); }
+.bk-side.is-winner::before{ content:""; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--navy); }
+.bk-side.is-winner .bk-name{ color:var(--navy-deep); font-weight:700; }
+.bk-side.is-winner .bk-score{ color:var(--navy-deep); }
+.bk-side.is-winner .bk-seed{ background:var(--navy-line); border-color:var(--navy-line); color:var(--navy-deep); }
+.bk-side.is-winner .bk-win{ color:var(--navy); }
+.bk-side.is-loser .bk-name, .bk-side.is-loser .bk-score, .bk-side.is-loser .bk-seed{ color:var(--ink-faint); }
+.bk-side.is-loser{ opacity:.85; }
+.bk-win{ display:inline-flex; color:transparent; }
+.bk-win .icon{ width:13px; height:13px; }
+.bk-side.is-empty .bk-name{ color:var(--ink-faint); font-style:italic; font-weight:600; }
+.bk-side.is-empty .bk-seed{ visibility:hidden; }
+
+/* pick-a-winner control on scheduled matches */
+.bk-pick{ display:flex; gap:6px; padding:7px 9px; border-top:1px dashed var(--rule); background:var(--bg-subtle); }
+.bk-pick button{
+  flex:1 1 0; cursor:pointer; font:600 10px/1 var(--mono); letter-spacing:.03em;
+  color:var(--ink-soft); background:var(--bg); border:1px solid var(--rule); border-radius:6px;
+  padding:5px 4px; transition:background .12s,color .12s,border-color .12s; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.bk-pick button:hover:not(:disabled){ color:var(--navy-deep); border-color:var(--navy-line); background:var(--navy-bg); }
+.bk-pick button:disabled{ opacity:.45; cursor:not-allowed; }
+
+/* ---- 3b. CHAMPION SLOT (far right) ---- */
+.bk-champion{
+  display:flex; flex-direction:column; align-self:flex-start;
+}
+.bk-champ-head{ display:flex; align-items:center; gap:7px; margin-bottom:10px; padding-left:2px; }
+.bk-champ-col{ position:relative; }
+.bk-rail{
+  width:226px; border-radius:13px; padding:18px 16px;
+  background:linear-gradient(180deg, var(--navy-bg), var(--bg));
+  border:1.5px solid var(--navy-line); box-shadow:0 2px 14px rgba(17,19,26,.10);
+  text-align:center; transition:border-color .15s;
+}
+.bk-rail.is-tbd{ background:var(--bg-subtle); border-style:dashed; border-color:var(--rule); }
+.bk-cup{
+  width:42px; height:42px; border-radius:11px; margin:0 auto 10px;
+  display:grid; place-items:center; background:var(--navy); color:#fff;
+}
+.bk-rail.is-tbd .bk-cup{ background:var(--rule); color:var(--ink-faint); }
+.bk-cup .icon{ width:24px; height:24px; }
+.bk-champ-label{ font:700 9.5px/1 var(--mono); letter-spacing:.14em; text-transform:uppercase; color:var(--navy-deep); margin-bottom:6px; }
+.bk-rail.is-tbd .bk-champ-label{ color:var(--ink-faint); }
+.bk-champ-name{ font:800 18px/1.15 var(--sans); letter-spacing:-.01em; color:var(--ink); }
+.bk-rail.is-tbd .bk-champ-name{ color:var(--ink-faint); font-weight:700; }
+.bk-champ-seed{ margin-top:8px; }
+.bk-champ-from{ margin-top:9px; font:600 10px/1.4 var(--mono); letter-spacing:.04em; text-transform:uppercase; color:var(--ink-faint); }
+
+/* ============================================================
+   4. SIDE PANEL — selected-match detail
+   ============================================================ */
+.bk-side-panel{
+  grid-area:side; min-width:0; overflow:auto;
+  background:var(--bg); border-left:1px solid var(--rule); padding:16px 16px 22px;
+}
+.bk-sp-eyebrow{ display:flex; align-items:center; gap:7px; margin-bottom:12px; }
+.bk-sp-eyebrow .icon{ color:var(--navy); width:15px; height:15px; }
+.bk-sp-title{ font:700 12.5px/1.1 var(--sans); color:var(--ink); }
+.bk-sp-empty{ font:600 12px/1.6 var(--sans); color:var(--ink-faint); padding:20px 4px; text-align:center; border:1px dashed var(--rule); border-radius:11px; background:var(--bg-subtle); }
+.bk-sp-round{ font:600 10px/1 var(--mono); letter-spacing:.08em; text-transform:uppercase; color:var(--navy-deep); margin-bottom:10px; }
+
+/* the two competitors, head to head */
+.bk-vs{ display:flex; flex-direction:column; gap:8px; }
+.bk-vs-row{
+  display:grid; grid-template-columns:30px 1fr auto; align-items:center; gap:10px;
+  border:1px solid var(--rule); border-radius:10px; padding:10px 11px; background:var(--bg-subtle);
+}
+.bk-vs-row.is-winner{ border-color:var(--navy-line); background:var(--navy-bg); }
+.bk-vs-row.is-loser{ opacity:.7; }
+.bk-vs-seed{ font:700 11px/1 var(--mono); color:var(--ink-soft); text-align:center; background:var(--bg); border:1px solid var(--rule); border-radius:6px; padding:5px 0; }
+.bk-vs-row.is-winner .bk-vs-seed{ background:var(--navy-line); border-color:var(--navy-line); color:var(--navy-deep); }
+.bk-vs-meta{ min-width:0; display:flex; flex-direction:column; }
+.bk-vs-name{ display:block; font:700 13.5px/1.2 var(--sans); color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; }
+.bk-vs-row.is-winner .bk-vs-name{ color:var(--navy-deep); }
+.bk-vs-detail{ display:block; font:600 10.5px/1.3 var(--mono); color:var(--ink-faint); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; }
+.bk-vs-score{ font:800 22px/1 var(--mono); letter-spacing:-.02em; color:var(--ink); }
+.bk-vs-row.is-winner .bk-vs-score{ color:var(--navy-deep); }
+.bk-vs-mid{ display:flex; align-items:center; justify-content:center; gap:8px; font:700 9.5px/1 var(--mono); letter-spacing:.12em; text-transform:uppercase; color:var(--ink-faint); }
+.bk-vs-mid::before,.bk-vs-mid::after{ content:""; height:1px; flex:1; background:var(--rule-soft); }
+
+/* fact grid (time / venue / status) */
+.bk-facts{ display:grid; grid-template-columns:1fr 1fr; gap:0; margin-top:14px; border:1px solid var(--rule); border-radius:10px; overflow:hidden; }
+.bk-fact{ padding:9px 11px; border-right:1px solid var(--rule-soft); border-bottom:1px solid var(--rule-soft); }
+.bk-fact:nth-child(2n){ border-right:0; }
+.bk-fact.full{ grid-column:1 / -1; border-right:0; }
+.bk-fact .mlabel{ margin-bottom:4px; }
+.bk-fact b{ font:600 12px/1.35 var(--sans); color:var(--ink); }
+.bk-fact .st-badge{ margin-top:1px; }
+.bk-note{ margin-top:13px; padding:11px 12px; border-radius:10px; background:var(--navy-bg); border:1px solid var(--navy-line); }
+.bk-note .mlabel{ color:var(--navy-deep); margin-bottom:4px; }
+.bk-note p{ margin:0; font:600 12px/1.55 var(--sans); color:var(--ink-mid); }
+
+/* ---- floating tooltip (exact values) ---- */
+.bk-tip{
+  position:fixed; z-index:60; pointer-events:none;
+  background:#000; color:#fff; border-radius:7px; padding:7px 9px;
+  font:600 11px/1.4 var(--sans); white-space:nowrap; box-shadow:0 4px 14px rgba(0,0,0,.3);
+  opacity:0; transition:opacity .1s; transform:translate(-50%,-100%);
+}
+.bk-tip.show{ opacity:1; }
+.bk-tip .tt-h{ font:700 10px/1.3 var(--mono); letter-spacing:.06em; text-transform:uppercase; color:#cfd3db; margin-bottom:3px; }
+.bk-tip .tt-row{ display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.bk-tip .tt-row b{ font:700 11.5px/1 var(--mono); }
+.bk-tip .tt-row.win b{ color:#fff; } .bk-tip .tt-row.lose{ color:#a7adba; }
+
+/* ---- footer strip ---- */
+.bk-foot{
+  grid-area:foot; background:var(--bg-deep); color:#cfd3db;
+  display:flex; align-items:center; gap:14px; padding:11px 22px;
+  font:600 10.5px/1.4 var(--mono); letter-spacing:.05em; text-transform:uppercase;
+}
+.bk-foot .wm{ display:inline-flex; align-items:center; gap:8px; color:#fff; font:800 12px/1 var(--sans); letter-spacing:-.01em; text-transform:none; }
+.bk-foot .wm i{ width:16px; height:16px; border-radius:4px; background:var(--navy); display:inline-block; }
+.bk-foot .sp{ flex:1 1 auto; }
+
+/* ============================================================
+   5. PRINT — complete static snapshot; hide controls
+   ============================================================ */
+@media print{
+  body{ background:#fff; }
+  .bk-shell{ display:block; height:auto; }
+  .bk-toolbar .bk-ctl, .bk-toolbar .bk-zoom, .bk-toolbar .bk-btn, .rc-theme{ display:none !important; }
+  .bk-toolbar{ position:static; background:#fff; box-shadow:none; }
+  .bk-canvas{ overflow:visible; cursor:default; height:auto; background:#fff; }
+  .bk-stage{ position:static !important; transform:none !important; }
+  .bk-round.is-dim{ opacity:1 !important; }
+  .bk-match.is-dim{ opacity:1 !important; filter:none !important; }
+  .bk-match{ box-shadow:none; cursor:default; }
+  .bk-pick{ display:none !important; }
+  svg.bk-connector path.bk-edge-dim{ opacity:1 !important; }
+  .bk-side-panel{ display:none !important; }
+  .bk-foot{ background:#fff; color:#000; border-top:2px solid #000; }
+  .bk-foot .wm{ color:#000; } .bk-foot .wm i{ background:#000; }
+}
+</style>
+</head>
+<body>
+
+<noscript>
+  <div class="noscript-note">
+    This tournament bracket renders from embedded data and requires JavaScript for its
+    interactive controls (pan / zoom, highlight a competitor's path, pick-a-winner, round filter,
+    tooltips). The complete bracket data is in the <code>#report-data</code> block above.
+  </div>
+</noscript>
+
+<div class="bk-shell" id="bk-shell"><!-- built by render() --></div>
+
+<!-- floating tooltip (single shared instance) -->
+<div class="bk-tip" id="bk-tip" role="status" aria-live="polite"></div>
+
+<script>
+/* ============================================================
+   BRACKET RENDERER + INTERACTIONS  (vanilla JS, no libraries)
+   - render()          : #report-data JSON  →  full bracket DOM
+   - layoutRounds()    : absolute-position match cards so pairs
+                         converge; size each round column
+   - drawConnectors()  : ONE <svg> overlay; one computed elbow
+                         path per match→feedsInto edge (geometry
+                         from live card rects, never the data)
+   - wireInteractions(): match click · highlight path · pick a
+                         winner (live advance) · round filter ·
+                         pan/zoom · tooltips · reset
+   - wireThemeSwitch() : canonical 9-option .rc-theme switcher
+   Champion is COMPUTED from the final's winner. Reading needs JS
+   (data-driven, per _DATA_DRIVEN §1); a <noscript> notice + the
+   raw JSON are provided above.
+   ============================================================ */
+(function(){
+  "use strict";
+
+  var DATA;
+  try { DATA = JSON.parse(document.getElementById('report-data').textContent); }
+  catch(e){ document.getElementById('bk-shell').innerHTML =
+    '<p style="padding:24px;font:600 13px var(--sans);color:var(--risk)">Could not parse #report-data: '+e.message+'</p>'; return; }
+
+  var root  = document.documentElement;
+  var shell = document.getElementById('bk-shell');
+  var tip   = document.getElementById('bk-tip');
+
+  /* ---- house SVG icons (inline, monoline, currentColor; per icons/SPEC.md) ---- */
+  var ICON = {
+    award:    '<path d="M8 4.5h8v3.5a4 4 0 0 1-8 0V4.5Z"/><path d="M8 5.5H5.5V7a2.5 2.5 0 0 0 2.5 2.5M16 5.5h2.5V7A2.5 2.5 0 0 1 16 9.5"/><path d="M12 12.5v3M9 19.5h6M9.5 19.5l.6-2.4a1.5 1.5 0 0 1 1.45-1.1h.9a1.5 1.5 0 0 1 1.45 1.1l.6 2.4"/>',
+    cup:      '<path d="M7 4.5h10v4a5 5 0 0 1-10 0v-4Z"/><path d="M7 5.5H4.7V7a2.7 2.7 0 0 0 2.7 2.7M17 5.5h2.3V7A2.7 2.7 0 0 1 17 9.7"/><path d="M12 13.5v3.2M8.5 19.5h7M9 19.5c0-1.4 1.3-2.3 3-2.3s3 .9 3 2.3"/>',
+    check:    '<path d="M5 12.5 9.5 17 19 7"/>',
+    chevDown: '<path d="M6 9.5 12 15l6-5.5"/>',
+    chevRight:'<path d="M9.5 5.5 16 12l-6.5 6.5"/>',
+    arrowR:   '<path d="M4.5 12h14M13 6.5 18.5 12 13 17.5"/>',
+    filter:   '<path d="M4.5 5.5h15l-5.6 6.5v5.2l-3.8 1.8v-7L4.5 5.5Z"/>',
+    search:   '<circle cx="11" cy="11" r="6"/><path d="m15.5 15.5 3.5 3.5"/>',
+    target:   '<circle cx="12" cy="12" r="7.5"/><circle cx="12" cy="12" r="3.4"/><rect x="10.6" y="10.6" width="2.8" height="2.8" rx="1.1" fill="currentColor" stroke="none"/>',
+    plus:     '<path d="M12 5.5v13M5.5 12h13"/>',
+    minus:    '<path d="M5.5 12h13"/>',
+    reset:    '<path d="M5 12a7 7 0 1 1 2 4.9"/><path d="M4.5 12.5 7 16l3.5-2.5"/><rect x="5.5" y="6.5" width="3" height="3" rx="1" fill="currentColor" stroke="none"/>',
+    fork:     '<path d="M7 6.5v4.2c0 1 .8 1.8 1.8 1.8H15M7 17.5v-4.2"/><rect x="5" y="4.5" width="4" height="4" rx="1.2" fill="currentColor" stroke="none"/><rect x="15" y="10.5" width="4" height="4" rx="1.2" fill="currentColor" stroke="none"/><rect x="5" y="15.5" width="4" height="4" rx="1.2" fill="currentColor" stroke="none"/>',
+    info:     '<circle cx="12" cy="12" r="8.5"/><path d="M12 11v5"/><rect x="10.8" y="7.4" width="2.4" height="2.4" rx="1.1" fill="currentColor" stroke="none"/>'
+  };
+  function svg(name){
+    return '<svg class="icon" viewBox="0 0 24 24" fill="none" '
+      + 'stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">'
+      + (ICON[name]||'') + '</svg>';
+  }
+
+  /* ---- helpers ---- */
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+  function el(id){ return document.getElementById(id); }
+
+  /* ---- working state (a deep clone of matches so Reset can restore) ---- */
+  var META   = DATA.meta || {};
+  var ROUNDS = (DATA.rounds || []).slice().sort(function(a,b){ return (a.order||0)-(b.order||0); });
+  var ORIG   = JSON.stringify(DATA.matches || []);
+  var MATCHES = [];                 // live working copy
+  var byId    = {};                 // match id → match
+  var STATE   = { sel:null, path:null, roundFilter:'all' };
+  var SCOREUNIT = DATA.scoreUnit ? (' '+DATA.scoreUnit) : '';
+  var panMoved = false;     // suppress click-select when a drag-pan just happened
+
+  function loadMatches(){
+    MATCHES = JSON.parse(ORIG);
+    byId = {};
+    MATCHES.forEach(function(m){ byId[m.id] = m; });
+  }
+
+  /* every competitor name → for the highlight-path select & path tracing */
+  function competitors(){
+    var seen = {}, list = [];
+    MATCHES.forEach(function(m){
+      ['a','b'].forEach(function(s){
+        var side = m[s];
+        if(side && side.name && !seen[side.name]){ seen[side.name] = true; list.push({ name:side.name, seed:side.seed }); }
+      });
+    });
+    list.sort(function(x,y){ return (x.seed||99)-(y.seed||99); });
+    return list;
+  }
+
+  /* trace a competitor's road: every match where they appear, following winners forward */
+  function pathFor(name){
+    var ids = {};
+    MATCHES.forEach(function(m){
+      if((m.a && m.a.name===name) || (m.b && m.b.name===name)) ids[m.id] = true;
+    });
+    return ids;
+  }
+
+  /* did this competitor win the final? (→ light the champion slot on their path) */
+  function wonFinal(name){
+    var fin = finalMatch();
+    if(!fin || !fin.winner) return false;
+    var w = fin[fin.winner];
+    return !!(w && w.name===name);
+  }
+
+  function finalMatch(){
+    var fr = ROUNDS[ROUNDS.length-1];
+    if(!fr) return null;
+    var inRound = MATCHES.filter(function(m){ return m.roundId===fr.id; });
+    return inRound[0] || null;
+  }
+  function champion(){
+    var fin = finalMatch();
+    if(fin && fin.winner && fin[fin.winner] && fin[fin.winner].name){
+      return { side:fin[fin.winner], from:fin };
+    }
+    return null;
+  }
+
+  /* ============================================================
+     RENDER — build the whole shell from the working data
+     ============================================================ */
+  function render(){
+    root.dataset.theme = META.theme || 'plum';
+    loadMatches();
+
+    var elimLabel = (DATA.format==='double') ? 'Double-elim' : 'Single-elim';
+
+    /* theme switcher (canonical dropdown per _DATA_DRIVEN §3) */
+    var themeSwitcher = '<label class="rc-theme" title="Brand colour">'
+      + '<span class="rc-theme-sw" aria-hidden="true"></span>'
+      + '<select class="rc-theme-sel" aria-label="Brand theme">'
+      + '<option value="blue">Blue</option><option value="purple">Purple</option>'
+      + '<option value="indigo">Indigo</option><option value="teal">Teal</option>'
+      + '<option value="cyan">Cyan</option><option value="green">Green</option>'
+      + '<option value="plum">Plum</option><option value="slate">Slate</option>'
+      + '<option value="black">Black</option></select></label>';
+
+    /* round filter options */
+    var roundOpts = '<option value="all">All rounds</option>'
+      + ROUNDS.map(function(r){ return '<option value="'+esc(r.id)+'">'+esc(r.name)+'</option>'; }).join('');
+
+    /* highlight-competitor options */
+    var pathOpts = '<option value="">— none —</option>'
+      + competitors().map(function(c){
+          return '<option value="'+esc(c.name)+'">'+(c.seed?('#'+c.seed+'  '):'')+esc(c.name)+'</option>'; }).join('');
+
+    var toolbar =
+      '<div class="bk-toolbar">'
+        + '<span class="bk-mark">'+svg('cup')+'</span>'
+        + '<div class="bk-head">'
+          + '<div class="bk-title"><b>'+esc(META.project||'{{PROJECT}}')+'</b> · '+esc(META.title||'')+'</div>'
+          + '<div class="bk-sub">'+esc(META.subtitle||'')+'</div>'
+        + '</div>'
+        + '<span class="bk-elim" title="Elimination format">'+elimLabel+'</span>'
+        + '<span class="bk-tb-spacer"></span>'
+        + '<span class="bk-ctl"><span class="bk-sel-wrap" title="Filter / zoom to a round">'+svg('filter')
+            + '<select class="bk-sel" id="bk-roundsel" aria-label="Round filter">'+roundOpts+'</select></span></span>'
+        + '<span class="bk-ctl"><span class="bk-sel-wrap" title="Highlight a competitor\'s path to the final">'+svg('search')
+            + '<select class="bk-sel" id="bk-pathsel" aria-label="Highlight a competitor\'s path">'+pathOpts+'</select></span></span>'
+        + '<button class="bk-btn" id="bk-reset" type="button" title="Reset picks, highlight & view">'+svg('reset')+'Reset</button>'
+        + '<span class="bk-zoom" aria-label="Zoom controls">'
+          + '<button type="button" data-zoom="out" title="Zoom out" aria-label="Zoom out">'+svg('minus')+'</button>'
+          + '<span class="bk-zoom-val" id="bk-zoomval">100%</span>'
+          + '<button type="button" data-zoom="in" title="Zoom in" aria-label="Zoom in">'+svg('plus')+'</button>'
+          + '<button type="button" data-zoom="reset" title="Fit to view" aria-label="Fit to view">'+svg('target')+'</button>'
+        + '</span>'
+        + themeSwitcher
+      + '</div>';
+
+    var canvas =
+      '<div class="bk-canvas" id="bk-canvas">'
+        + '<div class="bk-stage" id="bk-stage">'
+          + '<svg class="bk-connector" id="bk-connector" aria-hidden="true"></svg>'
+          + roundsHTML()
+        + '</div>'
+      + '</div>';
+
+    shell.innerHTML = toolbar + canvas + sidePanelHTML() + footerHTML();
+
+    el('bk-roundsel').value = STATE.roundFilter;
+    layoutRounds();
+    renderSidePanel();
+  }
+
+  /* round columns + match cards + champion slot */
+  function roundsHTML(){
+    var cols = ROUNDS.map(function(r){
+      var ms = MATCHES.filter(function(m){ return m.roundId===r.id; })
+                      .sort(function(a,b){ return (a.slot||0)-(b.slot||0); });
+      var cards = ms.map(matchHTML).join('');
+      return '<div class="bk-round" data-round="'+esc(r.id)+'">'
+        + '<div class="bk-round-head"><span class="bk-round-name">'+esc(r.name)+'</span>'
+        + '<span class="bk-round-count tnum">'+ms.length+'</span></div>'
+        + '<div class="bk-round-col">'+cards+'</div>'
+      + '</div>';
+    }).join('');
+    return '<div class="bk-rounds" id="bk-rounds">'+cols+championHTML()+'</div>';
+  }
+
+  function sideRow(m, key){
+    var side = m[key] || {};
+    var empty = !side.name;
+    var cls = 'bk-side';
+    if(!empty && m.winner){ cls += (m.winner===key) ? ' is-winner' : ' is-loser'; }
+    if(empty) cls += ' is-empty';
+    var seed = side.seed!=null ? ('#'+side.seed) : '';
+    var name = empty ? 'TBD' : esc(side.name);
+    var score = side.score!=null ? esc(side.score) : (m.status==='scheduled' ? '' : '·');
+    return '<div class="'+cls+'" data-side="'+key+'" '
+      + 'data-name="'+esc(side.name||'')+'" data-seed="'+esc(side.seed!=null?side.seed:'')+'" '
+      + 'data-score="'+esc(side.score!=null?side.score:'')+'" data-detail="'+esc(side.detail||'')+'">'
+      + '<span class="bk-seed tnum">'+seed+'</span>'
+      + '<span class="bk-name">'+name+'</span>'
+      + '<span class="bk-score tnum">'+score+'<span class="bk-win">'+svg('check')+'</span></span>'
+      + '</div>';
+  }
+
+  function matchHTML(m){
+    var rn = (ROUNDS.filter(function(r){ return r.id===m.roundId; })[0]||{}).name || '';
+    var stLabel = m.status==='done' ? 'Final' : (m.status==='live' ? 'Live' : 'Scheduled');
+    var pick = '';
+    if(m.status==='scheduled' && (m.a && m.a.name || m.b && m.b.name)){
+      var aOk = m.a && m.a.name, bOk = m.b && m.b.name;
+      pick = '<div class="bk-pick">'
+        + '<button type="button" data-pick="a" data-match="'+esc(m.id)+'"'+(aOk?'':' disabled')+' title="Advance '+esc(aOk||'TBD')+'">▲ '+esc(aOk?m.a.name:'TBD')+'</button>'
+        + '<button type="button" data-pick="b" data-match="'+esc(m.id)+'"'+(bOk?'':' disabled')+' title="Advance '+esc(bOk||'TBD')+'">▼ '+esc(bOk?m.b.name:'TBD')+'</button>'
+      + '</div>';
+    }
+    return '<div class="bk-match" id="match-'+esc(m.id)+'" data-match="'+esc(m.id)+'" data-slot="'+(m.slot||0)+'" role="button" tabindex="0" aria-label="'+esc(rn)+' match">'
+      + '<div class="bk-match-head"><span class="bk-mid">'+esc(rn)+'</span>'
+        + '<span class="bk-status is-'+esc(m.status)+'"><span class="dot"></span>'+stLabel+'</span></div>'
+      + sideRow(m,'a') + sideRow(m,'b')
+      + pick
+    + '</div>';
+  }
+
+  function championHTML(){
+    var c = champion();
+    var cls = c ? '' : ' is-tbd';
+    var name = c ? esc(c.side.name) : 'To be decided';
+    var seed = (c && c.side.seed!=null) ? '<span class="bk-champ-seed"><span class="chip">SEED #'+esc(c.side.seed)+'</span></span>' : '';
+    var from = c ? 'Won the Final' : 'Awaiting the Final';
+    return '<div class="bk-champion" id="bk-champion">'
+      + '<div class="bk-champ-head"><span class="bk-round-name">Champion</span></div>'
+      + '<div class="bk-rail'+cls+'" id="bk-rail">'
+        + '<div class="bk-cup">'+svg('award')+'</div>'
+        + '<div class="bk-champ-label">Cup Winner</div>'
+        + '<div class="bk-champ-name">'+name+'</div>'
+        + seed
+        + '<div class="bk-champ-from">'+from+'</div>'
+      + '</div>'
+    + '</div>';
+  }
+
+  function sidePanelHTML(){
+    return '<aside class="bk-side-panel" id="bk-side-panel">'
+      + '<div class="bk-sp-eyebrow">'+svg('info')+'<span class="bk-sp-title">Match detail</span></div>'
+      + '<div id="bk-sp-body"></div>'
+    + '</aside>';
+  }
+
+  function footerHTML(){
+    return '<div class="bk-foot">'
+      + '<span class="wm"><i></i>'+esc(META.org||'{{ORG}}')+'</span>'
+      + '<span class="sp"></span>'
+      + '<span>'+esc(META.reportType||'')+'</span><span>·</span>'
+      + '<span>'+esc(ROUNDS.length)+' rounds · '+MATCHES.length+' matches</span><span>·</span>'
+      + '<span>'+esc(META.date||'')+'</span><span>·</span><span>'+esc(META.author||'{{AUTHOR}}')+'</span>'
+    + '</div>';
+  }
+
+  /* ============================================================
+     LAYOUT — absolute-position cards so pairs converge.
+     Each match's vertical centre = midpoint of the two cards in
+     the previous round that feed it. Geometry is computed; the
+     data only carries slot (top-to-bottom order).
+     ============================================================ */
+  var CARD_H_GUESS = 0;       // measured first-round card height
+  function layoutRounds(){
+    var rounds = shell.querySelectorAll('.bk-round');
+    if(!rounds.length) return;
+    var GAP = 22;             // vertical gap between first-round cards
+
+    // measure a card height from the first round
+    var firstCol = rounds[0].querySelector('.bk-round-col');
+    var sample = firstCol && firstCol.querySelector('.bk-match');
+    var ch = sample ? sample.offsetHeight : 96;
+    CARD_H_GUESS = ch;
+
+    // card width (absolute cards collapse the column → set its width explicitly)
+    var cw = sample ? sample.offsetWidth : 210;
+
+    // centres per match, keyed by id (y centre WITHIN a .bk-round-col's local space)
+    var centres = {};
+    var maxBottom = 0;
+
+    ROUNDS.forEach(function(r, ri){
+      var roundEl = shell.querySelector('.bk-round[data-round="'+cssesc(r.id)+'"]');
+      if(!roundEl) return;
+      var col = roundEl.querySelector('.bk-round-col');
+      col.style.width = cw + 'px';
+      var cards = Array.prototype.slice.call(col.querySelectorAll('.bk-match'))
+                    .sort(function(a,b){ return (+a.dataset.slot)-(+b.dataset.slot); });
+
+      cards.forEach(function(card, i){
+        var h = card.offsetHeight || ch;
+        var centre;
+        if(ri===0){
+          centre = i*(ch+GAP) + ch/2;
+        }else{
+          // average the centres of the (up to two) feeding matches
+          var feeders = MATCHES.filter(function(m){ return m.feedsInto===card.dataset.match; });
+          var ys = feeders.map(function(m){ return centres[m.id]; }).filter(function(v){ return v!=null; });
+          if(ys.length){ centre = ys.reduce(function(a,b){ return a+b; },0)/ys.length; }
+          else { centre = i*(ch+GAP)*2 + ch/2; }   // fallback if a feeder is missing
+        }
+        centres[card.dataset.match] = centre;
+        card.style.top = (centre - h/2) + 'px';
+        maxBottom = Math.max(maxBottom, centre + h/2);
+      });
+    });
+
+    // every column shares the tallest content height so the flex row lines up
+    shell.querySelectorAll('.bk-round-col').forEach(function(c){ c.style.minHeight = (maxBottom + 6) + 'px'; });
+
+    // champion slot: align its rail's vertical centre to the final card's centre.
+    // Both the round columns and the champion sit in the same flex row and start
+    // their content below an equal-height head, so centres[] shares the origin.
+    var fin = finalMatch();
+    var champEl = el('bk-champion');
+    if(champEl){
+      var rail = champEl.querySelector('.bk-rail');
+      var rh = rail ? rail.offsetHeight : 120;
+      var c = (fin && centres[fin.id]!=null) ? centres[fin.id] : (maxBottom/2);
+      // rail's top = final centre − half rail; the rail lives under .bk-champ-head (same head height),
+      // so no extra head offset is needed beyond matching the column content origin.
+      if(rail) rail.style.marginTop = Math.max(0, c - rh/2) + 'px';
+    }
+
+    drawConnectors();
+  }
+  function cssesc(s){ return String(s).replace(/[^a-zA-Z0-9_\-]/g, '\\$&'); }
+
+  /* ============================================================
+     CONNECTORS — ONE <svg> overlay, one elbow path per edge.
+     Reads live card rects, converts to the stage's untransformed
+     local coords (subtract stage origin, divide by scale k), and
+     draws  M{aR} {aY} H{midX} V{bY} H{bL}  (right→across→into).
+     Recomputed on every layout / zoom / pan-independent change.
+     ============================================================ */
+  function drawConnectors(){
+    var wires = el('bk-connector'), stage = el('bk-stage'), rounds = el('bk-rounds');
+    if(!wires || !stage || !rounds) return;
+    var W = rounds.offsetWidth, H = rounds.offsetHeight;
+    wires.setAttribute('width', W); wires.setAttribute('height', H);
+    wires.setAttribute('viewBox', '0 0 '+W+' '+H);
+
+    var sr = stage.getBoundingClientRect(), k = view.k || 1;
+    function rel(el){ var r = el.getBoundingClientRect();
+      return { x:(r.left-sr.left)/k, y:(r.top-sr.top)/k, w:r.width/k, h:r.height/k }; }
+
+    var pathIds = STATE.path ? pathFor(STATE.path) : null;
+    var dNormal = '', dLit = '', dDim = '';
+
+    MATCHES.forEach(function(m){
+      if(!m.feedsInto) return;
+      var src = el('match-'+m.id), dst = el('match-'+m.feedsInto);
+      if(!src || !dst) return;
+      var a = rel(src), b = rel(dst);
+
+      // anchor on the winner row's vertical centre if decided, else card centre
+      var aY = a.y + a.h/2;
+      if(m.winner){
+        var wRow = src.querySelector('.bk-side[data-side="'+m.winner+'"]');
+        if(wRow){ var wr = rel(wRow); aY = wr.y + wr.h/2; }
+      }
+      var aR = a.x + a.w;                 // right edge of source card
+      var bL = b.x;                       // left edge of destination card
+      var bY = b.y + b.h/2;
+      var midX = aR + (bL - aR)/2;
+      var seg = 'M'+aR.toFixed(1)+' '+aY.toFixed(1)
+              + 'H'+midX.toFixed(1)
+              + 'V'+bY.toFixed(1)
+              + 'H'+bL.toFixed(1);
+
+      var lit = pathIds && pathIds[m.id] && pathIds[m.feedsInto];
+      if(lit) dLit += seg;
+      else if(pathIds) dDim += seg;
+      else dNormal += seg;
+    });
+
+    wires.innerHTML =
+        '<path d="'+dNormal+'"></path>'
+      + '<path class="bk-edge-dim" d="'+dDim+'"></path>'
+      + '<path class="bk-edge-lit" d="'+dLit+'"></path>';
+  }
+
+  /* ============================================================
+     SIDE PANEL — selected-match detail
+     ============================================================ */
+  function renderSidePanel(){
+    var body = el('bk-sp-body'); if(!body) return;
+    var m = STATE.sel ? byId[STATE.sel] : null;
+    if(!m){
+      body.innerHTML = '<div class="bk-sp-empty">Select a match to see competitors, score, status, venue and time.</div>';
+      return;
+    }
+    var rn = (ROUNDS.filter(function(r){ return r.id===m.roundId; })[0]||{}).name || '';
+    function vsRow(key){
+      var side = m[key] || {}; var empty = !side.name;
+      var cls = 'bk-vs-row';
+      if(!empty && m.winner){ cls += (m.winner===key)?' is-winner':' is-loser'; }
+      var sc = side.score!=null ? esc(side.score) : '—';
+      return '<div class="'+cls+'">'
+        + '<span class="bk-vs-seed tnum">'+(side.seed!=null?('#'+side.seed):'—')+'</span>'
+        + '<span class="bk-vs-meta"><span class="bk-vs-name">'+(empty?'TBD':esc(side.name))+'</span>'
+          + '<span class="bk-vs-detail">'+esc(side.detail||(empty?'awaiting upstream winner':''))+'</span></span>'
+        + '<span class="bk-vs-score tnum">'+sc+'</span>'
+      + '</div>';
+    }
+    var badge = m.status==='done' ? '<span class="st-badge st-ok">Final</span>'
+              : m.status==='live' ? '<span class="st-badge st-risk">Live</span>'
+              : '<span class="st-badge st-hold">Scheduled</span>';
+    var note = m.note ? '<div class="bk-note"><div class="mlabel">Note</div><p>'+esc(m.note)+'</p></div>' : '';
+
+    body.innerHTML =
+        '<div class="bk-sp-round">'+esc(rn)+(SCOREUNIT?(' · scored in'+SCOREUNIT):'')+'</div>'
+      + '<div class="bk-vs">'+vsRow('a')+'<div class="bk-vs-mid">versus</div>'+vsRow('b')+'</div>'
+      + '<div class="bk-facts">'
+        + '<div class="bk-fact"><div class="mlabel">Status</div>'+badge+'</div>'
+        + '<div class="bk-fact"><div class="mlabel">Match</div><b>'+esc(m.id)+'</b></div>'
+        + '<div class="bk-fact full"><div class="mlabel">Scheduled</div><b>'+esc(m.time||'—')+'</b></div>'
+        + '<div class="bk-fact full"><div class="mlabel">Venue</div><b>'+esc(m.venue||'—')+'</b></div>'
+      + '</div>'
+      + note;
+  }
+
+  /* ============================================================
+     INTERACTIONS
+     ============================================================ */
+  function selectMatch(id){
+    STATE.sel = id;
+    shell.querySelectorAll('.bk-match.is-sel').forEach(function(n){ n.classList.remove('is-sel'); });
+    var card = el('match-'+id); if(card) card.classList.add('is-sel');
+    renderSidePanel();
+  }
+
+  function applyPath(){
+    var ids = STATE.path ? pathFor(STATE.path) : null;
+    shell.querySelectorAll('.bk-match').forEach(function(card){
+      card.classList.remove('is-path','is-dim');
+      if(!ids) return;
+      if(ids[card.dataset.match]) card.classList.add('is-path');
+      else card.classList.add('is-dim');
+    });
+    // champion slot on the path?
+    var rail = el('bk-rail');
+    if(rail){
+      rail.classList.remove('is-pathlit');
+      if(STATE.path && wonFinal(STATE.path)) rail.style.borderColor = 'var(--navy)';
+      else rail.style.borderColor = '';
+    }
+    drawConnectors();
+  }
+
+  function applyRoundFilter(){
+    var rf = STATE.roundFilter;
+    shell.querySelectorAll('.bk-round').forEach(function(r){
+      r.classList.toggle('is-dim', rf!=='all' && r.dataset.round!==rf);
+    });
+  }
+
+  /* pick a winner on a scheduled match → seed the next round LIVE */
+  function pickWinner(matchId, key){
+    var m = byId[matchId]; if(!m || !m[key] || !m[key].name) return;
+    m.winner = key;
+    m.status = 'done';
+    if(m[key].score==null) m[key].score = '—';   // projected; no fabricated number
+    // seed the advancing competitor into the next-round match by slot parity
+    if(m.feedsInto){
+      var nxt = byId[m.feedsInto];
+      if(nxt){
+        var into = (m.slot % 2 === 0) ? 'a' : 'b';
+        nxt[into] = { seed:m[key].seed, name:m[key].name, detail:m[key].detail };
+      }
+    }
+    // re-render the bracket body (keeps selection / path / filter)
+    rerenderBody();
+  }
+
+  function rerenderBody(){
+    // rebuild rounds + champion in place, then relayout
+    var stage = el('bk-stage');
+    stage.innerHTML = '<svg class="bk-connector" id="bk-connector" aria-hidden="true"></svg>' + roundsHTML();
+    // refresh the highlight-path select options (names may now be filled)
+    var psel = el('bk-pathsel');
+    if(psel){
+      var cur = STATE.path || '';
+      psel.innerHTML = '<option value="">— none —</option>'
+        + competitors().map(function(c){ return '<option value="'+esc(c.name)+'">'+(c.seed?('#'+c.seed+'  '):'')+esc(c.name)+'</option>'; }).join('');
+      psel.value = cur;
+    }
+    layoutRounds();
+    applyRoundFilter();
+    applyPath();
+    if(STATE.sel){ var card = el('match-'+STATE.sel); if(card) card.classList.add('is-sel'); }
+    renderSidePanel();
+  }
+
+  /* ---- pan / zoom (mouse events + wheel; transform-origin 0 0) ---- */
+  var view = { x:0, y:0, k:1 };
+  function clampK(v){ return Math.max(0.35, Math.min(2.2, v)); }
+  function applyView(){
+    var stage = el('bk-stage'); if(!stage) return;
+    stage.style.transform = 'translate('+view.x+'px,'+view.y+'px) scale('+view.k+')';
+    var zl = el('bk-zoomval'); if(zl) zl.textContent = Math.round(view.k*100)+'%';
+  }
+  function fitView(){
+    var canvas = el('bk-canvas'), rounds = el('bk-rounds');
+    if(!canvas || !rounds) return;
+    var cw = canvas.clientWidth, tw = rounds.offsetWidth || 1, th = rounds.offsetHeight || 1, chh = canvas.clientHeight;
+    var k = clampK(Math.min((cw-48)/tw, (chh-40)/th, 1));
+    view.k = k;
+    view.x = Math.max(16, (cw - tw*k)/2);
+    view.y = Math.max(12, (chh - th*k)/2);
+    if(view.y > 40) view.y = 24;
+    applyView();
+  }
+
+  function wireInteractions(){
+    var canvas = el('bk-canvas');
+
+    /* click a match → select + detail (ignore clicks on the pick buttons) */
+    canvas.addEventListener('click', function(e){
+      var pick = e.target.closest('.bk-pick button');
+      if(pick){ if(!pick.disabled) pickWinner(pick.dataset.match, pick.dataset.pick); e.stopPropagation(); return; }
+      var card = e.target.closest('.bk-match');
+      if(card && !panMoved){ selectMatch(card.dataset.match); }
+    });
+    canvas.addEventListener('keydown', function(e){
+      if(e.key!=='Enter' && e.key!==' ') return;
+      var card = e.target.closest('.bk-match');
+      if(card){ e.preventDefault(); selectMatch(card.dataset.match); }
+    });
+
+    /* round filter */
+    el('bk-roundsel').addEventListener('change', function(){
+      STATE.roundFilter = this.value; applyRoundFilter();
+    });
+
+    /* highlight a competitor's path */
+    el('bk-pathsel').addEventListener('change', function(){
+      STATE.path = this.value || null; applyPath();
+    });
+
+    /* reset everything to the data state */
+    el('bk-reset').addEventListener('click', function(){
+      STATE = { sel:null, path:null, roundFilter:'all' };
+      loadMatches();
+      var ps = el('bk-pathsel'), rs = el('bk-roundsel');
+      if(ps) ps.value = ''; if(rs) rs.value = 'all';
+      rerenderBody();
+      fitView();
+    });
+
+    /* zoom cluster (about canvas centre; reset = fit) */
+    document.querySelector('.bk-zoom').addEventListener('click', function(e){
+      var b = e.target.closest('button'); if(!b) return;
+      var z = b.dataset.zoom;
+      if(z==='reset'){ fitView(); return; }
+      var r = canvas.getBoundingClientRect(), cx = r.width/2, cy = r.height/2;
+      var pk = view.k, nk = clampK(pk * (z==='in' ? 1.18 : 0.85));
+      view.x = cx-(cx-view.x)*(nk/pk); view.y = cy-(cy-view.y)*(nk/pk); view.k = nk; applyView();
+    });
+
+    /* drag to pan — starts only on empty canvas (not a card or the controls) */
+    var drag=false, sx=0, sy=0, ox=0, oy=0;
+    canvas.addEventListener('mousedown', function(e){
+      if(e.button!==0 || e.target.closest('.bk-match') || e.target.closest('.bk-zoom') || e.target.closest('.bk-champion')) return;
+      drag=true; panMoved=false; sx=e.clientX; sy=e.clientY; ox=view.x; oy=view.y;
+      canvas.classList.add('is-panning'); e.preventDefault();
+    });
+    window.addEventListener('mousemove', function(e){
+      if(!drag) return;
+      if(Math.abs(e.clientX-sx)+Math.abs(e.clientY-sy) > 3) panMoved=true;
+      view.x = ox+(e.clientX-sx); view.y = oy+(e.clientY-sy); applyView();
+    });
+    window.addEventListener('mouseup', function(){ if(drag){ drag=false; canvas.classList.remove('is-panning'); } });
+
+    /* wheel zoom about the cursor */
+    canvas.addEventListener('wheel', function(e){
+      e.preventDefault();
+      var r = canvas.getBoundingClientRect(), cx = e.clientX-r.left, cy = e.clientY-r.top;
+      var pk = view.k, nk = clampK(pk * (e.deltaY<0 ? 1.12 : 0.89));
+      view.x = cx-(cx-view.x)*(nk/pk); view.y = cy-(cy-view.y)*(nk/pk); view.k = nk; applyView();
+    }, { passive:false });
+
+    /* tooltips on competitor rows (exact seed / name / score) + connectors via card hover */
+    canvas.addEventListener('mousemove', function(e){
+      var row = e.target.closest('.bk-side');
+      if(!row || !row.dataset.name){ hideTip(); return; }
+      var card = row.closest('.bk-match'); var m = card ? byId[card.dataset.match] : null;
+      var name = row.dataset.name, seed = row.dataset.seed, score = row.dataset.score, detail = row.dataset.detail;
+      var rn = m ? ((ROUNDS.filter(function(r){ return r.id===m.roundId; })[0]||{}).name||'') : '';
+      var oppKey = row.dataset.side==='a' ? 'b' : 'a';
+      var opp = m && m[oppKey] ? m[oppKey] : null;
+      var isWin = m && m.winner===row.dataset.side;
+      var html = '<div class="tt-h">'+esc(rn)+'</div>'
+        + '<div class="tt-row '+(isWin?'win':'')+'"><span>'+(seed?('#'+seed+'  '):'')+esc(name)+'</span><b>'+(score!==''?esc(score)+SCOREUNIT:'—')+'</b></div>';
+      if(opp && opp.name){
+        var oppWin = m.winner===oppKey;
+        html += '<div class="tt-row '+(oppWin?'win':'lose')+'"><span>'+(opp.seed!=null?('#'+opp.seed+'  '):'')+esc(opp.name)+'</span><b>'+(opp.score!=null?esc(opp.score)+SCOREUNIT:'—')+'</b></div>';
+      }
+      if(detail) html += '<div class="tt-row lose"><span>'+esc(detail)+'</span></div>';
+      showTip(html, e.clientX, e.clientY);
+    });
+    canvas.addEventListener('mouseleave', hideTip);
+
+    window.addEventListener('resize', function(){ layoutRounds(); });
+    window.addEventListener('load', function(){ layoutRounds(); fitView(); });
+    window.addEventListener('beforeprint', function(){
+      view = { x:0, y:0, k:1 }; applyView(); layoutRounds();
+    });
+    window.addEventListener('afterprint', function(){ fitView(); });
+  }
+
+  function showTip(html, x, y){
+    tip.innerHTML = html;
+    tip.style.left = x+'px'; tip.style.top = (y-12)+'px';
+    tip.classList.add('show');
+  }
+  function hideTip(){ tip.classList.remove('show'); }
+
+  /* ---- canonical dropdown theme switcher (per _DATA_DRIVEN §3) ---- */
+  function wireThemeSwitch(){
+    var rcSel = document.querySelector('.rc-theme-sel');
+    if(rcSel){
+      rcSel.value = root.dataset.theme || 'plum';
+      rcSel.addEventListener('change', function(){
+        root.dataset.theme = rcSel.value;
+        drawConnectors();   // --wire token may differ per theme
+      });
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', function(){
+    render();
+    wireInteractions();
+    wireThemeSwitch();
+    layoutRounds();
+    fitView();
+  });
+})();
+</script>
+</body>
+</html>

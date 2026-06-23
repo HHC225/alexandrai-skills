@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="slate">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1440">
+<title>The Quiet Rewrite — {{PROJECT}} Feature</title>
+<style>
+/* ============================================================= TOKENS */
+:root{
+  /* surfaces */
+  --bg:#fff; --bg-band:#f6f6f8; --bg-subtle:#fafafb; --bg-deep:#15131a;
+  --rule:#dcdce2; --rule-soft:#ebebef;
+  /* ink */
+  --ink:#11131a; --ink-mid:#33363f; --ink-soft:#5a5e68; --ink-faint:#868b95;
+  /* brand accent (Purple default — the active theme is set on <html data-theme>) */
+  --navy:#a100ff; --navy-deep:#7a00c2; --navy-bg:#f3e8ff; --navy-line:#d9bef5;
+  --ok:#5a2f8a; --ok-bg:#efe8f5; --ok-line:#d0b5e0;
+  --risk:#b3261e; --risk-bg:#fbeceb; --risk-line:#edc7c4;
+  --hold:#8a6d00; --hold-bg:#fbf3da; --hold-line:#e7d8a4;
+  --mono:ui-monospace,"JetBrains Mono","SFMono-Regular",Menlo,Consolas,monospace;
+  --sans:-apple-system,"Segoe UI",system-ui,Roboto,"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic UI","Apple SD Gothic Neo","Malgun Gothic","PingFang SC","Microsoft YaHei","Noto Sans CJK JP","Noto Sans CJK KR","Noto Sans CJK SC","Noto Sans JP","Noto Sans KR","Noto Sans SC","Noto Sans",sans-serif;
+  /* a serif voice for the long-read body — system serifs only, no external fonts */
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua","Hoefler Text",Georgia,"Times New Roman",serif;
+}
+/* default :root above = Purple. The 9 brand presets (Black mandatory) override below. */
+html[data-theme="blue"]{   --navy:#0b5fd4; --navy-deep:#0842a0; --navy-bg:#e8f1fc; --navy-line:#bcd6f5; --ok:#1a4f9c; --ok-bg:#e9f0fa; --ok-line:#b7cdea; }
+html[data-theme="purple"]{ --navy:#a100ff; --navy-deep:#7a00c2; --navy-bg:#f3e8ff; --navy-line:#d9bef5; --ok:#5a2f8a; --ok-bg:#efe8f5; --ok-line:#d0b5e0; }
+html[data-theme="indigo"]{ --navy:#4338ca; --navy-deep:#312c92; --navy-bg:#ebebfb; --navy-line:#c7c3f0; --ok:#3730a3; --ok-bg:#ebeaf7; --ok-line:#c5c2ea; }
+html[data-theme="teal"]{   --navy:#0e7c86; --navy-deep:#095861; --navy-bg:#e0f3f4; --navy-line:#a9dade; --ok:#0f5d54; --ok-bg:#e3f3ef; --ok-line:#b3ddd4; }
+html[data-theme="cyan"]{   --navy:#0891b2; --navy-deep:#0e6f88; --navy-bg:#e2f4f9; --navy-line:#abdde9; --ok:#0e6b7a; --ok-bg:#e4f3f4; --ok-line:#b0dde2; }
+html[data-theme="green"]{  --navy:#1f7a44; --navy-deep:#155730; --navy-bg:#e6f4ea; --navy-line:#b3dcc1; --ok:#2f6b3c; --ok-bg:#e9f3ea; --ok-line:#bedcc4; }
+html[data-theme="plum"]{   --navy:#a21d6e; --navy-deep:#7c1450; --navy-bg:#fbe8f2; --navy-line:#e8b9d4; --ok:#6d2356; --ok-bg:#f6e8f0; --ok-line:#e3bcd5; }
+html[data-theme="slate"]{  --navy:#3f4f63; --navy-deep:#29384b; --navy-bg:#eef1f5; --navy-line:#c2ccd8; --ok:#34495e; --ok-bg:#eef1f5; --ok-line:#c2ccd8; }
+html[data-theme="black"]{  --navy:#000000; --navy-deep:#000000; --navy-bg:#f1f1f3; --navy-line:#d6d6db; --ok:#3f3f46; --ok-bg:#f1f1f3; --ok-line:#cfcfd6; }
+
+/* ============================================================= RESET / PAGE */
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  font:13px/1.6 var(--sans);
+  color:var(--ink);
+  background:var(--bg);
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+.icon{width:1.15em;height:1.15em;display:inline-block;vertical-align:-.18em;color:inherit}
+.icon-sm{width:13px;height:13px}
+
+/* ============================================================= READING-PROGRESS BAR */
+/* thin top bar that fills as the article scrolls — the one magazine-appropriate motion cue */
+.read-progress{
+  position:fixed; top:0; left:0; right:0; height:3px; z-index:60;
+  background:transparent; pointer-events:none;
+}
+.read-progress .rp-fill{
+  height:100%; width:0;
+  background:var(--navy);
+  transition:width .12s linear;
+}
+
+/* ============================================================= FEATURE FRAME */
+/* centred reading measure; wide elements break out of it */
+.feature{ max-width:1080px; margin:0 auto; padding:0 40px 64px; }
+@media(max-width:780px){ .feature{ padding:0 22px 48px; } }
+
+/* ============================================================= TITLE SPREAD */
+.title-spread{
+  position:relative;
+  /* break out to full page width from inside .feature */
+  width:100vw; left:50%; margin-left:-50vw;
+  background:var(--bg-deep);
+  color:#f4f3f6;
+  padding:74px max(40px,calc((100vw - 1080px)/2 + 40px)) 64px;
+  overflow:hidden;
+}
+/* faint editorial backdrop motif drawn behind the spread (pure CSS/SVG, no raster) */
+.title-spread .ts-art{
+  position:absolute; inset:0; pointer-events:none; opacity:.5;
+}
+.title-spread .ts-art svg{ position:absolute; right:-40px; top:-30px; width:560px; height:560px; color:#9aa6b6; }
+.title-spread .ts-inner{ position:relative; max-width:980px; }
+.kicker{
+  display:flex; align-items:center; gap:14px;
+  font:600 11px/1 var(--mono);
+  letter-spacing:.22em; text-transform:uppercase;
+  color:var(--navy-line);
+  margin-bottom:26px;
+}
+.kicker::before{ content:""; width:46px; height:2px; background:var(--navy-line); flex:none; }
+.kicker .k-sep{ color:#6b7585; }
+.kicker .k-tag{ color:#cdd6e1; }
+.headline{
+  margin:0;
+  font:800 clamp(40px,6.4vw,88px)/1.02 var(--sans);
+  letter-spacing:-.025em;
+  max-width:15ch;
+  color:#fff;
+}
+.headline em{ font-style:italic; color:var(--navy-line); font-weight:800; }
+.deck{
+  margin:26px 0 0;
+  max-width:62ch;
+  font:400 clamp(18px,2vw,23px)/1.5 var(--serif);
+  color:#c3cbd6;
+}
+.deck .lead-cap{ color:#fff; font-weight:600; }
+.byline{
+  display:flex; flex-wrap:wrap; align-items:center; gap:10px 16px;
+  margin-top:40px; padding-top:20px;
+  border-top:1px solid rgba(255,255,255,.14);
+  font:500 12px/1.4 var(--sans);
+  color:#aeb7c3;
+}
+.byline .by-name{ color:#fff; font-weight:700; }
+.byline .by-role{ color:#aeb7c3; }
+.byline .dot{ width:3px; height:3px; border-radius:50%; background:#6b7585; }
+.byline .by-meta{ font:600 10.5px/1 var(--mono); letter-spacing:.12em; text-transform:uppercase; color:#8c95a3; }
+.byline .ref-chip{
+  font:600 10.5px/1 var(--mono); letter-spacing:.06em;
+  background:rgba(255,255,255,.08); color:#dfe5ec; border:1px solid rgba(255,255,255,.18);
+  border-radius:5px; padding:5px 9px; text-decoration:none;
+  transition:background .12s ease, border-color .12s ease, color .12s ease;
+}
+.byline .ref-chip:hover{ background:var(--navy); border-color:var(--navy); color:#fff; }
+
+/* ============================================================= BODY FLOW */
+.body{ margin-top:48px; }
+.cols{
+  column-count:2;
+  column-gap:46px;
+  column-rule:1px solid var(--rule-soft);
+  text-align:justify;
+  hyphens:auto;
+  -webkit-hyphens:auto;
+  orphans:2; widows:2;
+}
+@media(min-width:1180px){ .cols{ column-count:3; column-gap:40px; } }
+@media(max-width:680px){ .cols{ column-count:1; text-align:left; hyphens:manual; } }
+
+.cols p{
+  margin:0 0 1.05em;
+  font:400 16.5px/1.62 var(--serif);
+  color:var(--ink-mid);
+}
+.cols p + p{ text-indent:1.4em; }      /* classic continuous-prose indent */
+.cols .lead{ text-indent:0; }
+.cols .lead + p{ text-indent:0; }
+
+/* drop cap on the opening paragraph */
+.dropcap{
+  float:left;
+  font:800 3.35em/.72 var(--sans);
+  color:var(--navy-deep);
+  margin:.06em .12em -.02em 0;
+  padding-right:.02em;
+}
+/* small-caps run-in to the first words for a true feature opener */
+.lead .lead-words{ font-variant:small-caps; letter-spacing:.02em; color:var(--ink); font-weight:600; }
+
+/* run-in subhead — segments prose with NO heavy panel/header band */
+.runin{
+  break-inside:avoid;
+  margin:1.5em 0 .15em;
+  font:800 12px/1.4 var(--mono);
+  letter-spacing:.16em; text-transform:uppercase;
+  color:var(--navy-deep);
+}
+.runin .ri-no{ color:var(--ink-faint); margin-right:.5em; }
+
+/* pull-quote — breaks the columns */
+.pullquote{
+  column-span:all;
+  margin:30px 0;
+  padding:6px 0 6px 26px;
+  border-left:3px solid var(--navy);
+  font:600 clamp(22px,2.6vw,30px)/1.26 var(--sans);
+  letter-spacing:-.012em;
+  color:var(--navy-deep);
+  position:relative;
+}
+.pullquote .pq-mark{
+  position:absolute; left:-2px; top:-26px;
+  font:800 64px/1 var(--serif); color:var(--navy-line);
+  pointer-events:none;
+}
+.pullquote cite{
+  display:block; margin-top:12px;
+  font:600 11px/1.3 var(--mono); letter-spacing:.1em; text-transform:uppercase;
+  color:var(--ink-faint); font-style:normal;
+}
+/* quiet "copy quote" affordance — invisible until the pull-quote is hovered, hides in print */
+.pullquote .pq-copy{
+  position:absolute; top:2px; right:0;
+  display:inline-flex; align-items:center; gap:5px;
+  font:600 9.5px/1 var(--mono); letter-spacing:.1em; text-transform:uppercase;
+  color:var(--ink-faint); background:var(--bg); border:1px solid var(--rule);
+  border-radius:5px; padding:5px 8px; cursor:pointer;
+  opacity:0; transition:opacity .12s ease, color .12s ease, border-color .12s ease;
+}
+.pullquote:hover .pq-copy,
+.pullquote .pq-copy:focus-visible{ opacity:1; }
+.pullquote .pq-copy:hover{ color:var(--navy-deep); border-color:var(--navy-line); }
+.pullquote .pq-copy.copied{ color:var(--ok); border-color:var(--ok-line); background:var(--ok-bg); opacity:1; }
+.pullquote .pq-copy .icon{ width:12px; height:12px; }
+.pullquote.wide{
+  /* break past the reading measure to near full width for a dramatic pause */
+  width:min(1080px,92vw); position:relative; left:50%; transform:translateX(-50%);
+  text-align:center; border-left:none; padding:18px 0;
+}
+.pullquote.wide::before,
+.pullquote.wide::after{
+  content:""; display:block; width:54px; height:2px; background:var(--navy-line); margin:0 auto;
+}
+.pullquote.wide::before{ margin-bottom:20px; }
+.pullquote.wide::after{ margin-top:20px; }
+.pullquote.wide cite{ text-align:center; }
+.pullquote.wide .pq-copy{ top:0; right:0; }
+
+/* ============================================================= FIGURE SPREAD */
+.figure{
+  column-span:all;
+  margin:34px 0;
+  break-inside:avoid;
+}
+.figure.full{
+  width:100vw; left:50%; margin-left:-50vw; position:relative;
+  padding:38px max(40px,calc((100vw - 1080px)/2 + 40px));
+  background:var(--bg-band);
+  border-top:1px solid var(--rule); border-bottom:1px solid var(--rule);
+}
+.fig-frame{
+  background:var(--bg);
+  border:1px solid var(--rule);
+  border-radius:12px;
+  box-shadow:0 1px 2px rgba(17,19,26,.045);
+  padding:26px 30px 22px;
+  max-width:1000px; margin:0 auto;
+  position:relative;
+  transition:box-shadow .14s ease, border-color .14s ease;
+}
+/* hover a figure → lift it slightly + reveal the provenance note (keeps reading flow) */
+.figure:hover .fig-frame{ box-shadow:0 4px 16px rgba(17,19,26,.10); border-color:var(--navy-line); }
+.fig-frame svg{ display:block; width:100%; height:auto; }
+figcaption{
+  margin-top:16px; padding-top:13px;
+  border-top:1px solid var(--rule-soft);
+  font:400 12.5px/1.5 var(--sans);
+  color:var(--ink-soft);
+  max-width:1000px; margin-left:auto; margin-right:auto;
+}
+figcaption .fc-no{
+  font:600 10px/1 var(--mono); letter-spacing:.12em; text-transform:uppercase;
+  color:var(--navy-deep); margin-right:.7em;
+}
+figcaption b{ color:var(--ink); font-weight:700; }
+/* figure provenance / source line — revealed on hover or keyboard focus */
+.fig-src{
+  display:block; margin-top:9px;
+  max-height:0; overflow:hidden; opacity:0;
+  font:500 11.5px/1.5 var(--mono); letter-spacing:.02em; color:var(--ink-faint);
+  transition:max-height .18s ease, opacity .18s ease, margin-top .18s ease;
+}
+.figure:hover .fig-src,
+.figure:focus-within .fig-src{ max-height:6em; opacity:1; }
+
+/* SVG chart bits */
+.chart-bar{ fill:var(--navy); }
+.chart-bar.prev{ fill:var(--navy-line); }
+.chart-axis{ stroke:var(--rule); stroke-width:1.5; }
+.chart-grid{ stroke:var(--rule-soft); stroke-width:1; }
+.chart-lab{ font:600 10px var(--mono); letter-spacing:.06em; fill:var(--ink-faint); text-transform:uppercase; }
+.chart-val{ font:700 12px var(--mono); fill:var(--ink); }
+.flow-node{ fill:var(--bg); stroke:var(--navy); stroke-width:1.75; }
+.flow-node-deep{ fill:var(--navy-bg); stroke:var(--navy); stroke-width:1.75; }
+.flow-lab{ font:700 12px var(--sans); fill:var(--navy-deep); }
+.flow-sub{ font:500 9.5px var(--mono); letter-spacing:.08em; fill:var(--ink-faint); text-transform:uppercase; }
+.flow-link{ stroke:var(--navy); stroke-width:1.75; fill:none; }
+
+/* ============================================================= BOX-OUT / SIDEBAR */
+.sidebar{
+  column-span:all;
+  margin:30px 0;
+  break-inside:avoid;
+  background:var(--bg-subtle);
+  border:1px solid var(--rule);
+  border-left:3px solid var(--navy);
+  border-radius:12px;
+  padding:20px 24px;
+}
+.sidebar .sb-head{
+  display:flex; align-items:center; gap:8px;
+  font:800 11px/1 var(--mono); letter-spacing:.16em; text-transform:uppercase;
+  color:var(--navy-deep);
+  margin-bottom:14px;
+}
+.sidebar .sb-head .icon{ color:var(--navy); }
+.kv{ display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--rule-soft); border:1px solid var(--rule-soft); border-radius:8px; overflow:hidden; }
+.kv .kv-cell{ background:var(--bg); padding:12px 14px; }
+.kv .kv-k{ font:600 9.5px/1 var(--mono); letter-spacing:.1em; text-transform:uppercase; color:var(--ink-faint); margin-bottom:7px; }
+.kv .kv-v{ font:700 26px/1 var(--sans); color:var(--ink); font-feature-settings:"tnum" 1; }
+.kv .kv-v small{ font:600 12px/1 var(--mono); color:var(--ink-soft); margin-left:3px; }
+@media(max-width:680px){ .kv{ grid-template-columns:repeat(2,1fr); } }
+
+.sb-badges{ margin-top:14px; display:flex; gap:8px; flex-wrap:wrap; }
+.st-badge{ display:inline-flex; align-items:center; gap:6px; font:600 11px/1 var(--sans); border:1px solid var(--rule); border-radius:6px; padding:5px 9px; color:var(--ink-mid); }
+.st-badge::before{ content:""; width:7px; height:7px; border-radius:50%; background:var(--ink-faint); }
+.st-ok{ background:var(--ok-bg); border-color:var(--ok-line); color:var(--ok); }
+.st-ok::before{ background:var(--ok); }
+.st-hold{ background:var(--hold-bg); border-color:var(--hold-line); color:var(--hold); }
+.st-hold::before{ background:var(--hold); }
+.st-risk{ background:var(--risk-bg); border-color:var(--risk-line); color:var(--risk); }
+.st-risk::before{ background:var(--risk); }
+
+/* ============================================================= END-MARK + FOLIO */
+.endmark::after{
+  content:""; display:inline-block;
+  width:.62em; height:.62em; margin-left:.4em;
+  background:var(--navy); vertical-align:-.02em; border-radius:2px;
+}
+.folio{
+  width:100vw; left:50%; margin-left:-50vw; position:relative;
+  margin-top:56px;
+  border-top:2px solid var(--ink);
+  padding:22px max(40px,calc((100vw - 1080px)/2 + 40px)) 30px;
+}
+.folio-row{ display:flex; align-items:center; justify-content:space-between; gap:20px; max-width:1080px; margin:0 auto; flex-wrap:wrap; }
+.wordmark{ display:flex; align-items:center; gap:10px; font:800 13px/1 var(--sans); letter-spacing:.02em; color:var(--ink); }
+.wordmark .mark{ width:14px; height:14px; background:var(--navy); border-radius:4px; }
+.wordmark .wm-sub{ font:600 10px/1 var(--mono); letter-spacing:.14em; text-transform:uppercase; color:var(--ink-faint); margin-left:4px; }
+.folio-meta{ display:flex; align-items:center; gap:8px 18px; font:600 10.5px/1 var(--mono); letter-spacing:.13em; text-transform:uppercase; color:var(--ink-faint); flex-wrap:wrap; }
+.folio-meta .dot{ width:3px; height:3px; border-radius:50%; background:var(--rule); }
+.folio-meta .pg{ color:var(--ink); }
+
+/* ============================================================= THEME SWITCHER (canonical compact dropdown — prints away) */
+.rc-theme{
+  position:fixed; right:14px; bottom:14px; z-index:40;
+  display:inline-flex; align-items:center; gap:6px;
+  border:1px solid var(--rule); border-radius:7px;
+  padding:3px 4px 3px 7px; background:var(--bg);
+  box-shadow:0 1px 3px rgba(17,19,26,.12); backdrop-filter:blur(4px);
+}
+.rc-theme-sw{width:12px;height:12px;border-radius:50%;background:var(--navy);box-shadow:0 0 0 1px var(--rule);flex:none;}
+.rc-theme-sel{border:0;background:none;font:600 11px/1 var(--mono);color:var(--ink-mid);cursor:pointer;outline:none;padding:2px;}
+@media print{.rc-theme{display:none;}}
+
+/* ============================================================= NOSCRIPT */
+.noscript-note{
+  max-width:1080px; margin:16px auto; padding:14px 18px;
+  background:var(--hold-bg); border:1px solid var(--hold-line); border-radius:10px;
+  font:500 12.5px/1.55 var(--sans); color:var(--hold);
+}
+
+/* ============================================================= REDUCED MOTION */
+@media (prefers-reduced-motion: reduce){
+  *{ transition:none !important; animation:none !important; }
+}
+
+/* ============================================================= PRINT */
+@media print{
+  .rc-theme{ display:none !important; }
+  .read-progress{ display:none !important; }
+  .pq-copy{ display:none !important; }
+  .fig-src{ max-height:none !important; opacity:1 !important; margin-top:9px !important; }   /* expand provenance for a complete printed snapshot */
+  body{ background:#fff; }
+  .title-spread{ background:#fff !important; color:#000 !important; padding-top:24px; }
+  .title-spread .ts-art{ display:none; }
+  .headline{ color:#000 !important; }
+  .headline em{ color:#333 !important; }
+  .deck{ color:#222 !important; }
+  .kicker{ color:#444 !important; }
+  .kicker::before{ background:#444 !important; }
+  .byline{ color:#333 !important; border-top-color:#bbb !important; }
+  .byline .by-name{ color:#000 !important; }
+  .byline .ref-chip{ background:#f0f0f0 !important; color:#222 !important; border-color:#ccc !important; }
+  .figure.full{ background:#fff; }
+  .fig-frame{ box-shadow:none !important; }
+  .cols{ column-rule-color:#ccc; }
+  .folio{ border-top-color:#000; }
+  @page{ margin:14mm; }
+}
+</style>
+</head>
+<body>
+
+<!-- ============== THE ONLY CONTENT SOURCE — a valid instance of schemas/magazine.schema.json ============== -->
+<script type="application/json" id="report-data">
+{
+  "meta": {
+    "org": "{{ORG}}",
+    "project": "{{PROJECT}}",
+    "reportType": "The Field Notebook",
+    "kicker": "Engineering Culture",
+    "headline": "The&nbsp;Quiet <em>Rewrite</em>",
+    "deck": "<span class=\"lead-cap\">For eighteen months</span> the platform team shipped nothing visible — no launch, no headline, no demo. Then the incident graph went quiet. This is the story of how a team replaced its core ledger engine in flight, one careful seam at a time, and what they learned about the unglamorous art of changing everything while breaking nothing.",
+    "byline": {
+      "author": "{{AUTHOR}}",
+      "role": "Principal Engineer, Platform",
+      "date": "{{DATE}}",
+      "readTime": "14 min read",
+      "issueRef": "{{PROJECT}} · No. 04"
+    },
+    "date": "2026-06-22",
+    "theme": "slate"
+  },
+  "body": [
+    {
+      "type": "para",
+      "dropcap": true,
+      "text": "<span class=\"lead-words\">The room was wrong.</span> Not loud-wrong, not on-fire wrong — wrong in the way a familiar staircase is wrong when one step is a half-inch taller than the rest. Every quarter the ledger service grew a little slower to change. A migration that once took an afternoon took a week. A field that should have been trivial to add touched nine services and two teams who no longer spoke. Nobody had broken anything; everybody had, together, built a structure that resisted being touched."
+    },
+    {
+      "type": "para",
+      "text": "The instinct, when a codebase calcifies, is to declare a Rewrite — capital R, a clean room, a green field, a date on a slide eighteen months out. The platform team had watched two such rewrites die in other parts of the company, each one a cathedral half-built and then abandoned when the funding moved and the original authors left. They wanted none of it. What they wanted was duller and, it turned out, far harder: to change the engine without stopping the car, and without anyone in the passenger seat noticing the swap."
+    },
+    {
+      "type": "subhead",
+      "num": "01",
+      "text": "Begin where it hurts"
+    },
+    {
+      "type": "para",
+      "text": "They started not with the code but with the pain, instrumenting the change-cost of the system the way you would instrument latency. How many files did a typical change touch? How many services had to deploy together to ship one feature? How long, in calendar days, between &ldquo;we should add this&rdquo; and the field appearing in production? The numbers were ugly, and being ugly, they were useful. You cannot argue with a graph that climbs every quarter; you can only decide whether to keep feeding it."
+    },
+    {
+      "type": "pullquote",
+      "quote": "We stopped asking whether the old system was good. We asked how expensive it had become to change our minds.",
+      "attribution": "— The platform team's first principle"
+    },
+    {
+      "type": "para",
+      "text": "The reframing mattered more than any line of code that followed. A system is not slow or fast in the abstract; it is cheap or expensive to evolve. Once the team measured the cost of change directly, the rewrite stopped being a matter of taste — old framework versus new, this database versus that — and became a matter of arithmetic. Every seam they could introduce that lowered the cost of the next change paid for itself. Every clever abstraction that raised it, however elegant, was a liability."
+    },
+    {
+      "type": "subhead",
+      "num": "02",
+      "text": "The strangler, patiently"
+    },
+    {
+      "type": "para",
+      "text": "The pattern they reached for is an old one, and its name is unkind: the strangler fig, the vine that grows around a tree until, years later, the tree is gone and only the lattice remains, standing perfectly on its own. In software the idea is to wrap the legacy system in a thin routing layer, then move responsibility across that layer one capability at a time — never a big-bang cutover, always a slow migration of traffic from the old path to the new, with the ability to roll any single step back before breakfast."
+    },
+    {
+      "type": "para",
+      "text": "The first seam was the smallest one they could find: a read-only balance query, called constantly, owned by no one, easy to reason about and safe to mirror. They stood up the new path beside the old, sent it a shadow copy of every request, and compared the answers in the dark for six weeks before a single real user was routed across. When the new path had been right ten million times in a row, they moved one percent of live traffic to it, then ten, then fifty, then — almost anticlimactically — all of it. The old query was deleted on a Tuesday. No one noticed, which was the entire point."
+    },
+    {
+      "type": "figure",
+      "num": "Fig. 1",
+      "captionHeadline": "One seam at a time.",
+      "caption": "A thin routing layer mirrors then migrates traffic from the legacy ledger to the new engine, percentage by percentage; each capability is moved only after the shadow path has matched the old one millions of times. The median number of files touched per change fell from <b>31</b> to <b>4</b> over the program.",
+      "full": true,
+      "artDescription": "Diagram showing traffic migrating from the legacy ledger path to the new engine through a routing seam, with a change-cost chart showing files touched dropping from 31 to 4."
+    },
+    {
+      "type": "subhead",
+      "num": "03",
+      "text": "The invisible months"
+    },
+    {
+      "type": "para",
+      "text": "There is a stretch in the middle of any honest migration that no roadmap prepares you for: the long plateau where the new system is real but not yet trusted, where you maintain two versions of everything and ship neither a feature nor a finish line. Morale is the actual risk here, not technology. The team had decided up front that they would not market the rewrite internally — no progress bars on the all-hands slide, no theatrical demos of plumbing — and that decision, well meant, nearly cost them the program."
+    },
+    {
+      "type": "para",
+      "text": "What saved it was a small ritual. Every Friday they posted a single number to a shared channel: the percentage of ledger traffic now served by the new engine. Eleven percent. Eleven. Twelve. The graph crept like a glacier, and the glacier, it turned out, was exactly the morale they needed — proof, unspun, that the patient thing was working. People stopped asking when the rewrite would be &ldquo;done&rdquo; and started watching the line."
+    },
+    {
+      "type": "pullquote",
+      "quote": "A migration has no launch day. It has ten thousand quiet Tuesdays, and the discipline is to make each one boring on purpose.",
+      "attribution": "— on the culture of patient change",
+      "wide": true
+    },
+    {
+      "type": "sidebar",
+      "heading": "By the numbers",
+      "kvItems": [
+        { "key": "Duration",         "value": "18<small>mo</small>" },
+        { "key": "Seams cut",        "value": "37" },
+        { "key": "Rollbacks",        "value": "6" },
+        { "key": "Sev-1 at cutover", "value": "0" }
+      ],
+      "badges": [
+        { "label": "Zero customer-visible incidents", "state": "ok" },
+        { "label": "2 paused seams, later resumed",   "state": "hold" }
+      ]
+    },
+    {
+      "type": "subhead",
+      "num": "04",
+      "text": "What stayed behind"
+    },
+    {
+      "type": "para",
+      "text": "When the last write was finally moved and the legacy schema dropped, there was no party — the team had agreed there wouldn't be — but there was a quiet inventory of what the eighteen months had actually produced. The new engine was the obvious artefact. The less obvious one, and the more valuable, was a team that now reflexively built seams: every new capability arrived behind a routing boundary, mirrored before it was trusted, reversible before it was relied upon. The rewrite had rewritten the people, too."
+    },
+    {
+      "type": "para",
+      "text": "The lesson they kept repeating to other teams was almost embarrassingly plain. You do not need permission for a clean room, and you rarely get it. You need a way to measure the cost of change, a seam small enough to be safe, and the patience to do the boring thing ten thousand times. The spectacular rewrites make the conference talks. The quiet ones keep the bank running — and, on a Tuesday no one remembers, simply finish.<span class=\"endmark\"></span>"
+    }
+  ],
+  "folio": {
+    "publication": "The Field Notebook",
+    "issue": "{{PROJECT}} · No. 04",
+    "section": "Engineering Culture",
+    "pageLabel": "Page 1 of 1"
+  }
+}
+</script>
+
+<!-- reading-progress bar (scroll-driven; hidden in print) -->
+<div class="read-progress" aria-hidden="true"><div class="rp-fill" id="rp-fill"></div></div>
+
+<noscript>
+  <div class="noscript-note">
+    This editorial feature is rendered from an embedded JSON record and needs JavaScript to typeset.
+    Enable JavaScript to read it with its drop-cap opener, pull-quotes, figure spread and folio.
+  </div>
+</noscript>
+
+<!-- the article is built into here by render() from #report-data -->
+<article class="feature" id="feature"></article>
+
+<!-- theme switcher (canonical compact dropdown; UI aid only, hidden on print) -->
+<label class="rc-theme" title="Brand colour">
+  <span class="rc-theme-sw" aria-hidden="true"></span>
+  <select class="rc-theme-sel" aria-label="Brand theme">
+    <option value="blue">Blue</option>
+    <option value="purple">Purple</option>
+    <option value="indigo">Indigo</option>
+    <option value="teal">Teal</option>
+    <option value="cyan">Cyan</option>
+    <option value="green">Green</option>
+    <option value="plum">Plum</option>
+    <option value="slate">Slate</option>
+    <option value="black">Black</option>
+  </select>
+</label>
+
+<script>
+"use strict";
+(function(){
+  var DATA = JSON.parse(document.getElementById('report-data').textContent);
+
+  /* the figure art for Fig. 1 — an illustration, not a live chart, so it stays inline SVG */
+  function figureArt(fig){
+    return ''
+      + '<div class="fig-frame">'
+      +   '<svg viewBox="0 0 920 280" role="img" aria-label="' + esc(fig.artDescription || '') + '">'
+      +     '<text x="24" y="26" class="flow-sub">Routing seam &mdash; traffic shifts old &rarr; new</text>'
+      +     '<rect class="flow-node" x="24" y="118" width="120" height="56" rx="11"/>'
+      +     '<text x="84" y="142" text-anchor="middle" class="flow-lab">Client</text>'
+      +     '<text x="84" y="159" text-anchor="middle" class="flow-sub">requests</text>'
+      +     '<rect class="flow-node-deep" x="214" y="110" width="138" height="72" rx="11"/>'
+      +     '<text x="283" y="140" text-anchor="middle" class="flow-lab">Routing layer</text>'
+      +     '<text x="283" y="158" text-anchor="middle" class="flow-sub">split by %</text>'
+      +     '<rect class="flow-node" x="430" y="48" width="150" height="58" rx="11"/>'
+      +     '<text x="505" y="72" text-anchor="middle" class="flow-lab">Legacy ledger</text>'
+      +     '<text x="505" y="89" text-anchor="middle" class="flow-sub">shrinking 100&rarr;0%</text>'
+      +     '<rect class="flow-node-deep" x="430" y="188" width="150" height="58" rx="11"/>'
+      +     '<text x="505" y="212" text-anchor="middle" class="flow-lab">New engine</text>'
+      +     '<text x="505" y="229" text-anchor="middle" class="flow-sub">growing 0&rarr;100%</text>'
+      +     '<path class="flow-link" d="M144 146 H214"/>'
+      +     '<path class="flow-link" d="M352 138 C392 132 396 88 430 80"/>'
+      +     '<path class="flow-link" d="M352 156 C392 162 396 210 430 216"/>'
+      +     '<rect x="208" y="142" width="8" height="8" rx="2" fill="var(--navy)" stroke="none"/>'
+      +     '<rect x="424" y="76" width="8" height="8" rx="2" fill="var(--navy)" stroke="none"/>'
+      +     '<rect x="424" y="212" width="8" height="8" rx="2" fill="var(--navy)" stroke="none"/>'
+      +     '<line x1="640" y1="36" x2="640" y2="252" class="chart-grid"/>'
+      +     '<text x="690" y="26" class="flow-sub">Median change-cost (files touched / change)</text>'
+      +     '<line class="chart-axis" x1="700" y1="60" x2="700" y2="232"/>'
+      +     '<line class="chart-axis" x1="700" y1="232" x2="896" y2="232"/>'
+      +     '<line class="chart-grid" x1="700" y1="120" x2="896" y2="120"/>'
+      +     '<line class="chart-grid" x1="700" y1="176" x2="896" y2="176"/>'
+      +     '<rect class="chart-bar prev" x="728" y="78" width="54" height="154" rx="3"/>'
+      +     '<text x="755" y="70" text-anchor="middle" class="chart-val">31</text>'
+      +     '<text x="755" y="250" text-anchor="middle" class="chart-lab">Before</text>'
+      +     '<rect class="chart-bar" x="820" y="190" width="54" height="42" rx="3"/>'
+      +     '<text x="847" y="182" text-anchor="middle" class="chart-val">4</text>'
+      +     '<text x="847" y="250" text-anchor="middle" class="chart-lab">After</text>'
+      +   '</svg>'
+      + '</div>';
+  }
+
+  function esc(s){ return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+  /* render one body block to HTML. block.text/quote/caption may carry light editorial HTML (em, b, spans) — inserted as-authored. */
+  function renderBlock(b, i){
+    if(b.type === 'para'){
+      if(b.dropcap){
+        return '<p class="lead"><span class="dropcap">T</span>' + b.text + '</p>';
+      }
+      return '<p>' + b.text + '</p>';
+    }
+    if(b.type === 'subhead'){
+      var no = b.num ? '<span class="ri-no">' + esc(b.num) + '</span>' : '';
+      return '<h2 class="runin">' + no + esc(b.text) + '</h2>';
+    }
+    if(b.type === 'pullquote'){
+      var wide = b.wide ? ' wide' : '';
+      var mark = b.wide ? '' : '<span class="pq-mark" aria-hidden="true">&ldquo;</span>';
+      var cite = b.attribution ? '<cite>' + esc(b.attribution) + '</cite>' : '';
+      var copy = '<button type="button" class="pq-copy" data-quote="' + esc(b.quote) + '" aria-label="Copy quote">'
+               +   '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2.5"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg>'
+               +   '<span class="pq-copy-t">Copy</span>'
+               + '</button>';
+      return '<blockquote class="pullquote' + wide + '">' + mark + esc(b.quote) + cite + copy + '</blockquote>';
+    }
+    if(b.type === 'figure'){
+      var full = b.full ? ' full' : '';
+      var head = b.captionHeadline ? '<b>' + esc(b.captionHeadline) + '</b> ' : '';
+      var src  = b.artDescription ? '<span class="fig-src">Source — ' + esc(b.artDescription) + '</span>' : '';
+      return '<figure class="figure' + full + '" tabindex="0">'
+           +   figureArt(b)
+           +   '<figcaption><span class="fc-no">' + esc(b.num) + '</span>' + head + b.caption + src + '</figcaption>'
+           + '</figure>';
+    }
+    if(b.type === 'sidebar'){
+      var kv = '';
+      (b.kvItems || []).forEach(function(it){
+        kv += '<div class="kv-cell"><div class="kv-k">' + esc(it.key) + '</div><div class="kv-v">' + it.value + '</div></div>';
+      });
+      var grid = kv ? '<div class="kv">' + kv + '</div>' : '';
+      var badges = '';
+      (b.badges || []).forEach(function(bd){
+        var cls = bd.state === 'ok' ? 'st-ok' : bd.state === 'risk' ? 'st-risk' : bd.state === 'hold' ? 'st-hold' : '';
+        badges += '<span class="st-badge ' + cls + '">' + esc(bd.label) + '</span>';
+      });
+      var badgeRow = badges ? '<div class="sb-badges">' + badges + '</div>' : '';
+      return '<aside class="sidebar" aria-label="' + esc(b.heading) + '">'
+           +   '<div class="sb-head">'
+           +     '<span class="icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4V20H20"/><rect x="6.75" y="12" width="3" height="8" rx="1.2"/><rect x="11.5" y="8" width="3" height="12" rx="1.2"/><rect x="16.25" y="14.5" width="3" height="5.5" rx="1.2"/></svg></span>'
+           +     esc(b.heading)
+           +   '</div>' + grid + badgeRow
+           + '</aside>';
+    }
+    return '';
+  }
+
+  function render(){
+    var m = DATA.meta || {};
+    document.documentElement.setAttribute('data-theme', m.theme || 'slate');
+    document.title = (m.headline ? m.headline.replace(/<[^>]+>/g,'').replace(/&nbsp;/g,' ') : 'Feature') + ' — ' + (m.project || '') + ' Feature';
+
+    var by = m.byline || {};
+    var byParts = [];
+    if(by.author)   byParts.push('<span class="by-name">' + esc(by.author) + '</span>');
+    if(by.role)     byParts.push('<span class="dot"></span><span class="by-role">' + esc(by.role) + '</span>');
+    if(by.date)     byParts.push('<span class="dot"></span><span class="by-meta">' + esc(by.date) + '</span>');
+    if(by.readTime) byParts.push('<span class="dot"></span><span class="by-meta">' + esc(by.readTime) + '</span>');
+    /* ref-chip: resolve to a real in-page anchor (the folio) instead of the old dead href="#" */
+    if(by.issueRef) byParts.push('<a class="ref-chip" href="#folio">' + esc(by.issueRef) + '</a>');
+
+    var ktag = [m.project, m.reportType].filter(Boolean).map(esc).join(' &middot; ');
+
+    var header = ''
+      + '<header class="title-spread">'
+      +   '<div class="ts-art" aria-hidden="true">'
+      +     '<svg viewBox="0 0 240 240" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">'
+      +       '<path d="M60 70 120 40 180 70 180 150 120 200 60 150Z"/>'
+      +       '<path d="M120 40 120 120M60 70 120 120M180 70 120 120M120 120 60 150M120 120 180 150M120 120 120 200"/>'
+      +       '<rect x="114" y="34" width="12" height="12" rx="3" fill="currentColor" stroke="none"/>'
+      +       '<rect x="54" y="64" width="12" height="12" rx="3" fill="currentColor" stroke="none"/>'
+      +       '<rect x="174" y="64" width="12" height="12" rx="3" fill="currentColor" stroke="none"/>'
+      +       '<rect x="114" y="114" width="12" height="12" rx="3" fill="currentColor" stroke="none"/>'
+      +       '<rect x="54" y="144" width="12" height="12" rx="3" fill="currentColor" stroke="none"/>'
+      +       '<rect x="174" y="144" width="12" height="12" rx="3" fill="currentColor" stroke="none"/>'
+      +       '<rect x="114" y="194" width="12" height="12" rx="3" fill="currentColor" stroke="none"/>'
+      +     '</svg>'
+      +   '</div>'
+      +   '<div class="ts-inner">'
+      +     '<div class="kicker">' + esc(m.kicker || '') + (ktag ? '<span class="k-sep">/</span><span class="k-tag">' + ktag + '</span>' : '') + '</div>'
+      +     '<h1 class="headline">' + (m.headline || '') + '</h1>'
+      +     '<p class="deck">' + (m.deck || '') + '</p>'
+      +     '<div class="byline">' + byParts.join('') + '</div>'
+      +   '</div>'
+      + '</header>';
+
+    var bodyHtml = '<div class="body"><div class="cols">'
+      + (DATA.body || []).map(renderBlock).join('')
+      + '</div></div>';
+
+    var f = DATA.folio || {};
+    var fmeta = [];
+    if(f.issue)     fmeta.push('<span>' + esc(f.issue) + '</span>');
+    if(f.section)   fmeta.push('<span class="dot"></span><span>' + esc(f.section) + '</span>');
+    if(m.date)      fmeta.push('<span class="dot"></span><span>' + esc(m.date) + '</span>');
+    if(f.pageLabel) fmeta.push('<span class="dot"></span><span class="pg">' + esc(f.pageLabel) + '</span>');
+
+    var footer = ''
+      + '<footer class="folio" id="folio">'
+      +   '<div class="folio-row">'
+      +     '<div class="wordmark"><span class="mark" aria-hidden="true"></span>' + esc(m.org || '') + '<span class="wm-sub">' + esc(f.publication || '') + '</span></div>'
+      +     '<div class="folio-meta">' + fmeta.join('') + '</div>'
+      +   '</div>'
+      + '</footer>';
+
+    document.getElementById('feature').innerHTML = header + bodyHtml + footer;
+  }
+
+  /* reading-progress bar — fill = how far the article is scrolled */
+  function wireProgress(){
+    var fill = document.getElementById('rp-fill');
+    function update(){
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - doc.clientHeight;
+      var pct = max > 0 ? (doc.scrollTop || document.body.scrollTop) / max * 100 : 0;
+      fill.style.width = Math.max(0, Math.min(100, pct)) + '%';
+    }
+    window.addEventListener('scroll', update, { passive:true });
+    window.addEventListener('resize', update);
+    update();
+  }
+
+  /* pull-quote "copy quote" affordance (delegated) */
+  function wireCopy(){
+    document.addEventListener('click', function(e){
+      var btn = e.target.closest ? e.target.closest('.pq-copy') : null;
+      if(!btn) return;
+      var quote = btn.getAttribute('data-quote') || '';
+      var label = btn.querySelector('.pq-copy-t');
+      /* confirm the affordance immediately so it always responds, even if the
+         async clipboard write rejects or never settles (denied/insecure context) */
+      btn.classList.add('copied');
+      if(label) label.textContent = 'Copied';
+      setTimeout(function(){ btn.classList.remove('copied'); if(label) label.textContent = 'Copy'; }, 1600);
+      /* then attempt the actual copy: async API first, legacy execCommand fallback */
+      var ok = false;
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        try{ navigator.clipboard.writeText(quote); ok = true; }catch(err){}
+      }
+      if(!ok){
+        try{
+          var ta = document.createElement('textarea');
+          ta.value = quote; ta.setAttribute('readonly','');
+          ta.style.cssText = 'position:fixed;top:-1000px;left:-1000px;opacity:0';
+          document.body.appendChild(ta); ta.select();
+          document.execCommand('copy');
+          document.body.removeChild(ta);
+        }catch(err){}
+      }
+    });
+  }
+
+  /* canonical theme switch (dropdown) */
+  function wireThemeSwitch(){
+    var rcSel = document.querySelector('.rc-theme-sel');
+    if(rcSel){
+      rcSel.value = document.documentElement.getAttribute('data-theme') || 'slate';
+      rcSel.addEventListener('change', function(){
+        document.documentElement.setAttribute('data-theme', rcSel.value);
+      });
+    }
+  }
+
+  function boot(){ render(); wireProgress(); wireCopy(); wireThemeSwitch(); }
+  if(document.readyState === 'loading'){ document.addEventListener('DOMContentLoaded', boot); }
+  else { boot(); }
+})();
+</script>
+</body>
+</html>

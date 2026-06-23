@@ -1,0 +1,226 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://genesis.local/html_report_design/schemas/timeline-roadmap.schema.json",
+  "title": "Timeline / roadmap report",
+  "description": "Data contract for the timeline-roadmap format: a horizontal gantt-style planner with a time axis, swimlane rows, gantt bars, milestone diamonds, go/no-go gates, a today marker, and optional phase-band overlays. The reader scans left-to-right as a delivery schedule. Renders to a self-contained, themeable, interactive HTML planner canvas. The sample's #report-data is a valid instance of this schema.",
+  "type": "object",
+  "required": ["meta", "periods", "swimlanes", "bars"],
+  "additionalProperties": false,
+  "properties": {
+    "meta": {
+      "type": "object",
+      "description": "Shared report chrome (org / project / title / theme). Brand-neutral: keep {{ORG}} / {{PROJECT}} / {{AUTHOR}} placeholders unless real values are supplied.",
+      "required": ["org", "project", "reportType", "title", "date", "theme"],
+      "additionalProperties": false,
+      "properties": {
+        "org": { "type": "string", "description": "Organisation name or {{ORG}} placeholder.", "default": "{{ORG}}" },
+        "project": { "type": "string", "description": "Project / programme name or {{PROJECT}} placeholder.", "default": "{{PROJECT}}" },
+        "reportType": { "type": "string", "description": "Eyebrow label above the title, e.g. 'Platform delivery roadmap' or {{REPORT_TYPE}}." },
+        "title": { "type": "string", "description": "Main roadmap title, e.g. 'GEN2 Core Banking Platform — Delivery Roadmap'." },
+        "subtitle": { "type": "string", "description": "Optional standfirst line, e.g. 'FY26–FY27 programme plan across 5 workstreams'." },
+        "date": { "type": "string", "description": "ISO date this roadmap was produced (YYYY-MM-DD).", "format": "date" },
+        "author": { "type": "string", "description": "Author / owning team or {{AUTHOR}} placeholder.", "default": "{{AUTHOR}}" },
+        "theme": {
+          "type": "string",
+          "description": "Initial brand theme; applied as <html data-theme>. Default for this format is 'indigo'.",
+          "enum": ["blue", "purple", "indigo", "teal", "cyan", "green", "plum", "slate"],
+          "default": "indigo"
+        }
+      }
+    },
+    "periods": {
+      "type": "array",
+      "description": "The ordered time-axis columns (left to right), e.g. quarters or sprints. Column index 1 = first period. 4–8 periods is the comfortable range.",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "required": ["key", "label"],
+        "additionalProperties": false,
+        "properties": {
+          "key": { "type": "string", "description": "Stable unique period key used in `bars`, `milestones`, `gates`, and `today`. e.g. 'q1-fy26'." },
+          "label": { "type": "string", "description": "Primary display label shown on the time-axis tick, e.g. 'Q1 FY26'." },
+          "sublabel": { "type": "string", "description": "Optional secondary label shown below the primary, e.g. 'Apr–Jun'." }
+        }
+      }
+    },
+    "swimlanes": {
+      "type": "array",
+      "description": "The workstream / team rows, rendered as horizontal tracks. Each swimlane spans the full time axis.",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "name"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "description": "Stable unique lane ID used in `bars` and `milestones`. e.g. 'platform', 'data', 'security'." },
+          "name": { "type": "string", "description": "Workstream display name shown in the sticky left lane rail, e.g. 'Platform Core'." },
+          "owner": { "type": "string", "description": "Optional owner/team name shown as a small meta line under the lane name, e.g. 'K. Nakamura'." },
+          "index": { "type": "string", "description": "Optional short index label for the lane chip, e.g. 'L1'. If omitted, rendered sequentially." },
+          "icon": { "type": "string", "description": "Optional icon category hint for the lane head icon. One of: 'process', 'time', 'status', 'people', or a free-form string matching a house icon key." }
+        }
+      }
+    },
+    "bars": {
+      "type": "array",
+      "description": "The gantt bars placed in the grid. Each bar belongs to a swimlane and spans one or more periods.",
+      "items": {
+        "type": "object",
+        "required": ["lane", "startPeriod", "endPeriod", "status", "label"],
+        "additionalProperties": false,
+        "properties": {
+          "lane": { "type": "string", "description": "ID of the swimlane this bar sits in. Must match a `swimlanes[].id`." },
+          "startPeriod": { "type": "string", "description": "Period key where this bar starts (inclusive). Must match a `periods[].key`." },
+          "endPeriod": { "type": "string", "description": "Period key where this bar ends (inclusive). Must match a `periods[].key`." },
+          "label": { "type": "string", "description": "Bar label text shown inside the gantt bar, e.g. 'Core ledger build'." },
+          "status": {
+            "type": "string",
+            "description": "Bar semantic state. 'ok' = on track (brand colour); 'risk' = at risk (bordeaux); 'hold' = watch/delayed (amber); 'planned' = future ghost bar (dashed, not started).",
+            "enum": ["ok", "risk", "hold", "planned"]
+          },
+          "progress": { "type": "integer", "description": "Optional completion percentage 0–100, rendered as a tinted progress sliver inside the bar.", "minimum": 0, "maximum": 100 },
+          "solid": { "type": "boolean", "description": "If true, this is a key-path bar rendered with a filled solid brand colour rather than a tinted fill. Use for the most important delivery track.", "default": false },
+          "row": { "type": "integer", "description": "Optional row index (1 or 2) for stacking two bars on the same lane track (dual-track mode). Defaults to 1.", "minimum": 1, "maximum": 2, "default": 1 }
+        }
+      }
+    },
+    "milestones": {
+      "type": "array",
+      "description": "Diamond markers placed on a period column edge in a swimlane, with a short caption.",
+      "items": {
+        "type": "object",
+        "required": ["lane", "period", "label"],
+        "additionalProperties": false,
+        "properties": {
+          "lane": { "type": "string", "description": "Swimlane ID where the milestone sits. Must match a `swimlanes[].id`." },
+          "period": { "type": "string", "description": "Period key this milestone is attached to. The diamond sits at the end edge of this period. Must match a `periods[].key`." },
+          "label": { "type": "string", "description": "Short caption next to the diamond, e.g. 'GA core' or 'Data freeze'." },
+          "status": {
+            "type": "string",
+            "description": "Milestone state. 'ok' = on track (brand diamond); 'risk' = at risk (bordeaux); 'hold' = watch (amber).",
+            "enum": ["ok", "risk", "hold"],
+            "default": "ok"
+          },
+          "atEnd": { "type": "boolean", "description": "If true, diamond is positioned at the end (right edge) of the period cell rather than the start. Default false.", "default": false },
+          "row": { "type": "integer", "description": "Optional row index (1 or 2) for placement on a dual-track lane. Defaults to 1.", "minimum": 1, "maximum": 2, "default": 1 }
+        }
+      }
+    },
+    "gates": {
+      "type": "array",
+      "description": "Go/no-go gate markers — rendered as hollow diamond variants (.milestone--gate) in the gate-table ledger below the canvas.",
+      "items": {
+        "type": "object",
+        "required": ["period", "label", "lane"],
+        "additionalProperties": false,
+        "properties": {
+          "period": { "type": "string", "description": "Period key (approx. date) of this gate. Used to populate the target column in the gate ledger." },
+          "targetDate": { "type": "string", "description": "Precise ISO target date (YYYY-MM-DD) shown in the gate-table, e.g. '2026-12-15'.", "format": "date" },
+          "label": { "type": "string", "description": "Gate name shown in the ledger, e.g. 'Security audit gate'." },
+          "sublabel": { "type": "string", "description": "Optional one-line context note shown under the gate name, e.g. 'External pen-test sign-off — release blocker'." },
+          "lane": { "type": "string", "description": "Swimlane ID owning this gate, shown as a chip in the ledger, e.g. 'security'." },
+          "dependency": { "type": "string", "description": "Optional dependency note shown in the ledger, e.g. 'Pen-test remediation'." },
+          "status": {
+            "type": "string",
+            "description": "Gate decision state shown as an .st-badge in the ledger. 'ok' = Passed / On track; 'risk' = At risk / Pending; 'hold' = Conditional / Planned.",
+            "enum": ["ok", "risk", "hold"],
+            "default": "hold"
+          },
+          "statusLabel": { "type": "string", "description": "Display text for the status badge, e.g. 'Passed', 'At risk', 'Conditional'. Overrides the default derived from status if provided." }
+        }
+      }
+    },
+    "today": {
+      "type": "object",
+      "description": "Position of the 'today' vertical line on the canvas. Specifies which period column it falls in and a fractional offset within that period.",
+      "required": ["period", "fraction"],
+      "additionalProperties": false,
+      "properties": {
+        "period": { "type": "string", "description": "Period key of the column containing today. Must match a `periods[].key`." },
+        "fraction": { "type": "number", "description": "Fractional position within the period column, 0.0 = start of column, 1.0 = end. e.g. 0.6 for 60% through the period.", "minimum": 0, "maximum": 1 }
+      }
+    },
+    "phases": {
+      "type": "array",
+      "description": "Optional phase-band overlay strips shown below the lane grid, grouping periods into named programme phases (e.g. Discovery / Build / Harden / Launch).",
+      "items": {
+        "type": "object",
+        "required": ["startPeriod", "endPeriod", "name"],
+        "additionalProperties": false,
+        "properties": {
+          "startPeriod": { "type": "string", "description": "Period key where this phase begins. Must match a `periods[].key`." },
+          "endPeriod": { "type": "string", "description": "Period key where this phase ends (inclusive). Must match a `periods[].key`." },
+          "name": { "type": "string", "description": "Phase display name shown in the band, e.g. 'Build'." },
+          "sublabel": { "type": "string", "description": "Optional period range label shown below the name, e.g. 'Q2–Q3 FY26'." },
+          "alt": { "type": "boolean", "description": "If true, render with the alternate (muted) phase band style. Alternate phases typically follow brand-tinted ones.", "default": false }
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "meta": {
+        "org": "{{ORG}}",
+        "project": "{{PROJECT}}",
+        "reportType": "Platform delivery roadmap",
+        "title": "GEN2 Core Banking Platform — Delivery Roadmap",
+        "subtitle": "FY26–FY27 programme plan across 5 workstreams",
+        "date": "2026-06-22",
+        "author": "{{AUTHOR}}",
+        "theme": "indigo"
+      },
+      "periods": [
+        { "key": "q1-fy26", "label": "Q1 FY26", "sublabel": "Apr–Jun" },
+        { "key": "q2-fy26", "label": "Q2 FY26", "sublabel": "Jul–Sep" },
+        { "key": "q3-fy26", "label": "Q3 FY26", "sublabel": "Oct–Dec" },
+        { "key": "q4-fy26", "label": "Q4 FY26", "sublabel": "Jan–Mar" },
+        { "key": "q1-fy27", "label": "Q1 FY27", "sublabel": "Apr–Jun" },
+        { "key": "q2-fy27", "label": "Q2 FY27", "sublabel": "Jul–Sep" }
+      ],
+      "swimlanes": [
+        { "id": "platform",  "name": "Platform Core",         "owner": "K. Nakamura", "index": "L1", "icon": "process" },
+        { "id": "data",      "name": "Data & Migration",      "owner": "A. Petrov",   "index": "L2", "icon": "data" },
+        { "id": "security",  "name": "Security & Compliance", "owner": "M. Oyelaran", "index": "L3", "icon": "status" },
+        { "id": "infra",     "name": "Infrastructure",        "owner": "R. Santos",   "index": "L4", "icon": "process" },
+        { "id": "change",    "name": "Change & Adoption",     "owner": "L. Dubois",   "index": "L5", "icon": "people" }
+      ],
+      "bars": [
+        { "lane": "platform", "startPeriod": "q1-fy26", "endPeriod": "q2-fy26", "label": "Core ledger build",          "status": "ok",      "progress": 85, "solid": true },
+        { "lane": "platform", "startPeriod": "q3-fy26", "endPeriod": "q4-fy26", "label": "Services hardening",         "status": "ok",      "progress": 40 },
+        { "lane": "platform", "startPeriod": "q1-fy27", "endPeriod": "q2-fy27", "label": "Multi-region rollout",       "status": "planned" },
+        { "lane": "data",     "startPeriod": "q1-fy26", "endPeriod": "q3-fy26", "label": "Schema & pipelines",         "status": "ok",      "progress": 70, "row": 1 },
+        { "lane": "data",     "startPeriod": "q2-fy26", "endPeriod": "q4-fy26", "label": "Legacy data migration",      "status": "risk",    "progress": 30, "row": 2 },
+        { "lane": "data",     "startPeriod": "q1-fy27", "endPeriod": "q1-fy27", "label": "Backfill",                   "status": "planned", "row": 2 },
+        { "lane": "security", "startPeriod": "q2-fy26", "endPeriod": "q3-fy26", "label": "Controls & IAM",             "status": "ok",      "progress": 55 },
+        { "lane": "security", "startPeriod": "q4-fy26", "endPeriod": "q4-fy26", "label": "Pen-test",                   "status": "risk" },
+        { "lane": "security", "startPeriod": "q1-fy27", "endPeriod": "q2-fy27", "label": "Continuous compliance",      "status": "ok" },
+        { "lane": "infra",    "startPeriod": "q1-fy26", "endPeriod": "q1-fy26", "label": "Provision",                  "status": "ok",      "progress": 100 },
+        { "lane": "infra",    "startPeriod": "q2-fy26", "endPeriod": "q4-fy26", "label": "Autoscale & observability",  "status": "ok",      "progress": 60 },
+        { "lane": "infra",    "startPeriod": "q4-fy26", "endPeriod": "q2-fy27", "label": "DR & multi-AZ failover",     "status": "planned" },
+        { "lane": "change",   "startPeriod": "q2-fy26", "endPeriod": "q3-fy26", "label": "Training & enablement",      "status": "hold" },
+        { "lane": "change",   "startPeriod": "q4-fy26", "endPeriod": "q1-fy27", "label": "Pilot rollout",              "status": "ok",      "progress": 20 },
+        { "lane": "change",   "startPeriod": "q2-fy27", "endPeriod": "q2-fy27", "label": "Hypercare",                  "status": "planned" }
+      ],
+      "milestones": [
+        { "lane": "platform", "period": "q4-fy26", "label": "GA core",     "status": "ok",   "atEnd": true },
+        { "lane": "data",     "period": "q4-fy26", "label": "Data freeze", "status": "risk", "row": 1 },
+        { "lane": "security", "period": "q1-fy27", "label": "Audit gate",  "status": "ok",   "atEnd": true },
+        { "lane": "change",   "period": "q2-fy27", "label": "Go-live",     "status": "ok",   "atEnd": true }
+      ],
+      "gates": [
+        { "period": "q1-fy26", "targetDate": "2026-06-30", "label": "Core ledger code-complete",  "sublabel": "Feature freeze for the ledger service",          "lane": "platform", "status": "ok",   "statusLabel": "Passed" },
+        { "period": "q3-fy26", "targetDate": "2026-09-30", "label": "Data freeze",                "sublabel": "Source systems frozen for final migration cut",   "lane": "data",     "dependency": "Legacy migration at risk", "status": "risk", "statusLabel": "At risk" },
+        { "period": "q4-fy26", "targetDate": "2026-12-15", "label": "Security audit gate",        "sublabel": "External pen-test sign-off — release blocker",   "lane": "security", "dependency": "Pen-test remediation",     "status": "risk", "statusLabel": "Pending" },
+        { "period": "q4-fy26", "targetDate": "2027-01-20", "label": "GA — core platform",         "sublabel": "General availability of core banking services",  "lane": "platform", "dependency": "Audit gate, DR readiness", "status": "hold", "statusLabel": "Conditional" },
+        { "period": "q1-fy27", "targetDate": "2027-04-10", "label": "Production go-live",         "sublabel": "First cohort cutover to the new platform",        "lane": "change",   "dependency": "Pilot results, GA",        "status": "hold", "statusLabel": "Planned" },
+        { "period": "q2-fy27", "targetDate": "2027-08-31", "label": "Multi-region complete",      "sublabel": "Active-active across two regions",               "lane": "infra",    "dependency": "Go-live stable",           "status": "ok",   "statusLabel": "On track" }
+      ],
+      "today": { "period": "q3-fy26", "fraction": 0.6 },
+      "phases": [
+        { "startPeriod": "q1-fy26", "endPeriod": "q1-fy26", "name": "Discovery",      "sublabel": "Q1 FY26",       "alt": false },
+        { "startPeriod": "q2-fy26", "endPeriod": "q3-fy26", "name": "Build",          "sublabel": "Q2–Q3 FY26",    "alt": true  },
+        { "startPeriod": "q4-fy26", "endPeriod": "q4-fy26", "name": "Harden",         "sublabel": "Q4 FY26",       "alt": false },
+        { "startPeriod": "q1-fy27", "endPeriod": "q2-fy27", "name": "Launch & Scale", "sublabel": "FY27",          "alt": true  }
+      ]
+    }
+  ]
+}

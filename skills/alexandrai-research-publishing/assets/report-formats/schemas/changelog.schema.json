@@ -1,0 +1,174 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://genesis.design/schemas/changelog.schema.json",
+  "title": "Changelog / release feed",
+  "description": "Data contract for the changelog format: a reverse-chronological release feed. Each version is a semver tag + date + optional channel, holding typed change items (added/changed/fixed/deprecated/removed/security/breaking) rendered as coloured chips, with a sticky left version jump rail, type/channel filters, a breaking-only toggle, and live highlight search. The #report-data instance in changelog_sample.html is the canonical example. Default theme: slate. Order versions newest-first.",
+  "type": "object",
+  "required": ["meta", "product", "versions"],
+  "additionalProperties": false,
+  "properties": {
+    "meta": {
+      "type": "object",
+      "description": "Shared report identity block (see _DATA_DRIVEN.md). Brand-neutral: keep {{ORG}}/{{PROJECT}}/{{AUTHOR}} placeholders unless real values are supplied.",
+      "required": ["org", "project", "reportType", "title", "date", "author", "theme"],
+      "additionalProperties": false,
+      "properties": {
+        "org": { "type": "string", "description": "Organisation wordmark shown in header + footer. Placeholder: {{ORG}}.", "default": "{{ORG}}" },
+        "project": { "type": "string", "description": "Project / system this changelog belongs to. Placeholder: {{PROJECT}}.", "default": "{{PROJECT}}" },
+        "reportType": { "type": "string", "description": "Artefact type label shown in the eyebrow + footer.", "examples": ["Changelog", "Release notes", "Change history"] },
+        "title": { "type": "string", "description": "Changelog title (the heading above the feed).", "examples": ["Payments API — Release changelog", "What's new"] },
+        "subtitle": { "type": "string", "description": "Optional one-line context shown under the title." },
+        "date": { "type": "string", "format": "date", "description": "As-of / published date (YYYY-MM-DD).", "examples": ["2026-06-22"] },
+        "author": { "type": "string", "description": "Maintainer / release team. Placeholder: {{AUTHOR}}.", "default": "{{AUTHOR}}" },
+        "theme": {
+          "type": "string",
+          "description": "Initial brand theme; set on <html data-theme>. Live-switchable via .rc-theme. Default slate for this format.",
+          "enum": ["blue", "purple", "indigo", "teal", "cyan", "green", "plum", "slate", "black"],
+          "default": "slate"
+        }
+      }
+    },
+    "product": {
+      "type": "object",
+      "description": "The thing being versioned — shown beside the title in the header.",
+      "required": ["name"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string", "description": "Product / service / library name being versioned.", "examples": ["Payments API", "ledger-sdk", "Settlement Service"] },
+        "description": { "type": "string", "description": "Optional short product description (one phrase)." },
+        "repoUrl": { "type": "string", "description": "Optional source/repo URL; rendered as a header reference chip. Must be a same-document-safe link (no external asset fetch).", "examples": ["#", "https://example.invalid/repo"] }
+      }
+    },
+    "versions": {
+      "type": "array",
+      "description": "Released versions, ordered NEWEST-FIRST (reverse-chronological). Each becomes a collapsible feed block and a version-rail entry. The renderer derives all counts from this array; do not hard-code totals.",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["version", "date", "changes"],
+        "additionalProperties": false,
+        "properties": {
+          "version": { "type": "string", "description": "Semver-style version tag (the .cl-tag pill). Used to build the rail deep-link id.", "examples": ["4.2.0", "4.0.0-beta.2", "v3.9.1"] },
+          "date": { "type": "string", "format": "date", "description": "Release date for this version (YYYY-MM-DD).", "examples": ["2026-06-18"] },
+          "channel": {
+            "type": "string",
+            "description": "Release channel; drives the channel badge and the channel filter. 'stable' is neutral; 'beta' is hold-tinted. Defaults to 'stable' when omitted.",
+            "enum": ["stable", "beta"],
+            "default": "stable"
+          },
+          "summary": { "type": "string", "description": "Optional one-line release summary shown in the version header." },
+          "yanked": { "type": "boolean", "description": "If true, this release was withdrawn/yanked; rendered with a risk 'Yanked' marker and strike treatment.", "default": false },
+          "changes": {
+            "type": "array",
+            "description": "The typed change items for this version. Each carries a type (drives the coloured chip) and terse one-line text, with an optional reference.",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "required": ["type", "text"],
+              "additionalProperties": false,
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "description": "Kind of change → the coloured chip. 'breaking' uses the risk (bordeaux) tone; 'deprecated'/'removed' use hold (amber); 'added'/'changed'/'fixed'/'security' use the brand accent / ok shades. No type outside this set.",
+                  "enum": ["added", "changed", "fixed", "deprecated", "removed", "security", "breaking"]
+                },
+                "text": { "type": "string", "description": "The change description — one terse line. Inline `code` (single backticks) is allowed and rendered as <code>; everything else is escaped." },
+                "ref": { "type": "string", "description": "Optional reference label (PR / issue / ticket / commit), rendered as a .ref-chip.", "examples": ["#1420", "GEN2-4210", "a1b2c3d"] },
+                "refUrl": { "type": "string", "description": "Optional URL the ref chip links to. Use '#' or a safe placeholder for brand-neutral samples (no external asset fetch).", "examples": ["#", "https://example.invalid/pr/1420"] }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "meta": {
+        "org": "{{ORG}}",
+        "project": "{{PROJECT}}",
+        "reportType": "Changelog",
+        "title": "Payments API — Release changelog",
+        "subtitle": "Every shipped version of the Payments API, newest first. Filter by change type or channel, search, or jump to a version from the rail. Breaking changes are flagged in bordeaux.",
+        "date": "2026-06-22",
+        "author": "{{AUTHOR}}",
+        "theme": "slate"
+      },
+      "product": {
+        "name": "Payments API",
+        "description": "Public payments & settlement HTTP API",
+        "repoUrl": "#"
+      },
+      "versions": [
+        {
+          "version": "4.2.0",
+          "date": "2026-06-18",
+          "channel": "stable",
+          "summary": "Idempotency hardening and the Node 18 runtime drop.",
+          "changes": [
+            { "type": "breaking", "text": "Drop support for Node 18 runtimes; minimum supported runtime is now Node 20. Upgrade your workers before deploying.", "ref": "#1420", "refUrl": "#" },
+            { "type": "added", "text": "New `Idempotency-Key` request header on `POST /v4/payments` — retries with the same key are now safely deduplicated server-side.", "ref": "#1402", "refUrl": "#" },
+            { "type": "changed", "text": "Default request timeout raised from `10s` to `30s` for the settlement endpoints to absorb downstream latency spikes.", "ref": "#1399", "refUrl": "#" },
+            { "type": "fixed", "text": "Retry storm when the rate limiter returned `429` without a `Retry-After` header; the client now backs off exponentially.", "ref": "#1411", "refUrl": "#" }
+          ]
+        },
+        {
+          "version": "4.1.0",
+          "date": "2026-05-30",
+          "channel": "stable",
+          "summary": "Security patch plus webhook delivery improvements.",
+          "changes": [
+            { "type": "security", "text": "Patch a token-leak where bearer tokens could appear in debug-level request logs (CVE-2026-31188).", "ref": "GHSA-pay-31188", "refUrl": "#" },
+            { "type": "added", "text": "Webhook deliveries now include an `X-Signature-256` HMAC header for payload verification.", "ref": "#1340", "refUrl": "#" },
+            { "type": "fixed", "text": "Pagination cursor occasionally skipped the last page when `limit` exactly divided the result count.", "ref": "#1357", "refUrl": "#" }
+          ]
+        },
+        {
+          "version": "4.0.0",
+          "date": "2026-05-12",
+          "channel": "stable",
+          "summary": "Major release — v3 sunset and the new resource layout.",
+          "changes": [
+            { "type": "breaking", "text": "Remove the legacy `/v3/*` endpoints; all traffic must move to `/v4/*`. See the migration guide.", "ref": "#1280", "refUrl": "#" },
+            { "type": "breaking", "text": "`amount` fields are now integer minor units (e.g. cents) instead of decimal strings.", "ref": "#1291", "refUrl": "#" },
+            { "type": "removed", "text": "Remove the deprecated `GET /v3/balance` endpoint (superseded by `GET /v4/accounts/{id}/balance`).", "ref": "#1283", "refUrl": "#" },
+            { "type": "changed", "text": "Error envelope reshaped to `{ error: { code, message, details } }` across all endpoints.", "ref": "#1277", "refUrl": "#" }
+          ]
+        },
+        {
+          "version": "4.0.0-beta.2",
+          "date": "2026-04-28",
+          "channel": "beta",
+          "summary": "Second beta of the v4 line — feedback wanted before GA.",
+          "changes": [
+            { "type": "added", "text": "Preview of the bulk `POST /v4/payments:batch` endpoint (up to 500 items per request).", "ref": "#1244", "refUrl": "#" },
+            { "type": "changed", "text": "Beta-only: rename the `idempotency_token` field to `idempotency_key` to match the GA naming.", "ref": "#1251", "refUrl": "#" },
+            { "type": "fixed", "text": "Batch endpoint returned `200` on partial failures; it now returns `207 Multi-Status`.", "ref": "#1258", "refUrl": "#" }
+          ]
+        },
+        {
+          "version": "3.9.0",
+          "date": "2026-04-09",
+          "channel": "stable",
+          "summary": "Deprecation notices ahead of the v4 cutover.",
+          "changes": [
+            { "type": "deprecated", "text": "Deprecate the `/v3/*` endpoints; they will be removed in `4.0.0`. Plan your migration now.", "ref": "#1190", "refUrl": "#" },
+            { "type": "deprecated", "text": "Deprecate decimal-string `amount` values; integer minor units arrive in `4.0.0`.", "ref": "#1193", "refUrl": "#" },
+            { "type": "added", "text": "Add `X-Request-Id` to every response to make support tickets traceable.", "ref": "#1201", "refUrl": "#" },
+            { "type": "fixed", "text": "Idempotency cache evicted keys 60s early under sustained load.", "ref": "#1205", "refUrl": "#" }
+          ]
+        },
+        {
+          "version": "3.8.1",
+          "date": "2026-03-21",
+          "channel": "stable",
+          "summary": "Patch release.",
+          "changes": [
+            { "type": "fixed", "text": "Refund webhooks fired twice when the gateway acknowledged slowly.", "ref": "#1142", "refUrl": "#" },
+            { "type": "security", "text": "Bump the JSON parser dependency to close a denial-of-service via deeply nested payloads.", "ref": "#1148", "refUrl": "#" }
+          ]
+        }
+      ]
+    }
+  ]
+}

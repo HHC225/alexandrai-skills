@@ -1,0 +1,240 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://genesis.design/schemas/status-page.schema.json",
+  "title": "Status page / uptime page",
+  "description": "Data contract for the status-page format: a service status / uptime page. The page is a current-status BANNER (label + colour DERIVED from the worst CURRENT component state), per-component UPTIME-HISTORY day-bar strips grouped into component groups (with a 90/60/30-day window selector that re-slices every strip and recomputes the period uptime %), an 'only issues' filter and group filter chips, a PAST-INCIDENTS feed grouped by date (each incident card expands a timestamped update timeline: investigating -> identified -> monitoring -> resolved), and a SCHEDULED-MAINTENANCE section. This is uptime HISTORY + incident COMMS — it is NOT the dashboard (no live-metric KPI tiles) and NOT the incident-timeline (that is one incident's minute-by-minute postmortem chronology). The banner label/colour, every period uptime %, and the day-bar colours are DERIVED from the data, never hard-coded. The #report-data instance in status_page_sample.html is the canonical example. Default theme: cyan.",
+  "type": "object",
+  "required": ["meta", "windows", "groups", "components", "incidents"],
+  "additionalProperties": false,
+  "properties": {
+    "meta": {
+      "type": "object",
+      "description": "Shared report identity block (see _DATA_DRIVEN.md). Brand-neutral: keep {{ORG}}/{{PROJECT}}/{{AUTHOR}} placeholders unless real values are supplied.",
+      "required": ["org", "project", "reportType", "title", "date", "author", "theme"],
+      "additionalProperties": false,
+      "properties": {
+        "org": { "type": "string", "description": "Organisation wordmark shown in the masthead + footer. Placeholder: {{ORG}}.", "default": "{{ORG}}" },
+        "project": { "type": "string", "description": "Project / platform whose status is reported. Placeholder: {{PROJECT}}.", "default": "{{PROJECT}}" },
+        "reportType": { "type": "string", "description": "Artefact type label shown in the masthead sub-line.", "examples": ["Service Status", "Platform Status", "Uptime Report"] },
+        "title": { "type": "string", "description": "Status-page title shown in the masthead.", "examples": ["Platform Status"] },
+        "subtitle": { "type": "string", "description": "Optional one-line description of what this status page covers." },
+        "date": { "type": "string", "format": "date", "description": "Report generation date (YYYY-MM-DD). Shown in the footer; distinct from the live 'asOf' timestamp.", "examples": ["2026-06-22"] },
+        "author": { "type": "string", "description": "Owning team / publisher. Placeholder: {{AUTHOR}}.", "default": "{{AUTHOR}}" },
+        "theme": {
+          "type": "string",
+          "description": "Initial brand theme; set on <html data-theme>. Live-switchable via the .rc-theme dropdown (9 presets incl. Black). Default cyan for this format.",
+          "enum": ["blue", "purple", "indigo", "teal", "cyan", "green", "plum", "slate", "black"],
+          "default": "cyan"
+        }
+      }
+    },
+    "asOf": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Optional 'as of' timestamp shown in the masthead (ISO-8601 with offset). The freshness anchor for the current-status banner. Falls back to meta.date if omitted.",
+      "examples": ["2026-06-22T09:40:00+09:00"]
+    },
+    "windows": {
+      "type": "array",
+      "description": "The selectable uptime-history windows (in days), rendered as the window-selector buttons. The largest value determines how many day-bars each component renders; smaller values slice the trailing N. Conventionally [90, 60, 30].",
+      "minItems": 1,
+      "items": { "type": "integer", "minimum": 1, "maximum": 365 },
+      "examples": [[90, 60, 30]]
+    },
+    "groups": {
+      "type": "array",
+      "description": "Component GROUPS. Each group renders as a panel containing the component rows whose groupId matches. Also drives the group filter chips. Render order is top-to-bottom.",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "name"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "description": "Stable unique group key; referenced by each component's groupId and by the group filter chips." },
+          "name": { "type": "string", "description": "Group display name shown in the group panel header.", "examples": ["Edge & Access", "Core Services", "Data & Async"] }
+        }
+      }
+    },
+    "components": {
+      "type": "array",
+      "description": "The monitored components, one row each under their group panel. Each row = a status dot + name + a horizontal strip of N day-bars (one per day; colour = that day's worst state) + the period uptime % (derived). Brand-neutral platform pieces (API, Auth, Payments, Notifications, Batch, DB, etc.).",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "groupId", "name", "days"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "description": "Stable unique component key; referenced by incidents[].components and maintenance[].components, and used to pick the row icon." },
+          "groupId": { "type": "string", "description": "The id of the group this component belongs to (must match a groups[].id)." },
+          "name": { "type": "string", "description": "Component display name.", "examples": ["API Gateway", "Authentication", "Payments", "Notifications", "Batch Processing", "Primary Database"] },
+          "description": { "type": "string", "description": "Optional one-line description shown in mono beneath the component name." },
+          "days": {
+            "description": "The per-day uptime history for this component, OLDEST first, one entry per day. Length should cover the largest value in `windows` (e.g. 90 entries). Each entry colours one day-bar and feeds the period uptime %. (The shipped sample uses the string sentinel \"__GEN__\" to have the renderer synthesise a reproducible 90-day history aligned with the incident feed; a real instance supplies the array verbatim.)",
+            "oneOf": [
+              {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "object",
+                  "required": ["date", "uptime", "state"],
+                  "additionalProperties": false,
+                  "properties": {
+                    "date": { "type": "string", "format": "date", "description": "The calendar day this bar represents (YYYY-MM-DD)." },
+                    "uptime": { "type": "number", "description": "Uptime percentage for the day (0-100). Averaged across the selected window to compute the period uptime %.", "minimum": 0, "maximum": 100 },
+                    "state": {
+                      "type": "string",
+                      "description": "The day's worst observed state; sets the day-bar colour. 'ok' = operational (ok colour); 'hold' = degraded (amber); 'risk' = outage (bordeaux).",
+                      "enum": ["ok", "hold", "risk"]
+                    },
+                    "incidents": { "type": "integer", "description": "Optional count of incidents that touched this component on this day; shown in the day-bar hover tooltip.", "minimum": 0, "default": 0 }
+                  }
+                }
+              },
+              {
+                "type": "string",
+                "const": "__GEN__",
+                "description": "Sentinel used by the sample only: the renderer generates a reproducible (seeded) day history aligned with the incidents feed. Not for production instances."
+              }
+            ]
+          }
+        }
+      }
+    },
+    "incidents": {
+      "type": "array",
+      "description": "The PAST-INCIDENTS feed, grouped by date (newest first). Each incident is a card with a severity badge, impacted-component chips, and a vertical list of timestamped updates. Aligns with the components' day history (an incident's day shows as hold/risk on the affected components' strips).",
+      "items": {
+        "type": "object",
+        "required": ["date", "title", "severity", "components", "updates"],
+        "additionalProperties": false,
+        "properties": {
+          "date": { "type": "string", "format": "date", "description": "The date the incident occurred (YYYY-MM-DD); the feed groups cards under this date heading.", "examples": ["2026-06-22"] },
+          "title": { "type": "string", "description": "Short incident headline.", "examples": ["Elevated error rate on Payments authorisation", "Primary Database failover"] },
+          "severity": {
+            "type": "string",
+            "description": "Incident severity, drives the badge colour and the implied day-bar state: 'major'/'partial' -> risk (bordeaux, outage); 'degraded'/'minor' -> hold (amber).",
+            "enum": ["major", "partial", "degraded", "minor"]
+          },
+          "status": {
+            "type": "string",
+            "description": "Current lifecycle state. When 'resolved', the card badge renders in the ok colour regardless of severity.",
+            "enum": ["investigating", "identified", "monitoring", "resolved"],
+            "default": "resolved"
+          },
+          "components": {
+            "type": "array",
+            "description": "The ids of components this incident impacted (each must match a components[].id). Rendered as chips on the card.",
+            "items": { "type": "string" },
+            "minItems": 1
+          },
+          "updates": {
+            "type": "array",
+            "description": "The chronological status updates posted during the incident (the .sp-update timeline). The renderer shows them newest-first within the card. Each update's status colours its timeline node.",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "required": ["time", "status", "body"],
+              "additionalProperties": false,
+              "properties": {
+                "time": { "type": "string", "format": "date-time", "description": "ISO-8601 timestamp (with offset) of the update.", "examples": ["2026-06-22T08:12:00+09:00"] },
+                "status": {
+                  "type": "string",
+                  "description": "The update's lifecycle stage; colours the timeline node. investigating -> risk, identified -> hold, monitoring -> accent, resolved -> ok.",
+                  "enum": ["investigating", "identified", "monitoring", "resolved"]
+                },
+                "body": { "type": "string", "description": "The customer-facing update message." }
+              }
+            }
+          }
+        }
+      }
+    },
+    "maintenance": {
+      "type": "array",
+      "description": "Scheduled maintenance windows, rendered in the Scheduled Maintenance section. Each is a card with the time window, the impacted-component chips, and a description.",
+      "items": {
+        "type": "object",
+        "required": ["window", "title", "components", "body"],
+        "additionalProperties": false,
+        "properties": {
+          "window": { "type": "string", "description": "The maintenance window as an ISO-8601 interval 'start/end' (both with offset). The renderer formats the date + start–end time.", "examples": ["2026-06-26T22:00:00+09:00/2026-06-27T01:00:00+09:00"] },
+          "title": { "type": "string", "description": "Short maintenance headline.", "examples": ["Primary Database engine upgrade", "Edge certificate rotation"] },
+          "status": {
+            "type": "string",
+            "description": "Maintenance lifecycle state.",
+            "enum": ["scheduled", "in-progress", "completed"],
+            "default": "scheduled"
+          },
+          "components": {
+            "type": "array",
+            "description": "The ids of components affected by the maintenance (each must match a components[].id). Rendered as chips.",
+            "items": { "type": "string" }
+          },
+          "body": { "type": "string", "description": "Description of the maintenance and its expected impact." }
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "meta": {
+        "org": "{{ORG}}",
+        "project": "{{PROJECT}}",
+        "reportType": "Service Status",
+        "title": "Platform Status",
+        "subtitle": "Live operational status, 90-day uptime history, and incident communications for the {{PROJECT}} platform.",
+        "date": "2026-06-22",
+        "author": "{{AUTHOR}}",
+        "theme": "cyan"
+      },
+      "asOf": "2026-06-22T09:40:00+09:00",
+      "windows": [90, 60, 30],
+      "groups": [
+        { "id": "edge", "name": "Edge & Access" },
+        { "id": "core", "name": "Core Services" },
+        { "id": "data", "name": "Data & Async" }
+      ],
+      "components": [
+        {
+          "id": "api", "groupId": "edge", "name": "API Gateway", "description": "Public REST / GraphQL ingress and routing.",
+          "days": [
+            { "date": "2026-06-20", "uptime": 100, "state": "ok", "incidents": 0 },
+            { "date": "2026-06-21", "uptime": 100, "state": "ok", "incidents": 0 },
+            { "date": "2026-06-22", "uptime": 99.62, "state": "risk", "incidents": 1 }
+          ]
+        },
+        {
+          "id": "payments", "groupId": "core", "name": "Payments", "description": "Authorisation, capture, and settlement of transactions.",
+          "days": [
+            { "date": "2026-06-20", "uptime": 100, "state": "ok", "incidents": 0 },
+            { "date": "2026-06-21", "uptime": 99.98, "state": "ok", "incidents": 0 },
+            { "date": "2026-06-22", "uptime": 97.4, "state": "risk", "incidents": 1 }
+          ]
+        }
+      ],
+      "incidents": [
+        {
+          "date": "2026-06-22",
+          "title": "Elevated error rate on Payments authorisation",
+          "severity": "partial",
+          "status": "monitoring",
+          "components": ["payments", "api"],
+          "updates": [
+            { "time": "2026-06-22T08:12:00+09:00", "status": "investigating", "body": "We are investigating elevated 5xx responses on the Payments authorisation endpoint." },
+            { "time": "2026-06-22T08:34:00+09:00", "status": "identified", "body": "A connection-pool exhaustion was identified after a downstream datastore slowdown; pool limits raised." },
+            { "time": "2026-06-22T09:05:00+09:00", "status": "monitoring", "body": "Error rate has returned to baseline; monitoring for recurrence before resolving." }
+          ]
+        }
+      ],
+      "maintenance": [
+        {
+          "window": "2026-06-26T22:00:00+09:00/2026-06-27T01:00:00+09:00",
+          "title": "Primary Database engine upgrade",
+          "status": "scheduled",
+          "components": ["db", "payments"],
+          "body": "The primary database will be upgraded to the next major engine version; a brief failover is expected near the start of the window."
+        }
+      ]
+    }
+  ]
+}

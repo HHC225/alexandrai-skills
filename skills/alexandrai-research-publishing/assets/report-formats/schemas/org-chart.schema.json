@@ -1,0 +1,152 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://html-report-design/schemas/org-chart.schema.json",
+  "title": "Org-chart / hierarchy tree report",
+  "description": "Data contract for the org-chart format: a top-down node tree (org chart, taxonomy, work-breakdown structure, or decision tree) rendered as a root node with child rows connected by CSS-drawn connector lines. Each node is a compact rounded card. The renderer reads exactly these fields, builds the DOM, and wires collapse/expand, focus/reset, expand-all/collapse-all, and search interactions. The sample's #report-data is the canonical instance of this schema.",
+  "type": "object",
+  "required": ["meta", "root"],
+  "additionalProperties": false,
+  "properties": {
+    "meta": {
+      "type": "object",
+      "description": "Shared report chrome metadata (brand-neutral). org/project stay as {{…}} placeholders unless real values are supplied.",
+      "required": ["org", "project", "reportType", "title", "theme"],
+      "additionalProperties": false,
+      "properties": {
+        "org": { "type": "string", "description": "Owning organisation. Keep the literal placeholder {{ORG}} when brand-neutral.", "examples": ["{{ORG}}"] },
+        "project": { "type": "string", "description": "Project / programme name. Keep the literal placeholder {{PROJECT}} when brand-neutral.", "examples": ["{{PROJECT}}"] },
+        "reportType": { "type": "string", "description": "Short label for the kind of hierarchy (e.g. 'Org Chart', 'Work-Breakdown Structure', 'Decision Tree', 'Taxonomy').", "examples": ["Delivery Org & Work-Breakdown"] },
+        "title": { "type": "string", "description": "Title shown in the toolbar.", "examples": ["Platform Delivery — Org & Work-Breakdown"] },
+        "subtitle": { "type": "string", "description": "Optional one-line standfirst / scope note shown beside the title.", "examples": ["FY2026 reorg · 17 nodes · depth 4"] },
+        "date": { "type": "string", "description": "As-of date (ISO yyyy-mm-dd or display string).", "examples": ["2026-06-22"] },
+        "author": { "type": "string", "description": "Preparer. Keep the literal placeholder {{AUTHOR}} when brand-neutral.", "examples": ["{{AUTHOR}}"] },
+        "theme": { "type": "string", "description": "Initial brand theme; sets <html data-theme>. Default for this format is indigo.", "enum": ["blue", "purple", "indigo", "teal", "cyan", "green", "plum", "slate"], "default": "indigo" }
+      }
+    },
+    "orientation": {
+      "type": "string",
+      "description": "Tree growth direction. 'vertical' (default) = top-down, child rows beneath the parent. 'horizontal' = left-to-right, children to the right of the parent.",
+      "enum": ["vertical", "horizontal"],
+      "default": "vertical"
+    },
+    "legend": {
+      "type": "array",
+      "description": "Optional legend rows mapping a status to a human label, rendered in the toolbar. Omit to fall back to the default ok/risk/hold/neutral legend.",
+      "items": {
+        "type": "object",
+        "required": ["status", "label"],
+        "additionalProperties": false,
+        "properties": {
+          "status": { "type": "string", "description": "Which status dot this row explains.", "enum": ["ok", "risk", "hold", "neutral"] },
+          "label": { "type": "string", "description": "What that status means in this tree.", "examples": ["On track"] }
+        }
+      }
+    },
+    "root": {
+      "$ref": "#/$defs/node",
+      "description": "The single top node of the hierarchy. Its 'children' recurse to form the whole tree. Recommended depth 3–4, ~15–20 nodes total."
+    }
+  },
+  "$defs": {
+    "node": {
+      "type": "object",
+      "description": "One node of the tree, rendered as a compact rounded card. May contain children that recurse with the same shape.",
+      "required": ["id", "name"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "description": "Stable unique node id (used as the DOM key and for collapse/focus state). Must be unique across the whole tree.", "examples": ["n-cto", "wbs-1.2"] },
+        "name": { "type": "string", "description": "Primary node label — a person, team, deliverable, option, or category. Shown as the card title.", "examples": ["Core Banking Platform", "Aiko Tanaka"] },
+        "role": { "type": "string", "description": "Optional secondary line under the name (a role, owner, classification, or one-line descriptor).", "examples": ["VP Engineering", "Ledger & posting service"] },
+        "meta": { "type": "string", "description": "Optional short metric / chip shown on the card (e.g. headcount, weight, %, count). Keep it terse — one token.", "examples": ["12 FTE", "32%", "P1"] },
+        "status": { "type": "string", "description": "Status dot colour and semantics. 'neutral' (or omitted) renders a grey dot.", "enum": ["ok", "risk", "hold", "neutral"], "default": "neutral" },
+        "badge": { "type": "string", "description": "Optional tracked-mono badge / tag on the card (e.g. a code, region, or category tag).", "examples": ["CORE", "EMEA", "DECISION"] },
+        "collapsed": { "type": "boolean", "description": "Optional initial state: if true, this node renders with its subtree collapsed on load.", "default": false },
+        "children": {
+          "type": "array",
+          "description": "Child nodes (recurse). Omit or empty for a leaf.",
+          "items": { "$ref": "#/$defs/node" }
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "meta": {
+        "org": "{{ORG}}",
+        "project": "{{PROJECT}}",
+        "reportType": "Delivery Org & Work-Breakdown",
+        "title": "Platform Delivery — Org & Work-Breakdown",
+        "subtitle": "FY2026 reorg · 17 nodes · depth 4",
+        "date": "2026-06-22",
+        "author": "{{AUTHOR}}",
+        "theme": "indigo"
+      },
+      "orientation": "vertical",
+      "legend": [
+        { "status": "ok", "label": "On track" },
+        { "status": "risk", "label": "At risk" },
+        { "status": "hold", "label": "On hold" },
+        { "status": "neutral", "label": "Not started / N/A" }
+      ],
+      "root": {
+        "id": "n-root",
+        "name": "Platform Delivery",
+        "role": "Programme · {{PROJECT}}",
+        "meta": "62 FTE",
+        "status": "ok",
+        "badge": "PROGRAMME",
+        "children": [
+          {
+            "id": "n-core",
+            "name": "Core Banking Platform",
+            "role": "Ledger, posting & accounts",
+            "meta": "24 FTE",
+            "status": "ok",
+            "badge": "CORE",
+            "children": [
+              { "id": "n-ledger", "name": "Ledger Service", "role": "Double-entry posting engine", "meta": "8 FTE", "status": "ok" },
+              { "id": "n-accounts", "name": "Accounts Service", "role": "Account lifecycle & balances", "meta": "7 FTE", "status": "hold" },
+              { "id": "n-batch", "name": "Batch & Settlement", "role": "EOD batch, settlement files", "meta": "9 FTE", "status": "risk",
+                "children": [
+                  { "id": "n-batch-eod", "name": "EOD Pipeline", "role": "Nightly close jobs", "status": "risk" },
+                  { "id": "n-batch-recon", "name": "Reconciliation", "role": "Nostro / suspense recon", "status": "hold" }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "n-channels",
+            "name": "Digital Channels",
+            "role": "Mobile, web & API",
+            "meta": "20 FTE",
+            "status": "hold",
+            "badge": "CHANNELS",
+            "children": [
+              { "id": "n-mobile", "name": "Mobile App", "role": "iOS / Android", "meta": "11 FTE", "status": "hold" },
+              { "id": "n-web", "name": "Web Banking", "role": "Responsive web client", "meta": "5 FTE", "status": "ok" },
+              { "id": "n-openapi", "name": "Open-Banking API", "role": "Partner & PSD2 endpoints", "meta": "4 FTE", "status": "ok" }
+            ]
+          },
+          {
+            "id": "n-platform",
+            "name": "Platform & SRE",
+            "role": "Infra, reliability & data",
+            "meta": "18 FTE",
+            "status": "ok",
+            "badge": "PLATFORM",
+            "children": [
+              { "id": "n-infra", "name": "Cloud Infrastructure", "role": "GCP estate & networking", "meta": "6 FTE", "status": "ok" },
+              { "id": "n-sre", "name": "Reliability (SRE)", "role": "On-call, SLOs, incident mgmt", "meta": "7 FTE", "status": "ok" },
+              { "id": "n-data", "name": "Data Platform", "role": "Streaming & warehouse", "meta": "5 FTE", "status": "risk",
+                "children": [
+                  { "id": "n-kafka", "name": "Event Streaming", "role": "Kafka topics & schemas", "status": "ok" },
+                  { "id": "n-dwh", "name": "Warehouse", "role": "BigQuery marts", "status": "risk" }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

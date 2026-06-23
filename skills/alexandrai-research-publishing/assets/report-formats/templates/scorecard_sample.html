@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="blue">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>{{REPORT_TYPE}} — Scorecard · {{PROJECT}}</title>
+<style>
+/* ============================================================
+   SCORECARD  ·  periodic assessment scorecard
+   Areas = graded cards/rows; criteria = expand-on-demand RAG lines;
+   one overall grade banner rolls up from weighted area scores.
+   Default theme: Blue.  Self-contained: system fonts + inline SVG, no external requests.
+   Data-driven: body rendered from #report-data; controls re-render / show-hide.
+   ============================================================ */
+:root{
+  /* surfaces */
+  --bg:#fff; --bg-band:#f6f6f8; --bg-subtle:#fafafb; --bg-deep:#15131a;
+  --rule:#dcdce2; --rule-soft:#ebebef;
+  /* ink */
+  --ink:#11131a; --ink-mid:#33363f; --ink-soft:#5a5e68; --ink-faint:#868b95;
+  /* brand accent — overridden per theme below (Purple = :root default) */
+  --navy:#a100ff; --navy-deep:#7a00c2; --navy-bg:#f3e8ff; --navy-line:#d9bef5;
+  --ok:#5a2f8a; --ok-bg:#efe8f5; --ok-line:#d0b5e0;
+  /* semantic states — CONSTANT across themes */
+  --risk:#b3261e; --risk-bg:#fbeceb; --risk-line:#edc7c4;
+  --hold:#8a6d00; --hold-bg:#fbf3da; --hold-line:#e7d8a4;
+  /* type stacks */
+  --mono:ui-monospace,"JetBrains Mono","SFMono-Regular",Menlo,Consolas,monospace;
+  --sans:-apple-system,"Segoe UI",system-ui,Roboto,"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic UI","Apple SD Gothic Neo","Malgun Gothic","PingFang SC","Microsoft YaHei","Noto Sans CJK JP","Noto Sans CJK KR","Noto Sans CJK SC","Noto Sans JP","Noto Sans KR","Noto Sans SC","Noto Sans",sans-serif;
+}
+/* ---- theme swaps (only the 7 accent values change; risk/hold/neutrals stay) ---- */
+html[data-theme="blue"]{   --navy:#0b5fd4; --navy-deep:#0842a0; --navy-bg:#e8f1fc; --navy-line:#bcd6f5; --ok:#1a4f9c; --ok-bg:#e9f0fa; --ok-line:#b7cdea; }
+html[data-theme="purple"]{ --navy:#a100ff; --navy-deep:#7a00c2; --navy-bg:#f3e8ff; --navy-line:#d9bef5; --ok:#5a2f8a; --ok-bg:#efe8f5; --ok-line:#d0b5e0; }
+html[data-theme="indigo"]{ --navy:#4338ca; --navy-deep:#312c92; --navy-bg:#ebebfb; --navy-line:#c7c3f0; --ok:#3730a3; --ok-bg:#ebeaf7; --ok-line:#c5c2ea; }
+html[data-theme="teal"]{   --navy:#0e7c86; --navy-deep:#095861; --navy-bg:#e0f3f4; --navy-line:#a9dade; --ok:#0f5d54; --ok-bg:#e3f3ef; --ok-line:#b3ddd4; }
+html[data-theme="cyan"]{   --navy:#0891b2; --navy-deep:#0e6f88; --navy-bg:#e2f4f9; --navy-line:#abdde9; --ok:#0e6b7a; --ok-bg:#e4f3f4; --ok-line:#b0dde2; }
+html[data-theme="green"]{  --navy:#1f7a44; --navy-deep:#155730; --navy-bg:#e6f4ea; --navy-line:#b3dcc1; --ok:#2f6b3c; --ok-bg:#e9f3ea; --ok-line:#bedcc4; }
+html[data-theme="plum"]{   --navy:#a21d6e; --navy-deep:#7c1450; --navy-bg:#fbe8f2; --navy-line:#e8b9d4; --ok:#6d2356; --ok-bg:#f6e8f0; --ok-line:#e3bcd5; }
+html[data-theme="slate"]{  --navy:#3f4f63; --navy-deep:#29384b; --navy-bg:#eef1f5; --navy-line:#c2ccd8; --ok:#34495e; --ok-bg:#eef1f5; --ok-line:#c2ccd8; }
+html[data-theme="black"]{  --navy:#000000; --navy-deep:#000; --navy-bg:#f1f1f3; --navy-line:#d6d6db; --ok:#3f3f46; --ok-bg:#f1f1f3; --ok-line:#cfcfd6; }
+
+*{ box-sizing:border-box; }
+html,body{ margin:0; }
+body{
+  font:13px/1.6 var(--sans); color:var(--ink); background:var(--bg-band);
+  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+}
+.tnum{ font-feature-settings:"tnum" 1; font-variant-numeric:tabular-nums; }
+.icon{ width:1.15em; height:1.15em; display:inline-block; vertical-align:-.18em; color:inherit; flex:none; }
+.icon-sm{ width:14px; height:14px; }
+.icon-lg{ width:20px; height:20px; }
+.noscript{ margin:40px auto; max-width:760px; padding:14px 18px; background:var(--hold-bg); border:1px solid var(--hold-line); border-radius:10px; color:var(--hold); font-weight:600; }
+
+/* ============================================================ PAGE FRAME (centred, NOT full-bleed app shell) */
+.wrap{ max-width:1500px; margin:0 auto; padding:26px 40px 56px; }
+
+/* ---- masthead ---- */
+.sc-masthead{ display:flex; align-items:flex-end; justify-content:space-between; gap:24px; margin-bottom:16px; }
+.sc-masthead .lead{ min-width:0; }
+.eyebrow{ font:600 10px/1 var(--mono); letter-spacing:.16em; text-transform:uppercase; color:var(--ink-faint); }
+.sc-title{ margin:8px 0 6px; font-weight:800; font-size:25px; letter-spacing:-.012em; color:var(--ink); }
+.standfirst{ margin:0; font-size:13.5px; color:var(--ink-soft); max-width:64ch; }
+.wordmark{ display:flex; align-items:center; gap:9px; font-weight:800; font-size:13px; letter-spacing:-.01em; color:var(--ink); white-space:nowrap; }
+.wordmark .mark{ width:20px; height:20px; border-radius:5px; background:var(--navy); color:#fff; display:grid; place-items:center; }
+.wordmark .mark .icon{ width:13px; height:13px; }
+.wordmark .sep{ color:var(--rule); font-weight:400; }
+.wordmark .proj{ color:var(--ink-soft); font-weight:600; }
+.mast-meta{ text-align:right; }
+.mast-meta .date{ display:block; margin-top:5px; font:600 10.5px/1 var(--mono); letter-spacing:.04em; color:var(--ink-faint); text-transform:uppercase; }
+
+/* ============================================================ OVERALL GRADE BANNER (the headline verdict) */
+.sc-overall{
+  display:flex; align-items:center; gap:26px; flex-wrap:wrap;
+  padding:20px 24px; margin-bottom:16px;
+  background:var(--bg); border:1px solid var(--rule); border-radius:14px;
+  box-shadow:0 1px 2px rgba(17,19,26,.045); position:relative; overflow:hidden;
+}
+.sc-overall::before{ content:""; position:absolute; left:0; top:0; bottom:0; width:5px; background:var(--band-c,var(--navy)); }
+/* score gauge — conic ring drawn in CSS, coloured by the matched band tone */
+.sc-gauge{ position:relative; width:118px; height:118px; flex:none; border-radius:50%;
+  background:conic-gradient(var(--band-c,var(--navy)) calc(var(--pct,0)*1%), var(--rule-soft) 0); }
+.sc-gauge::after{ content:""; position:absolute; inset:11px; border-radius:50%; background:var(--bg); border:1px solid var(--rule-soft); }
+.sc-gauge .g-val{ position:absolute; inset:0; display:grid; place-content:center; text-align:center; z-index:1; }
+.sc-gauge .g-num{ font:800 30px/1 var(--mono); color:var(--ink); letter-spacing:-.01em; }
+.sc-gauge .g-of{ display:block; margin-top:3px; font:600 9px/1 var(--mono); letter-spacing:.1em; text-transform:uppercase; color:var(--ink-faint); }
+.sc-overall .o-body{ min-width:0; flex:1; }
+.o-toprow{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:7px; }
+.o-eyebrow{ font:600 9.5px/1 var(--mono); letter-spacing:.14em; text-transform:uppercase; color:var(--ink-faint); }
+.sc-grade{ font:800 26px/1 var(--sans); letter-spacing:-.01em; color:var(--band-c,var(--ink)); }
+.sc-period{ display:inline-flex; align-items:center; gap:6px; font:700 10.5px/1 var(--mono); letter-spacing:.06em; text-transform:uppercase; color:var(--navy-deep); background:var(--navy-bg); border:1px solid var(--navy-line); border-radius:6px; padding:5px 9px; }
+.sc-period .icon{ width:12px; height:12px; color:var(--navy); }
+.sc-delta{ display:inline-flex; align-items:center; gap:5px; font:700 12px/1 var(--mono); border-radius:6px; padding:5px 9px; border:1px solid; }
+.sc-delta .icon{ width:13px; height:13px; }
+.sc-delta.up{ color:var(--ok); background:var(--ok-bg); border-color:var(--ok-line); }
+.sc-delta.down{ color:var(--risk); background:var(--risk-bg); border-color:var(--risk-line); }
+.sc-delta.flat{ color:var(--ink-soft); background:var(--bg-band); border-color:var(--rule); }
+.sc-delta .d-prev{ color:var(--ink-faint); font-weight:600; }
+.sc-statement{ margin:0; font-size:13px; color:var(--ink-mid); line-height:1.6; max-width:96ch; }
+.sc-recompute{ display:inline-flex; align-items:center; gap:6px; margin-top:9px; font:600 11px/1.4 var(--mono); color:var(--ink-soft); }
+.sc-recompute .icon{ width:13px; height:13px; color:var(--ink-faint); }
+.sc-recompute b{ color:var(--ink); font-weight:800; }
+.sc-recompute.diverge{ color:var(--hold); } .sc-recompute.diverge .icon{ color:var(--hold); }
+
+/* ============================================================ CONTROL BAR (sticky — legend + controls, NOT a search toolbar) */
+.sc-bar{
+  position:sticky; top:0; z-index:60;
+  display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+  padding:9px 13px; margin-bottom:16px;
+  background:rgba(255,255,255,.92); backdrop-filter:saturate(180%) blur(6px);
+  border:1px solid var(--rule); border-radius:11px; box-shadow:0 1px 3px rgba(17,19,26,.05);
+}
+.bar-group{ display:flex; align-items:center; gap:7px; }
+.bar-group + .bar-group{ padding-left:12px; border-left:1px solid var(--rule); }
+.bar-group.right{ margin-left:auto; }
+.bar-label{ font:600 9.5px/1 var(--mono); letter-spacing:.12em; text-transform:uppercase; color:var(--ink-faint); }
+
+/* scale legend (band chips) */
+.sc-legend{ display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+.legend-chip{ display:inline-flex; align-items:center; gap:6px; font:600 10.5px/1 var(--sans); color:var(--ink-mid); background:var(--bg); border:1px solid var(--rule); border-radius:6px; padding:5px 9px; }
+.legend-chip .lc-sw{ width:9px; height:9px; border-radius:3px; background:var(--lc,var(--navy)); flex:none; }
+.legend-chip .lc-rng{ font:600 9.5px/1 var(--mono); color:var(--ink-faint); }
+
+/* filter chips (RAG show/hide) */
+.filter-chip{
+  display:inline-flex; align-items:center; gap:6px; cursor:pointer;
+  font:600 11.5px/1 var(--sans); color:var(--ink-mid);
+  background:var(--bg); border:1px solid var(--rule); border-radius:6px; padding:6px 10px;
+}
+.filter-chip:hover{ border-color:var(--navy-line); }
+.filter-chip .fc-dot{ width:8px; height:8px; border-radius:50%; flex:none; background:var(--fc,var(--ink-faint)); }
+.filter-chip .ct{ font:700 10px/1 var(--mono); color:var(--ink-faint); }
+.filter-chip[aria-pressed="false"]{ color:var(--ink-faint); background:var(--bg-band); border-style:dashed; }
+.filter-chip[aria-pressed="false"] .fc-dot{ opacity:.35; }
+
+/* toggle switch */
+.toggle{ display:inline-flex; align-items:center; gap:8px; cursor:pointer; font:600 11.5px/1 var(--sans); color:var(--ink-mid); user-select:none; }
+.toggle .track{ width:32px; height:18px; border-radius:9px; background:var(--rule); border:1px solid var(--rule); position:relative; transition:background .14s,border-color .14s; flex:none; }
+.toggle .track::after{ content:""; position:absolute; top:1px; left:1px; width:14px; height:14px; border-radius:50%; background:#fff; box-shadow:0 1px 2px rgba(17,19,26,.25); transition:transform .14s; }
+.toggle input{ position:absolute; opacity:0; width:0; height:0; }
+.toggle input:checked + .track{ background:var(--navy); border-color:var(--navy-deep); }
+.toggle input:checked + .track::after{ transform:translateX(14px); }
+.toggle input:focus-visible + .track{ box-shadow:0 0 0 3px var(--navy-bg); }
+
+/* sort select + buttons */
+.sel{ display:inline-flex; align-items:center; gap:6px; }
+.sel select{
+  font:600 11.5px/1 var(--sans); color:var(--ink-mid); background:var(--bg);
+  border:1px solid var(--rule); border-radius:7px; padding:7px 26px 7px 9px; cursor:pointer; appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235a5e68' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M7 10l5 5 5-5'/%3E%3C/svg%3E");
+  background-repeat:no-repeat; background-position:right 7px center; background-size:14px;
+}
+.sel select:focus{ outline:none; border-color:var(--navy); box-shadow:0 0 0 3px var(--navy-bg); }
+.tbtn{
+  display:inline-flex; align-items:center; gap:6px; cursor:pointer;
+  font:600 11.5px/1 var(--sans); color:var(--ink-mid);
+  background:var(--bg); border:1px solid var(--rule); border-radius:7px; padding:7px 10px;
+}
+.tbtn:hover{ border-color:var(--navy-line); }
+.tbtn .icon{ color:var(--ink-soft); }
+.tbtn[aria-pressed="true"]{ background:var(--navy); border-color:var(--navy-deep); color:#fff; }
+.tbtn[aria-pressed="true"] .icon{ color:#fff; }
+
+/* segmented view toggle (cards / table) */
+.seg{ display:inline-flex; border:1px solid var(--rule); border-radius:7px; overflow:hidden; background:var(--bg); }
+.seg button{ display:inline-flex; align-items:center; gap:6px; cursor:pointer; font:600 11px/1 var(--sans); color:var(--ink-mid); background:transparent; border:0; padding:7px 11px; }
+.seg button + button{ border-left:1px solid var(--rule); }
+.seg button .icon{ width:14px; height:14px; color:var(--ink-soft); }
+.seg button[aria-pressed="true"]{ background:var(--navy); color:#fff; }
+.seg button[aria-pressed="true"] .icon{ color:#fff; }
+
+/* theme switcher (canonical dropdown) */
+.rc-theme{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--rule);border-radius:7px;padding:3px 4px 3px 7px;background:var(--bg);}
+.rc-theme-sw{width:12px;height:12px;border-radius:50%;background:var(--navy);box-shadow:0 0 0 1px var(--rule);flex:none;}
+.rc-theme-sel{border:0;background:none;font:600 11px/1 var(--mono);color:var(--ink-mid);cursor:pointer;outline:none;padding:2px;}
+@media print{.rc-theme{display:none;}}
+
+/* ============================================================ AREA CARD GRID */
+.sc-cards{ display:grid; grid-template-columns:repeat(auto-fill,minmax(330px,1fr)); gap:16px; }
+.sc-cards[hidden]{ display:none; }
+.sc-card{
+  background:var(--bg); border:1px solid var(--rule); border-radius:12px;
+  box-shadow:0 1px 2px rgba(17,19,26,.045); overflow:hidden; transition:border-color .14s, box-shadow .14s;
+}
+.sc-card.is-open{ border-color:var(--navy-line); box-shadow:0 2px 8px rgba(17,19,26,.07); }
+.sc-card-head{ display:flex; align-items:flex-start; gap:12px; padding:14px 15px 12px; cursor:pointer; user-select:none; }
+.sc-card-head:hover{ background:var(--bg-subtle); }
+.sc-ico{ width:32px; height:32px; flex:none; border-radius:9px; display:grid; place-items:center; color:var(--navy); background:var(--navy-bg); border:1px solid var(--navy-line); }
+.sc-ico .icon{ width:18px; height:18px; }
+.sc-head-main{ flex:1; min-width:0; }
+.sc-name{ font-weight:800; font-size:14.5px; letter-spacing:-.005em; color:var(--ink); display:flex; align-items:center; gap:8px; }
+.sc-name .chev{ width:14px; height:14px; color:var(--ink-faint); transition:transform .14s; margin-left:auto; flex:none; }
+.sc-card.is-open .sc-name .chev{ transform:rotate(180deg); }
+.sc-summary{ margin-top:3px; font-size:11.5px; color:var(--ink-soft); line-height:1.5; }
+
+/* score chip + trend (band-toned) */
+.sc-scorebox{ display:flex; align-items:center; gap:9px; padding:0 15px 12px; }
+.score-chip{ display:inline-flex; align-items:baseline; gap:3px; font:800 22px/1 var(--mono); letter-spacing:-.01em;
+  color:var(--ink); background:var(--bg-band); border:1px solid var(--rule); border-radius:8px; padding:7px 10px; }
+.score-chip .sc-of{ font:600 10px/1 var(--mono); color:var(--ink-faint); }
+.score-chip.tone-ok{ color:var(--ok); background:var(--ok-bg); border-color:var(--ok-line); }
+.score-chip.tone-risk{ color:var(--risk); background:var(--risk-bg); border-color:var(--risk-line); }
+.score-chip.tone-hold{ color:var(--hold); background:var(--hold-bg); border-color:var(--hold-line); }
+.score-chip.tone-brand{ color:var(--navy-deep); background:var(--navy-bg); border-color:var(--navy-line); }
+.band-tag{ font:700 9px/1 var(--mono); letter-spacing:.06em; text-transform:uppercase; border-radius:5px; padding:4px 6px; border:1px solid; }
+.band-tag.tone-ok{ color:var(--ok); background:var(--ok-bg); border-color:var(--ok-line); }
+.band-tag.tone-risk{ color:var(--risk); background:var(--risk-bg); border-color:var(--risk-line); }
+.band-tag.tone-hold{ color:var(--hold); background:var(--hold-bg); border-color:var(--hold-line); }
+.band-tag.tone-brand{ color:var(--navy-deep); background:var(--navy-bg); border-color:var(--navy-line); }
+.sc-trend{ display:inline-flex; align-items:center; gap:4px; font:700 11px/1 var(--mono); border-radius:6px; padding:5px 8px; border:1px solid; margin-left:auto; }
+.sc-trend .icon{ width:14px; height:14px; }
+.sc-trend.tr-up{ color:var(--ok); background:var(--ok-bg); border-color:var(--ok-line); }
+.sc-trend.tr-down{ color:var(--risk); background:var(--risk-bg); border-color:var(--risk-line); }
+.sc-trend.tr-flat{ color:var(--ink-soft); background:var(--bg-band); border-color:var(--rule); }
+.sc-delta-inline{ font:700 11px/1 var(--mono); margin-left:7px; }
+.sc-delta-inline.up{ color:var(--ok); } .sc-delta-inline.down{ color:var(--risk); } .sc-delta-inline.flat{ color:var(--ink-soft); }
+
+/* RAG strip + weight + contribution */
+.sc-meta-row{ display:flex; align-items:center; gap:10px; padding:0 15px 13px; flex-wrap:wrap; }
+.rag-strip{ display:inline-flex; gap:4px; align-items:center; }
+.rag-dot{ width:11px; height:11px; border-radius:50%; border:1px solid; }
+.rag-dot.rag-ok{ background:var(--ok); border-color:var(--ok); }
+.rag-dot.rag-risk{ background:var(--risk); border-color:var(--risk); }
+.rag-dot.rag-hold{ background:var(--hold); border-color:var(--hold); }
+.rag-dot.rag-na{ background:transparent; border-color:var(--rule); }
+.w-tag{ display:inline-flex; align-items:center; gap:4px; font:700 9.5px/1 var(--mono); letter-spacing:.04em; color:var(--navy-deep); background:var(--navy-bg); border:1px solid var(--navy-line); border-radius:5px; padding:4px 7px; }
+.contrib{ flex:1; min-width:90px; }
+.contrib-lab{ display:flex; justify-content:space-between; font:600 9px/1 var(--mono); letter-spacing:.06em; text-transform:uppercase; color:var(--ink-faint); margin-bottom:4px; }
+.contrib-lab .cv{ color:var(--ink-soft); font-weight:700; }
+.contrib-bar{ height:6px; border-radius:3px; background:var(--rule-soft); overflow:hidden; }
+.contrib-bar i{ display:block; height:100%; background:var(--navy); border-radius:3px; transition:width .2s ease; }
+
+/* expanded criteria panel */
+.sc-criteria{ display:none; padding:4px 15px 14px; background:var(--bg-subtle); border-top:1px solid var(--rule-soft); }
+.sc-card.is-open .sc-criteria{ display:block; }
+.crit-head{ display:flex; justify-content:space-between; align-items:center; padding:9px 0 7px; }
+.crit-head .ch-lab{ font:700 9.5px/1 var(--mono); letter-spacing:.1em; text-transform:uppercase; color:var(--ink-faint); }
+.crit-head .ch-ct{ font:600 9.5px/1 var(--mono); color:var(--ink-faint); }
+.crit-row{ display:flex; align-items:center; gap:10px; padding:7px 0; border-top:1px solid var(--rule-soft); cursor:default; }
+.crit-row:hover{ background:var(--navy-bg); margin:0 -8px; padding:7px 8px; border-radius:6px; border-top-color:transparent; }
+.crit-row .rag-dot{ width:10px; height:10px; }
+.crit-label{ font-weight:600; font-size:12px; color:var(--ink); flex:none; min-width:130px; }
+.crit-bar{ flex:1; min-width:60px; height:5px; border-radius:3px; background:var(--rule-soft); overflow:hidden; }
+.crit-bar i{ display:block; height:100%; border-radius:3px; }
+.crit-bar.b-ok i{ background:var(--ok); } .crit-bar.b-risk i{ background:var(--risk); } .crit-bar.b-hold i{ background:var(--hold); } .crit-bar.b-na i{ background:var(--rule); }
+.crit-score{ font:700 11px/1 var(--mono); color:var(--ink-soft); min-width:30px; text-align:right; }
+.crit-na{ font:600 10px/1 var(--mono); letter-spacing:.06em; text-transform:uppercase; color:var(--ink-faint); }
+.crit-note{ flex-basis:100%; margin:2px 0 0 20px; font:500 11px/1.4 var(--mono); color:var(--ink-faint); display:none; }
+.crit-row:hover .crit-note{ display:block; }
+
+/* card hidden by RAG filter */
+.sc-card.filtered{ display:none; }
+
+/* ============================================================ TABLE LEDGER VIEW */
+.sc-table-wrap{ background:var(--bg); border:1px solid var(--rule); border-radius:14px; box-shadow:0 1px 2px rgba(17,19,26,.045); overflow:hidden; }
+.sc-table-wrap[hidden]{ display:none; }
+.sc-table{ width:100%; border-collapse:separate; border-spacing:0; }
+.sc-table thead th{ font:600 9.5px/1.3 var(--mono); letter-spacing:.08em; text-transform:uppercase; color:var(--ink-faint); text-align:left; padding:11px 15px; border-bottom:2px solid var(--ink); white-space:nowrap; }
+.sc-table thead th.num{ text-align:right; }
+.sc-table tbody td{ padding:11px 15px; border-bottom:1px solid var(--rule-soft); vertical-align:middle; font-size:12.5px; color:var(--ink-mid); }
+.sc-table tbody tr:hover td{ background:var(--bg-subtle); }
+.sc-table tbody tr.filtered{ display:none; }
+.sc-table .t-name{ font-weight:700; color:var(--ink); }
+.sc-table .t-ico{ display:inline-grid; place-items:center; width:22px; height:22px; border-radius:6px; color:var(--navy); background:var(--navy-bg); border:1px solid var(--navy-line); margin-right:8px; vertical-align:-6px; }
+.sc-table .t-ico .icon{ width:13px; height:13px; }
+.sc-table td.num{ text-align:right; font-family:var(--mono); font-weight:700; color:var(--ink); }
+.sc-table .t-score{ display:inline-flex; align-items:baseline; gap:3px; padding:3px 7px; border-radius:6px; border:1px solid; font-weight:800; }
+.sc-table .t-score.tone-ok{ color:var(--ok); background:var(--ok-bg); border-color:var(--ok-line); }
+.sc-table .t-score.tone-risk{ color:var(--risk); background:var(--risk-bg); border-color:var(--risk-line); }
+.sc-table .t-score.tone-hold{ color:var(--hold); background:var(--hold-bg); border-color:var(--hold-line); }
+.sc-table .t-score.tone-brand{ color:var(--navy-deep); background:var(--navy-bg); border-color:var(--navy-line); }
+.sc-table .t-contrib{ display:inline-block; width:80px; height:6px; border-radius:3px; background:var(--rule-soft); overflow:hidden; vertical-align:middle; }
+.sc-table .t-contrib i{ display:block; height:100%; background:var(--navy); border-radius:3px; }
+.sc-table tfoot td{ padding:12px 15px; border-top:2px solid var(--ink); font-weight:800; color:var(--ink); }
+.sc-table tfoot .num{ text-align:right; font-family:var(--mono); }
+.t-trend{ display:inline-flex; align-items:center; gap:4px; font:700 11px/1 var(--mono); }
+.t-trend .icon{ width:13px; height:13px; }
+.t-trend.tr-up{ color:var(--ok); } .t-trend.tr-down{ color:var(--risk); } .t-trend.tr-flat{ color:var(--ink-soft); }
+
+/* empty state */
+.sc-empty{ display:none; padding:40px; text-align:center; color:var(--ink-faint); font:600 12.5px/1.6 var(--sans);
+  background:var(--bg); border:1px dashed var(--rule); border-radius:14px; }
+.sc-empty.on{ display:block; }
+
+/* shared status badge primitive */
+.st-badge{ display:inline-flex; align-items:center; gap:6px; white-space:nowrap; font:600 11px/1 var(--sans); border:1px solid; border-radius:6px; padding:4px 8px; }
+.st-badge::before{ content:""; width:7px; height:7px; border-radius:50%; flex:none; }
+.st-ok{ color:var(--ok); background:var(--ok-bg); border-color:var(--ok-line); } .st-ok::before{ background:var(--ok); }
+.st-risk{ color:var(--risk); background:var(--risk-bg); border-color:var(--risk-line); } .st-risk::before{ background:var(--risk); }
+.st-hold{ color:var(--hold); background:var(--hold-bg); border-color:var(--hold-line); } .st-hold::before{ background:var(--hold); }
+
+/* ============================================================ FOOTER */
+.foot{ margin-top:30px; display:flex; align-items:center; gap:16px; padding:13px 18px; background:var(--bg-deep); border-radius:12px; color:#cdd0d8; font:600 10px/1.4 var(--mono); letter-spacing:.06em; text-transform:uppercase; }
+.foot .icon{ color:#9aa0ad; }
+.foot .sp{ flex:1; }
+.foot .wm{ display:inline-flex; align-items:center; gap:7px; color:#e9eaee; }
+.foot .wm .sq{ width:10px; height:10px; border-radius:2px; background:var(--navy); }
+
+/* ============================================================ PRINT — static, complete snapshot */
+@media print{
+  body{ background:#fff; }
+  .wrap{ max-width:none; padding:0; }
+  .sc-bar, .rc-theme, .sc-name .chev{ display:none !important; }
+  .sc-overall, .sc-card, .sc-table-wrap{ box-shadow:none; }
+  .sc-cards{ display:grid !important; grid-template-columns:1fr 1fr; }
+  .sc-table-wrap[hidden]{ display:block !important; }   /* show both views in print */
+  .sc-card.filtered, .sc-table tbody tr.filtered{ display:table-row; }
+  .sc-card.filtered{ display:block; }
+  .sc-criteria{ display:block !important; }              /* expand every area */
+  .sc-card-head:hover, .crit-row:hover, .sc-table tbody tr:hover td{ background:transparent !important; }
+  .crit-row:hover{ margin:0; padding:7px 0; }
+  .crit-note{ display:block !important; }
+  .sc-gauge, .contrib-bar i, .crit-bar i, .t-contrib i{ -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  .foot{ background:#fff; color:#000; border:1px solid var(--rule); }
+  .foot .wm .sq{ background:#000; }
+  @page{ margin:12mm; }
+}
+</style>
+</head>
+<body>
+
+<!-- ============ THE ONLY CONTENT SOURCE ============ -->
+<script type="application/json" id="report-data">
+{
+  "meta": {
+    "org": "{{ORG}}",
+    "project": "{{PROJECT}}",
+    "reportType": "{{REPORT_TYPE}}",
+    "title": "Programme health scorecard",
+    "subtitle": "Quarterly assessment of the GEN2 delivery programme against weighted health areas — each area scored 0-100 from its graded criteria and trended against last quarter.",
+    "date": "2026-06-22",
+    "author": "{{AUTHOR}}",
+    "theme": "blue"
+  },
+  "scale": {
+    "min": 0,
+    "max": 100,
+    "bands": [
+      { "label": "At risk", "min": 0,  "max": 49,  "tone": "risk" },
+      { "label": "Watch",   "min": 50, "max": 69,  "tone": "hold" },
+      { "label": "Stable",  "min": 70, "max": 84,  "tone": "brand" },
+      { "label": "Strong",  "min": 85, "max": 100, "tone": "ok" }
+    ]
+  },
+  "areas": [
+    {
+      "id": "delivery", "name": "Delivery & scope", "icon": "delivery", "weight": 9, "score": 78, "prevScore": 71, "trend": "up",
+      "summary": "Velocity recovered after the integration freeze; two epics slipped to next quarter.",
+      "criteria": [
+        { "label": "Sprint commitment met", "rating": "ok",   "score": 84, "note": "5 of 6 sprints hit commitment" },
+        { "label": "Scope creep controlled", "rating": "hold", "score": 66, "note": "2 unplanned epics absorbed mid-quarter" },
+        { "label": "Release cadence on plan", "rating": "ok",   "score": 80 },
+        { "label": "Dependency risks closed", "rating": "hold", "score": 62, "note": "core-API dependency still open" }
+      ]
+    },
+    {
+      "id": "quality", "name": "Quality & defects", "icon": "quality", "weight": 8, "score": 64, "prevScore": 70, "trend": "down",
+      "summary": "Escaped-defect rate rose during the ITb monkey-test phase; regression suite stabilising.",
+      "criteria": [
+        { "label": "Escaped defect rate", "rating": "risk", "score": 48, "note": "P1 escapes above target this period" },
+        { "label": "Automated coverage", "rating": "ok",   "score": 82 },
+        { "label": "Regression pass rate", "rating": "hold", "score": 67 },
+        { "label": "Defect ageing within SLA", "rating": "risk", "score": 55, "note": "3 P2 defects breached SLA" }
+      ]
+    },
+    {
+      "id": "risk", "name": "Risk & compliance", "icon": "risk", "weight": 7, "score": 88, "prevScore": 85, "trend": "up",
+      "summary": "Regulatory gap assessment closed; one residual audit action carried over.",
+      "criteria": [
+        { "label": "Open high risks", "rating": "ok", "score": 90, "note": "no open P1 risks" },
+        { "label": "Audit actions on track", "rating": "ok", "score": 86 },
+        { "label": "Compliance gaps closed", "rating": "ok", "score": 88 },
+        { "label": "BCP / DR validated", "rating": "hold", "score": 72, "note": "failover drill due next quarter" }
+      ]
+    },
+    {
+      "id": "finance", "name": "Budget & forecast", "icon": "finance", "weight": 6, "score": 71, "prevScore": 73, "trend": "flat",
+      "summary": "On budget at the half-year; vendor change-request pipeline a watch item.",
+      "criteria": [
+        { "label": "Spend vs budget", "rating": "ok", "score": 79 },
+        { "label": "Forecast confidence", "rating": "hold", "score": 64, "note": "CR pipeline not yet costed" },
+        { "label": "Benefits realisation", "rating": "hold", "score": 60 },
+        { "label": "Contingency held", "rating": "ok", "score": 81 }
+      ]
+    },
+    {
+      "id": "people", "name": "Team & capacity", "icon": "people", "weight": 5, "score": 82, "prevScore": 79, "trend": "up",
+      "summary": "Key roles filled; reliance on two specialists remains a single-point risk.",
+      "criteria": [
+        { "label": "Key roles staffed", "rating": "ok", "score": 88 },
+        { "label": "Attrition within target", "rating": "ok", "score": 85 },
+        { "label": "Knowledge concentration", "rating": "hold", "score": 66, "note": "2 single-points of knowledge" },
+        { "label": "Onboarding throughput", "rating": "na" }
+      ]
+    },
+    {
+      "id": "security", "name": "Security posture", "icon": "security", "weight": 7, "score": 91, "prevScore": 88, "trend": "up",
+      "summary": "Pen-test findings remediated; secrets-management rollout complete across services.",
+      "criteria": [
+        { "label": "Critical vulns open", "rating": "ok", "score": 94, "note": "0 critical, 2 high in remediation" },
+        { "label": "Patch SLA adherence", "rating": "ok", "score": 89 },
+        { "label": "Access reviews current", "rating": "ok", "score": 90 },
+        { "label": "Secrets management", "rating": "ok", "score": 92 }
+      ]
+    }
+  ],
+  "overall": {
+    "grade": "Stable",
+    "score": 76,
+    "period": "Q2 2026",
+    "prevScore": 73,
+    "prevPeriod": "Q1 2026",
+    "statement": "The programme is stable and improving overall, lifted by security, risk and team areas, but quality has regressed during the ITb test phase and is the priority focus for Q3."
+  }
+}
+</script>
+
+<noscript><div class="noscript">This scorecard renders its grade banner, area cards and criteria from embedded JSON via JavaScript. Enable JavaScript to view, sort, filter and expand the assessment.</div></noscript>
+
+<div class="wrap" id="wrap" hidden>
+  <!-- masthead -->
+  <header class="sc-masthead">
+    <div class="lead">
+      <span class="eyebrow" id="mEyebrow"></span>
+      <h1 class="sc-title" id="mTitle"></h1>
+      <p class="standfirst" id="mSub"></p>
+    </div>
+    <div class="mast-meta">
+      <span class="wordmark">
+        <span class="mark"><svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 7.5 12 4l7.5 3.5M5 7.5v11M19 7.5v11M5 18.5h14"/><path d="M9 11.5h6M9 14.5h6"/></svg></span>
+        <span id="mOrg"></span> <span class="sep">/</span> <span class="proj" id="mProj"></span>
+      </span>
+      <span class="date" id="mDate"></span>
+    </div>
+  </header>
+
+  <!-- overall grade banner -->
+  <section class="sc-overall" id="overall"></section>
+
+  <!-- control bar (sticky) -->
+  <div class="sc-bar">
+    <div class="bar-group">
+      <span class="bar-label">Bands</span>
+      <span class="sc-legend" id="legend"></span>
+    </div>
+    <div class="bar-group">
+      <span class="bar-label">RAG</span>
+      <span id="ragChips" style="display:flex;gap:7px;flex-wrap:wrap"></span>
+    </div>
+    <div class="bar-group right">
+      <label class="toggle" title="Roll up the overall by weighted (Σ weight·score) or raw mean">
+        <input type="checkbox" id="weighted" checked><span class="track"></span>Weighted
+      </label>
+      <label class="toggle" title="Show Δ vs the previous period on every score">
+        <input type="checkbox" id="compare" checked><span class="track"></span>Compare period
+      </label>
+      <span class="sel">
+        <span class="bar-label">Sort</span>
+        <select id="sortSel" aria-label="Sort areas">
+          <option value="score-desc">Score (high→low)</option>
+          <option value="score-asc">Score (low→high)</option>
+          <option value="weight-desc">Weight (high→low)</option>
+          <option value="name-asc">Name (A→Z)</option>
+        </select>
+      </span>
+      <button class="tbtn" id="expandBtn" type="button" aria-pressed="false">
+        <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M8 10l4 4 4-4"/><path d="M5 5.5h14"/></svg>
+        Expand all
+      </button>
+      <span class="seg" role="group" aria-label="view">
+        <button id="viewCards" type="button" aria-pressed="true">
+          <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="7" height="7" rx="1.6"/><rect x="13" y="4" width="7" height="7" rx="1.6"/><rect x="4" y="13" width="7" height="7" rx="1.6"/><rect x="13" y="13" width="7" height="7" rx="1.6"/></svg>
+          Cards
+        </button>
+        <button id="viewTable" type="button" aria-pressed="false">
+          <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4.5" width="17" height="15" rx="2"/><path d="M3.5 9.5H20.5M3.5 14.5H20.5M9 9.5V19.5"/></svg>
+          Table
+        </button>
+      </span>
+      <label class="rc-theme" id="rcTheme" title="Brand colour">
+        <span class="rc-theme-sw" aria-hidden="true"></span>
+        <select class="rc-theme-sel" aria-label="Brand theme">
+          <option value="blue">Blue</option>
+          <option value="purple">Purple</option>
+          <option value="indigo">Indigo</option>
+          <option value="teal">Teal</option>
+          <option value="cyan">Cyan</option>
+          <option value="green">Green</option>
+          <option value="plum">Plum</option>
+          <option value="slate">Slate</option>
+          <option value="black">Black</option>
+        </select>
+      </label>
+    </div>
+  </div>
+
+  <!-- area grade view -->
+  <div class="sc-cards" id="cards"></div>
+  <div class="sc-table-wrap" id="tableWrap" hidden>
+    <table class="sc-table" id="table">
+      <thead><tr>
+        <th>Assessment area</th>
+        <th class="num">Score</th>
+        <th>Grade</th>
+        <th>RAG</th>
+        <th class="num">Weight</th>
+        <th>Contribution</th>
+        <th class="num">Δ vs prev</th>
+        <th>Trend</th>
+      </tr></thead>
+      <tbody id="tableBody"></tbody>
+      <tfoot id="tableFoot"></tfoot>
+    </table>
+  </div>
+  <div class="sc-empty" id="empty">No areas match the current RAG filter — re-enable a rating chip.</div>
+
+  <!-- footer -->
+  <footer class="foot">
+    <svg class="icon icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5a8.5 8.5 0 1 0 8.5 8.5"/><path d="M12 12 17 7"/><path d="M12 7.5V12H16"/></svg>
+    <span id="fMeta"></span>
+    <span class="sp"></span>
+    <span>Periodic assessment scorecard</span>
+    <span class="wm"><span class="sq"></span><span id="fOrg"></span></span>
+  </footer>
+</div>
+
+<script>
+/* ============================================================
+   Scorecard — single inline script.
+   Reads #report-data → renders the grade banner, area cards & table → wires interactions.
+   Data-driven: every control mutates state then re-renders, so the overall roll-up,
+   sort, RAG filter, weighted/raw and period deltas all derive from the same JSON.
+   ============================================================ */
+(function(){
+  "use strict";
+
+  const DATA = JSON.parse(document.getElementById('report-data').textContent);
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+  /* ---- inline house icons (24x24, stroke=currentColor, 1.75) ---- */
+  const I = {
+    up:'<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 16.5 10 10.5l3.5 3.5L20 7"/><path d="M20 11.5V7H15.5"/></svg>',
+    down:'<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7.5 10 13.5l3.5-3.5L20 16.5"/><path d="M20 12V16.5H15.5"/></svg>',
+    flat:'<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12H19.5"/><path d="M16 8.5 19.5 12 16 15.5"/></svg>',
+    period:'<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 9.5H20.5M8 3.5V6.5M16 3.5V6.5"/><rect x="7" y="12.5" width="3" height="3" rx="1" fill="currentColor" stroke="none"/></svg>',
+    note:'<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4.5h14a.5.5 0 0 1 .5.5v10l-4 4.5H5a.5.5 0 0 1-.5-.5V5a.5.5 0 0 1 .5-.5Z"/><path d="M15.5 19.5V15a.5.5 0 0 1 .5-.5h4"/><path d="M8 9h8M8 12h5"/></svg>',
+    chev:'<svg class="icon chev" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10l5 5 5-5"/></svg>'
+  };
+  /* area icons keyed by area.icon */
+  const AI = {
+    delivery:'<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 7.5 12 3.5l8.5 4-8.5 4-8.5-4Z"/><path d="M3.5 7.5V16l8.5 4 8.5-4V7.5"/><path d="M12 11.5V20"/></svg>',
+    quality:'<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M8.3 12.4l2.5 2.5 4.9-5.3"/></svg>',
+    risk:'<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5 21 19.5H3L12 3.5Z"/><path d="M12 10V14"/><rect x="10.6" y="16" width="2.8" height="2.4" rx="1" fill="currentColor" stroke="none"/></svg>',
+    finance:'<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M14.5 9c-.5-1-1.5-1.5-2.5-1.5-1.4 0-2.5.9-2.5 2s1.1 1.6 2.5 2 2.5.9 2.5 2-1.1 2-2.5 2c-1 0-2-.5-2.5-1.5M12 6v1.5M12 16.5V18"/></svg>',
+    people:'<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8.5" r="3"/><path d="M3.5 19c0-3 2.5-5 5.5-5s5.5 2 5.5 5"/><path d="M16 6.2a3 3 0 0 1 0 5.6M17.5 14.2c2 .6 3.5 2.4 3.5 4.8"/></svg>',
+    security:'<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.25 19 5.75v5.45c0 4.4-3 7.6-7 8.8-4-1.2-7-4.4-7-8.8V5.75Z"/><path d="M9 12l2.2 2.2L15.2 9.6"/></svg>',
+    process:'<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 6h9M5 12h9M5 18h9"/><path d="M17 5l2 2-2 2M17 11l2 2-2 2M17 17l2 2-2 2"/></svg>',
+    data:'<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4V20H20"/><rect x="6.75" y="12" width="3" height="8" rx="1.2"/><rect x="11.5" y="8" width="3" height="12" rx="1.2"/><rect x="16.25" y="14.5" width="3" height="5.5" rx="1.2"/></svg>',
+    generic:'<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M9 9h6M9 13h6M9 17h3"/></svg>'
+  };
+
+  /* ---- scale + bands ---- */
+  const scale = DATA.scale, lo = scale.min, hi = scale.max, span = (hi - lo) || 1;
+  const TONE = { ok:'var(--ok)', risk:'var(--risk)', hold:'var(--hold)', brand:'var(--navy)' };
+  // pick the band a score belongs to (highest band whose min the score meets, respecting max if given)
+  function bandFor(score){
+    const bands = scale.bands;
+    let pick = bands[0];
+    bands.forEach(b => {
+      const okMin = score >= b.min;
+      const okMax = (b.max === undefined) || (score <= b.max);
+      if (okMin && okMax) pick = b;
+    });
+    // fallback: if nothing matched on max, take the highest band whose min is satisfied
+    if (!(score >= pick.min && (pick.max === undefined || score <= pick.max))){
+      bands.forEach(b => { if (score >= b.min && b.min >= pick.min) pick = b; });
+    }
+    return pick;
+  }
+  const pct = score => Math.max(0, Math.min(100, Math.round(((score - lo) / span) * 100)));
+
+  /* ---- state ---- */
+  const areas = DATA.areas.slice();
+  const order = areas.map(a => a.id);
+  const open = new Set();                         // expanded area ids
+  const ragFilter = { ok:true, risk:true, hold:true };
+  let weighted = true, compare = true, view = 'cards', sortKey = 'score-desc';
+
+  const areaById = id => areas.find(a => a.id === id);
+  const orderedAreas = () => order.map(areaById);
+  // an area passes the RAG filter if ANY enabled rating is present among its criteria
+  function passesFilter(a){
+    const active = Object.keys(ragFilter).filter(k => ragFilter[k]);
+    if (active.length === 3) return true;          // all on → everything visible
+    return a.criteria.some(c => c.rating !== 'na' && ragFilter[c.rating]);
+  }
+  const visibleAreas = () => orderedAreas().filter(passesFilter);
+
+  /* ============================================================ ROLL-UP MATH (recomputed every render)
+     weighted  = Σ(weight·score) / Σweight   ·   raw = mean(score)
+     Computed over the CURRENTLY VISIBLE areas so the overall reflects any RAG filter. */
+  function rollup(list){
+    if (!list.length) return 0;
+    if (weighted){
+      let ws = 0, sw = 0;
+      list.forEach(a => { ws += a.weight * a.score; sw += a.weight; });
+      return sw > 0 ? ws / sw : 0;
+    }
+    return list.reduce((s,a) => s + a.score, 0) / list.length;
+  }
+  // each visible area's share of the weighted total (for the contribution bars), normalised to the top share
+  function contribMap(list){
+    const out = {};
+    const sw = list.reduce((s,a) => s + a.weight, 0) || 1;
+    let maxShare = 0;
+    list.forEach(a => {
+      const share = weighted ? (a.weight * a.score) / (sw) : a.score; // raw mode: bar tracks the score itself
+      out[a.id] = share; if (share > maxShare) maxShare = share;
+    });
+    list.forEach(a => { out[a.id] = maxShare > 0 ? (out[a.id] / maxShare) * 100 : 0; });
+    return out;
+  }
+
+  /* ---- masthead / footer text ---- */
+  const m = DATA.meta;
+  document.getElementById('mEyebrow').textContent = m.reportType || '';
+  document.getElementById('mTitle').textContent   = m.title || '';
+  document.getElementById('mSub').textContent     = m.subtitle || '';
+  document.getElementById('mOrg').textContent     = m.org || '';
+  document.getElementById('mProj').textContent    = m.project || '';
+  document.getElementById('mDate').textContent    = m.date || '';
+  document.getElementById('fOrg').textContent     = m.org || '';
+  document.getElementById('fMeta').textContent    = [m.reportType, 'assessed ' + (m.date||'')].filter(Boolean).join(' · ');
+
+  /* ---- scale legend (band chips) ---- */
+  document.getElementById('legend').innerHTML = scale.bands.map(b => {
+    const rng = (b.max !== undefined) ? `${b.min}–${b.max}` : `${b.min}+`;
+    return `<span class="legend-chip"><span class="lc-sw" style="--lc:${TONE[b.tone]||TONE.brand}"></span>${esc(b.label)} <span class="lc-rng tnum">${rng}</span></span>`;
+  }).join('');
+
+  /* ---- RAG filter chips ---- */
+  const RAGLAB = { ok:'OK', risk:'Risk', hold:'Hold' };
+  function ragCounts(){
+    const c = { ok:0, risk:0, hold:0 };
+    areas.forEach(a => a.criteria.forEach(cr => { if (c[cr.rating] !== undefined) c[cr.rating]++; }));
+    return c;
+  }
+  function renderRagChips(){
+    const counts = ragCounts();
+    document.getElementById('ragChips').innerHTML = ['ok','risk','hold'].map(r =>
+      `<button class="filter-chip" data-rag="${r}" aria-pressed="${ragFilter[r]}" type="button">
+        <span class="fc-dot" style="--fc:${TONE[r]}"></span>${RAGLAB[r]} <span class="ct tnum">${counts[r]}</span>
+      </button>`).join('');
+  }
+
+  /* ---- delta helpers ---- */
+  function deltaHTML(score, prev, cls){
+    if (prev === undefined || prev === null) return '';
+    const d = Math.round((score - prev) * 10) / 10;
+    const dir = d > 0 ? 'up' : (d < 0 ? 'down' : 'flat');
+    const sign = d > 0 ? '+' : '';
+    return `<span class="${cls} ${dir} tnum">${sign}${d}</span>`;
+  }
+
+  /* ============================================================ OVERALL BANNER */
+  function renderOverall(){
+    const o = DATA.overall;
+    const vis = visibleAreas();
+    const computed = Math.round(rollup(vis) * 10) / 10;          // live roll-up over visible areas
+    const band = bandFor(o.score);
+    const bc = TONE[band.tone] || TONE.brand;
+    // period delta on the banner
+    let delta = '';
+    if (compare && o.prevScore !== undefined){
+      const d = Math.round((o.score - o.prevScore) * 10) / 10;
+      const dir = d > 0 ? 'up' : (d < 0 ? 'down' : 'flat');
+      const ico = dir === 'up' ? I.up : (dir === 'down' ? I.down : I.flat);
+      const sign = d > 0 ? '+' : '';
+      delta = `<span class="sc-delta ${dir}" title="vs ${esc(o.prevPeriod||'previous period')}">${ico}<span class="tnum">${sign}${d}</span>${o.prevPeriod?`<span class="d-prev tnum">from ${esc(String(o.prevScore))}</span>`:''}</span>`;
+    }
+    // divergence between assessor score and the live (visible) roll-up
+    const diff = Math.round((o.score - computed) * 10) / 10;
+    const filtered = vis.length !== areas.length;
+    const mode = weighted ? 'weighted' : 'raw';
+    let recompute;
+    if (filtered){
+      recompute = `<span class="sc-recompute"><span>${I.note}</span>${mode} roll-up of <b class="tnum">${vis.length}</b> shown ${vis.length===1?'area':'areas'}: <b class="tnum">${computed}</b> / ${hi}</span>`;
+    } else if (Math.abs(diff) >= 1){
+      recompute = `<span class="sc-recompute diverge"><span>${I.note}</span>assessor score <b class="tnum">${o.score}</b> vs ${mode} roll-up <b class="tnum">${computed}</b> (Δ ${diff>0?'+':''}${diff})</span>`;
+    } else {
+      recompute = `<span class="sc-recompute"><span>${I.note}</span>${mode} roll-up of all areas: <b class="tnum">${computed}</b> / ${hi} — matches the assessed grade</span>`;
+    }
+    document.getElementById('overall').style.setProperty('--band-c', bc);
+    document.getElementById('overall').style.setProperty('--pct', pct(o.score));
+    document.getElementById('overall').innerHTML = `
+      <div class="sc-gauge" style="--band-c:${bc};--pct:${pct(o.score)}">
+        <div class="g-val"><span class="g-num tnum" style="color:${bc}">${esc(String(o.score))}</span><span class="g-of">/ ${esc(String(hi))}</span></div>
+      </div>
+      <div class="o-body">
+        <div class="o-toprow">
+          <span class="o-eyebrow">Overall assessment</span>
+          <span class="sc-grade" style="color:${bc}">${esc(o.grade||band.label)}</span>
+          <span class="sc-period">${I.period}${esc(o.period||'')}</span>
+          ${delta}
+        </div>
+        ${o.statement ? `<p class="sc-statement">${esc(o.statement)}</p>` : ''}
+        ${recompute}
+      </div>`;
+  }
+
+  /* ============================================================ AREA CARDS */
+  function ragStripHTML(a){
+    return `<span class="rag-strip" aria-label="criteria ratings">` +
+      a.criteria.map(c => `<span class="rag-dot rag-${c.rating}" title="${esc(c.label)}: ${c.rating.toUpperCase()}"></span>`).join('') +
+      `</span>`;
+  }
+  function critRowsHTML(a){
+    return a.criteria.map(c => {
+      const hasScore = typeof c.score === 'number';
+      const bar = hasScore
+        ? `<span class="crit-bar b-${c.rating}"><i style="width:${pct(c.score)}%"></i></span><span class="crit-score tnum">${esc(String(c.score))}</span>`
+        : (c.rating === 'na' ? `<span class="crit-bar b-na"></span><span class="crit-na">n/a</span>` : `<span class="crit-bar b-${c.rating}"></span><span class="crit-score">—</span>`);
+      const note = c.note ? `<span class="crit-note">${I.note} ${esc(c.note)}</span>` : '';
+      return `<div class="crit-row" title="${c.note?esc(c.note):''}">
+        <span class="rag-dot rag-${c.rating}"></span>
+        <span class="crit-label">${esc(c.label)}</span>
+        ${bar}${note}
+      </div>`;
+    }).join('');
+  }
+  function cardHTML(a){
+    const band = bandFor(a.score);
+    const tone = `tone-${band.tone}`;
+    const ico = AI[a.icon] || AI.generic;
+    const trCls = a.trend === 'up' ? 'tr-up' : (a.trend === 'down' ? 'tr-down' : 'tr-flat');
+    const trIco = a.trend === 'up' ? I.up : (a.trend === 'down' ? I.down : I.flat);
+    const trLab = a.trend === 'up' ? 'Up' : (a.trend === 'down' ? 'Down' : 'Flat');
+    const dInline = (compare && a.prevScore !== undefined) ? deltaHTML(a.score, a.prevScore, 'sc-delta-inline') : '';
+    const contrib = (CONTRIB[a.id] || 0);
+    return `<article class="sc-card${open.has(a.id)?' is-open':''}${passesFilter(a)?'':' filtered'}" data-area="${esc(a.id)}">
+      <div class="sc-card-head" data-toggle="${esc(a.id)}" role="button" tabindex="0" aria-expanded="${open.has(a.id)}">
+        <span class="sc-ico">${ico}</span>
+        <div class="sc-head-main">
+          <div class="sc-name">${esc(a.name)}<span class="chev">${I.chev}</span></div>
+          ${a.summary ? `<div class="sc-summary">${esc(a.summary)}</div>` : ''}
+        </div>
+      </div>
+      <div class="sc-scorebox">
+        <span class="score-chip ${tone}"><span class="tnum">${esc(String(a.score))}</span><span class="sc-of">/ ${esc(String(hi))}</span></span>
+        <span class="band-tag ${tone}">${esc(band.label)}</span>${dInline}
+        <span class="sc-trend ${trCls}" title="Trend vs last period: ${trLab}">${trIco}${trLab}</span>
+      </div>
+      <div class="sc-meta-row">
+        ${ragStripHTML(a)}
+        <span class="w-tag" title="Area weight">w${esc(String(a.weight))}</span>
+        <span class="contrib">
+          <span class="contrib-lab">Contribution<span class="cv tnum">${Math.round(contrib)}%</span></span>
+          <span class="contrib-bar"><i style="width:${contrib}%"></i></span>
+        </span>
+      </div>
+      <div class="sc-criteria">
+        <div class="crit-head"><span class="ch-lab">Graded criteria</span><span class="ch-ct tnum">${a.criteria.length} items</span></div>
+        ${critRowsHTML(a)}
+      </div>
+    </article>`;
+  }
+
+  /* ============================================================ TABLE LEDGER */
+  function tableBodyHTML(){
+    return orderedAreas().map(a => {
+      const band = bandFor(a.score);
+      const tone = `tone-${band.tone}`;
+      const ico = AI[a.icon] || AI.generic;
+      const trCls = a.trend === 'up' ? 'tr-up' : (a.trend === 'down' ? 'tr-down' : 'tr-flat');
+      const trIco = a.trend === 'up' ? I.up : (a.trend === 'down' ? I.down : I.flat);
+      const dCell = (compare && a.prevScore !== undefined) ? deltaHTML(a.score, a.prevScore, 't-delta') : '<span class="tnum" style="color:var(--ink-faint)">—</span>';
+      const contrib = (CONTRIB[a.id] || 0);
+      return `<tr data-area="${esc(a.id)}" class="${passesFilter(a)?'':'filtered'}">
+        <td class="t-name"><span class="t-ico">${ico}</span>${esc(a.name)}</td>
+        <td class="num"><span class="t-score ${tone}"><span class="tnum">${esc(String(a.score))}</span></span></td>
+        <td>${esc(band.label)}</td>
+        <td>${ragStripHTML(a)}</td>
+        <td class="num tnum">${esc(String(a.weight))}</td>
+        <td><span class="t-contrib"><i style="width:${contrib}%"></i></span></td>
+        <td class="num">${dCell}</td>
+        <td><span class="t-trend ${trCls}">${trIco}${a.trend}</span></td>
+      </tr>`;
+    }).join('');
+  }
+  function tableFootHTML(){
+    const vis = visibleAreas();
+    const computed = Math.round(rollup(vis) * 10) / 10;
+    const sw = orderedAreas().reduce((s,a)=>s+a.weight,0);
+    const band = bandFor(computed);
+    return `<tr>
+      <td>Overall (${weighted?'weighted':'raw'}, ${vis.length} shown)</td>
+      <td class="num"><span class="t-score tone-${band.tone}"><span class="tnum">${computed}</span></span></td>
+      <td>${esc(band.label)}</td>
+      <td></td>
+      <td class="num tnum">${sw}</td>
+      <td colspan="3"></td>
+    </tr>`;
+  }
+
+  /* ---- contribution map, recomputed each render over visible areas ---- */
+  let CONTRIB = {};
+
+  /* ============================================================ MASTER RENDER */
+  function render(){
+    CONTRIB = contribMap(visibleAreas());
+    renderOverall();
+    document.getElementById('cards').innerHTML = orderedAreas().map(cardHTML).join('');
+    document.getElementById('tableBody').innerHTML = tableBodyHTML();
+    document.getElementById('tableFoot').innerHTML = tableFootHTML();
+    // view show/hide
+    document.getElementById('cards').hidden = (view !== 'cards');
+    document.getElementById('tableWrap').hidden = (view !== 'table');
+    // empty state when the RAG filter hides everything
+    const empty = visibleAreas().length === 0;
+    document.getElementById('empty').classList.toggle('on', empty);
+    if (empty){ document.getElementById('cards').hidden = true; document.getElementById('tableWrap').hidden = true; }
+    wireCards();
+  }
+
+  /* ---- sorting ---- */
+  function applySort(){
+    const dir = sortKey.endsWith('asc') ? 1 : -1;
+    if (sortKey.startsWith('score')) order.sort((a,b)=> (areaById(a).score - areaById(b).score) * dir);
+    else if (sortKey.startsWith('weight')) order.sort((a,b)=> (areaById(a).weight - areaById(b).weight) * dir);
+    else if (sortKey.startsWith('name')) order.sort((a,b)=> areaById(a).name.localeCompare(areaById(b).name) * dir);
+  }
+
+  /* ---- dynamic wiring (re-run after each render of the cards) ---- */
+  function wireCards(){
+    document.querySelectorAll('#cards .sc-card-head[data-toggle]').forEach(h => {
+      h.addEventListener('click', () => toggleArea(h.dataset.toggle));
+      h.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); toggleArea(h.dataset.toggle); } });
+    });
+  }
+  function toggleArea(id){
+    if (open.has(id)) open.delete(id); else open.add(id);
+    syncExpandBtn();
+    render();
+  }
+  function syncExpandBtn(){
+    const allOpen = orderedAreas().every(a => open.has(a.id));
+    const btn = document.getElementById('expandBtn');
+    btn.setAttribute('aria-pressed', String(allOpen));
+    btn.lastChild.textContent = allOpen ? ' Collapse all' : ' Expand all';
+  }
+
+  /* ============================================================ CONTROL WIRING (once) */
+  // RAG filter chips
+  document.getElementById('ragChips').addEventListener('click', e => {
+    const chip = e.target.closest('.filter-chip'); if (!chip) return;
+    const r = chip.dataset.rag;
+    ragFilter[r] = !ragFilter[r];
+    chip.setAttribute('aria-pressed', String(ragFilter[r]));
+    render();   // overall roll-up + contribution recompute over the new visible set
+  });
+  // weighted / raw
+  document.getElementById('weighted').addEventListener('change', e => { weighted = e.target.checked; render(); });
+  // period compare
+  document.getElementById('compare').addEventListener('change', e => { compare = e.target.checked; render(); });
+  // sort
+  document.getElementById('sortSel').addEventListener('change', e => { sortKey = e.target.value; applySort(); render(); });
+  // expand all / collapse all
+  document.getElementById('expandBtn').addEventListener('click', () => {
+    const allOpen = orderedAreas().every(a => open.has(a.id));
+    if (allOpen) open.clear(); else orderedAreas().forEach(a => open.add(a.id));
+    syncExpandBtn(); render();
+  });
+  // view toggle (cards / table)
+  function setView(v){
+    view = v;
+    document.getElementById('viewCards').setAttribute('aria-pressed', String(v==='cards'));
+    document.getElementById('viewTable').setAttribute('aria-pressed', String(v==='table'));
+    render();
+  }
+  document.getElementById('viewCards').addEventListener('click', () => setView('cards'));
+  document.getElementById('viewTable').addEventListener('click', () => setView('table'));
+
+  /* ---- theme switcher (canonical dropdown) ---- */
+  const rcSel = document.querySelector('.rc-theme-sel');
+  if(rcSel){
+    rcSel.value = document.documentElement.dataset.theme || 'blue';
+    rcSel.addEventListener('change', () => { document.documentElement.dataset.theme = rcSel.value; });
+  }
+
+  /* ---- init ---- */
+  document.documentElement.dataset.theme = m.theme || 'blue';
+  if(rcSel) rcSel.value = m.theme || 'blue';
+  renderRagChips();
+  applySort();
+  render();
+  document.getElementById('wrap').hidden = false;
+})();
+</script>
+</body>
+</html>

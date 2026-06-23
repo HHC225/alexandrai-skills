@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="green">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>{{PROJECT}} · Survey Results — {{ORG}}</title>
+
+<!-- ============================================================
+     DATA-DRIVEN: the ONLY content source. render() builds the DOM
+     from this JSON; it is a valid instance of
+     designs/schemas/survey-results.schema.json. Every option carries
+     a per-segment count map (bySegment) so the segment selector
+     recomputes every distribution + the summary strip live.
+     ============================================================ -->
+<script type="application/json" id="report-data">
+{
+  "meta": {
+    "org": "{{ORG}}",
+    "project": "{{PROJECT}}",
+    "reportType": "Employee engagement survey",
+    "title": "Q2 Engagement Pulse — Results",
+    "subtitle": "All-staff pulse · 6 questions · anonymised",
+    "date": "2026-06-22",
+    "author": "{{AUTHOR}}",
+    "fieldwork": "12–26 May 2026",
+    "theme": "green"
+  },
+  "summary": {
+    "responses": 412,
+    "invited": 540,
+    "completionRate": 76.3,
+    "nps": 31,
+    "sentiment": { "positive": 268, "neutral": 96, "negative": 48 }
+  },
+  "segments": [
+    { "key": "all",   "label": "All respondents", "n": 412 },
+    { "key": "eng",   "label": "Engineering",     "n": 168 },
+    { "key": "sales", "label": "Sales & Success", "n": 121 },
+    { "key": "ops",   "label": "Operations",      "n": 123 }
+  ],
+  "questions": [
+    {
+      "id": "q1",
+      "type": "nps",
+      "category": "Advocacy",
+      "text": "How likely are you to recommend {{ORG}} as a place to work? (0–10)",
+      "note": "Net Promoter Score = % promoters (9–10) − % detractors (0–6).",
+      "options": [
+        { "label": "0",  "count": 6,  "tone": "risk", "bySegment": { "eng": 2,  "sales": 3,  "ops": 1 } },
+        { "label": "1",  "count": 4,  "tone": "risk", "bySegment": { "eng": 1,  "sales": 2,  "ops": 1 } },
+        { "label": "2",  "count": 5,  "tone": "risk", "bySegment": { "eng": 2,  "sales": 2,  "ops": 1 } },
+        { "label": "3",  "count": 7,  "tone": "risk", "bySegment": { "eng": 3,  "sales": 3,  "ops": 1 } },
+        { "label": "4",  "count": 9,  "tone": "risk", "bySegment": { "eng": 3,  "sales": 4,  "ops": 2 } },
+        { "label": "5",  "count": 14, "tone": "risk", "bySegment": { "eng": 5,  "sales": 6,  "ops": 3 } },
+        { "label": "6",  "count": 21, "tone": "risk", "bySegment": { "eng": 8,  "sales": 8,  "ops": 5 } },
+        { "label": "7",  "count": 44, "tone": "hold", "bySegment": { "eng": 18, "sales": 14, "ops": 12 } },
+        { "label": "8",  "count": 52, "tone": "hold", "bySegment": { "eng": 22, "sales": 15, "ops": 15 } },
+        { "label": "9",  "count": 118,"tone": "ok",   "bySegment": { "eng": 52, "sales": 30, "ops": 36 } },
+        { "label": "10", "count": 132,"tone": "ok",   "bySegment": { "eng": 52, "sales": 34, "ops": 46 } }
+      ]
+    },
+    {
+      "id": "q2",
+      "type": "likert",
+      "category": "Leadership",
+      "text": "Leadership communicates a clear direction for the company.",
+      "options": [
+        { "label": "Strongly disagree", "count": 22,  "tone": "risk", "bySegment": { "eng": 12, "sales": 6,  "ops": 4 } },
+        { "label": "Disagree",          "count": 41,  "tone": "risk", "bySegment": { "eng": 20, "sales": 12, "ops": 9 } },
+        { "label": "Neutral",           "count": 88,  "tone": "hold", "bySegment": { "eng": 38, "sales": 26, "ops": 24 } },
+        { "label": "Agree",             "count": 171, "tone": "ok",   "bySegment": { "eng": 66, "sales": 51, "ops": 54 } },
+        { "label": "Strongly agree",    "count": 90,  "tone": "ok",   "bySegment": { "eng": 32, "sales": 26, "ops": 32 } }
+      ]
+    },
+    {
+      "id": "q3",
+      "type": "likert",
+      "category": "Wellbeing",
+      "text": "I can maintain a healthy balance between work and personal commitments.",
+      "note": "Down 4 pts favourable vs the Q1 wave.",
+      "options": [
+        { "label": "Strongly disagree", "count": 39,  "tone": "risk", "bySegment": { "eng": 22, "sales": 11, "ops": 6 } },
+        { "label": "Disagree",          "count": 68,  "tone": "risk", "bySegment": { "eng": 34, "sales": 20, "ops": 14 } },
+        { "label": "Neutral",           "count": 92,  "tone": "hold", "bySegment": { "eng": 40, "sales": 28, "ops": 24 } },
+        { "label": "Agree",             "count": 134, "tone": "ok",   "bySegment": { "eng": 48, "sales": 41, "ops": 45 } },
+        { "label": "Strongly agree",    "count": 79,  "tone": "ok",   "bySegment": { "eng": 24, "sales": 21, "ops": 34 } }
+      ]
+    },
+    {
+      "id": "q4",
+      "type": "single",
+      "category": "Working model",
+      "text": "Which working arrangement suits you best?",
+      "options": [
+        { "label": "Fully remote",         "count": 121, "bySegment": { "eng": 68, "sales": 31, "ops": 22 } },
+        { "label": "Hybrid (2–3 days in)", "count": 198, "tone": "ok", "bySegment": { "eng": 78, "sales": 58, "ops": 62 } },
+        { "label": "Mostly in office",     "count": 71,  "bySegment": { "eng": 18, "sales": 24, "ops": 29 } },
+        { "label": "No preference",        "count": 22,  "bySegment": { "eng": 4,  "sales": 8,  "ops": 10 } }
+      ]
+    },
+    {
+      "id": "q5",
+      "type": "multi",
+      "category": "Recognition",
+      "text": "Which of these would most improve how recognised you feel? (select all that apply)",
+      "note": "Multi-select — percentages are of respondents, so they sum above 100%.",
+      "options": [
+        { "label": "More frequent manager 1:1s", "count": 188, "tone": "ok", "bySegment": { "eng": 84, "sales": 52, "ops": 52 } },
+        { "label": "Clearer career pathways",    "count": 232, "tone": "ok", "bySegment": { "eng": 104,"sales": 64, "ops": 64 } },
+        { "label": "Spot bonuses / rewards",     "count": 154, "bySegment": { "eng": 60, "sales": 56, "ops": 38 } },
+        { "label": "Public shout-outs",          "count": 96,  "bySegment": { "eng": 30, "sales": 44, "ops": 22 } },
+        { "label": "Learning budget",            "count": 176, "bySegment": { "eng": 92, "sales": 40, "ops": 44 } }
+      ]
+    },
+    {
+      "id": "q6",
+      "type": "open",
+      "category": "Open feedback",
+      "text": "What is the one thing we should change first?",
+      "note": "Curated, anonymised verbatims — representative of the 214 free-text responses.",
+      "quotes": [
+        { "text": "Career levelling is opaque — I can't tell what a promotion actually requires.", "attribution": "Engineering · 2–5 yrs", "tone": "risk" },
+        { "text": "Hybrid is working well; please keep the 3-day core-day flexibility.", "attribution": "Operations · 5+ yrs", "tone": "ok" },
+        { "text": "Cross-team handoffs lose context. A shared intake process would save days.", "attribution": "Sales & Success · 1–2 yrs", "tone": "hold" },
+        { "text": "Workload spikes around quarter-end are burning people out.", "attribution": "Sales & Success · 2–5 yrs", "tone": "risk" },
+        { "text": "Leadership town halls got much better this quarter — more of that.", "attribution": "Engineering · <1 yr", "tone": "ok" }
+      ]
+    }
+  ]
+}
+</script>
+
+<style>
+/* ============================================================
+   SURVEY RESULTS — question-by-question results readout
+   Inherits the family DNA from designs/_FOUNDATION.md and the
+   data-driven contract from designs/_DATA_DRIVEN.md.
+   Default theme: Green (shipped in :root). Self-contained.
+   Content is rendered from #report-data by render() below.
+   ============================================================ */
+
+/* ---- 1. tokens (Green is the default for this format) ---- */
+:root{
+  /* surfaces */
+  --bg:#fff; --bg-band:#f6f6f8; --bg-subtle:#fafafb; --bg-deep:#15131a;
+  --rule:#dcdce2; --rule-soft:#ebebef;
+  /* ink */
+  --ink:#11131a; --ink-mid:#33363f; --ink-soft:#5a5e68; --ink-faint:#868b95;
+  /* brand accent — GREEN default */
+  --navy:#1f7a44; --navy-deep:#155730; --navy-bg:#e6f4ea; --navy-line:#b3dcc1;
+  /* cleared / approved — favourable */
+  --ok:#2f6b3c; --ok-bg:#e9f3ea; --ok-line:#bedcc4;
+  /* semantic states — CONSTANT across themes */
+  --risk:#b3261e; --risk-bg:#fbeceb; --risk-line:#edc7c4;
+  --hold:#8a6d00; --hold-bg:#fbf3da; --hold-line:#e7d8a4;
+  /* type stacks */
+  --mono:ui-monospace,"JetBrains Mono","SFMono-Regular",Menlo,Consolas,monospace;
+  --sans:-apple-system,"Segoe UI",system-ui,Roboto,"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic UI","Apple SD Gothic Neo","Malgun Gothic","PingFang SC","Microsoft YaHei","Noto Sans CJK JP","Noto Sans CJK KR","Noto Sans CJK SC","Noto Sans JP","Noto Sans KR","Noto Sans SC","Noto Sans",sans-serif;
+  /* geometry */
+  --shadow:0 1px 2px rgba(17,19,26,.045);
+  --shadow-pop:0 6px 20px rgba(17,19,26,.16);
+}
+/* alternate theme swaps (all 9 per _FOUNDATION §1 / _DATA_DRIVEN §3 — Black mandatory) */
+html[data-theme="blue"]{   --navy:#0b5fd4; --navy-deep:#0842a0; --navy-bg:#e8f1fc; --navy-line:#bcd6f5; --ok:#1a4f9c; --ok-bg:#e9f0fa; --ok-line:#b7cdea; }
+html[data-theme="purple"]{ --navy:#a100ff; --navy-deep:#7a00c2; --navy-bg:#f3e8ff; --navy-line:#d9bef5; --ok:#5a2f8a; --ok-bg:#efe8f5; --ok-line:#d0b5e0; }
+html[data-theme="indigo"]{ --navy:#4338ca; --navy-deep:#312c92; --navy-bg:#ebebfb; --navy-line:#c7c3f0; --ok:#3730a3; --ok-bg:#ebeaf7; --ok-line:#c5c2ea; }
+html[data-theme="teal"]{   --navy:#0e7c86; --navy-deep:#095861; --navy-bg:#e0f3f4; --navy-line:#a9dade; --ok:#0f5d54; --ok-bg:#e3f3ef; --ok-line:#b3ddd4; }
+html[data-theme="cyan"]{   --navy:#0891b2; --navy-deep:#0e6f88; --navy-bg:#e2f4f9; --navy-line:#abdde9; --ok:#0e6b7a; --ok-bg:#e4f3f4; --ok-line:#b0dde2; }
+html[data-theme="green"]{  --navy:#1f7a44; --navy-deep:#155730; --navy-bg:#e6f4ea; --navy-line:#b3dcc1; --ok:#2f6b3c; --ok-bg:#e9f3ea; --ok-line:#bedcc4; }
+html[data-theme="plum"]{   --navy:#a21d6e; --navy-deep:#7c1450; --navy-bg:#fbe8f2; --navy-line:#e8b9d4; --ok:#6d2356; --ok-bg:#f6e8f0; --ok-line:#e3bcd5; }
+html[data-theme="slate"]{  --navy:#3f4f63; --navy-deep:#29384b; --navy-bg:#eef1f5; --navy-line:#c2ccd8; --ok:#34495e; --ok-bg:#eef1f5; --ok-line:#c2ccd8; }
+html[data-theme="black"]{  --navy:#000000; --navy-deep:#000000; --navy-bg:#f1f1f3; --navy-line:#d6d6db; --ok:#3f3f46; --ok-bg:#f1f1f3; --ok-line:#cfcfd6; }
+
+*{ box-sizing:border-box; }
+html,body{ margin:0; }
+body{
+  font:13px/1.6 var(--sans); color:var(--ink);
+  background:var(--bg-band);
+  -webkit-font-smoothing:antialiased;
+}
+.tnum{ font-feature-settings:"tnum" 1; font-variant-numeric:tabular-nums; }
+
+/* ---- icons ---- */
+.icon{ width:1.15em; height:1.15em; display:inline-block; vertical-align:-.18em; color:inherit; }
+.icon-lg{ width:20px; height:20px; }
+
+/* ---- shared primitives: status badge / dot / chip ---- */
+.st-badge{
+  display:inline-flex; align-items:center; gap:.4em;
+  font:600 11px/1 var(--sans); padding:4px 8px 4px 7px; border-radius:6px;
+  border:1px solid var(--rule); color:var(--ink-mid); background:var(--bg); white-space:nowrap;
+}
+.st-badge::before{ content:""; width:7px; height:7px; border-radius:50%; background:var(--ink-faint); }
+.st-ok{ color:var(--ok); background:var(--ok-bg); border-color:var(--ok-line); } .st-ok::before{ background:var(--ok); }
+.st-risk{ color:var(--risk); background:var(--risk-bg); border-color:var(--risk-line); } .st-risk::before{ background:var(--risk); }
+.st-hold{ color:var(--hold); background:var(--hold-bg); border-color:var(--hold-line); } .st-hold::before{ background:var(--hold); }
+.mini-dot{ display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--ink-faint); vertical-align:-1px; }
+.mini-dot.ok{ background:var(--ok); } .mini-dot.risk{ background:var(--risk); } .mini-dot.hold{ background:var(--hold); }
+.chip{
+  display:inline-flex; align-items:center; gap:.35em;
+  font:600 10.5px/1 var(--mono); letter-spacing:.02em;
+  padding:3px 7px; border-radius:6px;
+  background:var(--navy-bg); color:var(--navy-deep); border:1px solid var(--navy-line);
+}
+.muted{ color:var(--ink-faint); }
+.mlabel{ font:600 10px/1.4 var(--mono); letter-spacing:.1em; text-transform:uppercase; color:var(--ink-faint); }
+
+/* ---- noscript banner ---- */
+.noscript-note{
+  margin:0; padding:14px 22px; background:var(--hold-bg); color:var(--hold);
+  border-bottom:1px solid var(--hold-line); font:600 12.5px/1.5 var(--sans);
+}
+.noscript-note code{ font:600 11.5px/1 var(--mono); }
+
+/* ============================================================
+   2. PAGE — centred, PC-wide (~1500px)
+   ============================================================ */
+.sv-page{ max-width:1500px; margin:0 auto; padding:0 40px 0; min-height:100vh; display:flex; flex-direction:column; }
+
+/* ---- header ---- */
+.sv-header{ padding:30px 0 18px; }
+.sv-eyebrow{ display:flex; align-items:center; gap:9px; }
+.sv-eyebrow .icon{ color:var(--navy); width:17px; height:17px; }
+.sv-eyebrow .mlabel{ color:var(--navy-deep); }
+.sv-headrow{ display:flex; align-items:flex-end; gap:18px; flex-wrap:wrap; margin-top:9px; }
+.sv-title{ font:800 25px/1.15 var(--sans); letter-spacing:-.015em; color:var(--ink); margin:0; }
+.sv-sub{ font:600 12.5px/1.4 var(--sans); color:var(--ink-soft); margin:5px 0 0; }
+.sv-headmeta{ margin-left:auto; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+
+/* theme picker — canonical dropdown .rc-theme (per _DATA_DRIVEN §3) */
+.rc-theme{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--rule);border-radius:7px;
+          padding:3px 4px 3px 7px;background:var(--bg);}
+.rc-theme-sw{width:12px;height:12px;border-radius:50%;background:var(--navy);box-shadow:0 0 0 1px var(--rule);flex:none;}
+.rc-theme-sel{border:0;background:none;font:600 11px/1 var(--mono);color:var(--ink-mid);cursor:pointer;outline:none;padding:2px;}
+@media print{.rc-theme{display:none;}}
+
+/* ============================================================
+   3. SUMMARY STRIP — headline survey numbers (recompute on segment)
+   ============================================================ */
+.sv-summary{ display:grid; grid-template-columns:repeat(4,1fr); gap:16px; padding-bottom:18px; }
+.sum-tile{
+  background:var(--bg); border:1px solid var(--rule); border-radius:12px;
+  padding:14px 16px 13px; box-shadow:var(--shadow);
+  display:flex; flex-direction:column; gap:8px; min-width:0;
+}
+.sum-tile .sum-label{ display:flex; align-items:center; gap:6px; }
+.sum-tile .sum-label .icon{ color:var(--navy); width:14px; height:14px; }
+.sum-num{ font:800 32px/1 var(--mono); letter-spacing:-.02em; color:var(--ink); }
+.sum-num small{ font:700 14px/1 var(--mono); color:var(--ink-faint); letter-spacing:0; }
+.sum-foot{ font:600 11px/1.4 var(--sans); color:var(--ink-soft); }
+.sum-foot b{ color:var(--ink-mid); font-weight:700; }
+
+/* NPS gauge (semicircular SVG arc) */
+.nps-gauge{ position:relative; width:150px; height:84px; margin:0 auto; }
+.nps-gauge svg{ display:block; width:150px; height:84px; }
+.gauge-track{ stroke:var(--rule); }
+.gauge-fill{ stroke-linecap:round; transition:stroke-dashoffset .6s ease, stroke .3s; }
+.nps-gauge.ok .gauge-fill{ stroke:var(--ok); } .nps-gauge.hold .gauge-fill{ stroke:var(--hold); } .nps-gauge.risk .gauge-fill{ stroke:var(--risk); }
+.nps-center{ position:absolute; left:0; right:0; bottom:0; text-align:center; }
+.nps-score{ font:800 28px/1 var(--mono); letter-spacing:-.02em; }
+.nps-scale{ display:flex; justify-content:space-between; width:140px; margin:1px auto 0; font:600 9px/1 var(--mono); color:var(--ink-faint); }
+
+/* sentiment meter (100% 3-part bar) */
+.smeter{ display:flex; height:18px; border-radius:6px; overflow:hidden; border:1px solid var(--rule); }
+.smeter span{ display:block; transition:width .45s ease; }
+.smeter .pos{ background:var(--ok); } .smeter .neu{ background:var(--hold); } .smeter .neg{ background:var(--risk); }
+.smeter-legend{ display:flex; gap:12px; flex-wrap:wrap; font:600 10.5px/1 var(--mono); letter-spacing:.02em; color:var(--ink-soft); }
+.smeter-legend span{ display:inline-flex; align-items:center; gap:5px; }
+.smeter-legend b{ color:var(--ink); }
+
+/* ============================================================
+   4. CONTROLS — sticky segment selector + view toggles
+   ============================================================ */
+.sv-controls{
+  position:sticky; top:0; z-index:20;
+  display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+  background:rgba(255,255,255,.93); backdrop-filter:saturate(1.2) blur(4px);
+  border:1px solid var(--rule); border-radius:12px;
+  padding:10px 14px; margin-bottom:18px; box-shadow:var(--shadow);
+}
+.ctrl-label{ font:700 9.5px/1.2 var(--mono); letter-spacing:.1em; text-transform:uppercase; color:var(--ink-faint); }
+.seg-group{ display:inline-flex; gap:6px; flex-wrap:wrap; }
+.seg-chip{
+  display:inline-flex; align-items:center; gap:7px; cursor:pointer;
+  font:600 12px/1 var(--sans); color:var(--ink-mid);
+  border:1px solid var(--rule); background:var(--bg); border-radius:8px; padding:6px 11px;
+  transition:background .12s,color .12s,border-color .12s;
+}
+.seg-chip:hover{ border-color:var(--navy-line); }
+.seg-chip .seg-n{ font:700 10.5px/1 var(--mono); color:var(--ink-faint); }
+.seg-chip.on{ background:var(--navy); color:#fff; border-color:var(--navy); }
+.seg-chip.on .seg-n{ color:rgba(255,255,255,.82); }
+.ctrl-spacer{ flex:1 1 auto; }
+
+/* segmented toggle (count↔% , bar↔stacked) */
+.seg-toggle{ display:inline-flex; border:1px solid var(--rule); border-radius:8px; overflow:hidden; }
+.seg-toggle button{
+  border:0; background:var(--bg); cursor:pointer;
+  font:600 11px/1 var(--mono); letter-spacing:.03em; color:var(--ink-soft);
+  padding:7px 11px; border-right:1px solid var(--rule-soft); transition:background .12s,color .12s;
+}
+.seg-toggle button:last-child{ border-right:0; }
+.seg-toggle button:hover{ background:var(--navy-bg); color:var(--navy-deep); }
+.seg-toggle button.on{ background:var(--navy); color:#fff; }
+.seg-toggle button.on:hover{ background:var(--navy); color:#fff; }
+
+/* a single switch toggle (sort by count) */
+.sw-toggle{
+  display:inline-flex; align-items:center; gap:7px; cursor:pointer;
+  font:600 11px/1 var(--sans); color:var(--ink-soft); user-select:none;
+  padding:6px 10px; border:1px solid var(--rule); border-radius:8px; background:var(--bg);
+  transition:background .12s,color .12s,border-color .12s;
+}
+.sw-toggle:hover{ border-color:var(--navy-line); color:var(--ink-mid); }
+.sw-toggle .sw-track{ width:30px; height:16px; border-radius:9px; background:var(--rule); position:relative; transition:background .15s; flex:none; }
+.sw-toggle .sw-track::after{ content:""; position:absolute; top:2px; left:2px; width:12px; height:12px; border-radius:50%; background:#fff; box-shadow:0 1px 2px rgba(0,0,0,.2); transition:left .15s; }
+.sw-toggle.on{ color:var(--navy-deep); border-color:var(--navy-line); background:var(--navy-bg); }
+.sw-toggle.on .sw-track{ background:var(--navy); }
+.sw-toggle.on .sw-track::after{ left:16px; }
+
+/* ============================================================
+   5. QUESTION RESULT BLOCKS
+   ============================================================ */
+.q-results{ display:flex; flex-direction:column; gap:16px; padding-bottom:22px; }
+.q-block{
+  background:var(--bg); border:1px solid var(--rule); border-radius:12px;
+  box-shadow:var(--shadow); overflow:hidden;
+}
+.q-head{
+  display:flex; align-items:flex-start; gap:12px;
+  padding:15px 18px 13px; border-bottom:1px solid var(--rule-soft); cursor:pointer;
+}
+.q-head:hover{ background:var(--bg-subtle); }
+.q-num{
+  flex:none; min-width:34px; height:24px; padding:0 8px; border-radius:6px;
+  background:var(--navy-bg); color:var(--navy-deep); border:1px solid var(--navy-line);
+  display:inline-flex; align-items:center; justify-content:center;
+  font:800 12px/1 var(--mono); letter-spacing:.02em;
+}
+.q-headmain{ min-width:0; flex:1 1 auto; }
+.q-meta{ display:flex; align-items:center; gap:7px; flex-wrap:wrap; margin-bottom:4px; }
+.q-text{ font:700 14.5px/1.35 var(--sans); color:var(--ink); }
+.q-type{ font:700 9px/1 var(--mono); letter-spacing:.08em; text-transform:uppercase; color:var(--ink-faint); border:1px solid var(--rule); border-radius:5px; padding:3px 6px; background:var(--bg-subtle); }
+.q-base{ font:600 10.5px/1 var(--mono); color:var(--ink-faint); }
+.q-expand{
+  flex:none; display:inline-flex; align-items:center; gap:5px; cursor:pointer;
+  font:600 10px/1 var(--mono); letter-spacing:.06em; text-transform:uppercase; color:var(--ink-soft);
+  border:1px solid var(--rule); border-radius:7px; padding:6px 9px; background:var(--bg);
+  transition:background .12s,color .12s,border-color .12s; margin-top:1px;
+}
+.q-expand:hover{ border-color:var(--navy-line); color:var(--navy-deep); }
+.q-expand .caret{ display:inline-block; width:0; height:0; border-left:5px solid currentColor; border-top:4px solid transparent; border-bottom:4px solid transparent; transition:transform .15s; }
+.q-block.is-open .q-expand .caret{ transform:rotate(90deg); }
+.q-body{ padding:15px 18px 16px; }
+.q-note{ margin:12px 0 0; padding:9px 12px; background:var(--bg-subtle); border:1px solid var(--rule-soft); border-radius:8px; font:600 11.5px/1.5 var(--sans); color:var(--ink-soft); display:flex; gap:8px; }
+.q-note .icon{ color:var(--ink-faint); width:14px; height:14px; flex:none; margin-top:1px; }
+
+/* ---- 5a. DISTRIBUTION BARS (single / multi) ---- */
+.dist-bars{ display:flex; flex-direction:column; gap:11px; }
+.dist-row{ display:grid; grid-template-columns:1fr auto; gap:5px 14px; align-items:center; cursor:default; }
+.dist-top{ display:flex; align-items:baseline; justify-content:space-between; gap:12px; grid-column:1 / -1; }
+.dist-label{ font:600 12.5px/1.3 var(--sans); color:var(--ink); min-width:0; }
+.dist-figs{ font:700 12.5px/1 var(--mono); color:var(--ink); white-space:nowrap; }
+.dist-figs em{ font-style:normal; font-weight:600; color:var(--ink-faint); margin-left:4px; }
+.dist-track{ grid-column:1 / -1; height:11px; border-radius:6px; background:var(--bg-band); border:1px solid var(--rule-soft); overflow:hidden; position:relative; }
+.dist-fill{ height:100%; border-radius:6px; background:var(--navy); width:0; transition:width .45s ease, filter .12s; }
+.dist-fill.ok{ background:var(--ok); } .dist-fill.hold{ background:var(--hold); } .dist-fill.risk{ background:var(--risk); }
+.dist-row:hover .dist-fill{ filter:brightness(1.07); }
+
+/* ---- 5b. LIKERT STACK (100% stacked scale bar) ---- */
+.likert-summary{ display:flex; align-items:center; gap:10px; margin-bottom:12px; flex-wrap:wrap; }
+.likert-summary .big{ font:800 22px/1 var(--mono); letter-spacing:-.02em; color:var(--ok); }
+.likert-summary .big.low{ color:var(--risk); }
+.likert-summary .cap{ font:600 11px/1.4 var(--sans); color:var(--ink-soft); }
+.likert-stack{ display:flex; height:30px; border-radius:8px; overflow:hidden; border:1px solid var(--rule); }
+.lk-seg{ display:flex; align-items:center; justify-content:center; min-width:0; overflow:hidden; cursor:default;
+  font:700 11px/1 var(--mono); color:#fff; transition:width .45s ease, filter .12s; white-space:nowrap; }
+.lk-seg:hover{ filter:brightness(1.06); }
+.lk-seg.t0{ background:#8f1a14; }      /* strongly negative */
+.lk-seg.t1{ background:var(--risk); }   /* negative */
+.lk-seg.t2{ background:var(--hold); color:#fff; }  /* neutral */
+.lk-seg.t3{ background:var(--ok); }     /* positive */
+.lk-seg.t4{ background:var(--navy-deep); } /* strongly positive */
+.lk-seg.tiny{ font-size:0; }
+.likert-legend{ display:flex; gap:14px; flex-wrap:wrap; margin-top:11px; font:600 10.5px/1 var(--sans); color:var(--ink-soft); }
+.likert-legend span{ display:inline-flex; align-items:center; gap:6px; }
+.likert-legend i{ width:10px; height:10px; border-radius:3px; display:inline-block; flex:none; }
+
+/* ---- 5c. NPS gauge + buckets ---- */
+.nps-block{ display:grid; grid-template-columns:200px 1fr; gap:24px; align-items:center; }
+.nps-block .nps-gauge{ width:188px; height:104px; margin:0; }
+.nps-block .nps-gauge svg{ width:188px; height:104px; }
+.nps-block .nps-score{ font:800 34px/1 var(--mono); }
+.nps-block .nps-scale{ width:172px; }
+.nps-gcap{ text-align:center; font:600 10px/1.4 var(--mono); letter-spacing:.08em; text-transform:uppercase; color:var(--ink-faint); margin-top:5px; }
+.nps-buckets{ display:flex; flex-direction:column; gap:11px; }
+.nps-bk{ display:grid; grid-template-columns:118px 1fr auto; align-items:center; gap:12px; cursor:default; }
+.nps-bk .bk-name{ font:600 12px/1.3 var(--sans); color:var(--ink-mid); display:flex; align-items:center; gap:7px; }
+.nps-bk .bk-track{ height:11px; border-radius:6px; background:var(--bg-band); border:1px solid var(--rule-soft); overflow:hidden; }
+.nps-bk .bk-fill{ height:100%; border-radius:6px; width:0; transition:width .45s ease, filter .12s; }
+.nps-bk .bk-fill.ok{ background:var(--ok); } .nps-bk .bk-fill.hold{ background:var(--hold); } .nps-bk .bk-fill.risk{ background:var(--risk); }
+.nps-bk:hover .bk-fill{ filter:brightness(1.07); }
+.nps-bk .bk-figs{ font:700 12.5px/1 var(--mono); color:var(--ink); white-space:nowrap; }
+.nps-bk .bk-figs em{ font-style:normal; font-weight:600; color:var(--ink-faint); margin-left:4px; }
+
+/* ---- 5d. RATING meter ---- */
+.rating-meter{ display:flex; align-items:center; gap:20px; flex-wrap:wrap; }
+.rating-big{ font:800 40px/1 var(--mono); letter-spacing:-.02em; color:var(--ok); }
+.rating-big small{ font:700 16px/1 var(--mono); color:var(--ink-faint); }
+.rating-track{ flex:1 1 240px; height:14px; border-radius:7px; background:var(--bg-band); border:1px solid var(--rule-soft); overflow:hidden; min-width:200px; }
+.rating-fill{ height:100%; border-radius:7px; background:var(--navy); width:0; transition:width .5s ease; }
+.rating-scale{ width:100%; display:flex; justify-content:space-between; font:600 10px/1 var(--mono); color:var(--ink-faint); margin-top:5px; }
+
+/* ---- 5e. STAT figure ---- */
+.stat-figure{ display:flex; align-items:baseline; gap:14px; }
+.stat-figure .sf-num{ font:800 46px/1 var(--mono); letter-spacing:-.025em; color:var(--ink); }
+.stat-figure .sf-num small{ font:700 20px/1 var(--mono); color:var(--ink-faint); }
+.stat-figure.ok .sf-num{ color:var(--ok); } .stat-figure.risk .sf-num{ color:var(--risk); } .stat-figure.hold .sf-num{ color:var(--hold); }
+.stat-figure .sf-cap{ font:600 12px/1.5 var(--sans); color:var(--ink-soft); }
+
+/* ---- 5f. OPEN quote list ---- */
+.quote-list{ display:flex; flex-direction:column; gap:11px; }
+.quote{
+  display:grid; grid-template-columns:auto 1fr; gap:12px;
+  background:var(--bg-subtle); border:1px solid var(--rule-soft); border-radius:10px;
+  padding:12px 14px; position:relative;
+}
+.quote::before{ content:""; position:absolute; left:0; top:0; bottom:0; width:3px; border-radius:10px 0 0 10px; background:var(--navy-line); }
+.quote.ok::before{ background:var(--ok); } .quote.risk::before{ background:var(--risk); } .quote.hold::before{ background:var(--hold); }
+.quote .q-ico{ color:var(--navy); width:18px; height:18px; flex:none; margin-top:1px; }
+.quote.ok .q-ico{ color:var(--ok); } .quote.risk .q-ico{ color:var(--risk); } .quote.hold .q-ico{ color:var(--hold); }
+.quote p{ margin:0; font:500 13px/1.55 var(--sans); color:var(--ink); }
+.q-attr{ display:block; margin-top:6px; font:600 10.5px/1 var(--mono); letter-spacing:.03em; color:var(--ink-faint); }
+
+/* ---- 5g. CROSS-TAB (expanded view) ---- */
+.q-crosstab{ max-height:0; overflow:hidden; transition:max-height .25s ease; border-top:0 solid var(--rule-soft); }
+.q-block.is-open .q-crosstab{ max-height:1200px; border-top-width:1px; }
+.ct-inner{ padding:14px 18px 16px; background:var(--bg-subtle); }
+.ct-inner .mlabel{ margin-bottom:9px; display:block; }
+.dtable{ width:100%; border-collapse:collapse; }
+.dtable thead th{
+  font:700 9.5px/1.2 var(--mono); letter-spacing:.08em; text-transform:uppercase;
+  color:var(--ink-faint); text-align:left; padding:0 12px 8px; border-bottom:2px solid var(--ink); white-space:nowrap;
+}
+.dtable thead th.num{ text-align:right; }
+.dtable tbody td{ padding:8px 12px; border-bottom:1px solid var(--rule-soft); vertical-align:top; }
+.dtable tbody tr:last-child td{ border-bottom:0; }
+.dtable tbody tr:hover{ background:var(--bg); }
+.dtable td.num{ text-align:right; font:600 12px/1.3 var(--mono); color:var(--ink); }
+.dtable td.num em{ font-style:normal; color:var(--ink-faint); margin-left:3px; font-size:10.5px; }
+.dtable td .opt{ font:600 12px/1.3 var(--sans); color:var(--ink); }
+.dtable tfoot td{ padding:8px 12px; border-top:2px solid var(--ink); font:700 11.5px/1 var(--mono); color:var(--ink); }
+.dtable tfoot td.num{ text-align:right; }
+
+/* ---- shared chart tooltip (reused from dashboard sample) ---- */
+.chart-tip{
+  position:fixed; z-index:60; pointer-events:none;
+  background:#000; color:#fff; border-radius:7px; padding:7px 9px;
+  font:600 11px/1.4 var(--sans); white-space:nowrap; box-shadow:0 4px 14px rgba(0,0,0,.3);
+  opacity:0; transition:opacity .1s; transform:translate(-50%,-100%);
+}
+.chart-tip.show{ opacity:1; }
+.chart-tip .ct-h{ font:700 10px/1.3 var(--mono); letter-spacing:.06em; text-transform:uppercase; color:#cfd3db; margin-bottom:3px; }
+.chart-tip .ct-row{ display:flex; align-items:center; gap:6px; }
+.chart-tip .ct-row i{ width:8px; height:8px; border-radius:2px; flex:none; }
+.chart-tip .ct-row b{ font:700 11.5px/1 var(--mono); }
+
+/* ---- footer strip ---- */
+.foot{
+  margin-top:auto; background:var(--bg-deep); color:#cfd3db;
+  display:flex; align-items:center; gap:14px; padding:13px 22px;
+  font:600 10.5px/1.4 var(--mono); letter-spacing:.05em; text-transform:uppercase;
+  border-radius:12px 12px 0 0;
+}
+.foot .wm{ display:inline-flex; align-items:center; gap:8px; color:#fff; font:800 12px/1 var(--sans); letter-spacing:-.01em; text-transform:none; }
+.foot .wm i{ width:16px; height:16px; border-radius:4px; background:var(--navy); display:inline-block; }
+.foot .sp{ flex:1 1 auto; }
+
+/* ============================================================
+   print: static, complete baseline snapshot; hide controls
+   ============================================================ */
+@media print{
+  body{ background:#fff; }
+  .sv-controls, .rc-theme, .q-expand, .chart-tip{ display:none !important; }
+  .sv-page{ padding:0 12px; }
+  .q-block, .sum-tile{ box-shadow:none; break-inside:avoid; }
+  .q-crosstab{ max-height:none !important; border-top-width:1px !important; }
+  .q-head{ cursor:default; }
+  .foot{ background:#fff; color:#000; border-top:2px solid #000; border-radius:0; }
+  .foot .wm{ color:#000; } .foot .wm i{ background:#000; }
+}
+</style>
+</head>
+<body>
+
+<noscript>
+  <div class="noscript-note">
+    This survey-results report renders from embedded data and requires JavaScript for its
+    interactive controls (segment filter, count/percent &amp; bar/stacked toggles, sort, cross-tab expand,
+    hover tooltips). The complete response data is in the <code>#report-data</code> block above.
+  </div>
+</noscript>
+
+<main class="sv-page" id="page"><!-- built by render() --></main>
+
+<!-- floating chart tooltip (single shared instance) -->
+<div class="chart-tip" id="chart-tip" role="status" aria-live="polite"></div>
+
+<script>
+/* ============================================================
+   SURVEY-RESULTS RENDERER + INTERACTIONS  (vanilla JS, no libs)
+   - render()           : #report-data JSON  →  page DOM
+   - renderSummary(seg) : recomputes the headline strip per segment
+   - renderQuestion(q)  : dispatches a result block by q.type
+   - wireInteractions() : segment chips · count/% · bar/stacked ·
+                          sort · cross-tab expand · hover tooltips
+   - wireThemeSwitch()  : canonical .rc-theme dropdown switcher (§3)
+   Reading requires JS (data-driven, per _DATA_DRIVEN §1); a
+   <noscript> notice + the raw JSON are provided above.
+   ============================================================ */
+(function(){
+  "use strict";
+
+  var DATA;
+  try { DATA = JSON.parse(document.getElementById('report-data').textContent); }
+  catch(e){ document.getElementById('page').innerHTML =
+    '<p style="padding:24px;font:600 13px var(--sans);color:var(--risk)">Could not parse #report-data: '+e.message+'</p>'; return; }
+
+  var root = document.documentElement;
+  var page = document.getElementById('page');
+  var tip  = document.getElementById('chart-tip');
+
+  /* ---- helpers ---- */
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+  function pct(n,d){ return d>0 ? (n/d*100) : 0; }
+  function fmtPct(n,d){ var p=pct(n,d); return (p>=10?p.toFixed(0):p.toFixed(1))+'%'; }
+  function toneCls(t){ return t==='ok'?'ok':t==='hold'?'hold':t==='risk'?'risk':''; }
+
+  /* ---- inline house SVG icons (24×24, stroke=currentColor) ---- */
+  var ICON = {
+    /* editorial */
+    survey:'<path d="M7.5 3.5H14l3.5 3.5V20a.5.5 0 0 1-.5.5H7.5a.5.5 0 0 1-.5-.5V4a.5.5 0 0 1 .5-.5Z"/><path d="M14 3.5V7a.5.5 0 0 0 .5.5H18"/><path d="M9.5 12.5l1.2 1.2 2-2.4M9.5 16.5l1.2 1.2 2-2.4"/>',
+    quote:'<path d="M9.5 7.5C7 8.3 5.5 10.4 5.5 13v3.5h4V12H7.4c.2-1.4 1.1-2.4 2.6-2.9Zm9 0C16 8.3 14.5 10.4 14.5 13v3.5h4V12h-2.1c.2-1.4 1.1-2.4 2.6-2.9Z" fill="currentColor" stroke="none"/>',
+    note:'<rect x="5" y="4" width="14" height="16" rx="2"/><path d="M8.5 9h7M8.5 12.5h7M8.5 16h4"/>',
+    insight:'<circle cx="11" cy="11" r="6"/><path d="M15.5 15.5 20 20"/><path d="M11 8.5v5M8.5 11h5"/>',
+    /* data */
+    dist:'<path d="M4 4V20H20"/><rect x="6.75" y="12" width="3" height="8" rx="1.2"/><rect x="11.5" y="8" width="3" height="12" rx="1.2"/><rect x="16.25" y="14.5" width="3" height="5.5" rx="1.2"/>',
+    gauge:'<path d="M4.5 17a7.5 7.5 0 1 1 15 0"/><path d="M12 17 16 11"/><rect x="10.4" y="15.4" width="3.2" height="3.2" rx="1.2" fill="currentColor" stroke="none"/>',
+    ring:'<circle cx="12" cy="12" r="7.5"/><path d="M12 4.5a7.5 7.5 0 0 1 6.5 11.2"/>',
+    target:'<circle cx="12" cy="12" r="7.5"/><circle cx="12" cy="12" r="3.5"/><rect x="10.6" y="10.6" width="2.8" height="2.8" rx="1.2" fill="currentColor" stroke="none"/>',
+    scale:'<path d="M5 7h6M15 7h4M5 17h4M13 17h6"/><rect x="11" y="5" width="4" height="4" rx="1.2"/><rect x="9" y="15" width="4" height="4" rx="1.2"/>',
+    /* people */
+    users:'<circle cx="9" cy="9" r="3"/><path d="M3.5 19a5.5 5.5 0 0 1 11 0"/><path d="M16 6.2a3 3 0 0 1 0 5.6"/><path d="M17 13.6a5.5 5.5 0 0 1 3.5 5.1"/>',
+    person:'<circle cx="12" cy="8" r="3.5"/><path d="M5.5 19.5a6.5 6.5 0 0 1 13 0"/>',
+    /* status */
+    check:'<circle cx="12" cy="12" r="8.5"/><path d="M8.3 12.4l2.5 2.5 4.9-5.3"/>',
+    up:'<path d="M5 16 11 9l3.5 3.5L19 7"/><path d="M19 7v4M19 7h-4"/>',
+    pct:'<path d="M6.5 17.5 17.5 6.5"/><circle cx="8" cy="8" r="2.2"/><circle cx="16" cy="16" r="2.2"/>'
+  };
+  function svg(name, cls){ return '<svg class="'+(cls||'icon')+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" '
+    + 'stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">'+(ICON[name]||'')+'</svg>'; }
+
+  /* type → block icon + label chip */
+  var TYPEMETA = {
+    single: { icon:'dist',  label:'Single choice' },
+    multi:  { icon:'dist',  label:'Multi-select' },
+    likert: { icon:'scale', label:'Likert scale' },
+    nps:    { icon:'gauge', label:'NPS · 0–10' },
+    rating: { icon:'target',label:'Rating' },
+    open:   { icon:'quote', label:'Open text' },
+    stat:   { icon:'ring',  label:'Statistic' }
+  };
+
+  /* ---- state shared across interactions ---- */
+  var STATE = { seg:'all', mode:'count', stacked:true, sort:false };
+
+  /* value of an option under the active segment */
+  function optVal(o, seg){
+    if(seg==='all' || !seg) {
+      if(o.bySegment){ var s=0,k; for(k in o.bySegment) s+=o.bySegment[k]; return (o.count!=null?o.count:s); }
+      return o.count||0;
+    }
+    return (o.bySegment && o.bySegment[seg]!=null) ? o.bySegment[seg] : 0;
+  }
+  /* denominator (base) for the active segment */
+  function segBase(seg){
+    var s = (DATA.segments||[]).filter(function(x){ return x.key===seg; })[0];
+    if(s && s.n!=null) return s.n;
+    if(seg==='all') return (DATA.summary&&DATA.summary.responses)||0;
+    return 0;
+  }
+  /* figure cell: count + % (respects count/% mode) */
+  function figs(val, base){
+    if(STATE.mode==='pct') return '<span class="dist-figs tnum">'+fmtPct(val,base)+'<em>'+val+'</em></span>';
+    return '<span class="dist-figs tnum">'+val+'<em>'+fmtPct(val,base)+'</em></span>';
+  }
+
+  /* ============================================================
+     RENDER — build the whole page from DATA
+     ============================================================ */
+  function render(){
+    var m = DATA.meta || {};
+    root.dataset.theme = m.theme || 'green';
+    STATE.seg = (DATA.segments && DATA.segments[0] && DATA.segments[0].key) || 'all';
+
+    var themeOpts = ['blue','purple','indigo','teal','cyan','green','plum','slate','black']
+      .map(function(v){ return '<option value="'+v+'">'+v.charAt(0).toUpperCase()+v.slice(1)+'</option>'; }).join('');
+    var dots = '<span class="rc-theme-sw" aria-hidden="true"></span><select class="rc-theme-sel" aria-label="Brand theme">'+themeOpts+'</select>';
+
+    var chips = '';
+    if(m.fieldwork) chips += '<span class="chip">'+svg('scale','icon')+esc(m.fieldwork)+'</span>';
+    if(m.date)      chips += '<span class="chip">'+esc(m.date)+'</span>';
+
+    /* segment selector */
+    var segHTML = (DATA.segments||[]).map(function(s){
+      return '<button class="seg-chip'+(s.key===STATE.seg?' on':'')+'" data-seg="'+esc(s.key)+'" type="button" aria-pressed="'+(s.key===STATE.seg)+'">'
+        + esc(s.label)+(s.n!=null?'<span class="seg-n tnum">'+s.n+'</span>':'')+'</button>';
+    }).join('');
+
+    page.innerHTML = ''
+    + '<header class="sv-header">'
+    +   '<div class="sv-eyebrow">'+svg('survey')+'<span class="mlabel">'+esc(m.org||'{{ORG}}')+' · '+esc((m.reportType||'Survey results').toUpperCase())+'</span></div>'
+    +   '<div class="sv-headrow">'
+    +     '<div><h1 class="sv-title">'+esc(m.title||'Survey Results')+'</h1>'
+    +       (m.subtitle?'<p class="sv-sub">'+esc(m.subtitle)+'</p>':'')+'</div>'
+    +     '<div class="sv-headmeta">'+chips
+    +       '<label class="rc-theme" title="Brand colour">'+dots+'</label></div>'
+    +   '</div>'
+    + '</header>'
+
+    + '<section class="sv-summary" id="summary" aria-label="Survey summary"></section>'
+
+    + '<section class="sv-controls" aria-label="Segment and view controls">'
+    +   '<span class="ctrl-label">'+svg('users')+' Segment</span>'
+    +   '<div class="seg-group" role="group" aria-label="Segment selector" id="seg-group">'+segHTML+'</div>'
+    +   '<span class="ctrl-spacer"></span>'
+    +   '<div class="seg-toggle" role="group" aria-label="Count or percent" id="mode-toggle">'
+    +     '<button data-mode="count" class="on" type="button">Count</button>'
+    +     '<button data-mode="pct" type="button">%</button></div>'
+    +   '<div class="seg-toggle" role="group" aria-label="Bar or stacked (Likert)" id="stack-toggle">'
+    +     '<button data-stack="1" class="on" type="button">Stacked</button>'
+    +     '<button data-stack="0" type="button">Bars</button></div>'
+    +   '<button class="sw-toggle" id="sort-toggle" type="button" aria-pressed="false" title="Sort single/multi options by count">'
+    +     '<span class="sw-track" aria-hidden="true"></span>Sort by count</button>'
+    + '</section>'
+
+    + '<section class="q-results" id="q-results" aria-label="Question results">'
+    +   (DATA.questions||[]).map(function(q,i){ return renderQuestion(q,i); }).join('')
+    + '</section>'
+
+    + '<footer class="foot">'
+    +   '<span class="wm"><i></i>'+esc(m.org||'{{ORG}}')+'</span>'
+    +   '<span class="sp"></span>'
+    +   '<span>'+esc(m.project||'{{PROJECT}}')+' · '+esc((m.reportType||'SURVEY').toUpperCase())+'</span>'
+    +   '<span>N = '+((DATA.summary&&DATA.summary.responses)||0)+' RESPONSES'+(m.fieldwork?' · '+esc(m.fieldwork.toUpperCase()):'')+'</span>'
+    +   '<span>COMPILED '+esc(m.date||'')+'</span>'
+    +   '<span>'+esc(m.author||'{{AUTHOR}}')+'</span>'
+    + '</footer>';
+
+    renderSummary(STATE.seg);
+  }
+
+  /* ---- summary strip (re-rendered per segment) ---- */
+  function renderSummary(seg){
+    var box = document.getElementById('summary');
+    var sm = DATA.summary || {};
+    var base = segBase(seg);
+    var segObj = (DATA.segments||[]).filter(function(x){ return x.key===seg; })[0] || {};
+
+    /* NPS recomputed from the nps question's bySegment if present, else summary.nps */
+    var npsQ = (DATA.questions||[]).filter(function(q){ return q.type==='nps'; })[0];
+    var nps = sm.nps, npsBase = base;
+    if(npsQ){
+      var prom=0, det=0, tot=0;
+      (npsQ.options||[]).forEach(function(o){
+        var v = optVal(o, seg); tot += v;
+        var n = parseInt(o.label,10);
+        if(n>=9) prom += v; else if(n<=6) det += v;
+      });
+      if(tot>0){ nps = Math.round(pct(prom,tot) - pct(det,tot)); npsBase = tot; }
+    }
+    var npsTone = nps>=30?'ok':nps>=0?'hold':'risk';
+    var npsPct = Math.max(0, Math.min(1, (nps+100)/200));
+    var GLEN = 219.9, goff = GLEN*(1-npsPct);
+
+    /* sentiment recomputed from likert favourable/unfavourable per segment if available */
+    var sent = sentimentFor(seg, sm.sentiment);
+    var stot = sent.positive + sent.neutral + sent.negative || 1;
+
+    /* completion: per-segment base over invited share (baseline rate when 'all') */
+    var compVal, compFoot;
+    if(seg==='all' && sm.completionRate!=null){
+      compVal = sm.completionRate.toFixed(sm.completionRate%1?1:0);
+      compFoot = '<b>'+(sm.responses||0)+'</b> of '+(sm.invited||'—')+' invited';
+    } else {
+      compVal = base ? Math.round(pct(base, (sm.responses||base))) : 0;
+      compFoot = '<b>'+base+'</b> of '+(sm.responses||0)+' total';
+    }
+
+    box.innerHTML = ''
+    /* responses */
+    + '<article class="sum-tile">'
+    +   '<span class="sum-label mlabel">'+svg('users')+'Responses</span>'
+    +   '<div class="sum-num tnum">'+base+'</div>'
+    +   '<div class="sum-foot">'+esc(segObj.label||'All respondents')+'</div>'
+    + '</article>'
+    /* completion / share */
+    + '<article class="sum-tile">'
+    +   '<span class="sum-label mlabel">'+svg('pct')+(seg==='all'?'Completion':'Share of total')+'</span>'
+    +   '<div class="sum-num tnum">'+compVal+'<small>%</small></div>'
+    +   '<div class="sum-foot">'+compFoot+'</div>'
+    + '</article>'
+    /* NPS gauge */
+    + '<article class="sum-tile">'
+    +   '<span class="sum-label mlabel">'+svg('gauge')+'NPS</span>'
+    +   '<div class="nps-gauge '+npsTone+'" title="Net Promoter Score">'
+    +     '<svg viewBox="0 0 150 84"><path class="gauge-track" d="M11 78 A64 64 0 0 1 139 78" fill="none" stroke-width="11"/>'
+    +       '<path class="gauge-fill" d="M11 78 A64 64 0 0 1 139 78" fill="none" stroke-width="11" stroke-dasharray="'+GLEN+'" stroke-dashoffset="'+goff.toFixed(1)+'"/></svg>'
+    +     '<div class="nps-center"><div class="nps-score tnum '+(nps<0?'low':'')+'" style="color:'+(npsTone==='ok'?'var(--ok)':npsTone==='hold'?'var(--hold)':'var(--risk)')+'">'+(nps>0?'+':'')+nps+'</div></div>'
+    +   '</div>'
+    +   '<div class="nps-scale tnum"><span>−100</span><span>0</span><span>+100</span></div>'
+    + '</article>'
+    /* sentiment meter */
+    + '<article class="sum-tile">'
+    +   '<span class="sum-label mlabel">'+svg('check')+'Sentiment</span>'
+    +   '<div class="smeter" title="Positive / neutral / negative">'
+    +     '<span class="pos" style="width:'+pct(sent.positive,stot).toFixed(1)+'%"></span>'
+    +     '<span class="neu" style="width:'+pct(sent.neutral,stot).toFixed(1)+'%"></span>'
+    +     '<span class="neg" style="width:'+pct(sent.negative,stot).toFixed(1)+'%"></span>'
+    +   '</div>'
+    +   '<div class="smeter-legend">'
+    +     '<span><span class="mini-dot ok"></span><b class="tnum">'+fmtPct(sent.positive,stot)+'</b> pos</span>'
+    +     '<span><span class="mini-dot hold"></span><b class="tnum">'+fmtPct(sent.neutral,stot)+'</b> neu</span>'
+    +     '<span><span class="mini-dot risk"></span><b class="tnum">'+fmtPct(sent.negative,stot)+'</b> neg</span>'
+    +   '</div>'
+    + '</article>';
+  }
+
+  /* sentiment for a segment: derive from likert favourable/neutral/unfavourable counts;
+     fall back to the supplied baseline sentiment for 'all'. */
+  function sentimentFor(seg, fallback){
+    var likerts = (DATA.questions||[]).filter(function(q){ return q.type==='likert'; });
+    if(likerts.length){
+      var pos=0,neu=0,neg=0;
+      likerts.forEach(function(q){
+        (q.options||[]).forEach(function(o){
+          var v = optVal(o, seg);
+          if(o.tone==='ok') pos+=v; else if(o.tone==='hold') neu+=v; else if(o.tone==='risk') neg+=v;
+        });
+      });
+      if(pos+neu+neg>0) return { positive:pos, neutral:neu, negative:neg };
+    }
+    if(seg==='all' && fallback) return { positive:fallback.positive||0, neutral:fallback.neutral||0, negative:fallback.negative||0 };
+    return { positive:0, neutral:0, negative:0 };
+  }
+
+  /* ============================================================
+     QUESTION BLOCK dispatch
+     ============================================================ */
+  function renderQuestion(q, i){
+    var tm = TYPEMETA[q.type] || TYPEMETA.single;
+    var body;
+    switch(q.type){
+      case 'likert': body = blockLikert(q); break;
+      case 'nps':    body = blockNps(q); break;
+      case 'rating': body = blockRating(q); break;
+      case 'open':   body = blockOpen(q); break;
+      case 'stat':   body = blockStat(q); break;
+      case 'multi':
+      case 'single':
+      default:       body = blockDist(q); break;
+    }
+    var crosstab = (q.options && q.options.length) ? crosstabHTML(q) : '';
+    var note = q.note ? '<div class="q-note">'+svg('note')+'<span>'+esc(q.note)+'</span></div>' : '';
+    var canExpand = !!crosstab;
+    return ''
+    + '<article class="q-block" data-qid="'+esc(q.id)+'" data-qtype="'+esc(q.type)+'">'
+    +   '<header class="q-head"'+(canExpand?' role="button" tabindex="0" aria-expanded="false"':'')+'>'
+    +     '<span class="q-num">Q'+(i+1)+'</span>'
+    +     '<div class="q-headmain">'
+    +       '<div class="q-meta">'
+    +         (q.category?'<span class="chip">'+esc(q.category)+'</span>':'')
+    +         '<span class="q-type">'+svg(tm.icon)+esc(tm.label)+'</span>'
+    +       '</div>'
+    +       '<div class="q-text">'+esc(q.text)+'</div>'
+    +     '</div>'
+    +     (canExpand?'<button class="q-expand" type="button" aria-hidden="true" tabindex="-1"><span class="caret"></span>Breakdown</button>':'')
+    +   '</header>'
+    +   '<div class="q-body">'+body+note+'</div>'
+    +   (crosstab?'<div class="q-crosstab"><div class="ct-inner"><span class="mlabel">'+svg('insight')+' Cross-tab · options × segment</span>'+crosstab+'</div></div>':'')
+    + '</article>';
+  }
+
+  /* ---- 5a. distribution bars (single / multi) ---- */
+  function blockDist(q){
+    var seg = STATE.seg;
+    var base = (q.type==='multi') ? segBase(seg) : optTotal(q, seg);
+    var opts = q.options || [];
+    var maxV = Math.max.apply(null, opts.map(function(o){ return optVal(o,seg); }).concat([1]));
+    /* scale: single → share of responses; multi → relative to the most-picked option */
+    var rows = orderOpts(q).map(function(o){
+      var v = optVal(o, seg);
+      var w = (q.type==='multi') ? pct(v,maxV) : pct(v,base);
+      var cls = toneCls(o.tone);
+      return '<div class="dist-row" data-label="'+esc(o.label)+'" data-count="'+v+'" data-base="'+base+'">'
+        +  '<div class="dist-top"><span class="dist-label">'+esc(o.label)+'</span>'+figs(v,base)+'</div>'
+        +  '<span class="dist-track"><span class="dist-fill '+cls+'" style="width:'+w.toFixed(1)+'%"></span></span>'
+        + '</div>';
+    }).join('');
+    return '<div class="dist-bars">'+rows+'</div>';
+  }
+  function optTotal(q, seg){ return (q.options||[]).reduce(function(a,o){ return a+optVal(o,seg); }, 0); }
+  function orderOpts(q){
+    var opts = (q.options||[]).slice();
+    if(STATE.sort && (q.type==='single'||q.type==='multi')){
+      var seg = STATE.seg;
+      opts.sort(function(a,b){ return optVal(b,seg)-optVal(a,seg); });
+    }
+    return opts;
+  }
+
+  /* ---- 5b. Likert stacked 100% bar ---- */
+  function blockLikert(q){
+    var seg = STATE.seg;
+    var opts = q.options || [];
+    var total = optTotal(q, seg) || 1;
+    var n = opts.length;
+    /* favourable = top tones === ok */
+    var fav=0, unfav=0;
+    opts.forEach(function(o){ var v=optVal(o,seg); if(o.tone==='ok') fav+=v; else if(o.tone==='risk') unfav+=v; });
+    var favPct = pct(fav,total);
+
+    if(STATE.stacked){
+      var segs = opts.map(function(o,idx){
+        var v = optVal(o, seg); var w = pct(v,total);
+        var tcls = 't'+Math.min(4, Math.round(idx/(n-1)*4));
+        return '<span class="lk-seg '+tcls+(w<7?' tiny':'')+'" style="width:'+w.toFixed(2)+'%" '
+          + 'data-label="'+esc(o.label)+'" data-count="'+v+'" data-base="'+total+'">'+(w>=7?(STATE.mode==='pct'?w.toFixed(0)+'%':v):'')+'</span>';
+      }).join('');
+      var legend = opts.map(function(o,idx){
+        var tcls = 't'+Math.min(4, Math.round(idx/(n-1)*4));
+        return '<span><i class="'+tcls+'" style="background:'+lkColor(tcls)+'"></i>'+esc(o.label)+'</span>';
+      }).join('');
+      return ''
+        + '<div class="likert-summary"><span class="big '+(favPct<50?'low':'')+'">'+favPct.toFixed(0)+'%</span>'
+        +   '<span class="cap">favourable (agree + strongly agree)<br>'+fav+' of '+total+' · '+pct(unfav,total).toFixed(0)+'% unfavourable</span></div>'
+        + '<div class="likert-stack">'+segs+'</div>'
+        + '<div class="likert-legend">'+legend+'</div>';
+    } else {
+      /* unstacked → fall back to distribution bars (share of total) */
+      var maxV = Math.max.apply(null, opts.map(function(o){ return optVal(o,seg); }).concat([1]));
+      var rows = opts.map(function(o,idx){
+        var v=optVal(o,seg); var w=pct(v,maxV);
+        var tcls='t'+Math.min(4, Math.round(idx/(n-1)*4));
+        return '<div class="dist-row" data-label="'+esc(o.label)+'" data-count="'+v+'" data-base="'+total+'">'
+          + '<div class="dist-top"><span class="dist-label">'+esc(o.label)+'</span>'+figs(v,total)+'</div>'
+          + '<span class="dist-track"><span class="dist-fill" style="width:'+w.toFixed(1)+'%;background:'+lkColor(tcls)+'"></span></span>'
+          + '</div>';
+      }).join('');
+      return '<div class="likert-summary"><span class="big '+(favPct<50?'low':'')+'">'+favPct.toFixed(0)+'%</span>'
+        +    '<span class="cap">favourable · '+fav+' of '+total+'</span></div>'
+        +  '<div class="dist-bars">'+rows+'</div>';
+    }
+  }
+  function lkColor(t){ return t==='t0'?'#8f1a14':t==='t1'?'var(--risk)':t==='t2'?'var(--hold)':t==='t3'?'var(--ok)':'var(--navy-deep)'; }
+
+  /* ---- 5c. NPS gauge + buckets ---- */
+  function blockNps(q){
+    var seg = STATE.seg;
+    var opts = q.options || [];
+    var prom=0, pass=0, det=0, tot=0;
+    opts.forEach(function(o){ var v=optVal(o,seg); tot+=v; var nn=parseInt(o.label,10);
+      if(nn>=9) prom+=v; else if(nn>=7) pass+=v; else det+=v; });
+    tot = tot||1;
+    var nps = Math.round(pct(prom,tot)-pct(det,tot));
+    var npsTone = nps>=30?'ok':nps>=0?'hold':'risk';
+    var npsPct = Math.max(0, Math.min(1,(nps+100)/200));
+    var GLEN=276.5, goff=GLEN*(1-npsPct);
+    var buckets = [
+      { name:'Promoters', sub:'9–10', v:prom, cls:'ok',   icon:'up' },
+      { name:'Passives',  sub:'7–8',  v:pass, cls:'hold', icon:'person' },
+      { name:'Detractors',sub:'0–6',  v:det,  cls:'risk', icon:'note' }
+    ];
+    var bkmax = Math.max(prom,pass,det,1);
+    var bkHTML = buckets.map(function(b){
+      var w = pct(b.v,bkmax);
+      return '<div class="nps-bk" data-label="'+esc(b.name)+' ('+b.sub+')" data-count="'+b.v+'" data-base="'+tot+'">'
+        + '<span class="bk-name"><span class="mini-dot '+b.cls+'"></span>'+esc(b.name)+' <span class="muted">'+b.sub+'</span></span>'
+        + '<span class="bk-track"><span class="bk-fill '+b.cls+'" style="width:'+w.toFixed(1)+'%"></span></span>'
+        + (STATE.mode==='pct'
+            ? '<span class="bk-figs tnum">'+fmtPct(b.v,tot)+'<em>'+b.v+'</em></span>'
+            : '<span class="bk-figs tnum">'+b.v+'<em>'+fmtPct(b.v,tot)+'</em></span>')
+        + '</div>';
+    }).join('');
+    return ''
+    + '<div class="nps-block">'
+    +   '<div>'
+    +     '<div class="nps-gauge '+npsTone+'">'
+    +       '<svg viewBox="0 0 188 104"><path class="gauge-track" d="M14 98 A80 80 0 0 1 174 98" fill="none" stroke-width="13"/>'
+    +         '<path class="gauge-fill" d="M14 98 A80 80 0 0 1 174 98" fill="none" stroke-width="13" stroke-dasharray="'+GLEN+'" stroke-dashoffset="'+goff.toFixed(1)+'"/></svg>'
+    +       '<div class="nps-center"><div class="nps-score tnum '+(nps<0?'low':'')+'" style="color:'+(npsTone==='ok'?'var(--ok)':npsTone==='hold'?'var(--hold)':'var(--risk)')+'">'+(nps>0?'+':'')+nps+'</div></div>'
+    +     '</div>'
+    +     '<div class="nps-scale tnum"><span>−100</span><span>0</span><span>+100</span></div>'
+    +     '<div class="nps-gcap">Net Promoter Score · '+tot+' rated</div>'
+    +   '</div>'
+    +   '<div class="nps-buckets">'+bkHTML+'</div>'
+    + '</div>';
+  }
+
+  /* ---- 5d. rating meter (mean over scaleMax) ---- */
+  function blockRating(q){
+    var seg = STATE.seg, opts=q.options||[];
+    var smax = q.scaleMax || Math.max.apply(null, opts.map(function(o){ return parseFloat(o.label)||0; }).concat([5]));
+    var sum=0, n=0;
+    opts.forEach(function(o){ var v=optVal(o,seg); var val=parseFloat(o.label)||0; sum+=val*v; n+=v; });
+    var mean = n? sum/n : 0;
+    var w = pct(mean, smax);
+    return ''
+    + '<div class="rating-meter">'
+    +   '<span class="rating-big tnum">'+mean.toFixed(1)+'<small>/'+smax+'</small></span>'
+    +   '<div style="flex:1 1 240px;min-width:200px">'
+    +     '<div class="rating-track"><span class="rating-fill" style="width:'+w.toFixed(1)+'%"></span></div>'
+    +     '<div class="rating-scale tnum"><span>1</span><span>'+Math.ceil(smax/2)+'</span><span>'+smax+'</span></div>'
+    +   '</div>'
+    +   '<span class="muted" style="font:600 11px var(--sans)">mean of '+n+' ratings</span>'
+    + '</div>';
+  }
+
+  /* ---- 5e. single statistic ---- */
+  function blockStat(q){
+    var s = q.stat || {};
+    var cls = toneCls(s.tone);
+    return '<div class="stat-figure '+cls+'"><span class="sf-num tnum">'+esc(s.value||'—')
+      + (s.unit?'<small>'+esc(s.unit)+'</small>':'')+'</span>'
+      + (s.caption?'<span class="sf-cap">'+esc(s.caption)+'</span>':'')+'</div>';
+  }
+
+  /* ---- 5f. open quote list ---- */
+  function blockOpen(q){
+    var items = (q.quotes||[]).map(function(qt){
+      var cls = toneCls(qt.tone);
+      return '<div class="quote '+cls+'">'+svg('quote','icon q-ico')
+        + '<div><p>'+esc(qt.text)+'</p>'+(qt.attribution?'<span class="q-attr">— '+esc(qt.attribution)+'</span>':'')+'</div></div>';
+    }).join('');
+    return '<div class="quote-list">'+items+'</div>';
+  }
+
+  /* ---- 5g. cross-tab table (options × segments) ---- */
+  function crosstabHTML(q){
+    var segs = DATA.segments || [];
+    var opts = q.options || [];
+    var head = '<th>Option</th>' + segs.map(function(s){ return '<th class="num">'+esc(s.label)+'</th>'; }).join('');
+    var totalsBySeg = {}; segs.forEach(function(s){ totalsBySeg[s.key] = optTotal(q, s.key); });
+    var rows = opts.map(function(o){
+      var cells = segs.map(function(s){
+        var v = optVal(o, s.key); var base = totalsBySeg[s.key]||1;
+        return '<td class="num tnum">'+v+'<em>'+fmtPct(v,base)+'</em></td>';
+      }).join('');
+      return '<tr><td><span class="opt">'+esc(o.label)+'</span></td>'+cells+'</tr>';
+    }).join('');
+    var foot = '<td>Total</td>' + segs.map(function(s){ return '<td class="num tnum">'+(totalsBySeg[s.key]||0)+'</td>'; }).join('');
+    return '<table class="dtable"><thead><tr>'+head+'</tr></thead><tbody>'+rows+'</tbody><tfoot><tr>'+foot+'</tr></tfoot></table>';
+  }
+
+  /* ============================================================
+     INTERACTIONS
+     ============================================================ */
+  function rerenderQuestions(){
+    document.getElementById('q-results').querySelectorAll('.q-block').forEach(function(blk, i){
+      var qid = blk.dataset.qid;
+      var q = (DATA.questions||[]).filter(function(x){ return x.id===qid; })[0];
+      if(!q) return;
+      var open = blk.classList.contains('is-open');
+      var body = blk.querySelector('.q-body');
+      var crosstab = blk.querySelector('.q-crosstab .ct-inner');
+      /* re-render the body */
+      var fresh = renderQuestion(q, i);
+      var tmp = document.createElement('div'); tmp.innerHTML = fresh;
+      body.innerHTML = tmp.querySelector('.q-body').innerHTML;
+      if(crosstab){ var ctNew = tmp.querySelector('.q-crosstab .ct-inner'); if(ctNew) crosstab.innerHTML = ctNew.innerHTML; }
+      blk.classList.toggle('is-open', open);
+    });
+  }
+
+  function wireInteractions(){
+    /* ---- SEGMENT chips: recompute summary + every question ---- */
+    page.addEventListener('click', function(e){
+      var chip = e.target.closest('.seg-chip'); if(!chip) return;
+      document.getElementById('seg-group').querySelectorAll('.seg-chip').forEach(function(x){ x.classList.remove('on'); x.setAttribute('aria-pressed','false'); });
+      chip.classList.add('on'); chip.setAttribute('aria-pressed','true');
+      STATE.seg = chip.dataset.seg;
+      renderSummary(STATE.seg);
+      rerenderQuestions();
+    });
+
+    /* ---- COUNT / % toggle ---- */
+    document.getElementById('mode-toggle').addEventListener('click', function(e){
+      var b = e.target.closest('button[data-mode]'); if(!b) return;
+      this.querySelectorAll('button').forEach(function(x){ x.classList.remove('on'); });
+      b.classList.add('on');
+      STATE.mode = b.dataset.mode;
+      renderSummary(STATE.seg); rerenderQuestions();
+    });
+
+    /* ---- STACKED / BARS toggle (Likert) ---- */
+    document.getElementById('stack-toggle').addEventListener('click', function(e){
+      var b = e.target.closest('button[data-stack]'); if(!b) return;
+      this.querySelectorAll('button').forEach(function(x){ x.classList.remove('on'); });
+      b.classList.add('on');
+      STATE.stacked = b.dataset.stack==='1';
+      rerenderQuestions();
+    });
+
+    /* ---- SORT by count toggle ---- */
+    var st = document.getElementById('sort-toggle');
+    st.addEventListener('click', function(){
+      STATE.sort = !STATE.sort;
+      st.classList.toggle('on', STATE.sort);
+      st.setAttribute('aria-pressed', STATE.sort?'true':'false');
+      rerenderQuestions();
+    });
+
+    /* ---- EXPAND question → cross-tab ---- */
+    page.addEventListener('click', function(e){
+      var head = e.target.closest('.q-head'); if(!head) return;
+      var blk = head.closest('.q-block');
+      if(!blk.querySelector('.q-crosstab')) return;
+      var open = blk.classList.toggle('is-open');
+      head.setAttribute('aria-expanded', open?'true':'false');
+    });
+    page.addEventListener('keydown', function(e){
+      var head = e.target.closest('.q-head');
+      if(head && (e.key==='Enter'||e.key===' ')){ e.preventDefault(); head.click(); }
+    });
+
+    wireTooltips();
+  }
+
+  /* ---- tooltips: distribution rows, Likert segments, NPS buckets ---- */
+  function wireTooltips(){
+    function show(html, x, y){ tip.innerHTML=html; tip.style.left=x+'px'; tip.style.top=(y-8)+'px'; tip.classList.add('show'); }
+    function hide(){ tip.classList.remove('show'); }
+
+    page.addEventListener('mousemove', function(e){
+      var el = e.target.closest('.dist-row, .lk-seg, .nps-bk');
+      if(!el){ hide(); return; }
+      var r = el.getBoundingClientRect();
+      var label = el.dataset.label, cnt = +el.dataset.count, base = +el.dataset.base;
+      var colour = 'var(--navy)';
+      if(el.classList.contains('lk-seg')){
+        var m = (el.className.match(/t\d/)||['t3'])[0]; colour = lkColor(m);
+      } else {
+        var fill = el.querySelector('.dist-fill, .bk-fill');
+        if(fill){ colour = fill.classList.contains('ok')?'var(--ok)':fill.classList.contains('hold')?'var(--hold)':fill.classList.contains('risk')?'var(--risk)':(fill.style.background||'var(--navy)'); }
+      }
+      show('<div class="ct-h">'+esc(label)+'</div><div class="ct-row"><i style="background:'+colour+'"></i><b>'+cnt+'</b> · <b>'+fmtPct(cnt,base)+'</b></div>',
+           e.clientX, r.top);
+    });
+    page.addEventListener('mouseleave', hide);
+  }
+
+  /* ---- canonical dropdown theme switcher (per _DATA_DRIVEN §3) ---- */
+  function wireThemeSwitch(){
+    var rcSel = document.querySelector('.rc-theme-sel');
+    if(rcSel){
+      rcSel.value = root.dataset.theme || 'blue';
+      rcSel.addEventListener('change', function(){ root.dataset.theme = rcSel.value; });
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', function(){
+    render();
+    wireInteractions();
+    wireThemeSwitch();
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,264 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://genesis.local/html_report_design/schemas/dashboard.schema.json",
+  "title": "Dashboard report",
+  "description": "Data contract for the dashboard format: a monitoring / operations console. The page is three structural zones — a fixed slim left icon nav-rail, a top KPI band of 4-6 stat tiles (big tnum numbers, deltas, sparks), and a 12-column CSS grid of rounded widget panels (gauges, mini bar charts, spark lines, status lists, compact tables). No prose, no TOC; designed to be scanned in three seconds. Renders to a full-viewport, self-contained HTML console. The sample's hardcoded content is a valid instance of this schema.",
+  "type": "object",
+  "required": ["meta", "navItems", "kpis", "widgets"],
+  "additionalProperties": false,
+  "properties": {
+    "meta": {
+      "type": "object",
+      "description": "Shared report chrome (org / project / title / theme). Brand-neutral: keep {{ORG}} / {{PROJECT}} / {{AUTHOR}} placeholders unless real values are supplied.",
+      "required": ["org", "project", "reportType", "title", "date", "theme"],
+      "additionalProperties": false,
+      "properties": {
+        "org": { "type": "string", "description": "Organisation name or {{ORG}} placeholder.", "default": "{{ORG}}" },
+        "project": { "type": "string", "description": "Project / programme name or {{PROJECT}} placeholder.", "default": "{{PROJECT}}" },
+        "reportType": { "type": "string", "description": "Eyebrow label shown in the topbar, e.g. 'Platform reliability' or {{REPORT_TYPE}}." },
+        "title": { "type": "string", "description": "Console title shown in the topbar, e.g. '{{PROJECT}} · Operations Console'." },
+        "subtitle": { "type": "string", "description": "Optional one-line sub-title or team context." },
+        "date": { "type": "string", "description": "ISO date / as-of timestamp the snapshot was generated (YYYY-MM-DD).", "format": "date" },
+        "author": { "type": "string", "description": "Author / owning team or {{AUTHOR}} placeholder.", "default": "{{AUTHOR}}" },
+        "environment": { "type": "string", "description": "Optional environment chip shown in the topbar, e.g. 'PROD · ap-northeast-1'." },
+        "theme": {
+          "type": "string",
+          "description": "Initial brand theme; applied as <html data-theme>. Dashboard default is 'blue'.",
+          "enum": ["blue", "purple", "indigo", "teal", "cyan", "green", "plum", "slate", "black"],
+          "default": "blue"
+        }
+      }
+    },
+    "navItems": {
+      "type": "array",
+      "description": "Icon-only navigation buttons stacked in the left rail. Each item is a nav destination or view toggle; render order is top-to-bottom. One item should be marked active on load.",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "label", "icon"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "description": "Stable unique key for the nav item, used to wire the active state." },
+          "label": { "type": "string", "description": "Tooltip / accessible label for the icon button, e.g. 'Overview'." },
+          "icon": {
+            "type": "string",
+            "description": "Icon category key from the house icon set. Dashboard-relevant categories: 'data' (charts, metrics), 'status' (health, incidents), 'nav' (home, back, settings), 'infra' (server, cluster, deploy), 'time' (clock, schedule, history).",
+            "enum": ["data", "status", "nav", "infra", "time"]
+          },
+          "active": { "type": "boolean", "description": "If true, this button receives the is-active highlight on load. At most one item should set this.", "default": false }
+        }
+      }
+    },
+    "kpis": {
+      "type": "array",
+      "description": "The KPI band: a single row of 4-6 stat tiles rendered directly above the widget grid. Each tile = a mono uppercase label + big tnum number + optional delta + optional inline spark. These are the at-a-glance headline numbers.",
+      "minItems": 2,
+      "maxItems": 8,
+      "items": {
+        "type": "object",
+        "required": ["label", "value"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "description": "Optional stable key for the KPI tile." },
+          "label": { "type": "string", "description": "Short mono uppercase label, e.g. 'Availability', 'Req / sec', 'Error rate'." },
+          "value": { "type": "string", "description": "The displayed tnum value as a string (preserve formatting / units inline), e.g. '99.982%', '18.4k', '214ms'." },
+          "unit": { "type": "string", "description": "Optional unit suffix appended in a smaller font after the value, e.g. '%', 'ms', 'k'. Alternatively include it in value." },
+          "delta": { "type": "string", "description": "Optional delta label shown beneath the value, e.g. '+0.014', '+6.2%', '+11.3%'." },
+          "trend": {
+            "type": "string",
+            "description": "Direction of the delta, used to colour the delta indicator. 'up' = ok colour (improving); 'down' = risk colour (worsening); 'flat' = neutral.",
+            "enum": ["up", "down", "flat"]
+          },
+          "state": {
+            "type": "string",
+            "description": "Semantic health state of this KPI tile; drives the tile's accent colour class (is-ok / is-hold / is-risk / none = neutral).",
+            "enum": ["ok", "hold", "risk", "neutral"],
+            "default": "neutral"
+          },
+          "sloLabel": { "type": "string", "description": "Optional secondary label shown alongside the delta, e.g. 'SLO 99.95', 'budget 200'." },
+          "spark": {
+            "type": "array",
+            "description": "Optional inline spark-line data points (normalised 0-100 values, oldest first). Rendered as a tiny SVG polyline inside the KPI tile.",
+            "items": { "type": "number", "minimum": 0, "maximum": 100 }
+          },
+          "icon": {
+            "type": "string",
+            "description": "Optional icon category key from the house set shown beside the label. Categories: 'data', 'status', 'infra', 'time'.",
+            "enum": ["data", "status", "infra", "time"]
+          }
+        }
+      }
+    },
+    "widgets": {
+      "type": "array",
+      "description": "The widget grid: rounded panels tiled on a 12-column CSS grid. Each widget spans N columns via 'span' and renders one chart/list/table type. Order is spatial (not narrative); widgets can be read in any order.",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "type", "title", "span"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "description": "Stable unique widget key." },
+          "type": {
+            "type": "string",
+            "description": "Widget render type. 'gauge' = CSS/SVG ring or semicircle gauge (SLA / utilisation); 'barchart' = mini horizontal or vertical bar chart (latency, throughput by service); 'linechart' = spark/line trend chart (error rate, request volume); 'spark' = standalone spark trend (single metric history); 'statlist' = scannable service health list with st-badges; 'table' = compact incident / deploy data table.",
+            "enum": ["gauge", "barchart", "linechart", "spark", "statlist", "table"]
+          },
+          "title": { "type": "string", "description": "Widget heading shown in the compact widget-head bar." },
+          "span": {
+            "type": "integer",
+            "description": "Number of 12-column grid columns this widget occupies (3, 4, 5, 6, 7, 8, 9, 12). Typical: gauge=3, spark=4, barchart/statlist=5, linechart=4, table=7.",
+            "minimum": 2,
+            "maximum": 12
+          },
+          "meta": { "type": "string", "description": "Optional tiny meta label shown right-aligned in the widget head, e.g. '30d', 'cluster', 'stream'." },
+          "data": {
+            "type": "object",
+            "description": "Widget payload. Shape varies by type. gauge: {value:number, max:number, unit:string, state:ok|hold|risk, label:string}. barchart: {bars:[{label,value,max,state}]}. linechart/spark: {points:[0-100], labels:[]}. statlist: {rows:[{label,value,status:ok|hold|risk,meta}]}. table: {columns:[{key,label,numeric?}], rows:[{...cells, state:ok|hold|risk}]}.",
+            "additionalProperties": true
+          }
+        }
+      }
+    },
+    "statusList": {
+      "type": "array",
+      "description": "Optional top-level service / system health list. If present, rendered as a widget or embedded in a statlist widget. Each entry maps to an st-badge row.",
+      "items": {
+        "type": "object",
+        "required": ["label", "status"],
+        "additionalProperties": false,
+        "properties": {
+          "label": { "type": "string", "description": "Service or target name shown in the row." },
+          "status": {
+            "type": "string",
+            "description": "Semantic state: 'ok', 'hold', or 'risk'.",
+            "enum": ["ok", "hold", "risk"]
+          },
+          "value": { "type": "string", "description": "Optional primary value shown right-aligned, e.g. '99.9%', '42ms'." },
+          "meta": { "type": "string", "description": "Optional micro trailing figure, e.g. a latency count or last-event time." }
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "meta": {
+        "org": "{{ORG}}",
+        "project": "{{PROJECT}}",
+        "reportType": "Platform Reliability",
+        "title": "Operations Console",
+        "date": "2026-06-22",
+        "author": "{{AUTHOR}}",
+        "environment": "PROD · ap-northeast-1",
+        "theme": "blue"
+      },
+      "navItems": [
+        { "id": "overview",   "label": "Overview",   "icon": "nav",    "active": true },
+        { "id": "services",   "label": "Services",   "icon": "infra" },
+        { "id": "incidents",  "label": "Incidents",  "icon": "status" },
+        { "id": "deployments","label": "Deployments","icon": "data" },
+        { "id": "history",    "label": "History",    "icon": "time" }
+      ],
+      "kpis": [
+        {
+          "id": "availability", "label": "Availability", "value": "99.982", "unit": "%",
+          "delta": "+0.014", "trend": "up", "state": "neutral", "sloLabel": "SLO 99.95",
+          "icon": "status"
+        },
+        {
+          "id": "rps", "label": "Req / sec", "value": "18.4", "unit": "k",
+          "delta": "+6.2%", "trend": "up", "state": "neutral",
+          "spark": [62, 65, 64, 72, 70, 78, 76, 88],
+          "icon": "data"
+        },
+        {
+          "id": "latency_p95", "label": "p95 latency", "value": "214", "unit": "ms",
+          "delta": "+11.3%", "trend": "down", "state": "hold", "sloLabel": "budget 200",
+          "icon": "time"
+        },
+        {
+          "id": "error_rate", "label": "Error rate", "value": "0.42", "unit": "%",
+          "delta": "+0.27", "trend": "down", "state": "risk", "sloLabel": "SLO 0.20",
+          "icon": "status"
+        },
+        {
+          "id": "hosts", "label": "Hosts up", "value": "142", "unit": "/144",
+          "delta": "2 draining", "trend": "flat", "state": "neutral", "sloLabel": "3 zones",
+          "icon": "infra"
+        },
+        {
+          "id": "deploys", "label": "Deploys 24h", "value": "9",
+          "delta": "8 ok", "trend": "up", "state": "neutral", "sloLabel": "1 rolled back",
+          "icon": "infra"
+        }
+      ],
+      "widgets": [
+        {
+          "id": "error-budget", "type": "gauge", "title": "Error budget", "span": 3, "meta": "30d",
+          "data": { "value": 62, "max": 100, "unit": "%", "state": "ok", "label": "62% remaining" }
+        },
+        {
+          "id": "latency-by-svc", "type": "barchart", "title": "p95 Latency by service", "span": 5, "meta": "ms",
+          "data": {
+            "bars": [
+              { "label": "api-gateway",   "value": 42,  "max": 900, "state": "ok" },
+              { "label": "auth-service",  "value": 58,  "max": 900, "state": "ok" },
+              { "label": "search-index",  "value": 126, "max": 900, "state": "ok" },
+              { "label": "payments-api",  "value": 311, "max": 900, "state": "hold" },
+              { "label": "ledger-writer", "value": 874, "max": 900, "state": "risk" }
+            ]
+          }
+        },
+        {
+          "id": "error-trend", "type": "linechart", "title": "Error rate trend", "span": 4, "meta": "6h",
+          "data": {
+            "points": [5, 6, 5, 8, 10, 9, 14, 18, 21, 18, 22, 28],
+            "labels":  ["09:00","09:30","10:00","10:30","11:00","11:30","12:00","12:30","13:00","13:30","14:00","14:30"]
+          }
+        },
+        {
+          "id": "saturation", "type": "gauge", "title": "Saturation", "span": 3, "meta": "cluster",
+          "data": {
+            "value": 79, "max": 100, "unit": "%", "state": "hold", "label": "Memory 79% — near limit"
+          }
+        },
+        {
+          "id": "service-health", "type": "statlist", "title": "Service health", "span": 5, "meta": "live",
+          "data": {
+            "rows": [
+              { "label": "api-gateway",   "value": "99.99%", "status": "ok",   "meta": "42ms p95" },
+              { "label": "auth-service",  "value": "99.97%", "status": "ok",   "meta": "58ms p95" },
+              { "label": "payments-api",  "value": "99.81%", "status": "hold", "meta": "311ms p95" },
+              { "label": "ledger-writer", "value": "98.6%",  "status": "risk", "meta": "874ms p95" },
+              { "label": "notif-worker",  "value": "99.50%", "status": "ok",   "meta": "rolled back" }
+            ]
+          }
+        },
+        {
+          "id": "active-incidents", "type": "table", "title": "Active incidents", "span": 7, "meta": "3 OPEN",
+          "data": {
+            "columns": [
+              { "key": "id",      "label": "ID" },
+              { "key": "summary", "label": "Service / summary" },
+              { "key": "sev",     "label": "Sev" },
+              { "key": "age",     "label": "Age",   "numeric": true },
+              { "key": "owner",   "label": "Owner" },
+              { "key": "state",   "label": "State" }
+            ],
+            "rows": [
+              { "id": "INC-2041", "summary": "ledger-writer — elevated 5xx · pod OOMKilled ×3", "sev": "SEV-1", "age": "38m",  "owner": "@h.cho",    "state": "Mitigating",   "status": "risk" },
+              { "id": "INC-2039", "summary": "payments-api — p95 over budget · downstream slow", "sev": "SEV-2", "age": "1h12m","owner": "@m.tan",    "state": "Investigating","status": "hold" },
+              { "id": "INC-2036", "summary": "search-index — node drain · rebalancing shards",   "sev": "SEV-3", "age": "3h05m","owner": "@platform", "state": "Monitoring",   "status": "hold" }
+            ]
+          }
+        }
+      ],
+      "statusList": [
+        { "label": "api-gateway",  "status": "ok",   "value": "99.99%", "meta": "42ms" },
+        { "label": "auth-service", "status": "ok",   "value": "99.97%", "meta": "58ms" },
+        { "label": "payments-api", "status": "hold", "value": "99.81%", "meta": "311ms" },
+        { "label": "ledger-writer","status": "risk",  "value": "98.6%",  "meta": "874ms" }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,1005 @@
+<!doctype html>
+<html lang="en" data-theme="cyan">
+<!-- Portfolio / case-study showcase — see designs/portfolio.md.
+     SELF-CONTAINED per _FOUNDATION §0: inline <style>, inline <svg>, system fonts, NO external requests.
+     DATA-DRIVEN per _DATA_DRIVEN §1: the entire body is rendered by render() from #report-data (JSON),
+     which is a valid instance of designs/schemas/portfolio.schema.json. <noscript> notice included.
+     INTERACTIVE per _DATA_DRIVEN §4: case cards CLICK → expand to a problem/approach/outcome detail;
+     gallery FILTER by sector + tag; SORT by an outcome metric; outcome-stat hover context; live count.
+     THEME per _DATA_DRIVEN §3: canonical 9-dot .rc-theme switcher incl. mandatory Black; all 9 blocks.
+     Thumbnails are CSS/SVG art (no <img>). Brand-neutral chrome: {{ORG}} / {{PROJECT}} kept literal. -->
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1440">
+<title>{{ORG}} — Selected Work</title>
+<style>
+/* ===================== FOUNDATION TOKENS — Cyan default ===================== */
+:root{
+  /* surfaces */
+  --bg:#fff; --bg-band:#f6f6f8; --bg-subtle:#fafafb; --bg-deep:#15131a;
+  --rule:#dcdce2; --rule-soft:#ebebef;
+  /* ink */
+  --ink:#11131a; --ink-mid:#33363f; --ink-soft:#5a5e68; --ink-faint:#868b95;
+  /* brand accent (Cyan) */
+  --navy:#0891b2; --navy-deep:#0e6f88; --navy-bg:#e2f4f9; --navy-line:#abdde9;
+  /* cleared / approved */
+  --ok:#0e6b7a; --ok-bg:#e4f3f4; --ok-line:#b0dde2;
+  /* semantic states — CONSTANT across all themes */
+  --risk:#b3261e; --risk-bg:#fbeceb; --risk-line:#edc7c4;
+  --hold:#8a6d00; --hold-bg:#fbf3da; --hold-line:#e7d8a4;
+  /* type stacks */
+  --mono:ui-monospace,"JetBrains Mono","SFMono-Regular",Menlo,Consolas,monospace;
+  --sans:-apple-system,"Segoe UI",system-ui,Roboto,"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic UI","Apple SD Gothic Neo","Malgun Gothic","PingFang SC","Microsoft YaHei","Noto Sans CJK JP","Noto Sans CJK KR","Noto Sans CJK SC","Noto Sans JP","Noto Sans KR","Noto Sans SC","Noto Sans",sans-serif;
+}
+/* ---- the other 8 themes (swap only the 7 accent values) — Black is MANDATORY ---- */
+html[data-theme="blue"]  { --navy:#0b5fd4; --navy-deep:#0842a0; --navy-bg:#e8f1fc; --navy-line:#bcd6f5; --ok:#1a4f9c; --ok-bg:#e9f0fa; --ok-line:#b7cdea; }
+html[data-theme="purple"]{ --navy:#a100ff; --navy-deep:#7a00c2; --navy-bg:#f3e8ff; --navy-line:#d9bef5; --ok:#5a2f8a; --ok-bg:#efe8f5; --ok-line:#d0b5e0; }
+html[data-theme="indigo"]{ --navy:#4338ca; --navy-deep:#312c92; --navy-bg:#ebebfb; --navy-line:#c7c3f0; --ok:#3730a3; --ok-bg:#ebeaf7; --ok-line:#c5c2ea; }
+html[data-theme="teal"]  { --navy:#0e7c86; --navy-deep:#095861; --navy-bg:#e0f3f4; --navy-line:#a9dade; --ok:#0f5d54; --ok-bg:#e3f3ef; --ok-line:#b3ddd4; }
+html[data-theme="cyan"]  { --navy:#0891b2; --navy-deep:#0e6f88; --navy-bg:#e2f4f9; --navy-line:#abdde9; --ok:#0e6b7a; --ok-bg:#e4f3f4; --ok-line:#b0dde2; }
+html[data-theme="green"] { --navy:#1f7a44; --navy-deep:#155730; --navy-bg:#e6f4ea; --navy-line:#b3dcc1; --ok:#2f6b3c; --ok-bg:#e9f3ea; --ok-line:#bedcc4; }
+html[data-theme="plum"]  { --navy:#a21d6e; --navy-deep:#7c1450; --navy-bg:#fbe8f2; --navy-line:#e8b9d4; --ok:#6d2356; --ok-bg:#f6e8f0; --ok-line:#e3bcd5; }
+html[data-theme="slate"] { --navy:#3f4f63; --navy-deep:#29384b; --navy-bg:#eef1f5; --navy-line:#c2ccd8; --ok:#34495e; --ok-bg:#eef1f5; --ok-line:#c2ccd8; }
+html[data-theme="black"] { --navy:#000000; --navy-deep:#000000; --navy-bg:#f1f1f3; --navy-line:#d6d6db; --ok:#3f3f46; --ok-bg:#f1f1f3; --ok-line:#cfcfd6; }
+
+/* ===================== BASE ===================== */
+*{box-sizing:border-box}
+html{background:var(--bg-band)}
+body{
+  margin:0; font:13px/1.6 var(--sans); color:var(--ink);
+  background:var(--bg-band);
+  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+}
+.wrap{max-width:1320px; margin:0 auto; padding:0 40px;}
+a{color:var(--navy-deep); text-decoration:none}
+.tnum{font-feature-settings:"tnum" 1; font-variant-numeric:tabular-nums}
+.mono{font-family:var(--mono)}
+.icon{width:1.15em; height:1.15em; display:inline-block; vertical-align:-.18em; color:inherit}
+.icon-lg{width:20px; height:20px}
+
+/* noscript notice (data-driven render needs JS) */
+.noscript{ margin:40px auto; max-width:760px; padding:14px 18px; background:var(--hold-bg);
+  border:1px solid var(--hold-line); border-radius:10px; color:var(--hold); font-weight:600; }
+
+/* ===================== SHOWCASE BAR (slim brand strip, not a nav) ===================== */
+.showcase-bar{
+  position:sticky; top:0; z-index:40;
+  background:rgba(255,255,255,.88); backdrop-filter:saturate(1.2) blur(8px);
+  border-bottom:1px solid var(--rule);
+  box-shadow:0 1px 3px rgba(17,19,26,.05);
+}
+.showcase-bar .bar-inner{
+  max-width:1320px; margin:0 auto; padding:9px 40px;
+  display:flex; align-items:center; gap:14px;
+}
+.brand{display:flex; align-items:center; gap:9px; font-weight:800; font-size:13.5px; letter-spacing:.01em}
+.brand .sq{width:15px; height:15px; border-radius:4px; background:var(--navy); box-shadow:0 0 0 3px var(--navy-bg)}
+.brand small{font-weight:600; color:var(--ink-faint); font-size:11px; letter-spacing:.04em; margin-left:2px}
+.bar-spacer{flex:1}
+.bar-ctrls{display:flex; align-items:center; gap:10px}
+.bar-ctrls button{
+  font:11.5px/1 var(--mono); color:var(--ink-mid);
+  background:var(--bg); border:1px solid var(--rule); border-radius:6px;
+  padding:7px 9px; cursor:pointer;
+}
+.bar-ctrls button:hover{border-color:var(--navy-line); color:var(--navy-deep)}
+
+/* canonical compact dropdown theme switcher */
+.rc-theme{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--rule);border-radius:7px;
+          padding:3px 4px 3px 7px;background:var(--bg);}
+.rc-theme-sw{width:12px;height:12px;border-radius:50%;background:var(--navy);box-shadow:0 0 0 1px var(--rule);flex:none;}
+.rc-theme-sel{border:0;background:none;font:600 11px/1 var(--mono);color:var(--ink-mid);cursor:pointer;outline:none;padding:2px;}
+@media print{.rc-theme{display:none;}}
+
+/* ===================== EDITORIAL HERO ===================== */
+.showcase{
+  position:relative; overflow:hidden;
+  background:var(--bg);
+  border-bottom:1px solid var(--rule);
+}
+/* faint CSS-art motif backing the hero — hairline grid + accent glow, palette only */
+.showcase::before{
+  content:""; position:absolute; inset:0; pointer-events:none; opacity:.6;
+  background:
+    radial-gradient(120% 90% at 88% -10%, var(--navy-bg) 0%, transparent 55%),
+    radial-gradient(80% 70% at 100% 110%, var(--ok-bg) 0%, transparent 60%),
+    linear-gradient(transparent 31px, var(--rule-soft) 32px),
+    linear-gradient(90deg, transparent 31px, var(--rule-soft) 32px);
+  background-size:auto,auto,32px 32px,32px 32px;
+  -webkit-mask-image:linear-gradient(180deg,#000 0%,#000 60%,transparent 100%);
+          mask-image:linear-gradient(180deg,#000 0%,#000 60%,transparent 100%);
+}
+.showcase .wrap{position:relative; padding:54px 40px 30px}
+.eyebrow{
+  font:10.5px/1 var(--mono); letter-spacing:.16em; text-transform:uppercase;
+  color:var(--ink-faint); display:flex; align-items:center; gap:9px; margin-bottom:18px; flex-wrap:wrap;
+}
+.eyebrow .dot{width:7px; height:7px; border-radius:50%; background:var(--navy)}
+.eyebrow b{color:var(--navy-deep); font-weight:700}
+.display{
+  margin:0; max-width:21ch;
+  font-size:52px; line-height:1.04; font-weight:800; letter-spacing:-.022em;
+  color:var(--ink);
+}
+.display em{font-style:normal; color:var(--navy-deep); position:relative; white-space:nowrap}
+.standfirst{
+  margin:20px 0 0; max-width:62ch; font-size:15.5px; line-height:1.62; color:var(--ink-mid);
+}
+.standfirst strong{color:var(--ink); font-weight:700}
+
+/* aggregate outcome strip — big tnum figures on an accent band */
+.lead-stats{
+  margin:30px 0 4px; display:grid; grid-template-columns:repeat(4,1fr);
+  background:var(--navy-bg); border:1px solid var(--navy-line); border-radius:12px;
+  overflow:hidden; box-shadow:0 1px 2px rgba(17,19,26,.045);
+}
+.lead-stat{padding:18px 20px; border-left:1px solid var(--navy-line)}
+.lead-stat:first-child{border-left:0}
+.lead-num{font-size:38px; line-height:1; font-weight:800; color:var(--navy-deep); letter-spacing:-.02em}
+.lead-num small{font-size:.46em; font-weight:700; margin-left:2px; color:var(--ink-soft); letter-spacing:0}
+.lead-lbl{margin-top:9px; font:10px/1.3 var(--mono); letter-spacing:.12em; text-transform:uppercase; color:var(--ink-soft)}
+
+/* ===================== GALLERY TOOLBAR (filter + sort) ===================== */
+.section-eyebrow{
+  display:flex; align-items:baseline; gap:14px; margin:38px 0 16px;
+}
+.section-eyebrow h2{
+  margin:0; font-size:16px; font-weight:800; letter-spacing:-.01em; color:var(--ink);
+}
+.section-eyebrow .lbl{font:10px/1 var(--mono); letter-spacing:.14em; text-transform:uppercase; color:var(--ink-faint)}
+.section-eyebrow .rule{flex:1; height:1px; background:var(--rule)}
+.section-eyebrow .count{font:10px/1 var(--mono); letter-spacing:.08em; color:var(--navy-deep); background:var(--navy-bg); border:1px solid var(--navy-line); border-radius:5px; padding:5px 8px}
+
+.gallery-toolbar{
+  display:flex; align-items:center; gap:14px 20px; flex-wrap:wrap;
+  margin:0 0 18px; padding:13px 15px;
+  background:var(--bg-band); border:1px solid var(--rule); border-radius:12px;
+}
+.tb-group{display:flex; align-items:center; gap:8px; flex-wrap:wrap}
+.tb-lbl{font:9.5px/1 var(--mono); letter-spacing:.12em; text-transform:uppercase; color:var(--ink-faint); margin-right:1px}
+.filter-chip{
+  font:10.5px/1 var(--mono); letter-spacing:.04em; color:var(--ink-soft);
+  background:var(--bg); border:1px solid var(--rule); border-radius:6px;
+  padding:6px 9px; cursor:pointer; display:inline-flex; align-items:center; gap:6px;
+  transition:border-color .14s ease, color .14s ease, background .14s ease;
+}
+.filter-chip:hover{border-color:var(--navy-line); color:var(--navy-deep)}
+.filter-chip[aria-pressed="true"]{background:var(--navy-bg); border-color:var(--navy-line); color:var(--navy-deep); font-weight:700}
+.filter-chip .ct{font-size:9px; color:var(--ink-faint); background:var(--bg-band); border:1px solid var(--rule-soft); border-radius:4px; padding:1px 5px}
+.filter-chip[aria-pressed="true"] .ct{color:var(--navy-deep); background:var(--bg); border-color:var(--navy-line)}
+.tb-sep{width:1px; align-self:stretch; background:var(--rule); margin:0 2px}
+.tb-sort{
+  font:11px/1 var(--mono); color:var(--ink-mid);
+  background:var(--bg); border:1px solid var(--rule); border-radius:6px;
+  padding:7px 9px; cursor:pointer;
+}
+.tb-sort:hover{border-color:var(--navy-line); color:var(--navy-deep)}
+.tb-spacer{flex:1; min-width:8px}
+.tb-reset{
+  font:10.5px/1 var(--mono); letter-spacing:.04em; color:var(--ink-soft);
+  background:transparent; border:1px solid transparent; border-radius:6px;
+  padding:6px 8px; cursor:pointer; display:inline-flex; align-items:center; gap:6px;
+}
+.tb-reset:hover{color:var(--navy-deep); border-color:var(--navy-line)}
+
+/* ===================== CASE GALLERY ===================== */
+.gallery{
+  display:grid; grid-template-columns:repeat(auto-fill, minmax(340px,1fr)); gap:22px;
+  padding-bottom:4px; align-items:start;
+}
+.case-card{
+  background:var(--bg); border:1px solid var(--rule); border-radius:12px; overflow:hidden;
+  box-shadow:0 1px 2px rgba(17,19,26,.045);
+  transition:transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+  display:flex; flex-direction:column; cursor:pointer;
+}
+.case-card:hover{
+  transform:translateY(-3px);
+  box-shadow:0 10px 26px rgba(17,19,26,.10);
+  border-color:var(--navy-line);
+}
+.case-card:focus-visible{outline:2px solid var(--navy); outline-offset:2px}
+.case-card.is-open{
+  border-color:var(--navy-line);
+  box-shadow:0 10px 26px rgba(17,19,26,.10);
+  grid-column:1 / -1;            /* expanded card spans the gallery for a roomy detail */
+}
+.case-card[hidden]{display:none}
+
+/* --- CSS-ART THUMBNAIL (no <img>; gradients + shapes + inline svg) --- */
+.thumb{
+  position:relative; aspect-ratio:16/9; overflow:hidden;
+  border-bottom:1px solid var(--rule);
+  background:var(--bg-subtle);
+  color:var(--navy);            /* SVG strokes inherit this */
+}
+.case-card.is-open .thumb{aspect-ratio:auto; height:128px}
+.thumb svg{position:absolute; inset:0; width:100%; height:100%; display:block}
+.thumb-num{
+  position:absolute; top:10px; left:10px; z-index:2;
+  font:9.5px/1 var(--mono); letter-spacing:.1em; text-transform:uppercase;
+  color:var(--navy-deep); background:rgba(255,255,255,.82); border:1px solid var(--navy-line);
+  border-radius:5px; padding:4px 7px;
+}
+.thumb-kind{
+  position:absolute; bottom:10px; right:10px; z-index:2;
+  font:9.5px/1 var(--mono); letter-spacing:.08em; color:var(--ink-soft);
+  background:rgba(255,255,255,.82); border:1px solid var(--rule); border-radius:5px; padding:4px 7px;
+}
+/* per-thumb palette washes (all derived from tokens) */
+.thumb--rings{background:radial-gradient(120% 120% at 22% 18%, var(--navy-bg), var(--bg))}
+.thumb--bars {background:linear-gradient(160deg, var(--bg) 30%, var(--navy-bg))}
+.thumb--grid {background:linear-gradient(180deg, var(--navy-bg), var(--bg))}
+.thumb--arc  {background:radial-gradient(140% 120% at 80% 110%, var(--ok-bg), var(--bg))}
+.thumb--iso  {background:linear-gradient(135deg, var(--navy-bg) 0%, var(--bg) 55%, var(--ok-bg) 100%)}
+.thumb--wave {background:linear-gradient(180deg, var(--bg) 35%, var(--navy-bg))}
+.thumb--mark {background:radial-gradient(120% 120% at 50% 30%, var(--navy-bg), var(--bg))}
+
+.case-body{padding:16px 17px 17px; display:flex; flex-direction:column; flex:1}
+.case-tag{
+  align-self:flex-start; font:10px/1 var(--mono); letter-spacing:.05em;
+  color:var(--navy-deep); background:var(--navy-bg); border:1px solid var(--navy-line);
+  border-radius:5px; padding:5px 8px;
+}
+.case-head{display:flex; align-items:flex-start; gap:10px}
+.case-head .ht{flex:1; min-width:0}
+.case-title{margin:11px 0 3px; font-size:16px; font-weight:800; letter-spacing:-.012em; line-height:1.22; color:var(--ink)}
+.case-role{font:11px/1.4 var(--mono); letter-spacing:.02em; color:var(--ink-faint)}
+.case-desc{margin:9px 0 0; font-size:12.5px; line-height:1.55; color:var(--ink-mid)}
+/* expand affordance chevron */
+.case-toggle{
+  flex:none; margin-top:11px; width:26px; height:26px; border-radius:7px;
+  display:flex; align-items:center; justify-content:center;
+  color:var(--navy-deep); background:var(--navy-bg); border:1px solid var(--navy-line);
+  transition:transform .16s ease;
+}
+.case-card.is-open .case-toggle{transform:rotate(180deg)}
+
+/* outcome row — mandatory per card */
+.outcome-row{
+  margin:13px 0 0; display:grid; grid-template-columns:repeat(3,1fr);
+  background:var(--bg-subtle); border:1px solid var(--rule-soft); border-radius:10px; overflow:hidden;
+}
+.outcome-row.cols-1{grid-template-columns:1fr}
+.outcome-row.cols-2{grid-template-columns:repeat(2,1fr)}
+.outcome{padding:11px 12px; border-left:1px solid var(--rule-soft); position:relative; cursor:help}
+.outcome:first-child{border-left:0}
+.outcome:hover{background:var(--navy-bg)}
+.o-num{font-size:23px; line-height:1; font-weight:800; color:var(--ink); letter-spacing:-.018em}
+.o-num.ok{color:var(--ok)}
+.o-num.risk{color:var(--risk)}
+.o-num.hold{color:var(--hold)}
+.o-num small{font-size:.5em; font-weight:700; color:var(--ink-soft); margin-left:1px; letter-spacing:0}
+.o-lbl{margin-top:6px; font:9px/1.25 var(--mono); letter-spacing:.09em; text-transform:uppercase; color:var(--ink-soft)}
+/* outcome hover tooltip (provenance / measurement window) */
+.o-tip{
+  position:absolute; left:50%; bottom:calc(100% + 8px); transform:translateX(-50%) translateY(4px);
+  z-index:9; min-width:150px; max-width:220px; pointer-events:none;
+  background:var(--bg-deep); color:#e9e9ee; border-radius:8px; padding:8px 10px;
+  font:10px/1.45 var(--mono); letter-spacing:.02em; text-align:left;
+  box-shadow:0 8px 22px rgba(17,19,26,.22);
+  opacity:0; visibility:hidden; transition:opacity .14s ease, transform .14s ease;
+}
+.o-tip b{color:#fff; font-weight:700}
+.o-tip::after{content:""; position:absolute; left:50%; top:100%; transform:translateX(-50%);
+  border:5px solid transparent; border-top-color:var(--bg-deep)}
+.outcome:hover .o-tip,.outcome:focus-within .o-tip{opacity:1; visibility:visible; transform:translateX(-50%) translateY(0)}
+
+.case-tags{margin-top:13px; padding-top:12px; border-top:1px solid var(--rule-soft); display:flex; flex-wrap:wrap; gap:6px}
+.t{font:10px/1 var(--mono); letter-spacing:.03em; color:var(--ink-soft); background:var(--bg-band); border:1px solid var(--rule); border-radius:5px; padding:5px 7px}
+.t.is-active{color:var(--navy-deep); background:var(--navy-bg); border-color:var(--navy-line); font-weight:700}
+
+/* a status flag may ride a card (uses foundation st-badge) */
+.st-badge{display:inline-flex; align-items:center; gap:6px; font:10px/1 var(--mono); letter-spacing:.04em; border-radius:6px; padding:5px 8px; border:1px solid}
+.st-badge::before{content:""; width:7px; height:7px; border-radius:50%; background:currentColor; flex:none}
+.st-ok{color:var(--ok); background:var(--ok-bg); border-color:var(--ok-line)}
+.st-hold{color:var(--hold); background:var(--hold-bg); border-color:var(--hold-line)}
+.st-risk{color:var(--risk); background:var(--risk-bg); border-color:var(--risk-line)}
+
+/* --- EXPANDED CASE DETAIL (problem / approach / outcome) --- */
+.case-detail{
+  border-top:1px solid var(--rule); background:var(--bg-subtle);
+  padding:0 17px; max-height:0; overflow:hidden; opacity:0;
+  transition:max-height .26s ease, opacity .2s ease, padding .26s ease;
+}
+.case-card.is-open .case-detail{max-height:760px; opacity:1; padding:18px 17px 20px}
+.detail-grid{display:grid; grid-template-columns:1.55fr 1fr; gap:22px}
+.detail-narrative{min-width:0}
+.dn-block{margin:0 0 14px}
+.dn-block:last-child{margin-bottom:0}
+.dn-head{display:flex; align-items:center; gap:8px; margin-bottom:6px}
+.dn-step{width:20px; height:20px; flex:none; border-radius:6px; display:flex; align-items:center; justify-content:center;
+  font:9.5px/1 var(--mono); font-weight:700; color:var(--navy-deep); background:var(--navy-bg); border:1px solid var(--navy-line)}
+.dn-title{font:10px/1 var(--mono); letter-spacing:.13em; text-transform:uppercase; color:var(--ink-faint)}
+.dn-body{margin:0; font-size:12.5px; line-height:1.6; color:var(--ink-mid)}
+.detail-aside{min-width:0}
+.aside-kv{background:var(--bg); border:1px solid var(--rule); border-radius:10px; overflow:hidden}
+.aside-kv .kv{display:flex; justify-content:space-between; gap:10px; padding:9px 12px; border-bottom:1px solid var(--rule-soft)}
+.aside-kv .kv:last-child{border-bottom:0}
+.aside-kv .k{font:9.5px/1.3 var(--mono); letter-spacing:.08em; text-transform:uppercase; color:var(--ink-faint)}
+.aside-kv .v{font:11.5px/1.3 var(--mono); color:var(--ink); text-align:right}
+.detail-out{margin-top:13px}
+.detail-out .dn-title{margin-bottom:8px}
+
+/* gallery empty state when filters exclude everything */
+.gallery-empty{
+  grid-column:1 / -1; padding:34px; text-align:center;
+  font:12px/1.6 var(--mono); color:var(--ink-soft);
+  background:var(--bg); border:1px dashed var(--rule); border-radius:12px;
+}
+
+/* ===================== CLIENT WORDMARK CHIPS (text, not logos) ===================== */
+.logo-row{display:flex; flex-wrap:wrap; gap:10px; margin:4px 0 6px}
+.logo-chip{
+  display:inline-flex; align-items:center; gap:8px;
+  background:var(--bg-band); border:1px solid var(--rule); border-radius:8px;
+  padding:9px 13px; font-size:13px; color:var(--ink-mid);
+  transition:border-color .15s ease, color .15s ease;
+}
+.logo-chip:hover{border-color:var(--navy-line); color:var(--ink)}
+.logo-chip .mk{width:9px; height:9px; border-radius:3px; background:var(--navy); flex:none}
+.logo-chip .mk.r{border-radius:50%}
+.logo-chip b{font-weight:800; letter-spacing:-.01em}
+.logo-chip .lt{font-weight:500}
+.logo-chip .tk{font-weight:700; letter-spacing:.16em; text-transform:uppercase; font-size:11.5px}
+.logo-chip .ac{color:var(--navy-deep); font-weight:800}
+.logo-chip i{font-style:italic}
+
+/* ===================== CAPABILITY BAND ===================== */
+.capability-band{
+  margin-top:36px;
+  background:var(--bg-band); border:1px solid var(--rule); border-radius:14px;
+  padding:22px 24px 24px;
+}
+.cap-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--rule-soft); border-radius:10px; overflow:hidden; border:1px solid var(--rule-soft)}
+.capability{background:var(--bg); padding:16px 16px 17px}
+.cap-ico{
+  width:34px; height:34px; border-radius:9px; display:flex; align-items:center; justify-content:center;
+  background:var(--navy-bg); border:1px solid var(--navy-line); color:var(--navy-deep); margin-bottom:11px;
+}
+.cap-title{font-size:13px; font-weight:800; color:var(--ink); letter-spacing:-.005em}
+.cap-line{margin-top:5px; font-size:11.5px; line-height:1.5; color:var(--ink-soft)}
+
+/* ===================== CONTACT BAND / FOOTER (dark) ===================== */
+.contact-band{
+  margin-top:40px; background:var(--bg-deep); color:#e9e9ee;
+}
+.contact-band .wrap{padding:34px 40px 30px; display:flex; align-items:center; gap:26px; flex-wrap:wrap}
+.contact-cta{flex:1; min-width:260px}
+.contact-cta .ce{font:10px/1 var(--mono); letter-spacing:.16em; text-transform:uppercase; color:#9a96b0}
+.contact-cta h3{margin:10px 0 6px; font-size:22px; font-weight:800; letter-spacing:-.018em; color:#fff}
+.contact-cta p{margin:0; font-size:13px; color:#b9b6c6; max-width:54ch}
+.contact-meta{display:flex; flex-direction:column; gap:9px; font:11.5px/1.3 var(--mono); color:#b9b6c6}
+.contact-meta a{color:#e9e9ee}
+.contact-meta .row{display:flex; align-items:center; gap:8px}
+.foot-brand{
+  border-top:1px solid #2b2833; margin-top:6px;
+  background:var(--bg-deep);
+}
+.foot-brand .wrap{padding:16px 40px; display:flex; align-items:center; gap:11px; font:11px/1 var(--mono); letter-spacing:.06em; color:#8b879c; text-transform:uppercase}
+.foot-brand .sq{width:13px; height:13px; border-radius:4px; background:var(--navy)}
+.foot-brand .sp{flex:1}
+
+/* ===================== RESPONSIVE ===================== */
+@media (max-width:980px){
+  .display{font-size:38px}
+  .lead-stats{grid-template-columns:repeat(2,1fr)}
+  .lead-stat:nth-child(3){border-left:0}
+  .lead-stat:nth-child(n+3){border-top:1px solid var(--navy-line)}
+  .cap-grid{grid-template-columns:repeat(2,1fr)}
+  .detail-grid{grid-template-columns:1fr}
+}
+
+/* ===================== REDUCED MOTION ===================== */
+@media (prefers-reduced-motion: reduce){
+  *{transition:none !important; animation:none !important}
+  .case-card:hover{transform:none}
+}
+
+/* ===================== PRINT (static, complete snapshot) ===================== */
+@media print{
+  html,body{background:#fff}
+  .showcase-bar{display:none}
+  .rc-theme{display:none}
+  .gallery-toolbar{display:none}
+  .showcase::before{display:none}
+  .case-card,.lead-stats,.capability-band{box-shadow:none; break-inside:avoid}
+  .case-card:hover{transform:none; box-shadow:none}
+  .case-card{cursor:auto}
+  .case-card[hidden]{display:flex !important}      /* print every case regardless of filter */
+  .case-card .case-toggle{display:none}
+  .case-card .case-detail{max-height:none !important; opacity:1 !important; padding:18px 17px 20px !important; overflow:visible} /* expand all detail */
+  .o-tip{display:none}
+  .contact-band,.foot-brand{background:#fff !important; color:#11131a; border-top:1px solid var(--rule)}
+  .contact-cta h3,.contact-cta .ce,.contact-cta p,.contact-meta,.foot-brand .wrap{color:#33363f !important}
+  .gallery{grid-template-columns:repeat(2,1fr)}
+  .case-card.is-open{grid-column:auto}
+}
+</style>
+</head>
+<body>
+
+<!-- ===================== THE ONLY CONTENT SOURCE: #report-data (valid vs portfolio.schema.json) ===================== -->
+<script type="application/json" id="report-data">
+{
+  "meta": {
+    "org": "{{ORG}}",
+    "project": "{{PROJECT}}",
+    "reportType": "Selected Work",
+    "title": "{{ORG}} — Selected Work",
+    "date": "2026-06-22",
+    "author": "{{AUTHOR}}",
+    "theme": "cyan"
+  },
+  "hero": {
+    "eyebrow": "Delivered. Measured. Owned.",
+    "headline": "Work that ships, and <em>moves the number</em>.",
+    "standfirst": "A selected portfolio of delivered engagements across platform, data, and experience — presented the way we run them: <strong>scored on the outcome, not the activity</strong>. Every case below carries owner-verified figures measured after handover.",
+    "leadStats": [
+      { "value": "7",    "label": "engagements delivered" },
+      { "value": "¥4.2", "unit": "B", "label": "value delivered" },
+      { "value": "94",   "unit": "%", "label": "on-time at cutover" },
+      { "value": "+58",  "label": "avg client NPS" }
+    ]
+  },
+  "cases": [
+    {
+      "id": "PRJ-21",
+      "title": "Payments Platform Re-architecture",
+      "sectorTag": "01 · Payments",
+      "role": "Lead architecture & delivery · Banking · 2025",
+      "description": "Problem: a monolithic payments core capped throughput and made every release a high-risk overnight event. Approach: we decomposed it into event-driven services on a managed streaming backbone, ran the new path in shadow against production, and migrated rails behind feature flags. Outcome: a phased, zero-downtime cutover that halved p95 latency and held 99.95% uptime through the transition.",
+      "thumbKind": "rings",
+      "outcomes": [
+        { "value": "−62", "unit": "%", "label": "p95 latency", "tone": "ok" },
+        { "value": "99.95", "unit": "%", "label": "uptime", "tone": "ok" },
+        { "value": "9", "unit": "mo", "label": "duration" }
+      ],
+      "tags": ["Event-driven", "Kafka", "Zero-downtime"],
+      "status": "ok"
+    },
+    {
+      "id": "PRJ-18",
+      "title": "Data Lakehouse Consolidation",
+      "sectorTag": "02 · Data",
+      "role": "Platform engineering · Insurance · 2024",
+      "description": "Problem: nine siloed warehouses meant duplicated spend, no shared lineage, and analysts who could not trust the numbers. Approach: we consolidated onto one governed lakehouse with column-level lineage, policy-based access, and a documented migration runbook executed table-by-table. Outcome: 4 PB migrated with zero data-loss events and a 38% cut to steady-state run cost.",
+      "thumbKind": "bars",
+      "outcomes": [
+        { "value": "4", "unit": "PB", "label": "migrated" },
+        { "value": "−38", "unit": "%", "label": "run cost", "tone": "ok" },
+        { "value": "0", "label": "data-loss events", "tone": "ok" }
+      ],
+      "tags": ["Lakehouse", "Lineage", "Governance"]
+    },
+    {
+      "id": "PRJ-24",
+      "title": "Omnichannel Experience Rebuild",
+      "sectorTag": "03 · Experience",
+      "role": "Design system & front-end · Retail bank · 2025",
+      "description": "Problem: web and mobile journeys had drifted apart, slowing every change and fragmenting the brand. Approach: we unified both on a single component library, shipped it behind an experimentation platform, and instrumented the funnel end-to-end. Outcome: a +17pp lift in conversion, a 4.6 app-store rating, and a first production ship inside three months.",
+      "thumbKind": "grid",
+      "outcomes": [
+        { "value": "+17", "unit": "pp", "label": "conversion", "tone": "ok" },
+        { "value": "4.6", "label": "app rating", "tone": "ok" },
+        { "value": "3", "unit": "mo", "label": "to first ship" }
+      ],
+      "tags": ["Design system", "A/B platform", "Mobile"]
+    },
+    {
+      "id": "PRJ-15",
+      "title": "Legacy Core Modernisation",
+      "sectorTag": "04 · Core",
+      "role": "Programme lead · Banking · 2024–25",
+      "description": "Problem: a mainframe core blocked product velocity and carried concentrated operational risk. Approach: a strangler-fig migration with continuous parallel-run reconciliation, staged domain-by-domain cutover, and a tested rollback at every gate. Outcome: zero Sev-1 incidents at cutover and a 100% reconciliation match across a 14-month programme.",
+      "thumbKind": "arc",
+      "outcomes": [
+        { "value": "0", "label": "Sev-1 at cutover", "tone": "ok" },
+        { "value": "14", "unit": "mo", "label": "duration" },
+        { "value": "100", "unit": "%", "label": "recon match", "tone": "ok" }
+      ],
+      "tags": ["Strangler-fig", "Parallel-run", "Mainframe exit"],
+      "status": "ok"
+    },
+    {
+      "id": "PRJ-27",
+      "title": "Real-time Fraud Scoring Platform",
+      "sectorTag": "05 · ML",
+      "role": "ML platform & MLOps · Payments · 2025",
+      "description": "Problem: batch fraud scoring let too much loss through and reacted too slowly to new attack patterns. Approach: a feature store plus streaming inference for sub-150 ms scoring, with champion/challenger rollout and automated drift alerting. Outcome: a 41% reduction in fraud loss at a 120 ms p99 scoring latency, delivered in six months.",
+      "thumbKind": "iso",
+      "outcomes": [
+        { "value": "−41", "unit": "%", "label": "fraud loss", "tone": "ok" },
+        { "value": "120", "unit": "ms", "label": "scoring p99" },
+        { "value": "6", "unit": "mo", "label": "duration" }
+      ],
+      "tags": ["Feature store", "Streaming", "Champion/challenger"]
+    },
+    {
+      "id": "PRJ-30",
+      "title": "Regulatory Reporting Automation",
+      "sectorTag": "06 · Compliance",
+      "role": "Delivery & controls · Banking · 2024",
+      "description": "Problem: twenty-two regulatory filings ran on fragile manual spreadsheets with no audit trail and recurring late submissions. Approach: we automated each filing end-to-end on a reusable controls library, with full lineage and a maker-checker audit trail. Outcome: 100% on-time filings, a 70% cut in manual effort, and all 22 filings retired from spreadsheets.",
+      "thumbKind": "wave",
+      "outcomes": [
+        { "value": "100", "unit": "%", "label": "on-time filings", "tone": "ok" },
+        { "value": "−70", "unit": "%", "label": "manual effort", "tone": "ok" },
+        { "value": "22", "label": "filings automated" }
+      ],
+      "tags": ["Controls library", "Audit trail", "Automation"],
+      "status": "ok"
+    },
+    {
+      "id": "PRJ-33",
+      "title": "Cloud Cost & Reliability Programme",
+      "sectorTag": "07 · Platform",
+      "role": "SRE & FinOps lead · Banking · 2026",
+      "description": "Problem: cloud spend was growing faster than load while reliability targets slipped. Approach: a FinOps operating model with showback per team, autoscaling and rightsizing guardrails, and SLO-driven error budgets owned by the squads. Outcome: a 31% reduction in monthly cloud cost while lifting the fleet SLO to 99.9% — held for two consecutive quarters.",
+      "thumbKind": "mark",
+      "outcomes": [
+        { "value": "−31", "unit": "%", "label": "cloud cost", "tone": "ok" },
+        { "value": "99.9", "unit": "%", "label": "fleet SLO", "tone": "ok" },
+        { "value": "5", "unit": "mo", "label": "duration" }
+      ],
+      "tags": ["FinOps", "SRE", "Autoscaling"]
+    }
+  ],
+  "logos": [
+    { "name": "ACME Financial", "style": "bold" },
+    { "name": "northwind bank", "style": "italic" },
+    { "name": "Vol·Tek", "style": "tracked" },
+    { "name": "MERIDIAN", "style": "bold" },
+    { "name": "QuantCapital", "style": "mixed" },
+    { "name": "Solace Insurance", "style": "bold" },
+    { "name": "HELIX Pay", "style": "tracked" },
+    { "name": "Cedar&Vale", "style": "mixed" }
+  ],
+  "capabilities": [
+    {
+      "icon": "building",
+      "label": "Core platform delivery",
+      "description": "Tier-1 re-architecture, cutover and parallel-run — measured to zero-incident handover."
+    },
+    {
+      "icon": "bar-chart",
+      "label": "Data & analytics",
+      "description": "Governed lakehouse, lineage and self-serve analytics with cost held down."
+    },
+    {
+      "icon": "network",
+      "label": "ML & real-time systems",
+      "description": "Feature stores, streaming inference and MLOps with drift and rollout controls."
+    },
+    {
+      "icon": "shield-check",
+      "label": "Risk, controls & RegTech",
+      "description": "Automated filings, controls libraries and audit trails that pass review first time."
+    }
+  ],
+  "contact": {
+    "ctaEyebrow": "Start a conversation",
+    "ctaHeadline": "Have an outcome in mind? Let's scope it.",
+    "ctaBody": "Bring the number you need to move. We'll come back with a shaped engagement, the figures it should hit, and references you can call.",
+    "email": "studio@{{ORG}}.example",
+    "documentLink": "{{PROJECT}} capability deck",
+    "footerLine": "Selected Work · FY2024–FY2026 · Outcomes owner-verified · {{DATE}}"
+  }
+}
+</script>
+
+<noscript>
+  <div class="noscript">This showcase renders its hero, case gallery, capabilities and contact band from embedded JSON via JavaScript. Enable JavaScript to view the portfolio and to filter, sort and expand the cases.</div>
+</noscript>
+
+<!-- ===================== SLIM BRAND BAR ===================== -->
+<div class="showcase-bar">
+  <div class="bar-inner">
+    <div class="brand"><span class="sq"></span><span id="brandOrg">{{ORG}}</span> <small>· Selected Work</small></div>
+    <div class="bar-spacer"></div>
+    <div class="bar-ctrls">
+      <label class="rc-theme" id="rcTheme" title="Brand colour">
+        <span class="rc-theme-sw" aria-hidden="true"></span>
+        <select class="rc-theme-sel" aria-label="Brand theme">
+          <option value="blue">Blue</option>
+          <option value="purple">Purple</option>
+          <option value="indigo">Indigo</option>
+          <option value="teal">Teal</option>
+          <option value="cyan">Cyan</option>
+          <option value="green">Green</option>
+          <option value="plum">Plum</option>
+          <option value="slate">Slate</option>
+          <option value="black">Black</option>
+        </select>
+      </label>
+      <button type="button" id="printBtn">Print</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== EDITORIAL HERO (rendered) ===================== -->
+<header class="showcase">
+  <div class="wrap" id="hero"></div>
+</header>
+
+<main class="wrap" hidden id="main">
+
+  <!-- ===================== CASE GALLERY ===================== -->
+  <div class="section-eyebrow">
+    <span class="lbl">Selected cases</span>
+    <h2>Delivered engagements</h2>
+    <span class="rule"></span>
+    <span class="count tnum" id="caseCount"></span>
+  </div>
+
+  <!-- filter + sort toolbar (driven from data) -->
+  <div class="gallery-toolbar" role="group" aria-label="gallery controls">
+    <div class="tb-group" id="sectorChips" aria-label="filter by sector"><span class="tb-lbl">Sector</span></div>
+    <span class="tb-sep" aria-hidden="true"></span>
+    <div class="tb-group" id="tagChips" aria-label="filter by tag"><span class="tb-lbl">Tag</span></div>
+    <span class="tb-spacer"></span>
+    <div class="tb-group">
+      <span class="tb-lbl">Sort</span>
+      <select class="tb-sort" id="sortSel" aria-label="sort cases">
+        <option value="featured">Featured order</option>
+        <option value="impact">Top outcome (high→low)</option>
+        <option value="duration-asc">Duration (short→long)</option>
+        <option value="duration-desc">Duration (long→short)</option>
+        <option value="recent">Most recent</option>
+      </select>
+    </div>
+    <button class="tb-reset" id="resetBtn" type="button" hidden>
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12a7 7 0 1 1-2.05-4.95"/><path d="M19 4.5V8.5H15"/></svg>
+      Reset
+    </button>
+  </div>
+
+  <div class="gallery" id="gallery"></div>
+
+  <!-- ===================== CLIENT WORDMARK CHIPS ===================== -->
+  <div class="section-eyebrow">
+    <span class="lbl">Trusted by</span>
+    <h2>Selected clients</h2>
+    <span class="rule"></span>
+    <span class="st-badge st-ok">All references contactable</span>
+  </div>
+  <div class="logo-row" id="logoRow"></div>
+
+  <!-- ===================== CAPABILITY BAND ===================== -->
+  <div class="section-eyebrow">
+    <span class="lbl">How we work</span>
+    <h2>Capabilities</h2>
+    <span class="rule"></span>
+  </div>
+  <div class="capability-band">
+    <div class="cap-grid" id="capGrid"></div>
+  </div>
+
+</main>
+
+<!-- ===================== CONTACT BAND (dark, rendered) ===================== -->
+<section class="contact-band" id="contactBand" hidden>
+  <div class="wrap" id="contactInner"></div>
+  <div class="foot-brand">
+    <div class="wrap" id="footBrand"></div>
+  </div>
+</section>
+
+<script>
+/* ============================================================
+   PORTFOLIO — data-driven + interactive (vanilla JS, no libs)
+   Reads #report-data → renders hero / gallery / logos / capabilities / contact,
+   then wires: card click → expand detail, sector + tag filter, outcome sort,
+   outcome-stat hover, live "N shown · M total" count, canonical .rc-theme.
+   Rendering runs once on load so print captures a complete static snapshot.
+   ============================================================ */
+(function(){
+  "use strict";
+
+  const DATA = JSON.parse(document.getElementById('report-data').textContent);
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  /* hero headline/standfirst carry a sanctioned <em>/<strong>; allow ONLY those, escape the rest */
+  const richText = s => esc(s)
+    .replace(/&lt;(\/?)(em|strong)&gt;/g, '<$1$2>');
+  const $ = sel => document.querySelector(sel);
+
+  /* ---- inline house icons (24x24, stroke=currentColor, 1.75) ---- */
+  const ICONS = {
+    building:'<svg class="icon icon-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 9.5 12 4.75 20.5 9.5"/><path d="M4.5 9.5H19.5"/><path d="M6.5 11V17.5M10 11V17.5M14 11V17.5M17.5 11V17.5"/><path d="M5 17.5H19"/><path d="M3.75 20.25H20.25"/></svg>',
+    'bar-chart':'<svg class="icon icon-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4V20H20"/><rect x="6.75" y="12" width="3" height="8" rx="1.2"/><rect x="11.5" y="8" width="3" height="12" rx="1.2"/><rect x="16.25" y="14.5" width="3" height="5.5" rx="1.2"/></svg>',
+    network:'<svg class="icon icon-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7.5 6 16.5M12 7.5 18 16.5M7.5 18.5H16.5"/><rect x="10" y="3.5" width="4" height="4" rx="1.2" fill="currentColor" stroke="none"/><rect x="3.5" y="16.5" width="4" height="4" rx="1.2" fill="currentColor" stroke="none"/><rect x="16.5" y="16.5" width="4" height="4" rx="1.2" fill="currentColor" stroke="none"/></svg>',
+    'shield-check':'<svg class="icon icon-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.25 19 5.75v5.45c0 4.4-3 7.6-7 8.8-4-1.2-7-4.4-7-8.8V5.75Z"/><path d="M9 12l2.2 2.2L15.2 9.6"/></svg>',
+    doc:'<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 3.5H13l4.5 4.5V20a.5.5 0 0 1-.5.5H6.5a.5.5 0 0 1-.5-.5V4a.5.5 0 0 1 .5-.5Z"/><path d="M13 3.5V7.5a.5.5 0 0 0 .5.5H17.5"/><path d="M9 12.5H15M9 15.5H15M9 18H12.5"/></svg>',
+    chevron:'<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9.5 12 15.5 18 9.5"/></svg>'
+  };
+  const capIcon = k => ICONS[k] || ICONS.network;
+
+  /* ---- CSS/SVG-art thumbnails keyed by thumbKind (no <img>) ---- */
+  const THUMB_SVG = {
+    rings:'<svg viewBox="0 0 320 180" fill="none" stroke="currentColor" stroke-width="2" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><circle cx="232" cy="92" r="78" stroke-opacity=".22"/><circle cx="232" cy="92" r="56" stroke-opacity=".4"/><circle cx="232" cy="92" r="34" stroke-opacity=".7"/><path d="M232 92 A34 34 0 0 1 266 92" stroke-width="6" stroke-linecap="round"/><rect x="226" y="86" width="12" height="12" rx="3" fill="currentColor" stroke="none"/><path d="M40 138 H150 M40 122 H120 M40 152 H100" stroke-opacity=".5" stroke-linecap="round"/></svg>',
+    bars:'<svg viewBox="0 0 320 180" fill="none" stroke="currentColor" stroke-width="2" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><path d="M34 150 H292" stroke-opacity=".5" stroke-linecap="round"/><rect x="56" y="96" width="26" height="54" rx="4" fill="currentColor" stroke="none" opacity=".30"/><rect x="98" y="72" width="26" height="78" rx="4" fill="currentColor" stroke="none" opacity=".45"/><rect x="140" y="108" width="26" height="42" rx="4" fill="currentColor" stroke="none" opacity=".30"/><rect x="182" y="54" width="26" height="96" rx="4" fill="currentColor" stroke="none" opacity=".75"/><rect x="224" y="84" width="26" height="66" rx="4" fill="currentColor" stroke="none" opacity=".45"/><path d="M52 110 L111 86 L153 120 L195 64 L237 96" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><rect x="190" y="59" width="10" height="10" rx="2.5" fill="currentColor" stroke="none"/></svg>',
+    grid:'<svg viewBox="0 0 320 180" fill="none" stroke="currentColor" stroke-width="1.8" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><path d="M70 56 L160 40 L250 56 M70 56 L70 124 M250 56 L250 124 M70 124 L160 140 L250 124 M160 40 L160 140 M70 90 H250" stroke-opacity=".45" stroke-linecap="round"/><rect x="153" y="33" width="14" height="14" rx="3.4" fill="currentColor" stroke="none"/><rect x="63" y="49" width="14" height="14" rx="3.4" fill="currentColor" stroke="none" opacity=".6"/><rect x="243" y="49" width="14" height="14" rx="3.4" fill="currentColor" stroke="none" opacity=".6"/><rect x="63" y="117" width="14" height="14" rx="3.4" fill="currentColor" stroke="none" opacity=".6"/><rect x="243" y="117" width="14" height="14" rx="3.4" fill="currentColor" stroke="none" opacity=".6"/><rect x="153" y="133" width="14" height="14" rx="3.4" fill="currentColor" stroke="none" opacity=".85"/></svg>',
+    arc:'<svg viewBox="0 0 320 180" fill="none" stroke="currentColor" stroke-width="2" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><path d="M70 132 A90 90 0 0 1 250 132" stroke-width="12" stroke-opacity=".2" stroke-linecap="round"/><path d="M70 132 A90 90 0 0 1 226 87" stroke-width="12" stroke-linecap="round"/><path d="M160 132 L210 96" stroke-width="3" stroke-linecap="round"/><rect x="154" y="126" width="13" height="13" rx="3.2" fill="currentColor" stroke="none"/><path d="M70 132 V146 M250 132 V146" stroke-opacity=".4" stroke-linecap="round"/></svg>',
+    iso:'<svg viewBox="0 0 320 180" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><path d="M160 36 L226 70 L160 104 L94 70 Z" stroke-opacity=".85"/><path d="M160 70 L226 104 L160 138 L94 104 Z" stroke-opacity=".5"/><path d="M160 104 L226 138 L160 172 L94 138 Z" stroke-opacity=".3"/><path d="M160 36 L160 18" stroke-linecap="round"/><rect x="153" y="11" width="14" height="14" rx="3.4" fill="currentColor" stroke="none"/></svg>',
+    wave:'<svg viewBox="0 0 320 180" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><path d="M28 96 C70 30 110 162 152 96 S234 30 292 96" stroke-opacity=".85"/><path d="M28 124 C70 76 110 172 152 124 S234 76 292 124" stroke-opacity=".35"/><rect x="146" y="90" width="12" height="12" rx="3" fill="currentColor" stroke="none"/></svg>',
+    mark:'<svg viewBox="0 0 320 180" fill="none" stroke="currentColor" stroke-width="2" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><path d="M232 52 V132 M232 52 L200 70 M232 52 L264 70" stroke-opacity=".7" stroke-linecap="round"/><circle cx="232" cy="92" r="62" stroke-opacity=".22"/><path d="M232 92 m-44 0 a44 44 0 1 0 88 0" stroke-opacity=".5" stroke-linecap="round"/><rect x="225" y="85" width="14" height="14" rx="3.4" fill="currentColor" stroke="none"/><path d="M40 132 L70 112 L100 124 L130 96" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" stroke-opacity=".55"/></svg>'
+  };
+  const thumbSvg = k => THUMB_SVG[k] || THUMB_SVG.rings;
+
+  /* ---- helpers: parse a leading number out of an outcome value (e.g. "−62"→-62, "4.6"→4.6) ---- */
+  function numOf(str){
+    if(str == null) return NaN;
+    const m = String(str).replace(/−/g,'-').match(/-?\d+(\.\d+)?/);
+    return m ? parseFloat(m[0]) : NaN;
+  }
+  /* a card's headline impact = the largest absolute outcome magnitude it reports */
+  function impactOf(c){
+    let best = -Infinity;
+    (c.outcomes||[]).forEach(o => { const n = Math.abs(numOf(o.value)); if(!isNaN(n) && n>best) best = n; });
+    return best === -Infinity ? 0 : best;
+  }
+  /* duration in months if a "…mo" outcome exists, else Infinity (sorts last) */
+  function durationOf(c){
+    const o = (c.outcomes||[]).find(o => /mo|wk|yr/i.test(o.unit||'') );
+    if(!o) return Infinity;
+    let n = numOf(o.value); const u = (o.unit||'').toLowerCase();
+    if(u.indexOf('wk')===0) n = n/4.3; else if(u.indexOf('yr')===0) n = n*12;
+    return isNaN(n) ? Infinity : n;
+  }
+  /* recency: last 4-digit year mentioned in the role line */
+  function yearOf(c){
+    const m = String(c.role||'').match(/(20\d{2})(?!.*20\d{2})/);
+    return m ? parseInt(m[1],10) : 0;
+  }
+  const sectorOf = c => { const t = String(c.sectorTag||''); const i = t.indexOf('·'); return (i>=0 ? t.slice(i+1) : t).trim() || 'Other'; };
+
+  /* split a "Problem: … Approach: … Outcome: …" description into structured steps */
+  function splitNarrative(desc){
+    const text = String(desc||'');
+    const keys = ['Problem','Approach','Outcome'];
+    const out = [];
+    keys.forEach((k,i) => {
+      const re = new RegExp(k + '\\s*:\\s*([\\s\\S]*?)(?=(?:' + keys.slice(i+1).join('|') + ')\\s*:|$)', 'i');
+      const m = text.match(re);
+      if(m && m[1].trim()) out.push({ label:k, body:m[1].trim() });
+    });
+    if(!out.length && text.trim()) out.push({ label:'Summary', body:text.trim() });
+    return out;
+  }
+
+  /* ============================================================ RENDER ============================================================ */
+  const state = { sector:'all', tag:'all', sort:'featured', open:null };
+
+  function renderHero(){
+    const h = DATA.hero, m = DATA.meta;
+    const stats = (h.leadStats||[]).map(s =>
+      `<div class="lead-stat"><div class="lead-num tnum">${esc(s.value)}${s.unit?`<small>${esc(s.unit)}</small>`:''}</div><div class="lead-lbl">${esc(s.label)}</div></div>`
+    ).join('');
+    $('#hero').innerHTML =
+      `<div class="eyebrow"><span class="dot"></span><b>${esc(m.org)}</b> &nbsp;·&nbsp; ${esc(m.project)} &nbsp;·&nbsp; ${esc(m.reportType||'Capability Portfolio')}${h.eyebrow?` &nbsp;·&nbsp; ${esc(h.eyebrow)}`:''}</div>
+       <h1 class="display">${richText(h.headline)}</h1>
+       <p class="standfirst">${richText(h.standfirst)}</p>
+       <div class="lead-stats">${stats}</div>`;
+    document.getElementById('brandOrg').textContent = m.org;
+  }
+
+  function cardHtml(c){
+    const kind = c.thumbKind || 'rings';
+    const cols = (c.outcomes||[]).length;
+    const outs = (c.outcomes||[]).map(o => {
+      const tone = o.tone ? ' '+o.tone : '';
+      const toneWord = o.tone==='ok' ? 'a verified win' : (o.tone==='risk' ? 'an honest negative' : (o.tone==='hold' ? 'a watch item' : 'a neutral measure'));
+      return `<div class="outcome" tabindex="0">
+        <div class="o-num${tone} tnum">${esc(o.value)}${o.unit?`<small>${esc(o.unit)}</small>`:''}</div>
+        <div class="o-lbl">${esc(o.label)}</div>
+        <span class="o-tip" role="tooltip"><b>${esc(o.value)}${o.unit?esc(o.unit):''}</b> · ${esc(o.label)}<br>Owner-verified, measured after handover — ${toneWord}.</span>
+      </div>`;
+    }).join('');
+    const tagRow = (c.tags||[]).map(t =>
+      `<span class="t${state.tag!=='all' && t===state.tag?' is-active':''}">${esc(t)}</span>`
+    ).join('');
+    const status = c.status ? `<span class="st-badge st-${esc(c.status)}">${c.status==='ok'?'Reference-verified':(c.status==='hold'?'In progress':'At risk')}</span>` : '';
+
+    /* expanded detail: problem / approach / outcome narrative + facts + full outcomes */
+    const steps = splitNarrative(c.description);
+    const narrative = steps.map((s,i) =>
+      `<div class="dn-block"><div class="dn-head"><span class="dn-step">${i+1}</span><span class="dn-title">${esc(s.label)}</span></div><p class="dn-body">${esc(s.body)}</p></div>`
+    ).join('');
+    const facts = [
+      ['Ref', c.id], ['Sector', sectorOf(c)], ['Engagement', (c.role||'').split('·')[0].trim()],
+      ['Timeline', (String(c.role||'').match(/20\d{2}(?:[–-]\d{2,4})?/)||[''])[0]]
+    ].filter(kv => kv[1]).map(kv => `<div class="kv"><span class="k">${esc(kv[0])}</span><span class="v">${esc(kv[1])}</span></div>`).join('');
+
+    return `<article class="case-card" data-id="${esc(c.id)}" data-sector="${esc(sectorOf(c))}" tabindex="0" role="button" aria-expanded="false" aria-label="${esc(c.title)} — open case detail">
+      <div class="thumb thumb--${esc(kind)}">
+        <span class="thumb-num">${esc(c.id)}</span><span class="thumb-kind">${esc(sectorOf(c))}</span>
+        ${thumbSvg(kind)}
+      </div>
+      <div class="case-body">
+        <div class="case-head">
+          <div class="ht">
+            ${c.sectorTag?`<span class="case-tag">${esc(c.sectorTag)}</span>`:''}
+            <div class="case-title">${esc(c.title)}</div>
+            <div class="case-role">${esc(c.role)}</div>
+          </div>
+          <span class="case-toggle" aria-hidden="true">${ICONS.chevron}</span>
+        </div>
+        ${c.description?`<p class="case-desc">${esc((splitNarrative(c.description)[0]||{}).body || c.description)}</p>`:''}
+        <div class="outcome-row cols-${cols}">${outs}</div>
+        ${(c.tags&&c.tags.length)?`<div class="case-tags">${tagRow}${status}</div>`:(status?`<div class="case-tags">${status}</div>`:'')}
+      </div>
+      <div class="case-detail">
+        <div class="detail-grid">
+          <div class="detail-narrative">${narrative}</div>
+          <div class="detail-aside">
+            <div class="aside-kv">${facts}</div>
+            <div class="detail-out">
+              <div class="dn-title">Measured outcomes</div>
+              <div class="outcome-row cols-${cols}">${outs}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </article>`;
+  }
+
+  function visibleCases(){
+    let list = DATA.cases.slice();
+    if(state.sector!=='all') list = list.filter(c => sectorOf(c)===state.sector);
+    if(state.tag!=='all')    list = list.filter(c => (c.tags||[]).indexOf(state.tag)>=0);
+    const dir = {
+      featured: null,
+      impact:        (a,b) => impactOf(b)-impactOf(a),
+      'duration-asc':(a,b) => durationOf(a)-durationOf(b),
+      'duration-desc':(a,b)=> durationOf(b)-durationOf(a),
+      recent:        (a,b) => yearOf(b)-yearOf(a)
+    }[state.sort];
+    if(dir) list.sort(dir);
+    return list;
+  }
+
+  function renderGallery(){
+    const list = visibleCases();
+    const g = $('#gallery');
+    g.innerHTML = list.length
+      ? list.map(cardHtml).join('')
+      : `<div class="gallery-empty">No cases match this filter.<br>Clear the sector / tag filter to see all ${DATA.cases.length} engagements.</div>`;
+    /* live, derived count — replaces the old unbacked "6 shown · 31 total" */
+    $('#caseCount').textContent = `${list.length} shown · ${DATA.cases.length} total`;
+    $('#resetBtn').hidden = (state.sector==='all' && state.tag==='all' && state.sort==='featured');
+    if(state.open && list.some(c => c.id===state.open)) openCard(state.open, true);
+    else state.open = null;
+    wireCards();
+  }
+
+  function renderLogos(){
+    $('#logoRow').innerHTML = (DATA.logos||[]).map(l => {
+      const name = esc(l.name);
+      switch(l.style){
+        case 'italic':  return `<span class="logo-chip"><span class="mk r"></span><span class="lt"><i>${name}</i></span></span>`;
+        case 'tracked': return `<span class="logo-chip"><span class="tk">${name}</span></span>`;
+        case 'mixed':   { const first = name.charAt(0); const rest = name.slice(1);
+                          return `<span class="logo-chip"><span class="ac">${esc(first)}</span><b>${esc(rest)}</b></span>`; }
+        default:        return `<span class="logo-chip"><span class="mk"></span><b>${name}</b></span>`;
+      }
+    }).join('');
+  }
+
+  function renderCapabilities(){
+    $('#capGrid').innerHTML = (DATA.capabilities||[]).map(c =>
+      `<div class="capability"><div class="cap-ico">${capIcon(c.icon)}</div><div class="cap-title">${esc(c.label)}</div><div class="cap-line">${esc(c.description)}</div></div>`
+    ).join('');
+  }
+
+  function renderContact(){
+    const ct = DATA.contact, m = DATA.meta;
+    if(!ct){ return; }
+    const link = ct.documentLink ? `<div class="row">${ICONS.doc} <a href="#">${esc(ct.documentLink)}</a></div>` : '';
+    const email = ct.email ? `<div class="row">${esc(ct.email)}</div>` : '';
+    const author = m.author ? `<div class="row">${esc(m.author)} · Delivery Lead</div>` : '';
+    $('#contactInner').innerHTML =
+      `<div class="contact-cta">
+        ${ct.ctaEyebrow?`<div class="ce">${esc(ct.ctaEyebrow)}</div>`:''}
+        ${ct.ctaHeadline?`<h3>${esc(ct.ctaHeadline)}</h3>`:''}
+        ${ct.ctaBody?`<p>${esc(ct.ctaBody)}</p>`:''}
+      </div>
+      <div class="contact-meta">${link}${email}${author}</div>`;
+    const foot = (ct.footerLine||'').replace('{{DATE}}', esc(m.date||''));
+    $('#footBrand').innerHTML =
+      `<span class="sq"></span><span>${esc(m.org)}</span><span class="sp"></span><span>${esc(foot)}</span>`;
+    document.getElementById('contactBand').hidden = false;
+  }
+
+  /* ============================================================ INTERACTIONS ============================================================ */
+  function openCard(id, silent){
+    const card = $('#gallery').querySelector('.case-card[data-id="'+CSS.escape(id)+'"]');
+    if(!card) return;
+    $('#gallery').querySelectorAll('.case-card.is-open').forEach(c => {
+      if(c!==card){ c.classList.remove('is-open'); c.setAttribute('aria-expanded','false'); }
+    });
+    const willOpen = silent ? true : !card.classList.contains('is-open');
+    card.classList.toggle('is-open', willOpen);
+    card.setAttribute('aria-expanded', String(willOpen));
+    state.open = willOpen ? id : null;
+  }
+
+  function wireCards(){
+    $('#gallery').querySelectorAll('.case-card').forEach(card => {
+      const id = card.dataset.id;
+      card.addEventListener('click', e => {
+        if(e.target.closest('.outcome')) return;   /* let outcome hover/focus be itself */
+        openCard(id);
+      });
+      card.addEventListener('keydown', e => {
+        if(e.key==='Enter' || e.key===' '){ e.preventDefault(); openCard(id); }
+        if(e.key==='Escape' && card.classList.contains('is-open')){ openCard(id); }
+      });
+    });
+  }
+
+  function buildSectorChips(){
+    const counts = {};
+    DATA.cases.forEach(c => { const s = sectorOf(c); counts[s] = (counts[s]||0)+1; });
+    const sectors = Object.keys(counts).sort();
+    const host = $('#sectorChips');
+    const all = `<button class="filter-chip" data-sector="all" aria-pressed="true" type="button">All <span class="ct">${DATA.cases.length}</span></button>`;
+    host.insertAdjacentHTML('beforeend', all +
+      sectors.map(s => `<button class="filter-chip" data-sector="${esc(s)}" aria-pressed="false" type="button">${esc(s)} <span class="ct">${counts[s]}</span></button>`).join(''));
+    host.querySelectorAll('.filter-chip').forEach(b => b.addEventListener('click', () => {
+      state.sector = b.dataset.sector;
+      host.querySelectorAll('.filter-chip').forEach(x => x.setAttribute('aria-pressed', String(x===b)));
+      renderGallery();
+    }));
+  }
+
+  function buildTagChips(){
+    const counts = {};
+    DATA.cases.forEach(c => (c.tags||[]).forEach(t => { counts[t] = (counts[t]||0)+1; }));
+    /* keep tags shared by ≥2 cases as filters, else the list gets noisy; always offer All */
+    const tags = Object.keys(counts).filter(t => counts[t]>=1).sort((a,b)=>counts[b]-counts[a] || a.localeCompare(b)).slice(0,8);
+    const host = $('#tagChips');
+    const all = `<button class="filter-chip" data-tag="all" aria-pressed="true" type="button">All</button>`;
+    host.insertAdjacentHTML('beforeend', all +
+      tags.map(t => `<button class="filter-chip" data-tag="${esc(t)}" aria-pressed="false" type="button">${esc(t)} <span class="ct">${counts[t]}</span></button>`).join(''));
+    host.querySelectorAll('.filter-chip').forEach(b => b.addEventListener('click', () => {
+      state.tag = b.dataset.tag;
+      host.querySelectorAll('.filter-chip').forEach(x => x.setAttribute('aria-pressed', String(x===b)));
+      renderGallery();
+    }));
+  }
+
+  function resetFilters(){
+    state.sector='all'; state.tag='all'; state.sort='featured';
+    $('#sectorChips').querySelectorAll('.filter-chip').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.sector==='all')));
+    $('#tagChips').querySelectorAll('.filter-chip').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.tag==='all')));
+    $('#sortSel').value = 'featured';
+    renderGallery();
+  }
+
+  /* ---- canonical .rc-theme dropdown switcher (incl. mandatory Black) ---- */
+  const rcSel = document.querySelector('.rc-theme-sel');
+
+  /* ============================================================ INIT ============================================================ */
+  function render(){
+    renderHero(); renderLogos(); renderCapabilities(); renderContact();
+    buildSectorChips(); buildTagChips();
+    renderGallery();
+  }
+
+  document.getElementById('printBtn').addEventListener('click', () => window.print());
+  document.getElementById('sortSel').addEventListener('change', e => { state.sort = e.target.value; renderGallery(); });
+  document.getElementById('resetBtn').addEventListener('click', resetFilters);
+
+  const theme = DATA.meta.theme || 'cyan';
+  document.documentElement.dataset.theme = theme;
+  if(rcSel){
+    rcSel.value = theme;
+    rcSel.addEventListener('change', () => { document.documentElement.dataset.theme = rcSel.value; });
+  }
+
+  render();
+  document.getElementById('main').hidden = false;
+})();
+</script>
+</body>
+</html>

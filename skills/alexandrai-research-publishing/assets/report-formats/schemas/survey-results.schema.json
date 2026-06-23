@@ -1,0 +1,265 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://genesis.local/html_report_design/schemas/survey-results.schema.json",
+  "title": "Survey results report",
+  "description": "Data contract for the survey-results format: a question-by-question survey / poll results report. The page is a summary header (N responses, completion rate, NPS, sentiment split) followed by a vertical stack of per-question result blocks — each rendered as a distribution bar list, a stacked Likert scale, an NPS gauge, a rating meter, a single big stat, or an open-response quote list, every option carrying its response count and percentage. A segment selector at the top recomputes every distribution and the summary from each option's per-segment counts; controls toggle count vs percent, bar vs stacked, sort options by count, and expand a question to a full cross-tab table. Data-driven and interactive (vanilla JS, no libraries); renders to a centred PC-wide, self-contained HTML page. This is NOT a live ops console (dashboard) and NOT a sortable record grid (data-register) — it is a results readout organised one question at a time. The sample's #report-data is a valid instance of this schema.",
+  "type": "object",
+  "required": ["meta", "summary", "segments", "questions"],
+  "additionalProperties": false,
+  "properties": {
+    "meta": {
+      "type": "object",
+      "description": "Shared report chrome (org / project / title / theme). Brand-neutral: keep {{ORG}} / {{PROJECT}} / {{AUTHOR}} placeholders unless real values are supplied.",
+      "required": ["org", "project", "reportType", "title", "date", "theme"],
+      "additionalProperties": false,
+      "properties": {
+        "org": { "type": "string", "description": "Organisation name or {{ORG}} placeholder.", "default": "{{ORG}}" },
+        "project": { "type": "string", "description": "Project / programme / survey name or {{PROJECT}} placeholder.", "default": "{{PROJECT}}" },
+        "reportType": { "type": "string", "description": "Eyebrow label shown in the header, e.g. 'Employee engagement survey' or {{REPORT_TYPE}}." },
+        "title": { "type": "string", "description": "Report title shown in the header, e.g. 'Q2 Engagement Survey — Results'." },
+        "subtitle": { "type": "string", "description": "Optional one-line context, e.g. fielding window or population." },
+        "date": { "type": "string", "description": "ISO date the results were compiled (YYYY-MM-DD).", "format": "date" },
+        "author": { "type": "string", "description": "Author / owning team or {{AUTHOR}} placeholder.", "default": "{{AUTHOR}}" },
+        "fieldwork": { "type": "string", "description": "Optional fielding window shown as a chip, e.g. '12–26 May 2026'." },
+        "theme": {
+          "type": "string",
+          "description": "Initial brand theme; applied as <html data-theme>. Survey-results default is 'green'.",
+          "enum": ["blue", "purple", "indigo", "teal", "cyan", "green", "plum", "slate", "black"],
+          "default": "green"
+        }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "description": "Headline numbers shown in the summary header strip. Responses is required; the rest are optional. When per-segment data exists on questions, the NPS / sentiment / response figures are recomputed live as the segment filter changes; the values here are the 'All respondents' baseline.",
+      "required": ["responses"],
+      "additionalProperties": false,
+      "properties": {
+        "responses": { "type": "integer", "description": "Total number of completed responses in the baseline (all respondents).", "minimum": 0 },
+        "invited": { "type": "integer", "description": "Optional number of people invited / the sample frame, used to express completion rate.", "minimum": 0 },
+        "completionRate": { "type": "number", "description": "Optional completion / response rate as a percentage 0-100. If omitted and both responses and invited are present, it may be derived.", "minimum": 0, "maximum": 100 },
+        "nps": { "type": "integer", "description": "Optional headline Net Promoter Score (-100..100) for the baseline. Usually mirrors the value computed from the question of type 'nps'.", "minimum": -100, "maximum": 100 },
+        "sentiment": {
+          "type": "object",
+          "description": "Optional overall sentiment split as three counts that sum to roughly the responses total. Drives the summary sentiment meter (positive=ok, neutral, negative=risk).",
+          "additionalProperties": false,
+          "properties": {
+            "positive": { "type": "integer", "description": "Count of positive / favourable responses.", "minimum": 0 },
+            "neutral": { "type": "integer", "description": "Count of neutral / passive responses.", "minimum": 0 },
+            "negative": { "type": "integer", "description": "Count of negative / unfavourable responses.", "minimum": 0 }
+          }
+        }
+      }
+    },
+    "segments": {
+      "type": "array",
+      "description": "The segment selector. Each entry is a respondent cut the reader can switch between (e.g. department, region, tenure). The first entry SHOULD be the 'All respondents' baseline whose key matches the keys used in every option's bySegment map. When a non-baseline segment is selected, distributions and the summary are recomputed from each option's bySegment[key] count.",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["key", "label"],
+        "additionalProperties": false,
+        "properties": {
+          "key": { "type": "string", "description": "Stable segment key referenced by option.bySegment maps, e.g. 'all', 'eng', 'sales'." },
+          "label": { "type": "string", "description": "Human label shown in the selector, e.g. 'All respondents', 'Engineering'." },
+          "n": { "type": "integer", "description": "Optional respondent count for this segment, shown beside the label and used as the denominator for that segment's percentages.", "minimum": 0 }
+        }
+      }
+    },
+    "questions": {
+      "type": "array",
+      "description": "The ordered list of survey questions, each rendered as one result block. The block layout is chosen by 'type'. Single/multi/likert/nps/rating carry an options[] distribution; open carries quotes[]; single-stat-style questions may carry a stat object.",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "text", "type"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "description": "Stable unique question key, e.g. 'q1'. Used to anchor the question and its expand/cross-tab controls." },
+          "text": { "type": "string", "description": "The full question wording shown as the block heading, e.g. 'How likely are you to recommend us as a place to work?'." },
+          "type": {
+            "type": "string",
+            "description": "Result block layout. 'single' = single-choice distribution bars; 'multi' = multi-select distribution bars (percentages can exceed 100% of respondents); 'likert' = ordered agreement scale rendered as a stacked 100% bar; 'nps' = 0-10 promoter/passive/detractor gauge + score; 'rating' = mean rating meter over a numeric scale; 'open' = free-text quote list; 'stat' = a single headline statistic.",
+            "enum": ["single", "multi", "likert", "nps", "rating", "open", "stat"]
+          },
+          "category": { "type": "string", "description": "Optional grouping/topic label shown as an eyebrow chip on the block, e.g. 'Leadership', 'Wellbeing'." },
+          "scaleMax": { "type": "integer", "description": "Optional numeric scale ceiling for 'rating' questions (e.g. 5 or 10). Defaults to 5 if omitted.", "minimum": 2 },
+          "options": {
+            "type": "array",
+            "description": "The answer distribution for single / multi / likert / nps / rating questions. Each option carries a baseline count and, optionally, a per-segment count map so distributions can be recomputed live. For 'likert' the options MUST be ordered worst-to-best (or best-to-worst, consistently) so the stacked bar reads as a scale; for 'nps' provide eleven options labelled '0'..'10' (or the renderer buckets by index).",
+            "items": {
+              "type": "object",
+              "required": ["label", "count"],
+              "additionalProperties": false,
+              "properties": {
+                "label": { "type": "string", "description": "Answer-option label, e.g. 'Strongly agree', 'Engineering', '9'." },
+                "count": { "type": "integer", "description": "Baseline (all-respondents) number of responses choosing this option.", "minimum": 0 },
+                "tone": {
+                  "type": "string",
+                  "description": "Optional semantic tone for colouring the bar/segment: 'ok' (favourable / promoter), 'hold' (neutral / passive), 'risk' (unfavourable / detractor). If omitted the renderer uses the brand accent (single/multi) or a scale ramp (likert).",
+                  "enum": ["ok", "hold", "risk", "neutral"]
+                },
+                "bySegment": {
+                  "type": "object",
+                  "description": "Optional per-segment counts keyed by segment.key (e.g. {\"eng\": 14, \"sales\": 9}). When a segment is selected the bar uses this value instead of count; the baseline 'all' may be derived as the sum or supplied explicitly.",
+                  "additionalProperties": { "type": "integer", "minimum": 0 }
+                }
+              }
+            }
+          },
+          "stat": {
+            "type": "object",
+            "description": "For a 'stat' question (or as an optional headline on any block): a single big figure with an optional unit, caption and tone.",
+            "additionalProperties": false,
+            "properties": {
+              "value": { "type": "string", "description": "The big displayed value as a string (preserve formatting), e.g. '4.2', '78', '12m'." },
+              "unit": { "type": "string", "description": "Optional unit appended in a smaller font, e.g. '/5', '%', 'days'." },
+              "caption": { "type": "string", "description": "Optional sub-caption, e.g. 'mean across 412 responses'." },
+              "tone": {
+                "type": "string",
+                "description": "Optional semantic tone driving the figure colour.",
+                "enum": ["ok", "hold", "risk", "neutral"]
+              }
+            }
+          },
+          "quotes": {
+            "type": "array",
+            "description": "For an 'open' question: a curated list of verbatim free-text responses shown as a quote list.",
+            "items": {
+              "type": "object",
+              "required": ["text"],
+              "additionalProperties": false,
+              "properties": {
+                "text": { "type": "string", "description": "The verbatim respondent quote." },
+                "attribution": { "type": "string", "description": "Optional non-identifying attribution, e.g. 'Engineering · 2-5 yrs'." },
+                "tone": {
+                  "type": "string",
+                  "description": "Optional sentiment tone for a leading marker on the quote.",
+                  "enum": ["ok", "hold", "risk", "neutral"]
+                }
+              }
+            }
+          },
+          "note": { "type": "string", "description": "Optional analyst note shown under the block (e.g. base size caveat, change vs last wave)." }
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "meta": {
+        "org": "{{ORG}}",
+        "project": "{{PROJECT}}",
+        "reportType": "Employee engagement survey",
+        "title": "Q2 Engagement Pulse — Results",
+        "subtitle": "All-staff pulse · 6 questions · anonymised",
+        "date": "2026-06-22",
+        "author": "{{AUTHOR}}",
+        "fieldwork": "12–26 May 2026",
+        "theme": "green"
+      },
+      "summary": {
+        "responses": 412,
+        "invited": 540,
+        "completionRate": 76.3,
+        "nps": 31,
+        "sentiment": { "positive": 268, "neutral": 96, "negative": 48 }
+      },
+      "segments": [
+        { "key": "all", "label": "All respondents", "n": 412 },
+        { "key": "eng", "label": "Engineering", "n": 168 },
+        { "key": "sales", "label": "Sales & Success", "n": 121 },
+        { "key": "ops", "label": "Operations", "n": 123 }
+      ],
+      "questions": [
+        {
+          "id": "q1",
+          "type": "nps",
+          "category": "Advocacy",
+          "text": "How likely are you to recommend {{ORG}} as a place to work? (0–10)",
+          "note": "Net Promoter Score = % promoters (9–10) − % detractors (0–6).",
+          "options": [
+            { "label": "0",  "count": 6,  "tone": "risk", "bySegment": { "eng": 2,  "sales": 3,  "ops": 1 } },
+            { "label": "1",  "count": 4,  "tone": "risk", "bySegment": { "eng": 1,  "sales": 2,  "ops": 1 } },
+            { "label": "2",  "count": 5,  "tone": "risk", "bySegment": { "eng": 2,  "sales": 2,  "ops": 1 } },
+            { "label": "3",  "count": 7,  "tone": "risk", "bySegment": { "eng": 3,  "sales": 3,  "ops": 1 } },
+            { "label": "4",  "count": 9,  "tone": "risk", "bySegment": { "eng": 3,  "sales": 4,  "ops": 2 } },
+            { "label": "5",  "count": 14, "tone": "risk", "bySegment": { "eng": 5,  "sales": 6,  "ops": 3 } },
+            { "label": "6",  "count": 21, "tone": "risk", "bySegment": { "eng": 8,  "sales": 8,  "ops": 5 } },
+            { "label": "7",  "count": 44, "tone": "hold", "bySegment": { "eng": 18, "sales": 14, "ops": 12 } },
+            { "label": "8",  "count": 52, "tone": "hold", "bySegment": { "eng": 22, "sales": 15, "ops": 15 } },
+            { "label": "9",  "count": 118,"tone": "ok",   "bySegment": { "eng": 52, "sales": 30, "ops": 36 } },
+            { "label": "10", "count": 132,"tone": "ok",   "bySegment": { "eng": 52, "sales": 34, "ops": 46 } }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "likert",
+          "category": "Leadership",
+          "text": "Leadership communicates a clear direction for the company.",
+          "options": [
+            { "label": "Strongly disagree", "count": 22,  "tone": "risk",     "bySegment": { "eng": 12, "sales": 6,  "ops": 4 } },
+            { "label": "Disagree",          "count": 41,  "tone": "risk",     "bySegment": { "eng": 20, "sales": 12, "ops": 9 } },
+            { "label": "Neutral",           "count": 88,  "tone": "hold",     "bySegment": { "eng": 38, "sales": 26, "ops": 24 } },
+            { "label": "Agree",             "count": 171, "tone": "ok",       "bySegment": { "eng": 66, "sales": 51, "ops": 54 } },
+            { "label": "Strongly agree",    "count": 90,  "tone": "ok",       "bySegment": { "eng": 32, "sales": 26, "ops": 32 } }
+          ]
+        },
+        {
+          "id": "q3",
+          "type": "likert",
+          "category": "Wellbeing",
+          "text": "I can maintain a healthy balance between work and personal commitments.",
+          "note": "Down 4 pts favourable vs the Q1 wave.",
+          "options": [
+            { "label": "Strongly disagree", "count": 39,  "tone": "risk", "bySegment": { "eng": 22, "sales": 11, "ops": 6 } },
+            { "label": "Disagree",          "count": 68,  "tone": "risk", "bySegment": { "eng": 34, "sales": 20, "ops": 14 } },
+            { "label": "Neutral",           "count": 92,  "tone": "hold", "bySegment": { "eng": 40, "sales": 28, "ops": 24 } },
+            { "label": "Agree",             "count": 134, "tone": "ok",   "bySegment": { "eng": 48, "sales": 41, "ops": 45 } },
+            { "label": "Strongly agree",    "count": 79,  "tone": "ok",   "bySegment": { "eng": 24, "sales": 21, "ops": 34 } }
+          ]
+        },
+        {
+          "id": "q4",
+          "type": "single",
+          "category": "Working model",
+          "text": "Which working arrangement suits you best?",
+          "options": [
+            { "label": "Fully remote",         "count": 121, "bySegment": { "eng": 68, "sales": 31, "ops": 22 } },
+            { "label": "Hybrid (2–3 days in)", "count": 198, "tone": "ok", "bySegment": { "eng": 78, "sales": 58, "ops": 62 } },
+            { "label": "Mostly in office",     "count": 71,  "bySegment": { "eng": 18, "sales": 24, "ops": 29 } },
+            { "label": "No preference",        "count": 22,  "bySegment": { "eng": 4,  "sales": 8,  "ops": 10 } }
+          ]
+        },
+        {
+          "id": "q5",
+          "type": "multi",
+          "category": "Recognition",
+          "text": "Which of these would most improve how recognised you feel? (select all that apply)",
+          "note": "Multi-select — percentages are of respondents, so they sum above 100%.",
+          "options": [
+            { "label": "More frequent manager 1:1s", "count": 188, "tone": "ok", "bySegment": { "eng": 84, "sales": 52, "ops": 52 } },
+            { "label": "Clearer career pathways",    "count": 232, "tone": "ok", "bySegment": { "eng": 104,"sales": 64, "ops": 64 } },
+            { "label": "Spot bonuses / rewards",     "count": 154, "bySegment": { "eng": 60, "sales": 56, "ops": 38 } },
+            { "label": "Public shout-outs",          "count": 96,  "bySegment": { "eng": 30, "sales": 44, "ops": 22 } },
+            { "label": "Learning budget",            "count": 176, "bySegment": { "eng": 92, "sales": 40, "ops": 44 } }
+          ]
+        },
+        {
+          "id": "q6",
+          "type": "open",
+          "category": "Open feedback",
+          "text": "What is the one thing we should change first?",
+          "note": "Curated, anonymised verbatims — representative of the 214 free-text responses.",
+          "quotes": [
+            { "text": "Career levelling is opaque — I can't tell what a promotion actually requires.", "attribution": "Engineering · 2–5 yrs", "tone": "risk" },
+            { "text": "Hybrid is working well; please keep the 3-day core-day flexibility.", "attribution": "Operations · 5+ yrs", "tone": "ok" },
+            { "text": "Cross-team handoffs lose context. A shared intake process would save days.", "attribution": "Sales & Success · 1–2 yrs", "tone": "hold" },
+            { "text": "Workload spikes around quarter-end are burning people out.", "attribution": "Sales & Success · 2–5 yrs", "tone": "risk" },
+            { "text": "Leadership town halls got much better this quarter — more of that.", "attribution": "Engineering · <1 yr", "tone": "ok" }
+          ]
+        }
+      ]
+    }
+  ]
+}

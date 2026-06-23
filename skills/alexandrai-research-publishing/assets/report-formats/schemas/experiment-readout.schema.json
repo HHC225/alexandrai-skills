@@ -1,0 +1,253 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://genesis.local/html_report_design/schemas/experiment-readout.schema.json",
+  "title": "A/B experiment readout",
+  "description": "Data contract for the experiment-readout format: a controlled-experiment (A/B test) results readout. Header carries the hypothesis + experiment status (running / shipped / inconclusive). A hero panel reports the PRIMARY metric: control vs each variant value, the uplift % vs control, a confidence interval, and a significance verdict toned ok/risk/hold. A secondary-metrics table lists every other metric per variant with uplift, p-value and a significance flag. A per-segment breakdown lets the reader recompute the readout for one audience slice. The verdict derives from the data (p<0.05 etc.) — never authored. Renders to a centred, themeable, interactive HTML readout; the sample's #report-data is a valid instance of this schema.",
+  "type": "object",
+  "required": ["meta", "experiment", "variants", "metrics"],
+  "additionalProperties": false,
+  "properties": {
+    "meta": {
+      "type": "object",
+      "description": "Shared report chrome (org / project / title / theme). Brand-neutral: keep {{ORG}} / {{PROJECT}} / {{AUTHOR}} placeholders unless real values are supplied.",
+      "required": ["org", "project", "reportType", "title", "date", "theme"],
+      "additionalProperties": false,
+      "properties": {
+        "org": { "type": "string", "description": "Organisation name or {{ORG}} placeholder.", "default": "{{ORG}}" },
+        "project": { "type": "string", "description": "Project / programme name or {{PROJECT}} placeholder.", "default": "{{PROJECT}}" },
+        "reportType": { "type": "string", "description": "Eyebrow label shown above the title, e.g. 'Experiment readout' or {{REPORT_TYPE}}." },
+        "title": { "type": "string", "description": "Experiment title, e.g. 'Checkout — single-page vs stepped flow'." },
+        "subtitle": { "type": "string", "description": "Optional one-line standfirst summarising what was tested and why." },
+        "date": { "type": "string", "description": "ISO date the readout was produced (YYYY-MM-DD).", "format": "date" },
+        "author": { "type": "string", "description": "Author / owning team or {{AUTHOR}} placeholder.", "default": "{{AUTHOR}}" },
+        "theme": {
+          "type": "string",
+          "description": "Initial brand theme; applied as <html data-theme>. The in-report switcher can change it live.",
+          "enum": ["blue", "purple", "indigo", "teal", "cyan", "green", "plum", "slate", "black"],
+          "default": "purple"
+        }
+      }
+    },
+    "experiment": {
+      "type": "object",
+      "description": "The experiment design + lifecycle facts shown in the hypothesis header.",
+      "required": ["hypothesis", "status", "primaryMetric"],
+      "additionalProperties": false,
+      "properties": {
+        "hypothesis": { "type": "string", "description": "The hypothesis under test, stated as a claim, e.g. 'A single-page checkout will raise completion vs the stepped flow without harming AOV.'" },
+        "owner": { "type": "string", "description": "Optional owning team or experimenter name." },
+        "platform": { "type": "string", "description": "Optional surface the experiment ran on, e.g. 'Web + iOS', 'Mobile app'." },
+        "start": { "type": "string", "description": "ISO date the experiment started (YYYY-MM-DD).", "format": "date" },
+        "end": { "type": "string", "description": "ISO date the experiment ended or is scheduled to end (YYYY-MM-DD).", "format": "date" },
+        "status": {
+          "type": "string",
+          "description": "Lifecycle state. 'running' = still collecting; 'shipped' = winner rolled out; 'inconclusive' = stopped without a significant result; 'stopped' = halted early. Drives the header status pill tone (running→hold, shipped→ok, inconclusive/stopped→risk).",
+          "enum": ["running", "shipped", "inconclusive", "stopped"]
+        },
+        "primaryMetric": { "type": "string", "description": "The `key` of the metric in `metrics[]` that is the decision metric. Exactly one metric should also set primary:true and match this key. The hero panel reports this metric." },
+        "alphaPct": { "type": "number", "description": "Significance threshold as a percentage; a metric is 'significant' when its pValue < alphaPct/100. Default 5 (i.e. p<0.05).", "default": 5, "minimum": 0, "exclusiveMaximum": 100 }
+      }
+    },
+    "variants": {
+      "type": "array",
+      "description": "The arms of the experiment. Exactly one MUST set isControl:true (the baseline every uplift is measured against). Render order is control first, then variants.",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "required": ["id", "name"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "description": "Stable unique key used to key `byVariant` maps in `metrics`/`segments`. e.g. 'control', 'var-single'." },
+          "name": { "type": "string", "description": "Variant display name, e.g. 'Control (stepped)', 'Single-page'." },
+          "isControl": { "type": "boolean", "description": "True for the baseline arm. Exactly one variant sets this; uplift % is computed relative to it.", "default": false },
+          "allocationPct": { "type": "number", "description": "Optional traffic allocation as a percentage of total (the split). Allocations across variants typically sum to 100.", "minimum": 0, "maximum": 100 },
+          "users": { "type": "integer", "description": "Optional sample size (exposed users / sessions) in this arm.", "minimum": 0 }
+        }
+      }
+    },
+    "metrics": {
+      "type": "array",
+      "description": "Every measured metric. Exactly one should set primary:true (the hero metric, matching experiment.primaryMetric); the rest populate the secondary-metrics table. Each metric carries per-variant values plus the uplift / p-value / significance computed against the control.",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["key", "label", "byVariant"],
+        "additionalProperties": false,
+        "properties": {
+          "key": { "type": "string", "description": "Stable unique metric key, e.g. 'completion', 'aov'." },
+          "label": { "type": "string", "description": "Metric display name, e.g. 'Checkout completion rate'." },
+          "unit": { "type": "string", "description": "Optional value unit/suffix shown after each value, e.g. '%', 's', '$', '/session'." },
+          "format": {
+            "type": "string",
+            "description": "How to render the raw value: 'percent' appends % and treats the number as already-scaled; 'currency' prefixes a currency glyph; 'duration' suffixes the unit (e.g. s); 'number' is plain. Affects display only.",
+            "enum": ["percent", "currency", "duration", "number"],
+            "default": "number"
+          },
+          "betterWhen": {
+            "type": "string",
+            "description": "Direction of improvement. 'high' = larger is better (e.g. conversion); 'low' = smaller is better (e.g. latency, refund rate). Determines whether a positive uplift reads as good or bad.",
+            "enum": ["high", "low"],
+            "default": "high"
+          },
+          "primary": { "type": "boolean", "description": "True for the single decision metric rendered in the hero panel. At most one metric sets this and it should match experiment.primaryMetric.", "default": false },
+          "byVariant": {
+            "type": "object",
+            "description": "Per-variant result, keyed by variant id. Every variant id in `variants` should appear. Each entry holds the point value and an optional confidence interval for that value.",
+            "minProperties": 2,
+            "additionalProperties": {
+              "type": "object",
+              "required": ["value"],
+              "additionalProperties": false,
+              "properties": {
+                "value": { "type": "number", "description": "The metric's point estimate for this variant (in the metric's natural units, e.g. 12.8 for 12.8%)." },
+                "ciLow": { "type": "number", "description": "Optional lower bound of the confidence interval for this value." },
+                "ciHigh": { "type": "number", "description": "Optional upper bound of the confidence interval for this value." }
+              }
+            }
+          },
+          "upliftVsControlPct": { "type": "number", "description": "Optional relative change of the (non-control) variant vs control, as a percentage. With >2 variants this is the headline variant's uplift; the renderer recomputes per variant from byVariant when omitted." },
+          "pValue": { "type": "number", "description": "Optional p-value of the variant-vs-control comparison. Compared against experiment.alphaPct to derive significance.", "minimum": 0, "maximum": 1 },
+          "significant": { "type": "boolean", "description": "Optional explicit significance flag. When omitted the renderer derives it from pValue < alphaPct/100." }
+        }
+      }
+    },
+    "segments": {
+      "type": "array",
+      "description": "Optional audience slices for the per-segment breakdown. Selecting a segment recomputes the readout from that slice's numbers; the implicit first option is 'All users' (the top-level metrics).",
+      "items": {
+        "type": "object",
+        "required": ["key", "label"],
+        "additionalProperties": false,
+        "properties": {
+          "key": { "type": "string", "description": "Stable unique segment key, e.g. 'new', 'mobile'." },
+          "label": { "type": "string", "description": "Segment display name, e.g. 'New users', 'Mobile'." },
+          "sharePct": { "type": "number", "description": "Optional share of traffic this segment represents, as a percentage.", "minimum": 0, "maximum": 100 },
+          "metrics": {
+            "type": "array",
+            "description": "Per-metric overrides for this segment, keyed by metric key. Only metrics present here are recomputed; metrics omitted fall back to the all-users numbers. Same shape as top-level metric value/uplift/p-value fields.",
+            "items": {
+              "type": "object",
+              "required": ["key", "byVariant"],
+              "additionalProperties": false,
+              "properties": {
+                "key": { "type": "string", "description": "Metric key this override applies to (must match a metrics[].key)." },
+                "byVariant": {
+                  "type": "object",
+                  "description": "Per-variant value (and optional CI) for this metric within this segment, keyed by variant id.",
+                  "minProperties": 2,
+                  "additionalProperties": {
+                    "type": "object",
+                    "required": ["value"],
+                    "additionalProperties": false,
+                    "properties": {
+                      "value": { "type": "number", "description": "Point estimate for this variant in this segment." },
+                      "ciLow": { "type": "number", "description": "Optional CI lower bound." },
+                      "ciHigh": { "type": "number", "description": "Optional CI upper bound." }
+                    }
+                  }
+                },
+                "upliftVsControlPct": { "type": "number", "description": "Optional precomputed uplift % for this segment; recomputed from byVariant when omitted." },
+                "pValue": { "type": "number", "description": "Optional p-value for this metric within this segment.", "minimum": 0, "maximum": 1 },
+                "significant": { "type": "boolean", "description": "Optional explicit significance flag for this segment; derived from pValue when omitted." }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "meta": {
+        "org": "{{ORG}}",
+        "project": "{{PROJECT}}",
+        "reportType": "Experiment readout",
+        "title": "Checkout — single-page vs stepped flow",
+        "subtitle": "Six-week split test of a single-page checkout against the current three-step flow, measured on completion, revenue per session and support contacts.",
+        "date": "2026-06-22",
+        "author": "{{AUTHOR}}",
+        "theme": "purple"
+      },
+      "experiment": {
+        "hypothesis": "Collapsing the three-step checkout into a single page will lift checkout completion without reducing revenue per session or raising support contacts.",
+        "owner": "Growth Experimentation",
+        "platform": "Web + iOS",
+        "start": "2026-04-28",
+        "end": "2026-06-09",
+        "status": "shipped",
+        "primaryMetric": "completion",
+        "alphaPct": 5
+      },
+      "variants": [
+        { "id": "control", "name": "Control (stepped)", "isControl": true, "allocationPct": 50, "users": 48210 },
+        { "id": "single", "name": "Single-page", "allocationPct": 50, "users": 47980 }
+      ],
+      "metrics": [
+        {
+          "key": "completion", "label": "Checkout completion rate", "unit": "%", "format": "percent", "betterWhen": "high", "primary": true,
+          "byVariant": {
+            "control": { "value": 62.4, "ciLow": 61.8, "ciHigh": 63.0 },
+            "single": { "value": 67.1, "ciLow": 66.5, "ciHigh": 67.7 }
+          },
+          "upliftVsControlPct": 7.5, "pValue": 0.0008, "significant": true
+        },
+        {
+          "key": "rps", "label": "Revenue per session", "unit": "$", "format": "currency", "betterWhen": "high",
+          "byVariant": {
+            "control": { "value": 18.40, "ciLow": 17.95, "ciHigh": 18.85 },
+            "single": { "value": 19.05, "ciLow": 18.58, "ciHigh": 19.52 }
+          },
+          "upliftVsControlPct": 3.5, "pValue": 0.041, "significant": true
+        },
+        {
+          "key": "aov", "label": "Average order value", "unit": "$", "format": "currency", "betterWhen": "high",
+          "byVariant": {
+            "control": { "value": 74.20, "ciLow": 72.6, "ciHigh": 75.8 },
+            "single": { "value": 73.10, "ciLow": 71.4, "ciHigh": 74.8 }
+          },
+          "upliftVsControlPct": -1.5, "pValue": 0.214, "significant": false
+        },
+        {
+          "key": "time", "label": "Time to complete", "unit": "s", "format": "duration", "betterWhen": "low",
+          "byVariant": {
+            "control": { "value": 96.0, "ciLow": 93.0, "ciHigh": 99.0 },
+            "single": { "value": 71.0, "ciLow": 68.5, "ciHigh": 73.5 }
+          },
+          "upliftVsControlPct": -26.0, "pValue": 0.0002, "significant": true
+        },
+        {
+          "key": "support", "label": "Support contacts", "unit": "/1k orders", "format": "number", "betterWhen": "low",
+          "byVariant": {
+            "control": { "value": 8.2, "ciLow": 7.4, "ciHigh": 9.0 },
+            "single": { "value": 8.6, "ciLow": 7.7, "ciHigh": 9.5 }
+          },
+          "upliftVsControlPct": 4.9, "pValue": 0.36, "significant": false
+        }
+      ],
+      "segments": [
+        {
+          "key": "new", "label": "New users", "sharePct": 41,
+          "metrics": [
+            { "key": "completion", "byVariant": { "control": { "value": 54.0, "ciLow": 53.1, "ciHigh": 54.9 }, "single": { "value": 61.8, "ciLow": 60.9, "ciHigh": 62.7 } }, "upliftVsControlPct": 14.4, "pValue": 0.0001, "significant": true },
+            { "key": "rps", "byVariant": { "control": { "value": 14.10 }, "single": { "value": 15.40 } }, "upliftVsControlPct": 9.2, "pValue": 0.012, "significant": true },
+            { "key": "aov", "byVariant": { "control": { "value": 68.0 }, "single": { "value": 67.2 } }, "upliftVsControlPct": -1.2, "pValue": 0.41, "significant": false }
+          ]
+        },
+        {
+          "key": "returning", "label": "Returning users", "sharePct": 59,
+          "metrics": [
+            { "key": "completion", "byVariant": { "control": { "value": 68.3, "ciLow": 67.6, "ciHigh": 69.0 }, "single": { "value": 70.8, "ciLow": 70.1, "ciHigh": 71.5 } }, "upliftVsControlPct": 3.7, "pValue": 0.058, "significant": false },
+            { "key": "rps", "byVariant": { "control": { "value": 21.40 }, "single": { "value": 21.60 } }, "upliftVsControlPct": 0.9, "pValue": 0.62, "significant": false }
+          ]
+        },
+        {
+          "key": "mobile", "label": "Mobile", "sharePct": 64,
+          "metrics": [
+            { "key": "completion", "byVariant": { "control": { "value": 58.1, "ciLow": 57.3, "ciHigh": 58.9 }, "single": { "value": 65.9, "ciLow": 65.1, "ciHigh": 66.7 } }, "upliftVsControlPct": 13.4, "pValue": 0.0003, "significant": true },
+            { "key": "time", "byVariant": { "control": { "value": 108.0 }, "single": { "value": 74.0 } }, "upliftVsControlPct": -31.5, "pValue": 0.0001, "significant": true }
+          ]
+        }
+      ]
+    }
+  ]
+}

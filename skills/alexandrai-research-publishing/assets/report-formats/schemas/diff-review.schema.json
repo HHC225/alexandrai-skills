@@ -1,0 +1,259 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://genesis.local/schemas/diff-review.schema.json",
+  "title": "Diff-Review (code-review / pull-request) document",
+  "description": "Data contract for the diff-review format: an IDE/PR-style code-review document with a changed-file tree, diff hunks (unified or split), inline review threads, reviewers, CI checks, and a live verdict. render() builds the whole three-pane app shell from a valid instance of this schema; nothing is hard-coded in the HTML body.",
+  "type": "object",
+  "required": ["meta", "change", "files"],
+  "additionalProperties": false,
+  "properties": {
+    "meta": {
+      "type": "object",
+      "description": "Shared report metadata (brand-neutral chrome). Keep {{ORG}} / {{PROJECT}} / {{AUTHOR}} placeholders unless real values are supplied.",
+      "required": ["org", "project", "reportType", "title", "date", "theme"],
+      "additionalProperties": false,
+      "properties": {
+        "org": { "type": "string", "description": "Owning organisation. Placeholder {{ORG}} by default." },
+        "project": { "type": "string", "description": "Project / product. Placeholder {{PROJECT}} by default." },
+        "reportType": { "type": "string", "description": "Document class label, e.g. 'Code Review' or 'Pull Request'." },
+        "title": { "type": "string", "description": "Document title shown in the app bar." },
+        "subtitle": { "type": "string", "description": "Optional one-line standfirst / context." },
+        "date": { "type": "string", "description": "Report date (ISO 'YYYY-MM-DD').", "examples": ["2026-06-22"] },
+        "author": { "type": "string", "description": "Report author / PR opener. Placeholder {{AUTHOR}} by default." },
+        "theme": {
+          "type": "string",
+          "description": "Initial brand accent; applied to <html data-theme>. The in-report switcher can change it live.",
+          "enum": ["blue", "purple", "indigo", "teal", "cyan", "green", "plum", "slate", "black"],
+          "default": "slate"
+        }
+      }
+    },
+    "change": {
+      "type": "object",
+      "description": "The pull-request / change-set being reviewed: title, branches, overall verdict, and a summary body.",
+      "required": ["title", "sourceBranch", "targetBranch", "verdict"],
+      "additionalProperties": false,
+      "properties": {
+        "title": { "type": "string", "description": "Change / PR title shown in the top bar." },
+        "id": { "type": "string", "description": "Optional change/PR identifier, e.g. 'PR-481' or '#481'." },
+        "sourceBranch": { "type": "string", "description": "Source branch chip (the head being merged)." },
+        "targetBranch": { "type": "string", "description": "Target branch chip (the base being merged into)." },
+        "verdict": {
+          "type": "string",
+          "description": "Overall review verdict driving the top-bar badge; updated live by the approve / request-changes control.",
+          "enum": ["approved", "changes-requested", "pending"]
+        },
+        "summary": { "type": "string", "description": "Optional review description / rationale (plain text, shown in the right pane)." }
+      }
+    },
+    "reviewers": {
+      "type": "array",
+      "description": "Reviewers and their current review state, listed in the right-pane review summary.",
+      "items": {
+        "type": "object",
+        "required": ["name", "state"],
+        "additionalProperties": false,
+        "properties": {
+          "name": { "type": "string", "description": "Reviewer handle, e.g. '@h.cho'." },
+          "role": { "type": "string", "description": "Optional role label, e.g. 'codeowner', 'security'." },
+          "state": {
+            "type": "string",
+            "description": "Reviewer's state: approved / changes-requested / pending / commented.",
+            "enum": ["approved", "changes-requested", "pending", "commented"]
+          }
+        }
+      }
+    },
+    "checks": {
+      "type": "array",
+      "description": "CI / status checks listed in the right pane (pass / fail / running).",
+      "items": {
+        "type": "object",
+        "required": ["name", "status"],
+        "additionalProperties": false,
+        "properties": {
+          "name": { "type": "string", "description": "Check name, e.g. 'unit-tests' or 'lint'." },
+          "status": {
+            "type": "string",
+            "description": "Check outcome. 'pass' => ok, 'fail' => risk, 'running'/'pending' => hold/neutral.",
+            "enum": ["pass", "fail", "running", "pending"]
+          },
+          "detail": { "type": "string", "description": "Optional one-line detail, e.g. '248 passed · 0 failed · 31s'." }
+        }
+      }
+    },
+    "files": {
+      "type": "array",
+      "description": "Changed files. Each renders one tree row in the left pane and (when selected) the diff in the center pane.",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["path", "status", "additions", "deletions", "hunks"],
+        "additionalProperties": false,
+        "properties": {
+          "path": { "type": "string", "description": "Repository-relative file path (invented, brand-neutral)." },
+          "oldPath": { "type": "string", "description": "Former path when status is 'ren' (renamed/moved)." },
+          "status": {
+            "type": "string",
+            "description": "File change status driving its status dot and the file-status filter chips.",
+            "enum": ["add", "mod", "del", "ren"]
+          },
+          "additions": { "type": "integer", "minimum": 0, "description": "Added line count for this file." },
+          "deletions": { "type": "integer", "minimum": 0, "description": "Removed line count for this file." },
+          "lang": { "type": "string", "description": "Optional language hint label, e.g. 'java', 'sql', 'yaml'." },
+          "hunks": {
+            "type": "array",
+            "description": "Diff hunks for this file. Each has an @@ header and an ordered list of lines.",
+            "items": {
+              "type": "object",
+              "required": ["header", "oldStart", "newStart", "lines"],
+              "additionalProperties": false,
+              "properties": {
+                "header": { "type": "string", "description": "Hunk context label after the @@ markers, e.g. 'class LedgerWriter'." },
+                "oldStart": { "type": "integer", "minimum": 0, "description": "First line number in the OLD file for this hunk." },
+                "newStart": { "type": "integer", "minimum": 0, "description": "First line number in the NEW file for this hunk." },
+                "collapsed": { "type": "boolean", "description": "Optional: render this hunk collapsed initially.", "default": false },
+                "lines": {
+                  "type": "array",
+                  "description": "Ordered diff lines. Line numbers are derived/explicit per gutter.",
+                  "items": {
+                    "type": "object",
+                    "required": ["type", "text"],
+                    "additionalProperties": false,
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "description": "Line kind: 'add' (new, --ok-bg tint), 'del' (removed, --risk-bg tint), 'ctx' (unchanged context).",
+                        "enum": ["add", "del", "ctx"]
+                      },
+                      "oldNo": { "type": ["integer", "null"], "description": "Line number in the OLD gutter (null/absent for added lines)." },
+                      "newNo": { "type": ["integer", "null"], "description": "Line number in the NEW gutter (null/absent for removed lines)." },
+                      "text": { "type": "string", "description": "Raw line text (without the leading +/-/space marker)." },
+                      "tokens": {
+                        "type": "array",
+                        "description": "Optional light syntax tinting: ordered span runs that concatenate to `text`. No heavy parser — bake these in the data.",
+                        "items": {
+                          "type": "object",
+                          "required": ["t"],
+                          "additionalProperties": false,
+                          "properties": {
+                            "t": { "type": "string", "description": "Text run." },
+                            "c": {
+                              "type": "string",
+                              "description": "Optional class: 'kw' keyword, 'str' string, 'com' comment, 'num' number, 'fn' function/type.",
+                              "enum": ["kw", "str", "com", "num", "fn"]
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "threads": {
+            "type": "array",
+            "description": "Inline review threads anchored under a specific diff line in this file.",
+            "items": {
+              "type": "object",
+              "required": ["side", "line", "author", "time", "body"],
+              "additionalProperties": false,
+              "properties": {
+                "side": {
+                  "type": "string",
+                  "description": "Which gutter the anchor line belongs to: 'new' (added/context new-no) or 'old' (removed old-no).",
+                  "enum": ["new", "old"]
+                },
+                "line": { "type": "integer", "minimum": 0, "description": "Line number (in the chosen side's gutter) the thread is anchored to." },
+                "author": { "type": "string", "description": "Comment author handle." },
+                "time": { "type": "string", "description": "Human time label, e.g. '2h ago' or '14:08'." },
+                "body": { "type": "string", "description": "Comment body (plain text)." },
+                "resolved": { "type": "boolean", "description": "Whether the thread is resolved (mutes styling + drops the file comment count).", "default": false }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "meta": {
+        "org": "{{ORG}}",
+        "project": "{{PROJECT}}",
+        "reportType": "Code Review",
+        "title": "Harden ledger-writer retry path",
+        "subtitle": "payments platform · service change",
+        "date": "2026-06-22",
+        "author": "{{AUTHOR}}",
+        "theme": "slate"
+      },
+      "change": {
+        "title": "fix(ledger): bound retries + DLQ poisoned events",
+        "id": "PR-481",
+        "sourceBranch": "fix/ledger-retry-bound",
+        "targetBranch": "main",
+        "verdict": "changes-requested",
+        "summary": "Caps ledger-writer retries at 5 with exponential backoff and routes poison-pill events to a dead-letter queue, so a single malformed event can no longer hot-loop and OOMKill the pod (INC-2041)."
+      },
+      "reviewers": [
+        { "name": "@h.cho", "role": "codeowner", "state": "changes-requested" },
+        { "name": "@m.tan", "role": "platform", "state": "approved" },
+        { "name": "@sec-team", "role": "security", "state": "pending" }
+      ],
+      "checks": [
+        { "name": "unit-tests", "status": "pass", "detail": "248 passed · 0 failed · 31s" },
+        { "name": "integration", "status": "fail", "detail": "1 failed · ledger.replay.poison" },
+        { "name": "lint", "status": "pass", "detail": "no findings" },
+        { "name": "build", "status": "running", "detail": "image · 2/4 stages" }
+      ],
+      "files": [
+        {
+          "path": "services/ledger-writer/src/RetryPolicy.java",
+          "status": "mod",
+          "lang": "java",
+          "additions": 9,
+          "deletions": 3,
+          "hunks": [
+            {
+              "header": "class RetryPolicy",
+              "oldStart": 18,
+              "newStart": 18,
+              "lines": [
+                { "type": "ctx", "oldNo": 18, "newNo": 18, "text": "  public boolean shouldRetry(Event e, int attempt) {" },
+                { "type": "del", "oldNo": 19, "text": "    return e.isTransient();" },
+                { "type": "add", "newNo": 19, "text": "    if (attempt >= MAX_ATTEMPTS) return false;" },
+                { "type": "add", "newNo": 20, "text": "    return e.isTransient();" },
+                { "type": "ctx", "oldNo": 20, "newNo": 21, "text": "  }" }
+              ]
+            }
+          ],
+          "threads": [
+            { "side": "new", "line": 19, "author": "@h.cho", "time": "2h ago", "body": "MAX_ATTEMPTS is hard-coded to 5 — pull it from config so we can tune per-environment without a redeploy.", "resolved": false }
+          ]
+        },
+        {
+          "path": "services/ledger-writer/src/DeadLetterQueue.java",
+          "status": "add",
+          "lang": "java",
+          "additions": 14,
+          "deletions": 0,
+          "hunks": [
+            {
+              "header": "new file",
+              "oldStart": 0,
+              "newStart": 1,
+              "lines": [
+                { "type": "add", "newNo": 1, "text": "public final class DeadLetterQueue {" },
+                { "type": "add", "newNo": 2, "text": "  void publish(Event poisoned) { /* ... */ }" },
+                { "type": "add", "newNo": 3, "text": "}" }
+              ]
+            }
+          ],
+          "threads": []
+        }
+      ]
+    }
+  ]
+}

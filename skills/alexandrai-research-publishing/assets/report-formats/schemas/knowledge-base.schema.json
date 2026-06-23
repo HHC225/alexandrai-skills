@@ -1,0 +1,272 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://reports.local/schemas/knowledge-base.schema.json",
+  "title": "Knowledge base / FAQ",
+  "description": "Data contract for the knowledge-base format: a navigable help centre / FAQ rendered from a single embedded JSON instance. A sticky category sidebar + a prominent live search box drive a Q&A accordion of discrete question->answer entries grouped by category, each with tags and related-entry links. Not a narrative article (that is long-form / magazine) and not a record grid (that is data-register). The sample's #report-data MUST be a valid instance of this schema.",
+  "type": "object",
+  "required": ["meta", "categories", "articles"],
+  "additionalProperties": false,
+  "properties": {
+    "meta": {
+      "type": "object",
+      "description": "Shared chrome metadata common to every report format (wordmark, title, default theme).",
+      "required": ["title", "theme"],
+      "additionalProperties": true,
+      "properties": {
+        "org": { "type": "string", "description": "Owning organisation; brand-neutral placeholder {{ORG}} unless a real value is supplied." },
+        "project": { "type": "string", "description": "Project / product the knowledge base belongs to; placeholder {{PROJECT}} unless supplied." },
+        "reportType": { "type": "string", "description": "Human label for the artefact kind, e.g. 'Help Centre' or 'Knowledge Base'." },
+        "title": { "type": "string", "description": "Knowledge-base title shown in the masthead." },
+        "subtitle": { "type": "string", "description": "Optional one-line subtitle / scope under the title." },
+        "date": { "type": "string", "description": "Last-updated / publication date (ISO 8601, e.g. 2026-06-22)." },
+        "author": { "type": "string", "description": "Maintainer / owning team; placeholder {{AUTHOR}} unless supplied." },
+        "theme": {
+          "type": "string",
+          "description": "Initial brand theme applied via <html data-theme>. 'black' is always selectable in the switcher.",
+          "enum": ["blue", "purple", "indigo", "teal", "cyan", "green", "plum", "slate", "black"],
+          "default": "blue"
+        }
+      }
+    },
+    "intro": {
+      "type": "string",
+      "description": "Optional short line shown under the masthead title (e.g. an invitation to search)."
+    },
+    "searchPlaceholder": {
+      "type": "string",
+      "description": "Optional placeholder text for the search box. Defaults to a generic 'Search the knowledge base…' if omitted."
+    },
+    "popularTags": {
+      "type": "array",
+      "description": "Optional list of tag strings surfaced as quick-filter chips in the sidebar tags panel. Should be a subset of tags actually used on articles.",
+      "items": { "type": "string" }
+    },
+    "categories": {
+      "type": "array",
+      "description": "Sidebar categories used to group and filter the Q&A entries. Order defines sidebar + heading order.",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "label"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "description": "Stable category identifier; referenced by article.category." },
+          "label": { "type": "string", "description": "Display name of the category." },
+          "icon": { "type": "string", "description": "Optional house-icon category/name (e.g. 'document', 'status', 'code', 'nav') used as the category mark." },
+          "description": { "type": "string", "description": "Optional short description of the category." }
+        }
+      }
+    },
+    "articles": {
+      "type": "array",
+      "description": "The Q&A entries. Each is one collapsed accordion card: question (summary) + answer blocks (body) + tags + related links.",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "category", "question", "answerBlocks"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "description": "Stable, URL-safe entry id; used for the deep-link hash and as a related[] target." },
+          "category": { "type": "string", "description": "Id of the category this entry belongs to (must match a categories[].id)." },
+          "question": { "type": "string", "description": "The question, shown as the accordion summary. Plain text (rendered escaped)." },
+          "answerBlocks": {
+            "type": "array",
+            "description": "Ordered answer content blocks. Concatenated text across blocks is what live search matches against.",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "required": ["type"],
+              "additionalProperties": true,
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "description": "Block kind: 'p' prose paragraph, 'code' verbatim mono block, 'list' bullet/numbered list, 'note' tinted callout.",
+                  "enum": ["p", "code", "list", "note"]
+                },
+                "text": { "type": "string", "description": "For 'p' and 'note': the body text. Limited inline HTML allowed (<code>, <strong>, <em>, <a>)." },
+                "code": { "type": "string", "description": "For 'code': the verbatim code/command shown in a mono dark panel (rendered escaped)." },
+                "lang": { "type": "string", "description": "For 'code': optional language label shown in the panel header." },
+                "caption": { "type": "string", "description": "For 'code': optional caption shown above the panel." },
+                "items": { "type": "array", "description": "For 'list': the list items (inline HTML allowed).", "items": { "type": "string" } },
+                "ordered": { "type": "boolean", "description": "For 'list': render as an ordered (numbered) list instead of bulleted.", "default": false },
+                "variant": { "type": "string", "description": "For 'note': callout colour — maps to the foundation states (ok/risk/hold) or a neutral 'info'.", "enum": ["ok", "risk", "hold", "info"] },
+                "label": { "type": "string", "description": "For 'note': optional bold lead label for the callout (e.g. 'Heads up')." }
+              }
+            }
+          },
+          "tags": {
+            "type": "array",
+            "description": "Optional tag chips for the entry; clicking a tag activates a tag filter.",
+            "items": { "type": "string" }
+          },
+          "related": {
+            "type": "array",
+            "description": "Optional ids of related articles, rendered as 'Related' jump links.",
+            "items": { "type": "string" }
+          }
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "meta": {
+        "org": "{{ORG}}",
+        "project": "{{PROJECT}}",
+        "reportType": "Help Centre",
+        "title": "Platform Knowledge Base",
+        "subtitle": "Answers for the ingestion platform — accounts, data, API, and incidents",
+        "date": "2026-06-22",
+        "author": "{{AUTHOR}}",
+        "theme": "blue"
+      },
+      "intro": "Search a question or browse by category. Every answer is self-contained.",
+      "searchPlaceholder": "Search questions and answers…",
+      "popularTags": ["api-key", "rate-limit", "webhooks", "billing", "sso", "retry"],
+      "categories": [
+        { "id": "getting-started", "label": "Getting started", "icon": "document", "description": "First steps: accounts, access, and the basics." },
+        { "id": "api", "label": "API & integration", "icon": "code", "description": "Authentication, endpoints, webhooks, and limits." },
+        { "id": "billing", "label": "Billing & plans", "icon": "finance", "description": "Invoices, usage, and plan changes." },
+        { "id": "troubleshooting", "label": "Troubleshooting", "icon": "status", "description": "Errors, incidents, and recovery." }
+      ],
+      "articles": [
+        {
+          "id": "create-account",
+          "category": "getting-started",
+          "question": "How do I create an account and invite my team?",
+          "answerBlocks": [
+            { "type": "p", "text": "Sign up from the console landing page with a work email. The first user becomes the <strong>workspace owner</strong> and can invite others from <code>Settings → Members</code>." },
+            { "type": "list", "items": ["Open <code>Settings → Members → Invite</code>.", "Enter one or more email addresses.", "Choose a role: <strong>Owner</strong>, <strong>Editor</strong>, or <strong>Viewer</strong>."] },
+            { "type": "note", "variant": "info", "label": "Tip", "text": "Invites expire after 7 days; re-send from the same screen if one lapses." }
+          ],
+          "tags": ["account", "members", "onboarding"],
+          "related": ["sso-setup", "roles-permissions"]
+        },
+        {
+          "id": "roles-permissions",
+          "category": "getting-started",
+          "question": "What can each role do?",
+          "answerBlocks": [
+            { "type": "p", "text": "Roles are workspace-wide and control both console access and API-key scope." },
+            { "type": "list", "ordered": true, "items": ["<strong>Owner</strong> — full access, including billing and member management.", "<strong>Editor</strong> — create and edit resources; no billing.", "<strong>Viewer</strong> — read-only access to dashboards and logs."] }
+          ],
+          "tags": ["members", "permissions"],
+          "related": ["create-account"]
+        },
+        {
+          "id": "sso-setup",
+          "category": "getting-started",
+          "question": "How do I enable single sign-on (SSO)?",
+          "answerBlocks": [
+            { "type": "p", "text": "SSO uses SAML 2.0 and is available on the Team and Enterprise plans. Configure it under <code>Settings → Security → SSO</code>." },
+            { "type": "code", "lang": "xml", "caption": "Example ACS endpoint to register with your IdP", "code": "https://app.example.com/sso/saml/acs\nEntityID: urn:example:sp" },
+            { "type": "note", "variant": "hold", "label": "Before you switch", "text": "Once SSO is enforced, password logins are disabled for the domain. Keep one break-glass owner with a recovery code." }
+          ],
+          "tags": ["sso", "security", "saml"],
+          "related": ["roles-permissions", "lost-access"]
+        },
+        {
+          "id": "auth-api-key",
+          "category": "api",
+          "question": "How do I authenticate API requests?",
+          "answerBlocks": [
+            { "type": "p", "text": "Pass your API key as a bearer token on every request. Create and rotate keys under <code>Settings → API keys</code>." },
+            { "type": "code", "lang": "bash", "caption": "Authenticated request", "code": "curl https://api.example.com/v1/events \\\n  -H \"Authorization: Bearer $API_KEY\"" },
+            { "type": "note", "variant": "risk", "label": "Never expose keys", "text": "Treat keys like passwords — keep them server-side and out of client bundles and git history." }
+          ],
+          "tags": ["api-key", "auth", "security"],
+          "related": ["rotate-key", "rate-limit"]
+        },
+        {
+          "id": "rotate-key",
+          "category": "api",
+          "question": "How do I rotate an API key without downtime?",
+          "answerBlocks": [
+            { "type": "list", "ordered": true, "items": ["Create a second key alongside the active one.", "Deploy the new key to all services.", "Verify traffic shifts to the new key in the usage view.", "Revoke the old key."] },
+            { "type": "note", "variant": "ok", "label": "Zero-downtime", "text": "Both keys are valid during the overlap window, so there is no gap in authentication." }
+          ],
+          "tags": ["api-key", "rotation"],
+          "related": ["auth-api-key"]
+        },
+        {
+          "id": "rate-limit",
+          "category": "api",
+          "question": "What are the rate limits and how do I handle 429s?",
+          "answerBlocks": [
+            { "type": "p", "text": "The default limit is <strong>600 requests/minute</strong> per key. Exceeding it returns <code>HTTP 429</code> with a <code>Retry-After</code> header." },
+            { "type": "code", "lang": "http", "code": "HTTP/1.1 429 Too Many Requests\nRetry-After: 12" },
+            { "type": "p", "text": "Back off for the indicated seconds and retry with jitter. See the retry guidance for safe patterns." }
+          ],
+          "tags": ["rate-limit", "retry", "api-key"],
+          "related": ["retry-strategy", "webhooks-retries"]
+        },
+        {
+          "id": "webhooks-retries",
+          "category": "api",
+          "question": "How do webhooks retry on failure?",
+          "answerBlocks": [
+            { "type": "p", "text": "If your endpoint does not return <code>2xx</code> within 5 seconds, the delivery is retried with exponential backoff for up to <strong>24 hours</strong>." },
+            { "type": "list", "items": ["Retries: 1m, 5m, 30m, 2h, 6h, then hourly.", "Each attempt carries the same <code>event_id</code> — make handlers idempotent.", "Permanently-failed deliveries appear under <code>Webhooks → Failed</code>."] }
+          ],
+          "tags": ["webhooks", "retry"],
+          "related": ["rate-limit", "retry-strategy"]
+        },
+        {
+          "id": "invoices",
+          "category": "billing",
+          "question": "Where do I find invoices and receipts?",
+          "answerBlocks": [
+            { "type": "p", "text": "Invoices are issued monthly and available under <code>Settings → Billing → Invoices</code>. Owners can add a billing email to receive them automatically." }
+          ],
+          "tags": ["billing", "invoices"],
+          "related": ["change-plan", "usage-charges"]
+        },
+        {
+          "id": "change-plan",
+          "category": "billing",
+          "question": "How do I upgrade or downgrade my plan?",
+          "answerBlocks": [
+            { "type": "p", "text": "Change plans anytime from <code>Settings → Billing → Plan</code>. Upgrades take effect immediately; downgrades apply at the next renewal." },
+            { "type": "note", "variant": "info", "label": "Proration", "text": "Upgrades are prorated for the remainder of the current cycle." }
+          ],
+          "tags": ["billing", "plans"],
+          "related": ["invoices", "usage-charges"]
+        },
+        {
+          "id": "usage-charges",
+          "category": "billing",
+          "question": "How is usage metered and billed?",
+          "answerBlocks": [
+            { "type": "p", "text": "Usage is metered per <strong>processed event</strong> and aggregated daily. Your current period's usage is shown live under <code>Billing → Usage</code>." },
+            { "type": "list", "items": ["Included quota varies by plan.", "Overage is billed at the per-event rate on your plan.", "Set a usage alert to be notified before overage."] }
+          ],
+          "tags": ["billing", "usage", "rate-limit"],
+          "related": ["change-plan", "invoices"]
+        },
+        {
+          "id": "lost-access",
+          "category": "troubleshooting",
+          "question": "I'm locked out / lost access to my account — what now?",
+          "answerBlocks": [
+            { "type": "p", "text": "Use the <code>Recover access</code> link on the login page. If SSO is enforced and your IdP is down, sign in with a break-glass owner recovery code." },
+            { "type": "note", "variant": "hold", "label": "No recovery code?", "text": "Contact support from a verified domain email; identity verification can take up to one business day." }
+          ],
+          "tags": ["sso", "recovery", "account"],
+          "related": ["sso-setup"]
+        },
+        {
+          "id": "retry-strategy",
+          "category": "troubleshooting",
+          "question": "What's the recommended retry strategy for transient errors?",
+          "answerBlocks": [
+            { "type": "p", "text": "Retry only on <code>429</code> and <code>5xx</code>. Use capped exponential backoff with full jitter, and stop after a bounded number of attempts." },
+            { "type": "code", "lang": "text", "caption": "Backoff with jitter", "code": "delay = min(cap, base * 2 ** attempt)\nsleep(random(0, delay))" },
+            { "type": "note", "variant": "risk", "label": "Don't retry blind", "text": "Never retry non-idempotent writes without an idempotency key — you risk duplicating the operation." }
+          ],
+          "tags": ["retry", "rate-limit", "api-key"],
+          "related": ["rate-limit", "webhooks-retries"]
+        }
+      ]
+    }
+  ]
+}

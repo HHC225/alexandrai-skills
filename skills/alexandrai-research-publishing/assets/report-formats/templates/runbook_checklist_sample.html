@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="cyan">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1440">
+<title>Runbook — Mitigate duplicate-disbursement incident · {{PROJECT}}</title>
+
+<!-- ============================================================
+     RUNBOOK / CHECKLIST (SOP) — data-driven, interactive, themeable.
+     An operational step-by-step procedure: header → prerequisites gate →
+     numbered sections of CHECKABLE steps (checkbox + command + expected +
+     critical/rollback) → sticky progress rail (ring + jump links + filter +
+     reset + rollback plan). NOT a long-form narrative report.
+     Self-contained: #report-data JSON is the ONLY content source; inline
+     CSS (8 data-theme blocks) + inline SVG; render()/wire*() build the DOM.
+     No external requests. Default theme: cyan.
+     ============================================================ -->
+
+<style>
+:root{
+ /* surfaces */
+ --bg:#fff; --bg-band:#f6f6f8; --bg-subtle:#fafafb; --bg-deep:#15131a;
+ --rule:#dcdce2; --rule-soft:#ebebef;
+ /* ink */
+ --ink:#11131a; --ink-mid:#33363f; --ink-soft:#5a5e68; --ink-faint:#868b95;
+ /* brand accent — Cyan (default) */
+ --navy:#0891b2; --navy-deep:#0e6f88; --navy-bg:#e2f4f9; --navy-line:#abdde9;
+ /* cleared / approved */
+ --ok:#0e6b7a; --ok-bg:#e4f3f4; --ok-line:#b0dde2;
+ /* semantic states — CONSTANT across all themes */
+ --risk:#b3261e; --risk-bg:#fbeceb; --risk-line:#edc7c4;
+ --hold:#8a6d00; --hold-bg:#fbf3da; --hold-line:#e7d8a4;
+ /* type stacks */
+ --mono:ui-monospace,"JetBrains Mono","SFMono-Regular",Menlo,Consolas,monospace;
+ --sans:-apple-system,"Segoe UI",system-ui,Roboto,"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic UI","Apple SD Gothic Neo","Malgun Gothic","PingFang SC","Microsoft YaHei","Noto Sans CJK JP","Noto Sans CJK KR","Noto Sans CJK SC","Noto Sans JP","Noto Sans KR","Noto Sans SC","Noto Sans",sans-serif;
+}
+/* theme overrides — swap ONLY the 7 accent values (risk/hold/neutrals stay) */
+html[data-theme="blue"]  { --navy:#0b5fd4; --navy-deep:#0842a0; --navy-bg:#e8f1fc; --navy-line:#bcd6f5; --ok:#1a4f9c; --ok-bg:#e9f0fa; --ok-line:#b7cdea; }
+html[data-theme="purple"]{ --navy:#a100ff; --navy-deep:#7a00c2; --navy-bg:#f3e8ff; --navy-line:#d9bef5; --ok:#5a2f8a; --ok-bg:#efe8f5; --ok-line:#d0b5e0; }
+html[data-theme="indigo"]{ --navy:#4338ca; --navy-deep:#312c92; --navy-bg:#ebebfb; --navy-line:#c7c3f0; --ok:#3730a3; --ok-bg:#ebeaf7; --ok-line:#c5c2ea; }
+html[data-theme="teal"]  { --navy:#0e7c86; --navy-deep:#095861; --navy-bg:#e0f3f4; --navy-line:#a9dade; --ok:#0f5d54; --ok-bg:#e3f3ef; --ok-line:#b3ddd4; }
+html[data-theme="cyan"]  { --navy:#0891b2; --navy-deep:#0e6f88; --navy-bg:#e2f4f9; --navy-line:#abdde9; --ok:#0e6b7a; --ok-bg:#e4f3f4; --ok-line:#b0dde2; }
+html[data-theme="green"] { --navy:#1f7a44; --navy-deep:#155730; --navy-bg:#e6f4ea; --navy-line:#b3dcc1; --ok:#2f6b3c; --ok-bg:#e9f3ea; --ok-line:#bedcc4; }
+html[data-theme="plum"]  { --navy:#a21d6e; --navy-deep:#7c1450; --navy-bg:#fbe8f2; --navy-line:#e8b9d4; --ok:#6d2356; --ok-bg:#f6e8f0; --ok-line:#e3bcd5; }
+html[data-theme="slate"] { --navy:#3f4f63; --navy-deep:#29384b; --navy-bg:#eef1f5; --navy-line:#c2ccd8; --ok:#34495e; --ok-bg:#eef1f5; --ok-line:#c2ccd8; }
+html[data-theme="black"] { --navy:#000000; --navy-deep:#000; --navy-bg:#f1f1f3; --navy-line:#d6d6db; --ok:#3f3f46; --ok-bg:#f1f1f3; --ok-line:#cfcfd6; }
+
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:13px;line-height:1.6;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
+code{font-family:var(--mono);}
+.icon{width:1.15em;height:1.15em;display:inline-block;vertical-align:-.18em;color:inherit;flex:none;}
+.icon-sm{width:14px;height:14px;}
+.tnum{font-feature-settings:"tnum" 1;font-variant-numeric:tabular-nums;}
+.noscript{margin:20px;padding:14px 18px;border:1px solid var(--hold-line);background:var(--hold-bg);border-radius:10px;color:var(--hold);font-weight:600;}
+
+/* ---------- PC-wide shell ---------- */
+.rc-frame{max-width:1500px;margin:0 auto;}
+
+/* ---------- header band (operational, not a report hero) ---------- */
+.rc-header{background:var(--bg-band);border-bottom:1px solid var(--rule);}
+.rc-header-inner{padding:18px 40px 16px;}
+.rc-eyebrow{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:10.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--navy-deep);}
+.rc-eyebrow .icon{width:15px;height:15px;}
+.rc-eyebrow .org{color:var(--ink-faint);font-weight:700;}
+.rc-title{font-size:24px;line-height:1.25;font-weight:800;letter-spacing:-.01em;margin:9px 0 0;color:var(--ink);max-width:62ch;}
+.rc-subtitle{font-size:13px;line-height:1.65;color:var(--ink-soft);margin:8px 0 0;max-width:80ch;}
+.rc-header-foot{display:flex;align-items:center;gap:10px 16px;flex-wrap:wrap;margin-top:15px;padding-top:13px;border-top:1px solid var(--rule-soft);}
+.rc-owners{display:flex;flex-wrap:wrap;gap:6px;}
+.rc-owner{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11px;font-weight:600;color:var(--ink-mid);background:#fff;border:1px solid var(--rule);border-radius:6px;padding:3px 9px;}
+.rc-owner .icon{width:13px;height:13px;color:var(--navy-deep);}
+.rc-owner b{color:var(--ink-faint);font-weight:700;font-size:9.5px;letter-spacing:.04em;text-transform:uppercase;}
+.rc-meta{display:flex;flex-wrap:wrap;gap:7px;margin-left:auto;align-items:center;}
+.rc-meta-pill{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11px;font-weight:700;padding:4px 10px;border-radius:6px;background:#fff;color:var(--ink-soft);border:1px solid var(--rule);white-space:nowrap;}
+.rc-meta-pill .icon{width:13px;height:13px;}
+.rc-meta-pill.is-risk{color:var(--risk);border-color:var(--risk-line);background:var(--risk-bg);}
+.rc-meta-pill.is-hold{color:var(--hold);border-color:var(--hold-line);background:var(--hold-bg);}
+.rc-meta-pill.is-ok{color:var(--ok);border-color:var(--ok-line);background:var(--ok-bg);}
+
+/* theme switcher (canonical dropdown) */
+.rc-theme{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--rule);border-radius:7px;padding:3px 4px 3px 7px;background:var(--bg);}
+.rc-theme-sw{width:12px;height:12px;border-radius:50%;background:var(--navy);box-shadow:0 0 0 1px var(--rule);flex:none;}
+.rc-theme-sel{border:0;background:none;font:600 11px/1 var(--mono);color:var(--ink-mid);cursor:pointer;outline:none;padding:2px;}
+@media print{.rc-theme{display:none;}}
+
+/* ---------- prerequisites gate ---------- */
+.rc-prereq{margin:22px 40px 0;border:1px solid var(--rule);border-left:4px solid var(--navy);border-radius:12px;background:#fff;box-shadow:0 1px 2px rgba(17,19,26,.045);overflow:hidden;}
+.rc-prereq-hd{display:flex;align-items:center;gap:9px;padding:11px 18px;background:var(--bg-subtle);border-bottom:1px solid var(--rule-soft);}
+.rc-prereq-hd .icon{width:16px;height:16px;color:var(--navy-deep);}
+.rc-prereq-hd h2{margin:0;font-size:13px;font-weight:800;letter-spacing:.01em;}
+.rc-prereq-hd .lbl{font-family:var(--mono);font-size:9.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);margin-left:auto;}
+.rc-prereq-list{list-style:none;margin:0;padding:10px 18px 13px;display:grid;grid-template-columns:1fr 1fr;gap:4px 26px;}
+@media(max-width:980px){.rc-prereq-list{grid-template-columns:1fr;}}
+.rc-prereq-list li{display:grid;grid-template-columns:18px 1fr;gap:9px;align-items:start;padding:5px 0;font-size:12.5px;line-height:1.55;color:var(--ink-mid);}
+.rc-prereq-list li .icon{width:15px;height:15px;color:var(--navy-deep);margin-top:2px;}
+.rc-prereq-list .note{display:block;font-size:11px;color:var(--ink-faint);margin-top:1px;}
+
+/* ---------- 2-col body: step column + sticky rail ---------- */
+.rc-body{display:grid;grid-template-columns:minmax(0,1fr) 312px;gap:30px;padding:24px 40px 60px;align-items:start;}
+@media(max-width:1100px){.rc-body{grid-template-columns:1fr;}.rc-rail{position:static;order:-1;}}
+
+/* step column */
+.rc-steps{min-width:0;display:flex;flex-direction:column;gap:16px;}
+.rc-steps-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.rc-steps-bar h2{margin:0;font-family:var(--mono);font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);}
+.rc-allbtn{margin-left:auto;}
+.rc-textbtn{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--navy-deep);background:var(--navy-bg);border:1px solid var(--navy-line);border-radius:6px;padding:4px 9px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;}
+.rc-textbtn:hover{background:var(--navy);color:#fff;border-color:var(--navy);}
+.rc-textbtn .icon{width:12px;height:12px;}
+
+/* numbered section (collapsible) */
+.rc-section{border:1px solid var(--rule);border-radius:12px;overflow:hidden;background:#fff;box-shadow:0 1px 2px rgba(17,19,26,.045);scroll-margin-top:18px;}
+.rc-section-hd{display:flex;align-items:center;gap:12px;padding:12px 18px;background:var(--bg-band);border-bottom:1px solid var(--rule);cursor:pointer;user-select:none;width:100%;text-align:left;border-radius:0;font:inherit;color:inherit;}
+.rc-section[data-open="false"] .rc-section-hd{border-bottom:none;}
+.rc-section-n{flex:none;width:30px;height:30px;border-radius:8px;background:var(--navy);color:#fff;font-family:var(--mono);font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;font-feature-settings:"tnum" 1;}
+.rc-section[data-done="all"] .rc-section-n{background:var(--ok);}
+.rc-section-hd h3{margin:0;font-size:15px;font-weight:800;letter-spacing:-.01em;flex:1;min-width:0;}
+.rc-count{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--ink-soft);background:#fff;border:1px solid var(--rule);border-radius:6px;padding:2px 9px;white-space:nowrap;font-feature-settings:"tnum" 1;}
+.rc-section[data-done="all"] .rc-count{color:var(--ok);border-color:var(--ok-line);background:var(--ok-bg);}
+.rc-caret{flex:none;color:var(--ink-faint);font-size:16px;line-height:1;transition:transform .15s ease;}
+.rc-section[data-open="true"] .rc-caret{transform:rotate(90deg);}
+.rc-section-body{padding:6px 18px 14px;}
+.rc-section[data-open="false"] .rc-section-body{display:none;}
+
+/* the checkable step — the signature unit */
+.rc-step{display:grid;grid-template-columns:24px 1fr;gap:13px;padding:13px 4px;border-bottom:1px solid var(--rule-soft);}
+.rc-step:last-child{border-bottom:none;}
+.rc-check{appearance:none;-webkit-appearance:none;margin:1px 0 0;width:21px;height:21px;border:1.75px solid var(--rule);border-radius:6px;background:#fff;cursor:pointer;flex:none;position:relative;transition:background .12s ease,border-color .12s ease;}
+.rc-check:hover{border-color:var(--navy);}
+.rc-check:checked{background:var(--navy);border-color:var(--navy);}
+.rc-check:checked::after{content:"";position:absolute;left:6px;top:2px;width:5px;height:10px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(42deg);}
+.rc-check:focus-visible{outline:2px solid var(--navy);outline-offset:2px;}
+.rc-step-main{min-width:0;}
+.rc-step-head{display:flex;align-items:baseline;gap:9px;}
+.rc-step-id{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--navy-deep);background:var(--navy-bg);border:1px solid var(--navy-line);border-radius:5px;padding:1px 7px;white-space:nowrap;flex:none;}
+.rc-step-text{font-size:13.5px;line-height:1.6;color:var(--ink);font-weight:500;}
+.rc-step.is-done .rc-step-text{color:var(--ink-faint);text-decoration:line-through;text-decoration-color:var(--rule);}
+.rc-step.is-done .rc-step-id{opacity:.55;}
+/* per-step timestamp / elapsed stamp (incident timeline) */
+.rc-stamp{display:none;align-items:center;gap:5px;margin:7px 0 0;font-family:var(--mono);font-size:10.5px;font-weight:700;letter-spacing:.04em;color:var(--ok);}
+.rc-stamp .icon{width:12px;height:12px;color:var(--ok);}
+.rc-step.is-done .rc-stamp{display:inline-flex;}
+.rc-stamp .at{color:var(--ink-faint);font-weight:600;}
+
+/* command block (dark) + copy */
+.rc-cmd{position:relative;margin:9px 0 0;border-radius:10px;background:var(--bg-deep);overflow:hidden;}
+.rc-cmd pre{margin:0;padding:11px 92px 11px 14px;font-family:var(--mono);font-size:12px;line-height:1.6;color:#e5e7eb;white-space:pre-wrap;word-break:break-word;overflow-wrap:anywhere;}
+.rc-cmd pre::before{content:"$";color:#6ad0e0;margin-right:8px;font-weight:700;}
+.rc-copy{position:absolute;top:8px;right:8px;font-family:var(--mono);font-size:9.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#cfd3da;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.16);border-radius:6px;padding:4px 8px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;transition:background .12s ease;}
+.rc-copy:hover{background:rgba(255,255,255,.15);color:#fff;}
+.rc-copy .icon{width:12px;height:12px;}
+.rc-copy.is-copied{color:#9be29b;border-color:rgba(155,226,155,.4);}
+
+/* expected / critical / rollback insets */
+.rc-expected,.rc-critical,.rc-rollback{display:grid;grid-template-columns:16px 1fr;gap:8px;align-items:start;margin:8px 0 0;font-size:12px;line-height:1.55;border-radius:8px;padding:7px 11px;}
+.rc-expected .icon,.rc-critical .icon,.rc-rollback .icon{width:15px;height:15px;margin-top:1px;}
+.rc-expected{background:var(--ok-bg);border:1px solid var(--ok-line);color:var(--ok);}
+.rc-expected b{color:var(--ok);font-weight:700;}
+.rc-critical{background:var(--risk-bg);border:1px solid var(--risk-line);color:var(--risk);font-weight:600;}
+.rc-critical b{font-weight:800;}
+.rc-rollback{background:var(--hold-bg);border:1px solid var(--hold-line);color:var(--hold);}
+.rc-rollback b{font-weight:800;}
+.rc-expected code,.rc-critical code,.rc-rollback code,.rc-step-text code{font-family:var(--mono);font-size:11px;background:rgba(0,0,0,.05);padding:0 4px;border-radius:4px;}
+
+/* ---------- sticky progress rail (the operator HUD) ---------- */
+.rc-rail{position:sticky;top:18px;align-self:start;display:flex;flex-direction:column;gap:14px;min-width:0;}
+.rc-card{border:1px solid var(--rule);border-radius:14px;background:#fff;box-shadow:0 1px 3px rgba(17,19,26,.05);overflow:hidden;}
+.rc-card-hd{display:flex;align-items:center;gap:7px;font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);padding:11px 15px 10px;border-bottom:1px solid var(--rule-soft);background:var(--bg-subtle);}
+.rc-card-hd .icon{width:14px;height:14px;color:var(--navy-deep);}
+
+/* progress ring */
+.rc-prog{padding:16px 15px 15px;display:flex;align-items:center;gap:16px;}
+.rc-ring{flex:none;width:84px;height:84px;border-radius:50%;background:conic-gradient(var(--navy) calc(var(--pct,0)*1%),var(--bg-band) 0);display:flex;align-items:center;justify-content:center;transition:background .25s ease;}
+.rc-ring::after{content:"";position:absolute;}
+.rc-ring-inner{width:62px;height:62px;border-radius:50%;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.rc-ring-pct{font-size:20px;font-weight:800;line-height:1;color:var(--ink);font-feature-settings:"tnum" 1;}
+.rc-ring-lbl{font-family:var(--mono);font-size:8px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint);margin-top:2px;}
+.rc-prog-meta{min-width:0;}
+.rc-prog-meta .big{font-family:var(--mono);font-size:17px;font-weight:800;color:var(--ink);font-feature-settings:"tnum" 1;}
+.rc-prog-meta .small{font-size:11px;color:var(--ink-faint);font-weight:700;letter-spacing:.04em;text-transform:uppercase;margin-top:2px;}
+.rc-prog-meta .elapsed{display:none;align-items:center;gap:5px;margin-top:8px;font-family:var(--mono);font-size:11px;font-weight:700;color:var(--navy-deep);}
+.rc-prog-meta .elapsed.is-live{display:inline-flex;}
+.rc-prog-meta .elapsed .icon{width:13px;height:13px;}
+.rc-prog-meta .elapsed .at{color:var(--ink-faint);font-weight:600;}
+
+/* rail jump links with per-section counts */
+.rc-jumps{list-style:none;margin:0;padding:6px 8px 9px;}
+.rc-jumps a{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;padding:7px 8px;border-radius:8px;text-decoration:none;color:var(--ink-mid);font-size:12px;line-height:1.35;}
+.rc-jumps a:hover{background:var(--bg-subtle);color:var(--navy-deep);}
+.rc-jumps .jn{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--ink-faint);margin-right:7px;}
+.rc-jumps .jcount{font-family:var(--mono);font-size:10.5px;font-weight:700;color:var(--ink-soft);background:var(--bg-band);border-radius:5px;padding:1px 7px;white-space:nowrap;font-feature-settings:"tnum" 1;}
+.rc-jumps a.is-complete .jcount{color:var(--ok);background:var(--ok-bg);}
+.rc-jumps a.is-complete{color:var(--ink-faint);}
+
+/* rail controls */
+.rc-controls{padding:12px 15px 14px;display:flex;flex-direction:column;gap:9px;}
+.rc-toggle{display:flex;align-items:center;justify-content:space-between;gap:10px;cursor:pointer;font-size:12.5px;font-weight:600;color:var(--ink-mid);user-select:none;}
+.rc-switch{flex:none;width:38px;height:21px;border-radius:11px;background:var(--rule);border:none;cursor:pointer;position:relative;transition:background .15s ease;padding:0;}
+.rc-switch::after{content:"";position:absolute;top:2px;left:2px;width:17px;height:17px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.2);transition:transform .15s ease;}
+.rc-switch[aria-pressed="true"]{background:var(--navy);}
+.rc-switch[aria-pressed="true"]::after{transform:translateX(17px);}
+.rc-reset{font-family:var(--sans);font-size:12px;font-weight:700;color:var(--ink-soft);background:#fff;border:1px solid var(--rule);border-radius:8px;padding:7px 10px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:7px;}
+.rc-reset:hover{border-color:var(--risk-line);color:var(--risk);background:var(--risk-bg);}
+.rc-reset .icon{width:14px;height:14px;}
+
+/* rollback-plan card (always visible) */
+.rc-rollback-card .rc-card-hd{color:var(--hold);background:var(--hold-bg);border-bottom-color:var(--hold-line);}
+.rc-rollback-card .rc-card-hd .icon{color:var(--hold);}
+.rc-rb-summary{font-size:12px;line-height:1.55;color:var(--ink-mid);padding:11px 15px 4px;}
+.rc-rb-steps{margin:0;padding:4px 16px 14px 32px;}
+.rc-rb-steps li{font-size:12px;line-height:1.55;color:var(--ink-mid);margin:0 0 6px;}
+.rc-rb-steps li::marker{color:var(--hold);font-weight:700;}
+.rc-rb-steps code{font-family:var(--mono);font-size:11px;background:var(--bg-band);padding:0 4px;border-radius:4px;}
+
+/* filter empty-state */
+.rc-empty{display:none;border:1px dashed var(--ok-line);background:var(--ok-bg);border-radius:12px;padding:18px 20px;text-align:center;color:var(--ok);font-weight:700;align-items:center;justify-content:center;gap:9px;}
+.rc-empty .icon{width:18px;height:18px;}
+body.is-filtered .rc-section[data-allhidden="true"]{display:none;}
+body.is-filtered .rc-step.is-done{display:none;}
+body.show-empty .rc-empty{display:flex;}
+
+/* footer */
+.rc-footer{background:var(--bg-deep);color:#c9c4d0;padding:30px 40px;}
+.rc-foot-inner{max-width:1500px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;}
+.rc-brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:15px;color:#fff;letter-spacing:-.01em;}
+.rc-brand .sq{width:13px;height:13px;border-radius:4px;background:var(--navy);}
+.rc-foot-meta{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#8f8898;text-align:right;line-height:1.7;}
+
+/* ---------- print: all sections expanded, controls hidden, complete SOP ---------- */
+@media print{
+ .rc-theme,.rc-copy,.rc-allbtn,.rc-caret,.rc-controls,.rc-empty{display:none !important;}
+ .rc-body{grid-template-columns:1fr;padding:0 0 20px;}
+ .rc-rail{position:static;order:0;}
+ .rc-section{break-inside:avoid;box-shadow:none;}
+ .rc-section-body{display:block !important;}      /* force expand */
+ .rc-step{display:grid !important;}                /* ignore "remaining only" */
+ .rc-cmd pre{padding-right:14px;}
+ .rc-footer{background:#fff;color:#333;border-top:1px solid var(--rule);}
+ .rc-brand{color:#111;}.rc-foot-meta{color:#666;}
+ body{font-size:11px;}
+}
+</style>
+</head>
+<body>
+
+<!-- ====== CONTENT SOURCE — the ONLY place data lives (valid schema instance) ====== -->
+<script type="application/json" id="report-data">
+{
+  "meta": {
+    "org": "{{ORG}}",
+    "project": "{{PROJECT}}",
+    "reportType": "Runbook · Incident Mitigation",
+    "title": "Mitigate duplicate-disbursement incident on the settlement path",
+    "subtitle": "SEV2 — duplicate payments are clearing under partial-failure retry. Work top to bottom: confirm, stop the bleed, verify, then close out. Tick each step as you complete it.",
+    "date": "2026-06-22",
+    "author": "{{AUTHOR}}",
+    "theme": "cyan"
+  },
+  "severity": "sev2",
+  "estDuration": "~45 min",
+  "owners": [
+    { "role": "Incident Commander", "name": "{{AUTHOR}}" },
+    { "role": "On-call SRE", "name": "Payments on-call" },
+    { "role": "DBA", "name": "Data Platform on-call" }
+  ],
+  "prerequisites": [
+    "PagerDuty incident opened and the bridge call is active.",
+    { "text": "Production kubectl + lbctl access to the payments cluster.", "note": "Use break-glass if you lack standing access." },
+    "Read access to the settlement warehouse for the dedup query.",
+    "Change-ticket reference ready to hand off to the post-incident review."
+  ],
+  "sections": [
+    {
+      "id": "detect",
+      "title": "Detect & confirm",
+      "steps": [
+        { "id": "1.1", "text": "Confirm the duplicate-disbursement alert is firing and is not a false positive.", "command": "alertctl show OR-CTL-118-dup --window 1h", "expected": "At least one firing alert with a non-zero `dup_count` in the last hour." },
+        { "id": "1.2", "text": "Run the dedup query to count confirmed duplicate ledger pairs in the live window.", "command": "psql -h warehouse -c \\\n  \"SELECT count(*) FROM dup_breaks WHERE created_at > now()-interval '6h';\"", "expected": "A concrete count of affected request ids — record it in the incident channel." },
+        { "id": "1.3", "text": "Declare scope on the bridge: which accounts and what value are exposed.", "expected": "Incident channel has an agreed blast-radius statement and current SEV." }
+      ]
+    },
+    {
+      "id": "stabilise",
+      "title": "Stabilise the path — stop the bleed",
+      "steps": [
+        { "id": "2.1", "text": "Raise the client retry budget temporarily to shrink the post-commit gap window.", "command": "kubectl -n payments set env deploy/settle-orchestrator RETRY_BUDGET_MS=15000", "expected": "Rollout completes; every pod reports `RETRY_BUDGET_MS=15000`.", "rollback": "Restore `RETRY_BUDGET_MS=5000` if the latency SLO begins to breach." },
+        { "id": "2.2", "text": "Enable the same-day duplicate reconciliation alert to cut detection lag to under one hour.", "command": "alertctl enable dup-sameday --severity sev2", "expected": "Alert shows state `enabled`; a test fire reaches the incident channel." },
+        { "id": "2.3", "text": "Place a unique index on (account_id, request_id) to block any further duplicate persist at the database.", "command": "psql -h ledger-primary -c \\\n  \"CREATE UNIQUE INDEX CONCURRENTLY ux_ledger_req\\n     ON ledger_entries(account_id, request_id);\"", "expected": "Index builds without error — i.e. no existing duplicates block it.", "critical": true, "rollback": "If the build fails on existing duplicates, reverse those rows first (see Rollback plan), then retry the index." }
+      ]
+    },
+    {
+      "id": "verify",
+      "title": "Verify & close out",
+      "steps": [
+        { "id": "3.1", "text": "Re-run the dedup query and confirm no new duplicate pairs since stabilisation.", "command": "psql -h warehouse -c \\\n  \"SELECT count(*) FROM dup_breaks WHERE created_at > now()-interval '30m';\"", "expected": "Count is `0` for the post-mitigation window." },
+        { "id": "3.2", "text": "Reverse the confirmed duplicate disbursements and notify the reconciliation team.", "rollback": "Reversals are themselves logged — do NOT re-run the reversal job twice for the same request id." },
+        { "id": "3.3", "text": "Confirm dashboards are green and customer-facing error rate is back to baseline.", "expected": "`settle_error_rate` and `dup_count` both flat at baseline for 15 min." },
+        { "id": "3.4", "text": "Hand off to the post-incident review, link the change ticket, and lower severity once stable for 30 minutes." }
+      ]
+    }
+  ],
+  "rollbackPlan": {
+    "summary": "If stabilisation makes things worse (latency SLO breach, or the index build fails), back out in this order:",
+    "steps": [
+      "Restore RETRY_BUDGET_MS=5000 on settle-orchestrator.",
+      "Drop the unique index: DROP INDEX CONCURRENTLY ux_ledger_req.",
+      "Disable the same-day reconciliation alert.",
+      "Announce the rollback on the bridge and keep the incident open at SEV2."
+    ]
+  }
+}
+</script>
+
+<noscript><div class="noscript">This runbook renders from embedded data and requires JavaScript. The complete procedure (all steps, commands, and the rollback plan) is present in the page source under <code>#report-data</code>.</div></noscript>
+
+<!-- the body is built by render() from #report-data -->
+<div class="rc-frame" id="rc-root"></div>
+
+<footer class="rc-footer">
+  <div class="rc-foot-inner">
+    <div class="rc-brand"><span class="sq"></span><span id="foot-org">{{ORG}}</span> &nbsp;·&nbsp; Operations Runbook</div>
+    <div class="rc-foot-meta" id="foot-meta"></div>
+  </div>
+</footer>
+
+<!-- ============ ICON DEFS (house SVG set, inlined; sized via .icon) ============ -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <!-- checklist -->
+    <g id="i-checklist"><path d="M9 6.5H19.5M9 12H19.5M9 17.5H19.5" /><path d="M4 6 5 7 7 4.5M4 11.5 5 12.5 7 10M4 17 5 18 7 15.5"/></g>
+    <!-- clock / duration -->
+    <g id="i-clock"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></g>
+    <!-- shield-alert (severity) -->
+    <g id="i-shield"><path d="M12 3.25 19 5.75v5.45c0 4.4-3 7.6-7 8.8-4-1.2-7-4.4-7-8.8V5.75Z"/><path d="M12 8.5v3.5"/><circle cx="12" cy="15.2" r=".7" fill="currentColor" stroke="none"/></g>
+    <!-- flag (status) -->
+    <g id="i-flag"><path d="M6 21V4"/><path d="M6 4.5h10l-2 3.25 2 3.25H6"/></g>
+    <!-- user -->
+    <g id="i-user"><circle cx="12" cy="8" r="3.25"/><path d="M5.5 19.5a6.5 6.5 0 0 1 13 0"/></g>
+    <!-- check-circle (expected) -->
+    <g id="i-check-circle"><circle cx="12" cy="12" r="8.5"/><path d="M8.3 12.4l2.5 2.5 4.9-5.3"/></g>
+    <!-- warning-triangle (critical) -->
+    <g id="i-warn"><path d="M12 3 21 19H3Z"/><path d="M12 9.5v4.5"/><circle cx="12" cy="17" r=".6" fill="currentColor" stroke="none"/></g>
+    <!-- rollback / undo -->
+    <g id="i-rollback"><path d="M7.5 9H4.5V6"/><path d="M4.8 9.2A8 8 0 1 1 4 13"/></g>
+    <!-- copy -->
+    <g id="i-copy"><rect x="8.5" y="8.5" width="11" height="11" rx="2.5"/><path d="M15.5 8.5V6a1.5 1.5 0 0 0-1.5-1.5H6A1.5 1.5 0 0 0 4.5 6v8A1.5 1.5 0 0 0 6 15.5h2.5"/></g>
+    <!-- chevron-right (caret) -->
+    <g id="i-chevron"><path d="M9.5 5.5 16 12l-6.5 6.5"/></g>
+    <!-- expand / collapse-all -->
+    <g id="i-expand"><path d="M8 4.5 4.5 4.5 4.5 8M16 4.5 19.5 4.5 19.5 8M8 19.5 4.5 19.5 4.5 16M16 19.5 19.5 19.5 19.5 16"/></g>
+    <!-- reset / refresh -->
+    <g id="i-reset"><path d="M4.5 12a7.5 7.5 0 1 1 2.3 5.4"/><path d="M4.5 12V8M4.5 12H8.5"/></g>
+    <!-- filter -->
+    <g id="i-filter"><path d="M4.5 5.5h15l-5.8 6.7v5.1l-3.4 1.7v-6.8Z"/></g>
+    <!-- key (prereq item) -->
+    <g id="i-key"><circle cx="8" cy="12" r="3.5"/><path d="M11.2 11.2 19 11.2M16 11.2V14M18.5 11.2V13.5"/></g>
+    <!-- gauge (progress) -->
+    <g id="i-gauge"><path d="M4.5 16.5a8 8 0 1 1 15 0"/><path d="M12 16.5 15 10.5"/><rect x="10.6" y="15.1" width="2.8" height="2.8" rx="1.1" fill="currentColor" stroke="none"/></g>
+  </defs>
+</svg>
+
+<!-- ============ RENDER + INTERACTIONS + THEME (single block, from #report-data) ============ -->
+<script>
+(function () {
+  "use strict";
+  var DATA = JSON.parse(document.getElementById("report-data").textContent);
+  var root = document.getElementById("rc-root");
+  var done = new Set();                 // in-memory: ids of checked steps
+  var stamps = {};                      // { stepId: epoch-ms when checked } — feeds persistence + per-step timeline
+  var startedAt = null;                 // epoch-ms of first checked step ("incident start")
+  var elapsedTimer = null;              // setInterval handle for the live elapsed readout
+  var SEV = { sev1:{t:"SEV1",c:"is-risk"}, sev2:{t:"SEV2",c:"is-risk"}, sev3:{t:"SEV3",c:"is-hold"}, info:{t:"INFO",c:"is-ok"} };
+
+  // ---- persistence: key per runbook id, survives reload ----
+  function rbId() {
+    if (DATA.id) return String(DATA.id);
+    var m = DATA.meta || {};
+    return (String(m.project || "rb") + ":" + String(m.title || DATA.title || "runbook"))
+      .toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "").slice(0, 80);
+  }
+  var STORE_KEY = "rc:state:" + rbId();
+  function lsGet() { try { return window.localStorage.getItem(STORE_KEY); } catch (e) { return null; } }
+  function lsSet(v) { try { window.localStorage.setItem(STORE_KEY, v); } catch (e) {} }
+  function lsDel() { try { window.localStorage.removeItem(STORE_KEY); } catch (e) {} }
+  var VALID = (function () { var s = {}; DATA.sections.forEach(function (sec) { sec.steps.forEach(function (st) { s[st.id] = 1; }); }); return s; })();
+
+  function loadState() {
+    done = new Set(); stamps = {}; startedAt = null;
+    var raw = lsGet(); if (!raw) return;
+    var obj; try { obj = JSON.parse(raw); } catch (e) { return; }
+    var ts = (obj && obj.stamps) || {};
+    Object.keys(ts).forEach(function (id) {
+      if (!VALID[id]) return;                       // ignore steps no longer in the runbook
+      var t = +ts[id]; if (!isFinite(t)) return;
+      stamps[id] = t; done.add(id);
+    });
+    if (obj && isFinite(+obj.startedAt)) startedAt = +obj.startedAt;
+    if (startedAt == null && done.size) {           // derive from earliest stamp if absent
+      startedAt = Math.min.apply(null, Object.keys(stamps).map(function (k) { return stamps[k]; }));
+    }
+  }
+  function saveState() { lsSet(JSON.stringify({ v: 1, startedAt: startedAt, stamps: stamps })); }
+
+  // ---- elapsed-time formatting ----
+  function pad(n) { return (n < 10 ? "0" : "") + n; }
+  function clockOf(ms) { var d = new Date(ms); return pad(d.getHours()) + ":" + pad(d.getMinutes()); }
+  function elapsedStr(fromMs, toMs) {
+    var s = Math.max(0, Math.round((toMs - fromMs) / 1000));
+    var h = Math.floor(s / 3600), mn = Math.floor((s % 3600) / 60), sc = s % 60;
+    return h ? (h + "h " + pad(mn) + "m") : (mn + "m " + pad(sc) + "s");
+  }
+
+  // ---- helpers ----
+  function el(tag, cls, html) { var e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; }
+  function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;" })[c]; }); }
+  // allow ONLY backtick `code` spans from data → <code>, everything else escaped
+  function md(s) { return esc(s).replace(/`([^`]+)`/g, "<code>$1</code>"); }
+  function ico(id, cls) { return '<svg class="icon ' + (cls||"") + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><use href="#' + id + '"/></svg>'; }
+
+  var totalSteps = DATA.sections.reduce(function (n, s) { return n + s.steps.length; }, 0);
+
+  // ---- render ----
+  function render() {
+    var m = DATA.meta;
+    document.documentElement.dataset.theme = m.theme || "cyan";
+    document.title = "Runbook — " + m.title + " · " + m.project;
+    document.getElementById("foot-org").textContent = m.org;
+    document.getElementById("foot-meta").innerHTML =
+      esc(m.reportType) + " · " + esc(m.project) + " · " + esc(m.date) + "<br>Operational procedure · Distribution controlled · " + esc(m.org);
+
+    root.innerHTML = "";
+    root.appendChild(buildHeader(m));
+    root.appendChild(buildPrereq());
+    root.appendChild(buildBody());
+
+    recompute();
+    wireThemeSwitch();
+  }
+
+  function buildHeader(m) {
+    var h = el("header", "rc-header");
+    var owners = (DATA.owners || []).map(function (o) {
+      return '<span class="rc-owner">' + ico("i-user") + '<span><b>' + esc(o.role) + '</b> ' + esc(o.name) + '</span></span>';
+    }).join("");
+    var pills = "";
+    if (DATA.severity && SEV[DATA.severity]) pills += '<span class="rc-meta-pill ' + SEV[DATA.severity].c + '">' + ico("i-shield") + 'Severity · ' + SEV[DATA.severity].t + '</span>';
+    if (DATA.estDuration) pills += '<span class="rc-meta-pill">' + ico("i-clock") + 'Est. ' + esc(DATA.estDuration) + '</span>';
+    pills += '<span class="rc-meta-pill">' + ico("i-flag") + esc(totalSteps) + ' steps · ' + DATA.sections.length + ' sections</span>';
+
+    var themeDropdown =
+      '<label class="rc-theme" title="Brand colour">' +
+        '<span class="rc-theme-sw" aria-hidden="true"></span>' +
+        '<select class="rc-theme-sel" aria-label="Brand theme">' +
+          '<option value="blue">Blue</option>' +
+          '<option value="purple">Purple</option>' +
+          '<option value="indigo">Indigo</option>' +
+          '<option value="teal">Teal</option>' +
+          '<option value="cyan">Cyan</option>' +
+          '<option value="green">Green</option>' +
+          '<option value="plum">Plum</option>' +
+          '<option value="slate">Slate</option>' +
+          '<option value="black">Black</option>' +
+        '</select>' +
+      '</label>';
+
+    h.innerHTML =
+      '<div class="rc-header-inner">' +
+        '<div class="rc-eyebrow">' + ico("i-checklist") + '<span>' + esc(m.reportType) + '</span><span class="org">· ' + esc(m.org) + ' / ' + esc(m.project) + '</span></div>' +
+        '<h1 class="rc-title">' + esc(m.title) + '</h1>' +
+        (m.subtitle ? '<p class="rc-subtitle">' + esc(m.subtitle) + '</p>' : "") +
+        '<div class="rc-header-foot">' +
+          '<div class="rc-owners">' + owners + '</div>' +
+          '<div class="rc-meta">' + pills + themeDropdown + '</div>' +
+        '</div>' +
+      '</div>';
+    return h;
+  }
+
+  function buildPrereq() {
+    var wrap = el("section", "rc-prereq");
+    var items = (DATA.prerequisites || []).map(function (p) {
+      var text = typeof p === "string" ? p : p.text;
+      var note = typeof p === "string" ? null : p.note;
+      return '<li>' + ico("i-key") + '<span>' + md(text) + (note ? '<span class="note">' + md(note) + '</span>' : "") + '</span></li>';
+    }).join("");
+    wrap.innerHTML =
+      '<div class="rc-prereq-hd">' + ico("i-shield") + '<h2>Before you begin</h2><span class="lbl">Prerequisites</span></div>' +
+      '<ul class="rc-prereq-list">' + items + '</ul>';
+    return wrap;
+  }
+
+  function buildBody() {
+    var body = el("div", "rc-body");
+
+    // ---- step column ----
+    var steps = el("div", "rc-steps");
+    var bar = el("div", "rc-steps-bar");
+    bar.innerHTML = '<h2>Procedure</h2>' +
+      '<button class="rc-textbtn rc-allbtn" id="rc-toggleall">' + ico("i-expand") + '<span>Collapse all</span></button>';
+    steps.appendChild(bar);
+
+    DATA.sections.forEach(function (sec, i) {
+      steps.appendChild(buildSection(sec, i + 1));
+    });
+
+    var empty = el("div", "rc-empty");
+    empty.innerHTML = ico("i-check-circle") + '<span>All steps complete — nothing remaining. Toggle the filter off to review.</span>';
+    steps.appendChild(empty);
+    body.appendChild(steps);
+
+    // ---- sticky rail ----
+    body.appendChild(buildRail());
+    return body;
+  }
+
+  function buildSection(sec, num) {
+    var s = el("section", "rc-section");
+    s.id = "sec-" + sec.id;
+    s.dataset.open = "true";
+    s.dataset.sec = sec.id;
+
+    var hd = el("button", "rc-section-hd");
+    hd.type = "button";
+    hd.setAttribute("aria-expanded", "true");
+    hd.innerHTML =
+      '<span class="rc-section-n">' + num + '</span>' +
+      '<h3>' + esc(sec.title) + '</h3>' +
+      '<span class="rc-count" data-count-for="' + sec.id + '">0/' + sec.steps.length + '</span>' +
+      '<span class="rc-caret">' + ico("i-chevron") + '</span>';
+    hd.addEventListener("click", function () { toggleSection(s); });
+    s.appendChild(hd);
+
+    var bodyEl = el("div", "rc-section-body");
+    sec.steps.forEach(function (st) { bodyEl.appendChild(buildStep(st)); });
+    s.appendChild(bodyEl);
+    return s;
+  }
+
+  function buildStep(st) {
+    var row = el("div", "rc-step");
+    row.dataset.step = st.id;
+    var isDone = done.has(st.id);
+    if (isDone) row.classList.add("is-done");
+
+    var cb = el("input", "rc-check");
+    cb.type = "checkbox";
+    cb.id = "ck-" + st.id;
+    cb.checked = isDone;                                  // rehydrate from persisted state
+    cb.setAttribute("aria-label", "Mark step " + st.id + " done");
+    cb.addEventListener("change", function () { setDone(st.id, cb.checked); });
+
+    var main = el("div", "rc-step-main");
+    var html =
+      '<div class="rc-step-head"><span class="rc-step-id">' + esc(st.id) + '</span>' +
+      '<span class="rc-step-text">' + md(st.text) + '</span></div>';
+
+    if (st.command) {
+      html += '<div class="rc-cmd"><button class="rc-copy" type="button">' + ico("i-copy") + '<span>Copy</span></button>' +
+              '<pre>' + esc(st.command) + '</pre></div>';
+    }
+    if (st.expected) html += '<div class="rc-expected">' + ico("i-check-circle") + '<span><b>Expected:</b> ' + md(st.expected) + '</span></div>';
+    if (st.critical) html += '<div class="rc-critical">' + ico("i-warn") + '<span><b>Critical:</b> destructive / no-undo — confirm before proceeding.</span></div>';
+    if (st.rollback) html += '<div class="rc-rollback">' + ico("i-rollback") + '<span><b>If it fails:</b> ' + md(st.rollback) + '</span></div>';
+    html += '<div class="rc-stamp" data-stamp-for="' + esc(st.id) + '">' + ico("i-clock") + '<span></span></div>';
+    main.innerHTML = html;
+
+    if (st.command) {
+      var cmdText = st.command;
+      main.querySelector(".rc-copy").addEventListener("click", function (e) { copyCmd(e.currentTarget, cmdText); });
+    }
+    if (isDone) writeStamp(main.querySelector('[data-stamp-for="' + cssEsc(st.id) + '"]'), st.id);
+
+    row.appendChild(cb);
+    row.appendChild(main);
+    return row;
+  }
+
+  // render the "done at HH:MM · +Nm into incident" label for a checked step
+  function writeStamp(node, id) {
+    if (!node) return;
+    var span = node.querySelector("span");
+    var t = stamps[id];
+    if (!span || !isFinite(+t)) { if (span) span.textContent = ""; return; }
+    var label = "done " + clockOf(t);
+    if (startedAt != null && t > startedAt) label += ' · <span class="at">+' + elapsedStr(startedAt, t) + " into incident</span>";
+    span.innerHTML = label;
+  }
+
+  function buildRail() {
+    var rail = el("aside", "rc-rail");
+    rail.setAttribute("aria-label", "Progress and controls");
+
+    // progress + jumps
+    var prog = el("div", "rc-card");
+    var jumps = DATA.sections.map(function (sec, i) {
+      return '<li><a href="#sec-' + sec.id + '" data-jump="' + sec.id + '">' +
+        '<span><span class="jn">' + (i + 1) + '</span>' + esc(sec.title) + '</span>' +
+        '<span class="jcount" data-jcount-for="' + sec.id + '">0/' + sec.steps.length + '</span></a></li>';
+    }).join("");
+    prog.innerHTML =
+      '<div class="rc-card-hd">' + ico("i-gauge") + 'Progress</div>' +
+      '<div class="rc-prog">' +
+        '<div class="rc-ring" id="rc-ring" style="--pct:0"><div class="rc-ring-inner"><span class="rc-ring-pct" id="rc-pct">0%</span><span class="rc-ring-lbl">done</span></div></div>' +
+        '<div class="rc-prog-meta"><div class="big" id="rc-fraction">0 / ' + totalSteps + '</div><div class="small">steps complete</div>' +
+          '<div class="elapsed" id="rc-elapsed">' + ico("i-clock") + '<span></span></div></div>' +
+      '</div>' +
+      '<ul class="rc-jumps">' + jumps + '</ul>';
+    rail.appendChild(prog);
+
+    // controls
+    var ctrl = el("div", "rc-card");
+    ctrl.innerHTML =
+      '<div class="rc-card-hd">' + ico("i-filter") + 'View</div>' +
+      '<div class="rc-controls">' +
+        '<label class="rc-toggle"><span>Remaining only</span>' +
+          '<button class="rc-switch" id="rc-filter" type="button" aria-pressed="false" aria-label="Show remaining steps only"></button></label>' +
+        '<button class="rc-reset" id="rc-reset" type="button">' + ico("i-reset") + 'Reset all steps</button>' +
+      '</div>';
+    rail.appendChild(ctrl);
+
+    // rollback plan (always visible)
+    if (DATA.rollbackPlan) {
+      var rb = el("div", "rc-card rc-rollback-card");
+      var rbSteps = (DATA.rollbackPlan.steps || []).map(function (x) { return '<li>' + md(x) + '</li>'; }).join("");
+      rb.innerHTML =
+        '<div class="rc-card-hd">' + ico("i-rollback") + 'Rollback plan</div>' +
+        (DATA.rollbackPlan.summary ? '<p class="rc-rb-summary">' + md(DATA.rollbackPlan.summary) + '</p>' : "") +
+        '<ol class="rc-rb-steps">' + rbSteps + '</ol>';
+      rail.appendChild(rb);
+    }
+    return rail;
+  }
+
+  // ---- state + recompute (overall ring, per-section + jump counts) ----
+  function setDone(id, isDone) {
+    if (isDone) {
+      done.add(id);
+      stamps[id] = Date.now();
+      if (startedAt == null) startedAt = stamps[id];     // first checked step opens the incident clock
+    } else {
+      done.delete(id);
+      delete stamps[id];
+      if (!done.size) startedAt = null;                  // no checked steps → reset the clock
+    }
+    var row = root.querySelector('.rc-step[data-step="' + cssEsc(id) + '"]');
+    if (row) {
+      row.classList.toggle("is-done", isDone);
+      writeStamp(row.querySelector('[data-stamp-for="' + cssEsc(id) + '"]'), id);
+    }
+    saveState();
+    recompute();
+    refreshElapsed();
+  }
+
+  // live "incident elapsed" readout in the rail; ticks once a minute while open
+  function refreshElapsed() {
+    var box = document.getElementById("rc-elapsed");
+    if (!box) return;
+    var span = box.querySelector("span");
+    if (startedAt == null) {
+      box.classList.remove("is-live");
+      if (elapsedTimer) { clearInterval(elapsedTimer); elapsedTimer = null; }
+      return;
+    }
+    box.classList.add("is-live");
+    if (span) span.innerHTML = elapsedStr(startedAt, Date.now()) + ' elapsed · <span class="at">started ' + clockOf(startedAt) + "</span>";
+    if (!elapsedTimer) elapsedTimer = setInterval(refreshElapsed, 30000);
+  }
+
+  function recompute() {
+    var overall = 0;
+    DATA.sections.forEach(function (sec) {
+      var d = sec.steps.filter(function (st) { return done.has(st.id); }).length;
+      var t = sec.steps.length;
+      overall += d;
+      var label = d + "/" + t;
+      var cnt = root.querySelector('[data-count-for="' + cssEsc(sec.id) + '"]');
+      var jc = root.querySelector('[data-jcount-for="' + cssEsc(sec.id) + '"]');
+      if (cnt) cnt.textContent = label;
+      if (jc) jc.textContent = label;
+      var secEl = root.querySelector('#sec-' + cssEsc(sec.id));
+      var allDone = (d === t && t > 0);
+      if (secEl) { secEl.dataset.done = allDone ? "all" : "partial"; secEl.dataset.allhidden = allDone ? "true" : "false"; }
+      var jlink = root.querySelector('[data-jump="' + cssEsc(sec.id) + '"]');
+      if (jlink) jlink.classList.toggle("is-complete", allDone);
+    });
+    var pct = totalSteps ? Math.round(overall / totalSteps * 100) : 0;
+    var ring = document.getElementById("rc-ring");
+    if (ring) ring.style.setProperty("--pct", pct);
+    var pctEl = document.getElementById("rc-pct"); if (pctEl) pctEl.textContent = pct + "%";
+    var frac = document.getElementById("rc-fraction"); if (frac) frac.textContent = overall + " / " + totalSteps;
+    // filter empty-state: every step done while filtering
+    document.body.classList.toggle("show-empty", document.body.classList.contains("is-filtered") && overall === totalSteps && totalSteps > 0);
+  }
+
+  function cssEsc(s) { return String(s).replace(/["\\\]\[]/g, "\\$&"); }
+
+  // ---- collapse / expand ----
+  function toggleSection(s) {
+    var open = s.dataset.open === "true";
+    s.dataset.open = open ? "false" : "true";
+    var hd = s.querySelector(".rc-section-hd");
+    if (hd) hd.setAttribute("aria-expanded", String(!open));
+  }
+  function setAll(open) {
+    root.querySelectorAll(".rc-section").forEach(function (s) {
+      s.dataset.open = open ? "true" : "false";
+      var hd = s.querySelector(".rc-section-hd"); if (hd) hd.setAttribute("aria-expanded", String(open));
+    });
+  }
+
+  // ---- copy ----
+  function copyCmd(btn, text) {
+    var label = btn.querySelector("span");
+    var ok = function () { btn.classList.add("is-copied"); if (label) label.textContent = "Copied"; setTimeout(function () { btn.classList.remove("is-copied"); if (label) label.textContent = "Copy"; }, 1400); };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(ok, function () { fallbackCopy(text, ok); });
+    } else { fallbackCopy(text, ok); }
+  }
+  function fallbackCopy(text, ok) {
+    var ta = document.createElement("textarea");
+    ta.value = text; ta.style.position = "fixed"; ta.style.opacity = "0";
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand("copy"); ok(); } catch (e) {}
+    document.body.removeChild(ta);
+  }
+
+  // ---- wire global interactions ----
+  function wireInteractions() {
+    document.addEventListener("click", function (e) {
+      var t = e.target.closest ? e.target.closest("#rc-toggleall, #rc-reset") : null;
+      if (!t) return;
+      if (t.id === "rc-toggleall") {
+        var anyOpen = !!root.querySelector('.rc-section[data-open="true"]');
+        setAll(!anyOpen);
+        var sp = t.querySelector("span"); if (sp) sp.textContent = anyOpen ? "Expand all" : "Collapse all";
+      } else if (t.id === "rc-reset") {
+        if (!done.size || window.confirm("Reset all steps to unchecked? This also clears saved progress and the incident timer.")) {
+          done.clear(); stamps = {}; startedAt = null;
+          root.querySelectorAll(".rc-check").forEach(function (c) { c.checked = false; });
+          root.querySelectorAll(".rc-step.is-done").forEach(function (r) { r.classList.remove("is-done"); });
+          lsDel();                       // clear persisted state too
+          recompute();
+          refreshElapsed();
+        }
+      }
+    });
+    // "remaining only" filter
+    document.addEventListener("click", function (e) {
+      var f = e.target.closest ? e.target.closest("#rc-filter") : null;
+      if (!f) return;
+      var on = f.getAttribute("aria-pressed") !== "true";
+      f.setAttribute("aria-pressed", String(on));
+      document.body.classList.toggle("is-filtered", on);
+      recompute();
+    });
+    // smooth-scroll jump links (and expand a collapsed target)
+    document.addEventListener("click", function (e) {
+      var a = e.target.closest ? e.target.closest('a[href^="#sec-"]') : null;
+      if (!a) return;
+      var s = document.getElementById(a.getAttribute("href").slice(1));
+      if (s) { s.dataset.open = "true"; var hd = s.querySelector(".rc-section-hd"); if (hd) hd.setAttribute("aria-expanded", "true"); }
+    });
+  }
+
+  // ---- theme switch (canonical dropdown) ----
+  function wireThemeSwitch() {
+    var rcSel = document.querySelector('.rc-theme-sel');
+    if (rcSel) {
+      rcSel.value = document.documentElement.dataset.theme || 'cyan';
+      rcSel.addEventListener('change', function () {
+        document.documentElement.dataset.theme = rcSel.value;
+        try { window.localStorage.setItem('rc:theme', rcSel.value); } catch (e) {}
+      });
+    }
+  }
+
+  // ---- boot ----
+  function boot() { loadState(); render(); wireInteractions(); refreshElapsed(); }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
+  else boot();
+})();
+</script>
+
+</body>
+</html>

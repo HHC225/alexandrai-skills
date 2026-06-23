@@ -1,0 +1,196 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://genesis.local/html_report_design/schemas/heatmap-grid.schema.json",
+  "title": "Heatmap grid (graded N×M value matrix) report",
+  "description": "Data contract for the heatmap-grid format: a dense N×M matrix of cells coloured by value, with row + column axis labels, a colour-scale legend, and marginal (row/column) totals. Supports three modes — 'risk' (likelihood × impact), 'correlation' (a correlation matrix), or 'activity' (calendar-style intensity). Colour intensity uses the single-hue brand accent ramp (tint → full --navy); when 'scale.bands' is supplied, cells are washed with the semantic ok/hold/risk tones for that band. This is NOT a 2×2 positioning plane (that is matrix-canvas) — it is a graded grid read cell-by-cell. Renders to a self-contained, themeable, interactive HTML heatmap. The sample's #report-data is a valid instance of this schema.",
+  "type": "object",
+  "required": ["meta", "mode", "rows", "cols", "cells", "scale", "axisLabels"],
+  "additionalProperties": false,
+  "properties": {
+    "meta": {
+      "type": "object",
+      "description": "Shared report chrome (org / project / title / theme). Brand-neutral: keep {{ORG}} / {{PROJECT}} / {{AUTHOR}} placeholders unless real values are supplied.",
+      "required": ["org", "project", "reportType", "title", "date", "theme"],
+      "additionalProperties": false,
+      "properties": {
+        "org": { "type": "string", "description": "Organisation name or {{ORG}} placeholder.", "default": "{{ORG}}" },
+        "project": { "type": "string", "description": "Project / programme name or {{PROJECT}} placeholder.", "default": "{{PROJECT}}" },
+        "reportType": { "type": "string", "description": "Eyebrow label shown above the heatmap title, e.g. 'Risk Assessment' or {{REPORT_TYPE}}." },
+        "title": { "type": "string", "description": "Heatmap title shown in the .hm-head, e.g. 'Programme Risk Heatmap — Likelihood × Impact'." },
+        "subtitle": { "type": "string", "description": "Optional short standfirst describing what the grid measures, e.g. 'Residual risk score (likelihood × impact) across delivery workstreams'." },
+        "date": { "type": "string", "description": "ISO as-of date (YYYY-MM-DD).", "format": "date" },
+        "author": { "type": "string", "description": "Author / analyst or {{AUTHOR}} placeholder.", "default": "{{AUTHOR}}" },
+        "theme": {
+          "type": "string",
+          "description": "Initial brand theme; applied as <html data-theme>. Default for this format is 'teal'. 'black' is always selectable in the in-report switcher.",
+          "enum": ["blue", "purple", "indigo", "teal", "cyan", "green", "plum", "slate", "black"],
+          "default": "teal"
+        }
+      }
+    },
+    "mode": {
+      "type": "string",
+      "description": "Heatmap mode, selecting the framing and default legend caption. 'risk' = a likelihood × impact / severity grid (typically banded ok/hold/risk); 'correlation' = a correlation matrix (single-hue intensity ramp, often a square rows≡cols matrix); 'activity' = calendar-style activity intensity (single-hue ramp, e.g. day × week). All three render with the same grid; bands make a mode semantic.",
+      "enum": ["risk", "correlation", "activity"],
+      "default": "risk"
+    },
+    "axisLabels": {
+      "type": "object",
+      "description": "The two axis titles framing the grid. 'x' labels the columns (shown across the top with a → arrow); 'y' labels the rows (shown rotated down the left side).",
+      "required": ["x", "y"],
+      "additionalProperties": false,
+      "properties": {
+        "x": { "type": "string", "description": "Column-axis title, e.g. 'Impact severity'." },
+        "y": { "type": "string", "description": "Row-axis title, e.g. 'Workstream'." }
+      }
+    },
+    "scale": {
+      "type": "object",
+      "description": "The numeric colour scale. Cell intensity is interpolated between 'min' and 'max'. If 'bands[]' is supplied, each cell is also washed with that band's semantic tone (ok/hold/risk) and the legend shows banded swatches; otherwise the legend shows a continuous single-hue accent ramp.",
+      "required": ["min", "max"],
+      "additionalProperties": false,
+      "properties": {
+        "min": { "type": "number", "description": "Scale floor mapped to the palest tint (and the threshold-slider minimum)." },
+        "max": { "type": "number", "description": "Scale ceiling mapped to the fullest colour (and the threshold-slider maximum). Must be greater than min." },
+        "unit": { "type": "string", "description": "Optional unit / caption for the legend and detail popover, e.g. 'score', '%', 'r', 'events'." },
+        "bands": {
+          "type": "array",
+          "description": "Optional ordered semantic bands (low → high). Each band recolours cells at or above its 'min' with its tone. Used for 'risk' mode (e.g. Low / Medium / High). Omit for a single-hue accent ramp (typical for correlation / activity).",
+          "items": {
+            "type": "object",
+            "required": ["min", "tone"],
+            "additionalProperties": false,
+            "properties": {
+              "min": { "type": "number", "description": "Lowest value (inclusive) that falls into this band." },
+              "tone": {
+                "type": "string",
+                "description": "Semantic tone for this band. 'ok' = green (low/benign); 'hold' = amber (medium/watch); 'risk' = bordeaux (high/critical).",
+                "enum": ["ok", "hold", "risk"]
+              },
+              "label": { "type": "string", "description": "Optional band caption for the legend, e.g. 'Low (1–6)'." }
+            }
+          }
+        }
+      }
+    },
+    "rows": {
+      "type": "array",
+      "description": "The grid rows (the Y axis), top to bottom in source order. Each row is one band of cells across all columns.",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["key", "label"],
+        "additionalProperties": false,
+        "properties": {
+          "key": { "type": "string", "description": "Stable unique row key referenced by cells[].row, e.g. 'core'." },
+          "label": { "type": "string", "description": "Row label shown in the left header, e.g. 'Core ledger migration'." },
+          "sublabel": { "type": "string", "description": "Optional small secondary line under the row label." }
+        }
+      }
+    },
+    "cols": {
+      "type": "array",
+      "description": "The grid columns (the X axis), left to right in source order.",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["key", "label"],
+        "additionalProperties": false,
+        "properties": {
+          "key": { "type": "string", "description": "Stable unique column key referenced by cells[].col, e.g. 'sev'." },
+          "label": { "type": "string", "description": "Column label shown in the top header, e.g. 'Severe'." },
+          "sublabel": { "type": "string", "description": "Optional small secondary line under the column label (.ch-n)." }
+        }
+      }
+    },
+    "cells": {
+      "type": "array",
+      "description": "The graded cells. Each addresses one (row, col) intersection by key and carries a numeric value that drives its colour. A missing (row, col) pair renders as an empty (hatched) cell. Cells with value null are also treated as empty.",
+      "items": {
+        "type": "object",
+        "required": ["row", "col", "value"],
+        "additionalProperties": false,
+        "properties": {
+          "row": { "type": "string", "description": "Row key (must match a rows[].key)." },
+          "col": { "type": "string", "description": "Column key (must match a cols[].key)." },
+          "value": { "type": ["number", "null"], "description": "Numeric value on the scale. Drives the cell colour, the threshold filter, the value↔% toggle, and the marginal totals. null renders as an empty cell." },
+          "label": { "type": "string", "description": "Optional display override for the big number in the detail popover (e.g. a formatted '0.82' or '25 / 25'); the underlying 'value' still drives colour and totals." },
+          "detail": { "type": "string", "description": "Optional drill-detail note shown in the click/hover popover, e.g. the risk narrative for this cell." }
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "meta": {
+        "org": "{{ORG}}",
+        "project": "{{PROJECT}}",
+        "reportType": "Risk Assessment",
+        "title": "Programme Risk Heatmap — Likelihood × Impact",
+        "subtitle": "Residual risk score (likelihood × impact, 1–25) across delivery workstreams · Q2 FY26 review",
+        "date": "2026-06-22",
+        "author": "{{AUTHOR}}",
+        "theme": "teal"
+      },
+      "mode": "risk",
+      "axisLabels": { "x": "Impact severity", "y": "Workstream" },
+      "scale": {
+        "min": 0,
+        "max": 25,
+        "unit": "score",
+        "bands": [
+          { "min": 0,  "tone": "ok",   "label": "Low (1–6)" },
+          { "min": 7,  "tone": "hold", "label": "Medium (7–14)" },
+          { "min": 15, "tone": "risk", "label": "High (15–25)" }
+        ]
+      },
+      "cols": [
+        { "key": "neg", "label": "Negligible" },
+        { "key": "min", "label": "Minor" },
+        { "key": "mod", "label": "Moderate" },
+        { "key": "maj", "label": "Major" },
+        { "key": "sev", "label": "Severe" }
+      ],
+      "rows": [
+        { "key": "core",   "label": "Core ledger migration" },
+        { "key": "pay",    "label": "Payments switch" },
+        { "key": "kyc",    "label": "KYC / onboarding" },
+        { "key": "data",   "label": "Data platform" },
+        { "key": "mobile", "label": "Mobile app" },
+        { "key": "infra",  "label": "Cloud infrastructure" }
+      ],
+      "cells": [
+        { "row": "core",   "col": "neg", "value": 2,  "detail": "Schema drift caught in CI; isolated blast radius." },
+        { "row": "core",   "col": "min", "value": 6,  "detail": "Reconciliation lag on nightly batch." },
+        { "row": "core",   "col": "mod", "value": 12, "detail": "Dual-run window overlaps month-end close." },
+        { "row": "core",   "col": "maj", "value": 20, "detail": "Cut-over rollback exceeds 4h RTO target." },
+        { "row": "core",   "col": "sev", "value": 25, "detail": "Ledger imbalance on go-live — regulatory reportable." },
+        { "row": "pay",    "col": "neg", "value": 3,  "detail": "Sandbox scheme certificate renewal." },
+        { "row": "pay",    "col": "min", "value": 5,  "detail": "Retry storm on transient gateway 503s." },
+        { "row": "pay",    "col": "mod", "value": 10, "detail": "Settlement file delay past scheme deadline." },
+        { "row": "pay",    "col": "maj", "value": 16, "detail": "Duplicate-payment edge case under partial outage." },
+        { "row": "pay",    "col": "sev", "value": 15, "detail": "Scheme suspension if SLA breached twice in quarter." },
+        { "row": "kyc",    "col": "neg", "value": 4,  "detail": "Vendor sandbox throttling during load test." },
+        { "row": "kyc",    "col": "min", "value": 8,  "detail": "38% onboarding drop-off at document step." },
+        { "row": "kyc",    "col": "mod", "value": 9,  "detail": "Sanctions-list refresh lag (4h)." },
+        { "row": "kyc",    "col": "maj", "value": 14, "detail": "False-negative on PEP screening." },
+        { "row": "kyc",    "col": "sev", "value": 18, "detail": "Onboarding a sanctioned entity — AML breach." },
+        { "row": "data",   "col": "neg", "value": 1,  "detail": "Late-arriving dimension in warehouse." },
+        { "row": "data",   "col": "min", "value": 4,  "detail": "Dashboard freshness lag of 30 min." },
+        { "row": "data",   "col": "mod", "value": 7,  "detail": "PII mis-classification in a new pipeline." },
+        { "row": "data",   "col": "maj", "value": 11, "detail": "Regulatory report sourced from stale snapshot." },
+        { "row": "data",   "col": "sev", "value": 13, "detail": "PII leak via mis-scoped export grant." },
+        { "row": "mobile", "col": "neg", "value": 2,  "detail": "Cosmetic layout defect on small screens." },
+        { "row": "mobile", "col": "min", "value": 6,  "detail": "Biometric re-prompt loop on some devices." },
+        { "row": "mobile", "col": "mod", "value": 8,  "detail": "Session token refresh fails offline." },
+        { "row": "mobile", "col": "maj", "value": 12, "detail": "Balance shown stale after a transfer." },
+        { "row": "mobile", "col": "sev", "value": 10, "detail": "App-store rejection delays a security patch." },
+        { "row": "infra",  "col": "neg", "value": 3,  "detail": "Single-AZ node eviction, auto-healed." },
+        { "row": "infra",  "col": "min", "value": 7,  "detail": "Autoscaler lag under a traffic spike." },
+        { "row": "infra",  "col": "mod", "value": 14, "detail": "Region failover untested end-to-end." },
+        { "row": "infra",  "col": "maj", "value": 19, "detail": "Shared secret store is a single point of failure." },
+        { "row": "infra",  "col": "sev", "value": 22, "detail": "Multi-AZ outage with no warm standby." }
+      ]
+    }
+  ]
+}

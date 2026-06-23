@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="slate">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1440">
+<title>Payments API — Release changelog · {{PROJECT}}</title>
+
+<!-- ============================================================
+     CHANGELOG / RELEASE FEED — data-driven, interactive, themeable.
+     A reverse-chronological release feed: compact header (type-chip +
+     channel filters, breaking-only toggle, live search, data-derived
+     stats) → 2-col body = sticky LEFT version jump rail + a descending
+     stack of collapsible version blocks, each a semver tag + date +
+     channel + typed change rows (Added/Changed/Fixed/Deprecated/
+     Removed/Security/Breaking coloured chips; breaking = risk tone).
+     NOT a forward timeline-roadmap; NOT a sortable data-register.
+     Self-contained: #report-data JSON is the ONLY content source;
+     inline CSS (9 data-theme blocks incl. Black) + inline SVG; render()
+     /wire*() build the DOM. No external requests. Default theme: slate.
+     ============================================================ -->
+
+<style>
+:root{
+ /* surfaces */
+ --bg:#fff; --bg-band:#f6f6f8; --bg-subtle:#fafafb; --bg-deep:#15131a;
+ --rule:#dcdce2; --rule-soft:#ebebef;
+ /* ink */
+ --ink:#11131a; --ink-mid:#33363f; --ink-soft:#5a5e68; --ink-faint:#868b95;
+ /* brand accent — Slate (default) */
+ --navy:#3f4f63; --navy-deep:#29384b; --navy-bg:#eef1f5; --navy-line:#c2ccd8;
+ /* cleared / approved */
+ --ok:#34495e; --ok-bg:#eef1f5; --ok-line:#c2ccd8;
+ /* semantic states — CONSTANT across all themes */
+ --risk:#b3261e; --risk-bg:#fbeceb; --risk-line:#edc7c4;
+ --hold:#8a6d00; --hold-bg:#fbf3da; --hold-line:#e7d8a4;
+ /* type stacks */
+ --mono:ui-monospace,"JetBrains Mono","SFMono-Regular",Menlo,Consolas,monospace;
+ --sans:-apple-system,"Segoe UI",system-ui,Roboto,"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic UI","Apple SD Gothic Neo","Malgun Gothic","PingFang SC","Microsoft YaHei","Noto Sans CJK JP","Noto Sans CJK KR","Noto Sans CJK SC","Noto Sans JP","Noto Sans KR","Noto Sans SC","Noto Sans",sans-serif;
+}
+/* theme overrides — swap ONLY the 7 accent values (risk/hold/neutrals stay) */
+html[data-theme="blue"]  { --navy:#0b5fd4; --navy-deep:#0842a0; --navy-bg:#e8f1fc; --navy-line:#bcd6f5; --ok:#1a4f9c; --ok-bg:#e9f0fa; --ok-line:#b7cdea; }
+html[data-theme="purple"]{ --navy:#a100ff; --navy-deep:#7a00c2; --navy-bg:#f3e8ff; --navy-line:#d9bef5; --ok:#5a2f8a; --ok-bg:#efe8f5; --ok-line:#d0b5e0; }
+html[data-theme="indigo"]{ --navy:#4338ca; --navy-deep:#312c92; --navy-bg:#ebebfb; --navy-line:#c7c3f0; --ok:#3730a3; --ok-bg:#ebeaf7; --ok-line:#c5c2ea; }
+html[data-theme="teal"]  { --navy:#0e7c86; --navy-deep:#095861; --navy-bg:#e0f3f4; --navy-line:#a9dade; --ok:#0f5d54; --ok-bg:#e3f3ef; --ok-line:#b3ddd4; }
+html[data-theme="cyan"]  { --navy:#0891b2; --navy-deep:#0e6f88; --navy-bg:#e2f4f9; --navy-line:#abdde9; --ok:#0e6b7a; --ok-bg:#e4f3f4; --ok-line:#b0dde2; }
+html[data-theme="green"] { --navy:#1f7a44; --navy-deep:#155730; --navy-bg:#e6f4ea; --navy-line:#b3dcc1; --ok:#2f6b3c; --ok-bg:#e9f3ea; --ok-line:#bedcc4; }
+html[data-theme="plum"]  { --navy:#a21d6e; --navy-deep:#7c1450; --navy-bg:#fbe8f2; --navy-line:#e8b9d4; --ok:#6d2356; --ok-bg:#f6e8f0; --ok-line:#e3bcd5; }
+html[data-theme="slate"] { --navy:#3f4f63; --navy-deep:#29384b; --navy-bg:#eef1f5; --navy-line:#c2ccd8; --ok:#34495e; --ok-bg:#eef1f5; --ok-line:#c2ccd8; }
+html[data-theme="black"] { --navy:#000000; --navy-deep:#000; --navy-bg:#f1f1f3; --navy-line:#d6d6db; --ok:#3f3f46; --ok-bg:#f1f1f3; --ok-line:#cfcfd6; }
+
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:13px;line-height:1.6;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
+code{font-family:var(--mono);font-size:.92em;background:rgba(0,0,0,.05);padding:0 4px;border-radius:4px;}
+mark{background:var(--hold-bg);color:var(--ink);border-radius:3px;padding:0 1px;box-shadow:0 0 0 1px var(--hold-line) inset;}
+.icon{width:1.15em;height:1.15em;display:inline-block;vertical-align:-.18em;color:inherit;flex:none;}
+.icon-sm{width:14px;height:14px;}
+.tnum{font-feature-settings:"tnum" 1;font-variant-numeric:tabular-nums;}
+.noscript{margin:20px;padding:14px 18px;border:1px solid var(--hold-line);background:var(--hold-bg);border-radius:10px;color:var(--hold);font-weight:600;}
+
+/* ---------- PC-wide shell (readable centre + version rail) ---------- */
+.cl-frame{max-width:1400px;margin:0 auto;}
+
+/* ---------- header band (release header, not a report hero) ---------- */
+.cl-header{background:var(--bg-band);border-bottom:1px solid var(--rule);}
+.cl-header-inner{padding:18px 40px 14px;}
+.cl-eyebrow{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:10.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--navy-deep);}
+.cl-eyebrow .icon{width:15px;height:15px;}
+.cl-eyebrow .org{color:var(--ink-faint);font-weight:700;}
+.cl-titlerow{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin:9px 0 0;}
+.cl-title{font-size:24px;line-height:1.25;font-weight:800;letter-spacing:-.01em;margin:0;color:var(--ink);}
+.cl-product{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:12px;font-weight:700;color:var(--navy-deep);background:#fff;border:1px solid var(--navy-line);border-radius:6px;padding:3px 10px;text-decoration:none;}
+.cl-product .icon{width:13px;height:13px;}
+.cl-product[href]:hover{background:var(--navy);color:#fff;border-color:var(--navy);}
+.cl-subtitle{font-size:13px;line-height:1.65;color:var(--ink-soft);margin:8px 0 0;max-width:96ch;}
+
+/* control strip */
+.cl-controls{display:flex;align-items:center;gap:10px 14px;flex-wrap:wrap;margin-top:15px;padding-top:13px;border-top:1px solid var(--rule-soft);}
+.cl-ctl-group{display:flex;align-items:center;gap:7px;flex-wrap:wrap;}
+.cl-ctl-lbl{font-family:var(--mono);font-size:9.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);}
+
+/* type filter chips (double as the per-change label in the feed) */
+.cl-chips{display:flex;gap:6px;flex-wrap:wrap;}
+.cl-chip{display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);font-size:10.5px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;padding:3px 8px 3px 7px;border-radius:6px;border:1px solid var(--rule);background:#fff;color:var(--ink-soft);white-space:nowrap;line-height:1.2;}
+.cl-chip .icon{width:12px;height:12px;}
+.cl-chip .cl-chip-n{font-feature-settings:"tnum" 1;opacity:.7;font-size:9.5px;}
+/* type colour map — chips + change rows share these */
+.cl-chip.is-added{color:var(--ok);background:var(--ok-bg);border-color:var(--ok-line);}
+.cl-chip.is-changed{color:var(--navy-deep);background:var(--navy-bg);border-color:var(--navy-line);}
+.cl-chip.is-fixed{color:var(--ok);background:var(--ok-bg);border-color:var(--ok-line);}
+.cl-chip.is-deprecated{color:var(--hold);background:var(--hold-bg);border-color:var(--hold-line);}
+.cl-chip.is-removed{color:var(--hold);background:var(--hold-bg);border-color:var(--hold-line);}
+.cl-chip.is-security{color:#fff;background:var(--navy);border-color:var(--navy);}
+.cl-chip.is-breaking{color:var(--risk);background:var(--risk-bg);border-color:var(--risk-line);}
+/* filter buttons (header) — clickable; off state is dimmed */
+button.cl-chip{cursor:pointer;}
+button.cl-chip[aria-pressed="false"]{opacity:.4;filter:grayscale(.5);}
+button.cl-chip:hover{transform:translateY(-1px);}
+
+/* channel segmented filter */
+.cl-seg{display:inline-flex;border:1px solid var(--rule);border-radius:7px;overflow:hidden;background:#fff;}
+.cl-seg button{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);background:transparent;border:none;border-right:1px solid var(--rule);padding:5px 11px;cursor:pointer;}
+.cl-seg button:last-child{border-right:none;}
+.cl-seg button[aria-pressed="true"]{background:var(--navy);color:#fff;}
+.cl-seg button:not([aria-pressed="true"]):hover{background:var(--bg-subtle);color:var(--navy-deep);}
+
+/* breaking-only toggle */
+.cl-toggle{display:inline-flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;font-weight:600;color:var(--ink-mid);user-select:none;}
+.cl-switch{flex:none;width:36px;height:20px;border-radius:10px;background:var(--rule);border:none;cursor:pointer;position:relative;transition:background .15s ease;padding:0;}
+.cl-switch::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.2);transition:transform .15s ease;}
+.cl-switch[aria-pressed="true"]{background:var(--risk);}
+.cl-switch[aria-pressed="true"]::after{transform:translateX(16px);}
+.cl-toggle .icon{width:13px;height:13px;color:var(--risk);}
+
+/* search */
+.cl-search{position:relative;display:inline-flex;align-items:center;min-width:210px;flex:1 1 210px;max-width:320px;}
+.cl-search .icon{position:absolute;left:9px;width:14px;height:14px;color:var(--ink-faint);pointer-events:none;}
+.cl-search input{width:100%;font-family:var(--sans);font-size:12.5px;color:var(--ink);background:#fff;border:1px solid var(--rule);border-radius:7px;padding:6px 28px 6px 28px;}
+.cl-search input::placeholder{color:var(--ink-faint);}
+.cl-search input:focus{outline:none;border-color:var(--navy);box-shadow:0 0 0 3px var(--navy-bg);}
+.cl-search-clear{position:absolute;right:6px;width:18px;height:18px;border:none;background:transparent;color:var(--ink-faint);cursor:pointer;border-radius:50%;display:none;align-items:center;justify-content:center;padding:0;}
+.cl-search-clear .icon{position:static;width:12px;height:12px;}
+.cl-search-clear:hover{background:var(--bg-band);color:var(--ink);}
+.cl-search.has-text .cl-search-clear{display:inline-flex;}
+
+/* theme switcher (standard markup) */
+.cl-theme{display:flex;gap:6px;align-items:center;margin-left:auto;}
+.rc-theme{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--rule);border-radius:7px;padding:3px 4px 3px 7px;background:var(--bg);}
+.rc-theme-sw{width:12px;height:12px;border-radius:50%;background:var(--navy);box-shadow:0 0 0 1px var(--rule);flex:none;}
+.rc-theme-sel{border:0;background:none;font:600 11px/1 var(--mono);color:var(--ink-mid);cursor:pointer;outline:none;padding:2px;}
+@media print{.rc-theme{display:none;}}
+
+/* derived stat row */
+.cl-stats{display:flex;flex-wrap:wrap;gap:8px;padding:12px 40px 14px;}
+.cl-stat{display:flex;flex-direction:column;gap:2px;background:#fff;border:1px solid var(--rule);border-radius:10px;padding:8px 14px;min-width:120px;}
+.cl-stat .k{font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint);}
+.cl-stat .v{font-family:var(--mono);font-size:18px;font-weight:800;color:var(--ink);font-feature-settings:"tnum" 1;line-height:1.1;}
+.cl-stat.is-breaking .v{color:var(--risk);}
+.cl-stat.is-breaking{border-color:var(--risk-line);background:var(--risk-bg);}
+
+/* ---------- 2-col body: version rail + version feed ---------- */
+.cl-body{display:grid;grid-template-columns:220px minmax(0,1fr);gap:34px;padding:18px 40px 60px;align-items:start;}
+@media(max-width:1040px){.cl-body{grid-template-columns:1fr;}.cl-rail{position:static;order:-1;max-height:none;}}
+
+/* version jump rail (sticky) */
+.cl-rail{position:sticky;top:14px;align-self:start;max-height:calc(100vh - 28px);overflow:auto;border:1px solid var(--rule);border-radius:12px;background:#fff;box-shadow:0 1px 2px rgba(17,19,26,.045);}
+.cl-rail-hd{display:flex;align-items:center;gap:7px;font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);padding:11px 14px 10px;border-bottom:1px solid var(--rule-soft);background:var(--bg-subtle);position:sticky;top:0;}
+.cl-rail-hd .icon{width:14px;height:14px;color:var(--navy-deep);}
+.cl-rail-list{list-style:none;margin:0;padding:6px;}
+.cl-rail-item{display:block;text-decoration:none;color:var(--ink-mid);border-radius:8px;padding:7px 9px;border-left:2px solid transparent;}
+.cl-rail-item:hover{background:var(--bg-subtle);}
+.cl-rail-item.is-active{background:var(--navy-bg);border-left-color:var(--navy);}
+.cl-rail-item.is-active .cl-rail-tag{color:var(--navy-deep);}
+.cl-rail-top{display:flex;align-items:center;gap:7px;}
+.cl-rail-tag{font-family:var(--mono);font-size:12.5px;font-weight:800;color:var(--ink);font-feature-settings:"tnum" 1;}
+.cl-rail-count{margin-left:auto;font-family:var(--mono);font-size:9.5px;font-weight:700;color:var(--ink-soft);background:var(--bg-band);border-radius:5px;padding:1px 6px;font-feature-settings:"tnum" 1;}
+.cl-rail-sub{display:flex;align-items:center;gap:6px;margin-top:3px;font-family:var(--mono);font-size:10px;color:var(--ink-faint);}
+.cl-rail-ch{font-weight:700;letter-spacing:.04em;text-transform:uppercase;font-size:8.5px;padding:0 5px;border-radius:4px;border:1px solid var(--rule);}
+.cl-rail-ch.is-beta{color:var(--hold);background:var(--hold-bg);border-color:var(--hold-line);}
+.cl-rail-ch.is-stable{color:var(--ink-soft);background:var(--bg-band);}
+.cl-rail-item .cl-rail-brk{color:var(--risk);}
+.cl-rail-item.is-hidden{display:none;}
+
+/* version feed */
+.cl-feed{min-width:0;display:flex;flex-direction:column;gap:16px;}
+.cl-feed-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:-2px;}
+.cl-feed-bar h2{margin:0;font-family:var(--mono);font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);}
+.cl-result{font-family:var(--mono);font-size:10.5px;font-weight:700;color:var(--ink-soft);background:var(--bg-band);border:1px solid var(--rule);border-radius:6px;padding:2px 9px;font-feature-settings:"tnum" 1;}
+.cl-allbtn{margin-left:auto;}
+.cl-textbtn{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--navy-deep);background:var(--navy-bg);border:1px solid var(--navy-line);border-radius:6px;padding:4px 9px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;}
+.cl-textbtn:hover{background:var(--navy);color:#fff;border-color:var(--navy);}
+.cl-textbtn .icon{width:12px;height:12px;}
+
+/* version block (collapsible) */
+.cl-version{border:1px solid var(--rule);border-radius:12px;overflow:hidden;background:#fff;box-shadow:0 1px 2px rgba(17,19,26,.045);scroll-margin-top:14px;}
+.cl-version.has-breaking{border-left:4px solid var(--risk);}
+.cl-version.is-hidden{display:none;}
+.cl-version-hd{display:flex;align-items:center;gap:12px;padding:12px 18px;background:var(--bg-band);border-bottom:1px solid var(--rule);cursor:pointer;user-select:none;width:100%;text-align:left;font:inherit;color:inherit;border-radius:0;flex-wrap:wrap;}
+.cl-version[data-open="false"] .cl-version-hd{border-bottom:none;}
+.cl-tag{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:14.5px;font-weight:800;color:#fff;background:var(--navy);border-radius:7px;padding:3px 11px;font-feature-settings:"tnum" 1;letter-spacing:-.01em;flex:none;}
+.cl-tag .icon{width:14px;height:14px;}
+.cl-version.is-latest .cl-tag{box-shadow:0 0 0 2px var(--navy-bg),0 0 0 3px var(--navy);}
+.cl-date{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--ink-soft);font-feature-settings:"tnum" 1;}
+.cl-channel{font-family:var(--mono);font-size:9.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:2px 8px;border-radius:5px;border:1px solid var(--rule);}
+.cl-channel.is-stable{color:var(--ink-soft);background:#fff;}
+.cl-channel.is-beta{color:var(--hold);background:var(--hold-bg);border-color:var(--hold-line);}
+.cl-latest-badge{display:inline-flex;align-items:center;gap:4px;font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ok);background:var(--ok-bg);border:1px solid var(--ok-line);border-radius:5px;padding:2px 7px;}
+.cl-latest-badge .icon{width:11px;height:11px;}
+.cl-breaking-flag{display:inline-flex;align-items:center;gap:4px;font-family:var(--mono);font-size:9px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--risk);background:var(--risk-bg);border:1px solid var(--risk-line);border-radius:5px;padding:2px 7px;}
+.cl-breaking-flag .icon{width:11px;height:11px;}
+.cl-yanked-flag{display:inline-flex;align-items:center;gap:4px;font-family:var(--mono);font-size:9px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--risk);background:var(--risk-bg);border:1px solid var(--risk-line);border-radius:5px;padding:2px 7px;}
+.cl-version.is-yanked .cl-tag{background:var(--ink-faint);text-decoration:line-through;}
+.cl-summary{flex:1 1 100%;order:5;font-size:12.5px;color:var(--ink-soft);line-height:1.5;margin-top:-2px;}
+.cl-count{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--ink-soft);background:#fff;border:1px solid var(--rule);border-radius:6px;padding:2px 9px;white-space:nowrap;font-feature-settings:"tnum" 1;margin-left:auto;}
+.cl-caret{flex:none;color:var(--ink-faint);font-size:16px;line-height:1;transition:transform .15s ease;}
+.cl-version[data-open="true"] .cl-caret{transform:rotate(90deg);}
+.cl-version-body{padding:4px 18px 12px;}
+.cl-version[data-open="false"] .cl-version-body{display:none;}
+
+/* the change row — the signature unit */
+.cl-change{display:grid;grid-template-columns:106px 1fr;gap:13px;padding:9px 4px;border-bottom:1px solid var(--rule-soft);align-items:start;}
+.cl-change:last-child{border-bottom:none;}
+.cl-change.is-breaking{border-left:2px solid var(--risk-line);padding-left:10px;margin-left:-4px;background:linear-gradient(90deg,var(--risk-bg),transparent 40%);}
+.cl-change.is-hidden{display:none;}
+.cl-change .cl-chip{align-self:start;justify-content:flex-start;width:100%;}
+.cl-change-main{min-width:0;}
+.cl-change-text{font-size:13px;line-height:1.55;color:var(--ink);}
+.cl-change-text code{font-size:11.5px;}
+.cl-ref{margin-top:5px;}
+.ref-chip{display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);font-size:10.5px;font-weight:700;color:var(--navy-deep);background:var(--navy-bg);border:1px solid var(--navy-line);border-radius:5px;padding:1px 8px;text-decoration:none;}
+.ref-chip .icon{width:12px;height:12px;}
+a.ref-chip:hover{background:var(--navy);color:#fff;border-color:var(--navy);}
+
+/* filter empty-state */
+.cl-empty{display:none;border:1px dashed var(--navy-line);background:var(--navy-bg);border-radius:12px;padding:22px 20px;text-align:center;color:var(--navy-deep);font-weight:700;align-items:center;justify-content:center;gap:9px;}
+.cl-empty .icon{width:18px;height:18px;}
+body.show-empty .cl-empty{display:flex;}
+
+/* footer */
+.cl-footer{background:var(--bg-deep);color:#c9c4d0;padding:30px 40px;}
+.cl-foot-inner{max-width:1400px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;}
+.cl-brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:15px;color:#fff;letter-spacing:-.01em;}
+.cl-brand .sq{width:13px;height:13px;border-radius:4px;background:var(--navy);}
+.cl-foot-meta{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#8f8898;text-align:right;line-height:1.7;}
+
+/* ---------- print: all versions expanded, controls + rail hidden ---------- */
+@media print{
+ .cl-theme,.cl-controls,.cl-allbtn,.cl-caret,.cl-rail,.cl-empty,.cl-result{display:none !important;}
+ .cl-body{grid-template-columns:1fr;padding:0 0 20px;}
+ .cl-stats{padding:10px 0 14px;}
+ .cl-header-inner{padding:0 0 12px;}
+ .cl-version{break-inside:avoid;box-shadow:none;}
+ .cl-version-body{display:block !important;}      /* force expand */
+ .cl-change{display:grid !important;}              /* ignore filters */
+ .cl-version.is-hidden,.cl-change.is-hidden,.cl-rail-item.is-hidden{display:initial !important;}
+ mark{box-shadow:none;background:transparent;font-weight:700;}
+ .cl-footer{background:#fff;color:#333;border-top:1px solid var(--rule);}
+ .cl-brand{color:#111;}.cl-foot-meta{color:#666;}
+ body{font-size:11px;}
+}
+</style>
+</head>
+<body>
+
+<!-- ====== CONTENT SOURCE — the ONLY place data lives (valid schema instance) ====== -->
+<script type="application/json" id="report-data">
+{
+  "meta": {
+    "org": "{{ORG}}",
+    "project": "{{PROJECT}}",
+    "reportType": "Changelog",
+    "title": "Payments API — Release changelog",
+    "subtitle": "Every shipped version of the Payments API, newest first. Filter by change type or channel, search, or jump to a version from the rail. Breaking changes are flagged in bordeaux.",
+    "date": "2026-06-22",
+    "author": "{{AUTHOR}}",
+    "theme": "slate"
+  },
+  "product": {
+    "name": "Payments API",
+    "description": "Public payments & settlement HTTP API",
+    "repoUrl": "#"
+  },
+  "versions": [
+    {
+      "version": "4.2.0",
+      "date": "2026-06-18",
+      "channel": "stable",
+      "summary": "Idempotency hardening and the Node 18 runtime drop.",
+      "changes": [
+        { "type": "breaking", "text": "Drop support for Node 18 runtimes; minimum supported runtime is now Node 20. Upgrade your workers before deploying.", "ref": "#1420", "refUrl": "#" },
+        { "type": "added", "text": "New `Idempotency-Key` request header on `POST /v4/payments` — retries with the same key are now safely deduplicated server-side.", "ref": "#1402", "refUrl": "#" },
+        { "type": "changed", "text": "Default request timeout raised from `10s` to `30s` for the settlement endpoints to absorb downstream latency spikes.", "ref": "#1399", "refUrl": "#" },
+        { "type": "fixed", "text": "Retry storm when the rate limiter returned `429` without a `Retry-After` header; the client now backs off exponentially.", "ref": "#1411", "refUrl": "#" }
+      ]
+    },
+    {
+      "version": "4.1.0",
+      "date": "2026-05-30",
+      "channel": "stable",
+      "summary": "Security patch plus webhook delivery improvements.",
+      "changes": [
+        { "type": "security", "text": "Patch a token-leak where bearer tokens could appear in debug-level request logs (CVE-2026-31188).", "ref": "GHSA-pay-31188", "refUrl": "#" },
+        { "type": "added", "text": "Webhook deliveries now include an `X-Signature-256` HMAC header for payload verification.", "ref": "#1340", "refUrl": "#" },
+        { "type": "fixed", "text": "Pagination cursor occasionally skipped the last page when `limit` exactly divided the result count.", "ref": "#1357", "refUrl": "#" }
+      ]
+    },
+    {
+      "version": "4.0.0",
+      "date": "2026-05-12",
+      "channel": "stable",
+      "summary": "Major release — v3 sunset and the new resource layout.",
+      "changes": [
+        { "type": "breaking", "text": "Remove the legacy `/v3/*` endpoints; all traffic must move to `/v4/*`. See the migration guide.", "ref": "#1280", "refUrl": "#" },
+        { "type": "breaking", "text": "`amount` fields are now integer minor units (e.g. cents) instead of decimal strings.", "ref": "#1291", "refUrl": "#" },
+        { "type": "removed", "text": "Remove the deprecated `GET /v3/balance` endpoint (superseded by `GET /v4/accounts/{id}/balance`).", "ref": "#1283", "refUrl": "#" },
+        { "type": "changed", "text": "Error envelope reshaped to `{ error: { code, message, details } }` across all endpoints.", "ref": "#1277", "refUrl": "#" }
+      ]
+    },
+    {
+      "version": "4.0.0-beta.2",
+      "date": "2026-04-28",
+      "channel": "beta",
+      "summary": "Second beta of the v4 line — feedback wanted before GA.",
+      "changes": [
+        { "type": "added", "text": "Preview of the bulk `POST /v4/payments:batch` endpoint (up to 500 items per request).", "ref": "#1244", "refUrl": "#" },
+        { "type": "changed", "text": "Beta-only: rename the `idempotency_token` field to `idempotency_key` to match the GA naming.", "ref": "#1251", "refUrl": "#" },
+        { "type": "fixed", "text": "Batch endpoint returned `200` on partial failures; it now returns `207 Multi-Status`.", "ref": "#1258", "refUrl": "#" }
+      ]
+    },
+    {
+      "version": "3.9.0",
+      "date": "2026-04-09",
+      "channel": "stable",
+      "summary": "Deprecation notices ahead of the v4 cutover.",
+      "changes": [
+        { "type": "deprecated", "text": "Deprecate the `/v3/*` endpoints; they will be removed in `4.0.0`. Plan your migration now.", "ref": "#1190", "refUrl": "#" },
+        { "type": "deprecated", "text": "Deprecate decimal-string `amount` values; integer minor units arrive in `4.0.0`.", "ref": "#1193", "refUrl": "#" },
+        { "type": "added", "text": "Add `X-Request-Id` to every response to make support tickets traceable.", "ref": "#1201", "refUrl": "#" },
+        { "type": "fixed", "text": "Idempotency cache evicted keys 60s early under sustained load.", "ref": "#1205", "refUrl": "#" }
+      ]
+    },
+    {
+      "version": "3.8.1",
+      "date": "2026-03-21",
+      "channel": "stable",
+      "summary": "Patch release.",
+      "changes": [
+        { "type": "fixed", "text": "Refund webhooks fired twice when the gateway acknowledged slowly.", "ref": "#1142", "refUrl": "#" },
+        { "type": "security", "text": "Bump the JSON parser dependency to close a denial-of-service via deeply nested payloads.", "ref": "#1148", "refUrl": "#" }
+      ]
+    }
+  ]
+}
+</script>
+
+<noscript><div class="noscript">This changelog renders from embedded data and requires JavaScript. The complete release history (every version, date, and change item) is present in the page source under <code>#report-data</code>.</div></noscript>
+
+<!-- the body is built by render() from #report-data -->
+<div class="cl-frame" id="cl-root"></div>
+
+<footer class="cl-footer">
+  <div class="cl-foot-inner">
+    <div class="cl-brand"><span class="sq"></span><span id="foot-org">{{ORG}}</span> &nbsp;·&nbsp; Release changelog</div>
+    <div class="cl-foot-meta" id="foot-meta"></div>
+  </div>
+</footer>
+
+<!-- ============ ICON DEFS (house SVG set, inlined; sized via .icon) ============ -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <!-- version-tag (semver pill / rail) -->
+    <g id="i-tag"><path d="M4.5 11.4 11 4.9a1.6 1.6 0 0 1 1.2-.5H18a1.6 1.6 0 0 1 1.6 1.6v5.8a1.6 1.6 0 0 1-.5 1.2L12.6 19.5a1.6 1.6 0 0 1-2.3 0L4.5 13.7a1.6 1.6 0 0 1 0-2.3Z"/><circle cx="15.2" cy="8.8" r="1.15" fill="currentColor" stroke="none"/></g>
+    <!-- plus (added) -->
+    <g id="i-plus"><path d="M12 5.5V18.5M5.5 12H18.5"/></g>
+    <!-- progress-half / changed -->
+    <g id="i-changed"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5a8.5 8.5 0 0 1 0 17Z" fill="currentColor" stroke="none"/></g>
+    <!-- check-circle (fixed) -->
+    <g id="i-check-circle"><circle cx="12" cy="12" r="8.5"/><path d="M8.3 12.4l2.5 2.5 4.9-5.3"/></g>
+    <!-- hourglass (deprecated) -->
+    <g id="i-hourglass"><path d="M7 4.5H17M7 19.5H17"/><path d="M7.5 4.5c0 4 4.5 5.2 4.5 7.5S7.5 15.5 7.5 19.5M16.5 4.5c0 4-4.5 5.2-4.5 7.5s4.5 3.5 4.5 7.5"/></g>
+    <!-- ban / removed -->
+    <g id="i-ban"><circle cx="12" cy="12" r="8.5"/><path d="M6.2 6.2 17.8 17.8"/></g>
+    <!-- shield-alert (security) -->
+    <g id="i-shield"><path d="M12 3.25 19 5.75v5.45c0 4.4-3 7.6-7 8.8-4-1.2-7-4.4-7-8.8V5.75Z"/><path d="M12 8.5v3.5"/><circle cx="12" cy="15.2" r=".7" fill="currentColor" stroke="none"/></g>
+    <!-- warning-triangle (breaking) -->
+    <g id="i-warn"><path d="M12 3 21 19H3Z"/><path d="M12 9.5v4.5"/><circle cx="12" cy="17" r=".6" fill="currentColor" stroke="none"/></g>
+    <!-- chevron-right (caret) -->
+    <g id="i-chevron"><path d="M9.5 5.5 16 12l-6.5 6.5"/></g>
+    <!-- search -->
+    <g id="i-search"><circle cx="11" cy="11" r="6.5"/><path d="M15.8 15.8 20 20"/></g>
+    <!-- filter -->
+    <g id="i-filter"><path d="M4.5 5.5h15l-5.8 6.7v5.1l-3.4 1.7v-6.8Z"/></g>
+    <!-- close -->
+    <g id="i-close"><path d="M6 6 18 18M18 6 6 18"/></g>
+    <!-- expand / collapse-all -->
+    <g id="i-expand"><path d="M8 4.5 4.5 4.5 4.5 8M16 4.5 19.5 4.5 19.5 8M8 19.5 4.5 19.5 4.5 16M16 19.5 19.5 19.5 19.5 16"/></g>
+    <!-- pull-request (ref chip) -->
+    <g id="i-pr"><circle cx="7" cy="6.5" r="2.5"/><circle cx="7" cy="17.5" r="2.5"/><circle cx="17" cy="17.5" r="2.5"/><path d="M7 9V15M17 15V11a2.5 2.5 0 0 0-2.5-2.5H11.5"/><path d="M13.5 6 11.5 8.5 13.5 11"/></g>
+    <!-- external-link -->
+    <g id="i-ext"><path d="M13.5 5.5H18.5V10.5"/><path d="M18.5 5.5 11 13"/><path d="M16.5 13.5V18a.9.9 0 0 1-.9.9H6.4A.9.9 0 0 1 5.5 18V8.4A.9.9 0 0 1 6.4 7.5H11"/></g>
+    <!-- bookmark (latest) -->
+    <g id="i-bookmark"><path d="M6.5 4.5h11v15l-5.5-3.6L6.5 19.5Z"/></g>
+    <!-- list / versions rail header -->
+    <g id="i-list"><path d="M9 6.5H19.5M9 12H19.5M9 17.5H19.5"/><rect x="4.2" y="5.2" width="2.6" height="2.6" rx="1" fill="currentColor" stroke="none"/><rect x="4.2" y="10.7" width="2.6" height="2.6" rx="1" fill="currentColor" stroke="none"/><rect x="4.2" y="16.2" width="2.6" height="2.6" rx="1" fill="currentColor" stroke="none"/></g>
+    <!-- rollback (yanked) -->
+    <g id="i-rollback"><path d="M7.5 9H4.5V6"/><path d="M4.8 9.2A8 8 0 1 1 4 13"/></g>
+  </defs>
+</svg>
+
+<!-- ============ RENDER + INTERACTIONS + THEME (single block, from #report-data) ============ -->
+<script>
+(function () {
+  "use strict";
+  var DATA = JSON.parse(document.getElementById("report-data").textContent);
+  var root = document.getElementById("cl-root");
+
+  // ---- type metadata: label · icon · chip class (the 7 change kinds) ----
+  var TYPES = [
+    { k: "added",      label: "Added",      icon: "i-plus",         cls: "is-added" },
+    { k: "changed",    label: "Changed",    icon: "i-changed",      cls: "is-changed" },
+    { k: "fixed",      label: "Fixed",      icon: "i-check-circle", cls: "is-fixed" },
+    { k: "deprecated", label: "Deprecated", icon: "i-hourglass",    cls: "is-deprecated" },
+    { k: "removed",    label: "Removed",    icon: "i-ban",          cls: "is-removed" },
+    { k: "security",   label: "Security",   icon: "i-shield",       cls: "is-security" },
+    { k: "breaking",   label: "Breaking",   icon: "i-warn",         cls: "is-breaking" }
+  ];
+  var TYPE_BY_K = {}; TYPES.forEach(function (t) { TYPE_BY_K[t.k] = t; });
+
+  // ---- live interaction state ----
+  var active = {};                                 // type key -> shown?
+  TYPES.forEach(function (t) { active[t.k] = true; });
+  var channel = "all";                             // all | stable | beta
+  var breakingOnly = false;
+  var query = "";
+
+  // ---- helpers ----
+  function el(tag, cls, html) { var e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; }
+  function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;" })[c]; }); }
+  // allow ONLY backtick `code` spans from data → <code>, everything else escaped
+  function md(s) { return esc(s).replace(/`([^`]+)`/g, "<code>$1</code>"); }
+  function ico(id, cls) { return '<svg class="icon ' + (cls || "") + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><use href="#' + id + '"/></svg>'; }
+  function vkey(v) { return String(v).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, ""); }
+  function cssEsc(s) { return String(s).replace(/["\\\]\[]/g, "\\$&"); }
+
+  // highlight query matches in already-escaped HTML text nodes (outside tags)
+  function highlight(html, q) {
+    if (!q) return html;
+    var needle = q.toLowerCase();
+    var out = "", i = 0, inTag = false;
+    // walk char-by-char so we never inject <mark> inside a tag or an &entity;
+    var text = html;
+    // split on tags, only mark text segments
+    return text.replace(/(<[^>]+>)|([^<]+)/g, function (m, tag, txt) {
+      if (tag) return tag;
+      var seg = txt, res = "", lower = seg.toLowerCase(), idx;
+      var from = 0;
+      while ((idx = lower.indexOf(needle, from)) !== -1) {
+        res += seg.slice(from, idx) + "<mark>" + seg.slice(idx, idx + needle.length) + "</mark>";
+        from = idx + needle.length;
+      }
+      res += seg.slice(from);
+      return res;
+    });
+  }
+
+  // ---- derived counts (all from data) ----
+  var totalVersions = DATA.versions.length;
+  var totalChanges = DATA.versions.reduce(function (n, v) { return n + v.changes.length; }, 0);
+  var breakingCount = DATA.versions.reduce(function (n, v) {
+    return n + v.changes.filter(function (c) { return c.type === "breaking"; }).length;
+  }, 0);
+  var typeCounts = {}; TYPES.forEach(function (t) { typeCounts[t.k] = 0; });
+  DATA.versions.forEach(function (v) { v.changes.forEach(function (c) { if (typeCounts[c.k = c.type] != null) typeCounts[c.type]++; }); });
+  var latestKey = vkey(DATA.versions[0].version);  // newest-first → first is latest
+
+  // ---- render ----
+  function render() {
+    var m = DATA.meta;
+    document.documentElement.dataset.theme = m.theme || "slate";
+    document.title = DATA.product.name + " — " + (m.reportType || "Changelog") + " · " + m.project;
+    document.getElementById("foot-org").textContent = m.org;
+    document.getElementById("foot-meta").innerHTML =
+      esc(m.reportType) + " · " + esc(DATA.product.name) + " · " + esc(m.project) + "<br>" +
+      totalVersions + " versions · " + totalChanges + " changes · as of " + esc(m.date);
+
+    root.innerHTML = "";
+    root.appendChild(buildHeader(m));
+    root.appendChild(buildStats());
+    root.appendChild(buildBody());
+
+    wireThemeSwitch();
+    apply();              // initial filter pass (no-op visually, but sets counts/empty state)
+  }
+
+  function buildHeader(m) {
+    var h = el("header", "cl-header");
+
+    // type filter chips (with per-type counts)
+    var chips = TYPES.map(function (t) {
+      return '<button class="cl-chip ' + t.cls + '" type="button" role="switch" aria-pressed="true" ' +
+        'data-type="' + t.k + '" title="Toggle ' + t.label + ' changes">' + ico(t.icon) +
+        t.label + ' <span class="cl-chip-n tnum">' + typeCounts[t.k] + '</span></button>';
+    }).join("");
+
+    // channel segmented control
+    var seg = ["all:All", "stable:Stable", "beta:Beta"].map(function (p) {
+      var x = p.split(":");
+      return '<button type="button" data-channel="' + x[0] + '" aria-pressed="' + (x[0] === "all") + '">' + x[1] + '</button>';
+    }).join("");
+
+    // theme dropdown
+    var themeDots = '<label class="rc-theme" title="Brand colour">'
+      + '<span class="rc-theme-sw" aria-hidden="true"></span>'
+      + '<select class="rc-theme-sel" aria-label="Brand theme">'
+      + '<option value="blue">Blue</option>'
+      + '<option value="purple">Purple</option>'
+      + '<option value="indigo">Indigo</option>'
+      + '<option value="teal">Teal</option>'
+      + '<option value="cyan">Cyan</option>'
+      + '<option value="green">Green</option>'
+      + '<option value="plum">Plum</option>'
+      + '<option value="slate">Slate</option>'
+      + '<option value="black">Black</option>'
+      + '</select></label>';
+
+    var product = DATA.product || {};
+    var prodTag = (product.repoUrl
+      ? '<a class="cl-product" href="' + esc(product.repoUrl) + '">'
+      : '<span class="cl-product">') + ico("i-tag") + esc(product.name) +
+      (product.repoUrl ? "</a>" : "</span>");
+
+    h.innerHTML =
+      '<div class="cl-header-inner">' +
+        '<div class="cl-eyebrow">' + ico("i-tag") + '<span>' + esc(m.reportType) + '</span><span class="org">· ' + esc(m.org) + ' / ' + esc(m.project) + '</span></div>' +
+        '<div class="cl-titlerow"><h1 class="cl-title">' + esc(m.title) + '</h1>' + prodTag + '</div>' +
+        (m.subtitle ? '<p class="cl-subtitle">' + esc(m.subtitle) + '</p>' : "") +
+        '<div class="cl-controls">' +
+          '<div class="cl-ctl-group"><span class="cl-ctl-lbl">Type</span><div class="cl-chips" id="cl-typechips">' + chips + '</div></div>' +
+          '<div class="cl-ctl-group"><span class="cl-ctl-lbl">Channel</span><div class="cl-seg" id="cl-channel">' + seg + '</div></div>' +
+          '<label class="cl-toggle">' + ico("i-warn") + '<span>Breaking only</span>' +
+            '<button class="cl-switch" id="cl-breaking" type="button" aria-pressed="false" aria-label="Show breaking changes only"></button></label>' +
+          '<div class="cl-search" id="cl-searchwrap">' + ico("i-search") +
+            '<input id="cl-q" type="search" placeholder="Search changes…" aria-label="Search changes" autocomplete="off">' +
+            '<button class="cl-search-clear" id="cl-clear" type="button" aria-label="Clear search">' + ico("i-close") + '</button></div>' +
+          themeDots +
+        '</div>' +
+      '</div>';
+    return h;
+  }
+
+  function buildStats() {
+    var wrap = el("div", "cl-stats");
+    wrap.innerHTML =
+      '<div class="cl-stat"><span class="k">Versions</span><span class="v tnum">' + totalVersions + '</span></div>' +
+      '<div class="cl-stat"><span class="k">Latest</span><span class="v tnum">' + esc(DATA.versions[0].version) + '</span></div>' +
+      '<div class="cl-stat"><span class="k">Total changes</span><span class="v tnum">' + totalChanges + '</span></div>' +
+      '<div class="cl-stat is-breaking"><span class="k">Breaking</span><span class="v tnum">' + breakingCount + '</span></div>';
+    return wrap;
+  }
+
+  function buildBody() {
+    var body = el("div", "cl-body");
+    body.appendChild(buildRail());
+
+    var feed = el("div", "cl-feed");
+    var bar = el("div", "cl-feed-bar");
+    bar.innerHTML = '<h2>Release feed</h2>' +
+      '<span class="cl-result" id="cl-result"></span>' +
+      '<button class="cl-textbtn cl-allbtn" id="cl-toggleall">' + ico("i-expand") + '<span>Collapse all</span></button>';
+    feed.appendChild(bar);
+
+    DATA.versions.forEach(function (v, i) { feed.appendChild(buildVersion(v, i)); });
+
+    var empty = el("div", "cl-empty");
+    empty.innerHTML = ico("i-filter") + '<span>No changes match the current filters or search. Clear them to see the full history.</span>';
+    feed.appendChild(empty);
+
+    body.appendChild(feed);
+    return body;
+  }
+
+  function buildRail() {
+    var rail = el("aside", "cl-rail");
+    rail.setAttribute("aria-label", "Version index");
+    var items = DATA.versions.map(function (v) {
+      var key = vkey(v.version);
+      var ch = v.channel || "stable";
+      var brk = v.changes.some(function (c) { return c.type === "breaking"; });
+      return '<a class="cl-rail-item" href="#v-' + key + '" data-rail="' + key + '">' +
+        '<span class="cl-rail-top"><span class="cl-rail-tag">' + esc(v.version) + '</span>' +
+          (brk ? '<span class="cl-rail-brk" title="contains breaking changes">' + ico("i-warn") + '</span>' : "") +
+          '<span class="cl-rail-count tnum">' + v.changes.length + '</span></span>' +
+        '<span class="cl-rail-sub"><span>' + esc(v.date) + '</span>' +
+          '<span class="cl-rail-ch is-' + ch + '">' + ch + '</span></span>' +
+      '</a>';
+    }).join("");
+    rail.innerHTML =
+      '<div class="cl-rail-hd">' + ico("i-list") + 'Versions <span class="tnum" style="margin-left:auto;color:var(--ink-soft)">' + totalVersions + '</span></div>' +
+      '<nav class="cl-rail-list">' + items + '</nav>';
+    return rail;
+  }
+
+  function buildVersion(v, idx) {
+    var key = vkey(v.version);
+    var ch = v.channel || "stable";
+    var brk = v.changes.some(function (c) { return c.type === "breaking"; });
+
+    var sec = el("section", "cl-version");
+    sec.id = "v-" + key;
+    sec.dataset.open = "true";
+    sec.dataset.version = key;
+    sec.dataset.channel = ch;
+    if (brk) sec.classList.add("has-breaking");
+    if (idx === 0) sec.classList.add("is-latest");
+    if (v.yanked) sec.classList.add("is-yanked");
+
+    var marks = "";
+    if (idx === 0 && !v.yanked) marks += '<span class="cl-latest-badge">' + ico("i-bookmark") + 'Latest</span>';
+    if (v.yanked) marks += '<span class="cl-yanked-flag">' + ico("i-rollback") + 'Yanked</span>';
+    if (brk) marks += '<span class="cl-breaking-flag">' + ico("i-warn") + 'Breaking</span>';
+
+    var hd = el("button", "cl-version-hd");
+    hd.type = "button";
+    hd.setAttribute("aria-expanded", "true");
+    hd.innerHTML =
+      '<span class="cl-tag">' + ico("i-tag") + esc(v.version) + '</span>' +
+      '<span class="cl-date">' + esc(v.date) + '</span>' +
+      '<span class="cl-channel is-' + ch + '">' + ch + '</span>' +
+      marks +
+      '<span class="cl-count tnum" data-count-for="' + key + '">' + v.changes.length + ' changes</span>' +
+      '<span class="cl-caret">' + ico("i-chevron") + '</span>' +
+      (v.summary ? '<span class="cl-summary">' + md(v.summary) + '</span>' : "");
+    hd.addEventListener("click", function () { toggleVersion(sec); });
+    sec.appendChild(hd);
+
+    var bodyEl = el("div", "cl-version-body");
+    v.changes.forEach(function (c) { bodyEl.appendChild(buildChange(c)); });
+    sec.appendChild(bodyEl);
+    return sec;
+  }
+
+  function buildChange(c) {
+    var t = TYPE_BY_K[c.type] || { label: c.type, icon: "i-changed", cls: "is-changed" };
+    var row = el("div", "cl-change");
+    row.dataset.type = c.type;
+    row.dataset.text = (c.text + " " + (c.ref || "")).toLowerCase();   // search corpus
+    if (c.type === "breaking") row.classList.add("is-breaking");
+
+    var refHtml = "";
+    if (c.ref) {
+      refHtml = '<div class="cl-ref">' +
+        (c.refUrl
+          ? '<a class="ref-chip" href="' + esc(c.refUrl) + '">' + ico("i-pr") + esc(c.ref) + ico("i-ext", "icon-sm") + '</a>'
+          : '<span class="ref-chip">' + ico("i-pr") + esc(c.ref) + '</span>') +
+        '</div>';
+    }
+    row.innerHTML =
+      '<span class="cl-chip ' + t.cls + '">' + ico(t.icon) + t.label + '</span>' +
+      '<div class="cl-change-main"><div class="cl-change-text" data-raw="' + esc(c.text) + '">' + md(c.text) + '</div>' + refHtml + '</div>';
+    return row;
+  }
+
+  // ---- collapse / expand ----
+  function toggleVersion(sec) {
+    var open = sec.dataset.open === "true";
+    sec.dataset.open = open ? "false" : "true";
+    var hd = sec.querySelector(".cl-version-hd");
+    if (hd) hd.setAttribute("aria-expanded", String(!open));
+  }
+  function setAll(open) {
+    root.querySelectorAll(".cl-version").forEach(function (s) {
+      s.dataset.open = open ? "true" : "false";
+      var hd = s.querySelector(".cl-version-hd"); if (hd) hd.setAttribute("aria-expanded", String(open));
+    });
+  }
+
+  // ---- the filter engine: type chips + channel + breaking-only + search ----
+  function apply() {
+    var visVersions = 0, visChanges = 0;
+
+    root.querySelectorAll(".cl-version").forEach(function (sec) {
+      var chOk = (channel === "all") || (sec.dataset.channel === channel);
+      var shownInSec = 0;
+
+      sec.querySelectorAll(".cl-change").forEach(function (row) {
+        var typ = row.dataset.type;
+        var typeOk = active[typ] && (!breakingOnly || typ === "breaking");
+        var textOk = !query || row.dataset.text.indexOf(query) !== -1;
+        var show = chOk && typeOk && textOk;
+        row.classList.toggle("is-hidden", !show);
+        if (show) shownInSec++;
+
+        // (re)highlight the visible change text against the live query
+        var tx = row.querySelector(".cl-change-text");
+        if (tx) {
+          var base = md(tx.getAttribute("data-raw"));
+          tx.innerHTML = show ? highlight(base, query) : base;
+        }
+      });
+
+      var secVisible = chOk && shownInSec > 0;
+      sec.classList.toggle("is-hidden", !secVisible);
+      // keep collapsed versions counted but show their (filtered) count honestly
+      var cnt = sec.querySelector("[data-count-for]");
+      if (cnt) cnt.textContent = (query || breakingOnly || channel !== "all" || !allTypesOn())
+        ? shownInSec + " / " + sec.querySelectorAll(".cl-change").length + " shown"
+        : sec.querySelectorAll(".cl-change").length + " changes";
+      if (secVisible) { visVersions++; visChanges += shownInSec; }
+
+      // mirror visibility into the rail
+      var railItem = root.querySelector('[data-rail="' + cssEsc(sec.dataset.version) + '"]');
+      if (railItem) railItem.classList.toggle("is-hidden", !secVisible);
+    });
+
+    // reflect filter state on the type chips
+    TYPES.forEach(function (t) {
+      var btn = root.querySelector('.cl-chip[data-type="' + t.k + '"]');
+      if (btn) btn.setAttribute("aria-pressed", String(active[t.k]));
+    });
+
+    // result line + empty state
+    var res = document.getElementById("cl-result");
+    if (res) res.textContent = visVersions + " / " + totalVersions + " versions · " + visChanges + " / " + totalChanges + " changes";
+    document.body.classList.toggle("show-empty", visVersions === 0);
+  }
+  function allTypesOn() { return TYPES.every(function (t) { return active[t.k]; }); }
+
+  // ---- scroll-spy: highlight the in-view version in the rail ----
+  var spy = null;
+  function wireSpy() {
+    var rail = root.querySelector(".cl-rail");
+    if (!rail || !("IntersectionObserver" in window)) return;
+    var items = {};
+    rail.querySelectorAll(".cl-rail-item").forEach(function (a) { items[a.getAttribute("data-rail")] = a; });
+    var seen = {};
+    spy = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) { seen[en.target.dataset.version] = en.isIntersecting ? en.intersectionRatio : 0; });
+      // pick the most-visible version
+      var best = null, bestR = 0;
+      Object.keys(seen).forEach(function (k) { if (seen[k] > bestR) { bestR = seen[k]; best = k; } });
+      rail.querySelectorAll(".cl-rail-item").forEach(function (a) { a.classList.toggle("is-active", a.getAttribute("data-rail") === best); });
+    }, { rootMargin: "-10% 0px -70% 0px", threshold: [0, .25, .5, 1] });
+    root.querySelectorAll(".cl-version").forEach(function (s) { spy.observe(s); });
+  }
+
+  // ---- wire all interactions ----
+  function wireInteractions() {
+    // type chips (delegated)
+    root.addEventListener("click", function (e) {
+      var chip = e.target.closest ? e.target.closest(".cl-chip[data-type]") : null;
+      if (chip) { active[chip.dataset.type] = !active[chip.dataset.type]; apply(); return; }
+
+      var seg = e.target.closest ? e.target.closest("#cl-channel button[data-channel]") : null;
+      if (seg) {
+        channel = seg.dataset.channel;
+        root.querySelectorAll("#cl-channel button").forEach(function (b) { b.setAttribute("aria-pressed", String(b === seg)); });
+        apply(); return;
+      }
+
+      var brk = e.target.closest ? e.target.closest("#cl-breaking") : null;
+      if (brk) {
+        breakingOnly = brk.getAttribute("aria-pressed") !== "true";
+        brk.setAttribute("aria-pressed", String(breakingOnly));
+        apply(); return;
+      }
+
+      var all = e.target.closest ? e.target.closest("#cl-toggleall") : null;
+      if (all) {
+        var anyOpen = !!root.querySelector('.cl-version[data-open="true"]');
+        setAll(!anyOpen);
+        var sp = all.querySelector("span"); if (sp) sp.textContent = anyOpen ? "Expand all" : "Collapse all";
+        return;
+      }
+
+      var clr = e.target.closest ? e.target.closest("#cl-clear") : null;
+      if (clr) { var inp = document.getElementById("cl-q"); if (inp) { inp.value = ""; query = ""; document.getElementById("cl-searchwrap").classList.remove("has-text"); apply(); inp.focus(); } return; }
+
+      // rail deep-link → expand the target version before the smooth scroll lands
+      var jump = e.target.closest ? e.target.closest('a[href^="#v-"]') : null;
+      if (jump) {
+        var sec = document.getElementById(jump.getAttribute("href").slice(1));
+        if (sec) { sec.dataset.open = "true"; var hd = sec.querySelector(".cl-version-hd"); if (hd) hd.setAttribute("aria-expanded", "true"); }
+      }
+    });
+
+    // live search
+    var inp = document.getElementById("cl-q");
+    if (inp) inp.addEventListener("input", function () {
+      query = inp.value.trim().toLowerCase();
+      document.getElementById("cl-searchwrap").classList.toggle("has-text", inp.value.length > 0);
+      apply();
+    });
+  }
+
+  // ---- theme switch (standard dropdown) ----
+  function wireThemeSwitch() {
+    var rcSel = document.querySelector('.rc-theme-sel');
+    if (rcSel) {
+      rcSel.value = document.documentElement.dataset.theme || 'blue';
+      rcSel.addEventListener('change', function () { document.documentElement.dataset.theme = rcSel.value; });
+    }
+  }
+
+  // ---- boot ----
+  function boot() { render(); wireInteractions(); wireSpy(); }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
+  else boot();
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,132 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://genesis.example/schemas/waterfall.schema.json",
+  "title": "Waterfall / bridge variance chart",
+  "description": "Data contract for the waterfall format: an opening value, a sequence of signed +/- contributions, and a closing value, drawn as floating bars linked by connectors (a bridge / variance chart). NOT a formal financial statement (no period columns, no ruled multi-line hierarchy) and NOT a dashboard. The page is a centred analysis page (~1500px): a headline strip (opening, closing, signed net delta), the waterfall chart (first/last bars are solid totals anchored to the baseline; middle steps are floating bars — up-steps --ok, down-steps --risk — with thin connector lines; a value axis with gridlines; optional subtotal bars solid and anchored to baseline), and a sortable bridge table (step, type, delta, running total, % contribution) whose rows sync-highlight with the bars on hover. The closing value is computed as opening + sum of deltas; if closing.value is supplied it must equal that sum. The sample's #report-data is a valid instance of this schema and is the canonical example.",
+  "type": "object",
+  "required": ["meta", "opening", "steps"],
+  "additionalProperties": false,
+  "properties": {
+    "meta": {
+      "type": "object",
+      "description": "Shared report metadata block (identical across all formats). Brand-neutral: keep {{ORG}}/{{PROJECT}}/{{AUTHOR}} placeholders unless real values are supplied.",
+      "required": ["org", "project", "reportType", "title", "date", "theme"],
+      "additionalProperties": false,
+      "properties": {
+        "org": { "type": "string", "description": "Reporting entity / organisation. Use the literal placeholder \"{{ORG}}\" when brand-neutral.", "examples": ["{{ORG}}"] },
+        "project": { "type": "string", "description": "Project or reporting unit. Use \"{{PROJECT}}\" when brand-neutral.", "examples": ["{{PROJECT}}"] },
+        "reportType": { "type": "string", "description": "Machine label for the deliverable kind.", "examples": ["waterfall", "bridge-analysis", "variance-bridge"] },
+        "title": { "type": "string", "description": "Bridge title shown as the headline (e.g. the bridge being explained).", "examples": ["FY2025 -> FY2026 Revenue Bridge"] },
+        "subtitle": { "type": "string", "description": "Optional one-line standfirst under the title." },
+        "date": { "type": "string", "description": "Issue / generation date (ISO yyyy-mm-dd). Rendered in the footer.", "examples": ["2026-06-22"] },
+        "author": { "type": "string", "description": "Preparer / author. Use \"{{AUTHOR}}\" when brand-neutral.", "examples": ["{{AUTHOR}}"] },
+        "theme": {
+          "type": "string",
+          "description": "Initial brand theme applied as <html data-theme>. Default for this format is \"blue\". \"black\" is always selectable in the in-report switcher.",
+          "enum": ["blue", "purple", "indigo", "teal", "cyan", "green", "plum", "slate", "black"],
+          "default": "blue"
+        }
+      }
+    },
+    "unit": {
+      "type": "string",
+      "description": "Unit the values are expressed in, shown beside figures and on the value axis. Mutually informative with currency; supply one. Examples: a money scale, a count, or a time unit.",
+      "examples": ["$ thousands", "headcount (FTE)", "ms (p95 latency budget)", "units"]
+    },
+    "currency": {
+      "type": "object",
+      "description": "Optional currency descriptor when the bridge is monetary. If present, symbol is prefixed to figures and unit names the scale.",
+      "additionalProperties": false,
+      "properties": {
+        "code": { "type": "string", "description": "ISO currency code.", "examples": ["USD", "JPY", "EUR"] },
+        "symbol": { "type": "string", "description": "Display symbol prefixed to figures.", "examples": ["$", "¥", "€"] },
+        "unit": { "type": "string", "description": "Scale the figures are expressed in.", "examples": ["thousands", "millions"] }
+      }
+    },
+    "opening": {
+      "type": "object",
+      "description": "The starting total of the bridge — the first SOLID bar, anchored to the baseline.",
+      "required": ["label", "value"],
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "description": "Name of the opening total (e.g. the prior-period or budget figure).", "examples": ["FY2025 revenue", "Budget", "Opening balance"] },
+        "value": { "type": "number", "description": "Numeric opening value, in the report's unit. May be negative." },
+        "note": { "type": "string", "description": "Optional note shown in the opening bar's tooltip / table row." }
+      }
+    },
+    "steps": {
+      "type": "array",
+      "description": "Ordered contributions between opening and closing, in narrative order. Each delta is a FLOATING bar starting at the running total; positive deltas use --ok, negative use --risk. A step of type \"subtotal\" instead draws a SOLID bar anchored to the baseline whose height equals the running total at that point (its delta is informational, not re-added). The whole bridge (bar y/heights, running totals, connectors, % contributions) is recomputed from this array on every interaction.",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["label", "delta"],
+        "additionalProperties": false,
+        "properties": {
+          "label": { "type": "string", "description": "Step name shown under its bar and in the table.", "examples": ["Subscription growth", "Churn", "FX"] },
+          "delta": { "type": "number", "description": "Signed contribution in the report's unit. For type \"delta\" it is added to the running total; for type \"subtotal\" it is the running total reached so far (used to assert/label, not re-added). Renderers should treat a subtotal delta as derived." },
+          "type": {
+            "type": "string",
+            "description": "\"delta\" (default) = a floating +/- step added to the running total. \"subtotal\" = a solid checkpoint bar anchored to the baseline at the current running total (e.g. a gross figure mid-bridge).",
+            "enum": ["delta", "subtotal"],
+            "default": "delta"
+          },
+          "group": { "type": "string", "description": "Optional grouping/category tag (e.g. \"Revenue\", \"Cost\") usable for colour-coding or filtering.", "examples": ["Revenue", "Cost", "One-off"] },
+          "note": { "type": "string", "description": "Optional explanatory note shown in the bar tooltip and the table row detail." }
+        }
+      }
+    },
+    "closing": {
+      "type": "object",
+      "description": "The ending total — the last SOLID bar, anchored to the baseline. Its value is computed as opening.value + sum of all type:\"delta\" steps; if value is supplied here it MUST equal that computed sum (the renderer asserts this and flags a mismatch).",
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "description": "Name of the closing total.", "examples": ["FY2026 revenue", "Actual", "Closing balance"] },
+        "value": { "type": "number", "description": "Optional asserted closing value. If present it must equal opening + sum(deltas)." },
+        "note": { "type": "string", "description": "Optional note shown in the closing bar's tooltip / table row." }
+      }
+    },
+    "options": {
+      "type": "object",
+      "description": "Optional initial states for the chart's interactive controls. Every control is also operable live; these only set the starting position.",
+      "additionalProperties": false,
+      "properties": {
+        "runningLine": { "type": "boolean", "description": "Start with the running-total line overlay shown.", "default": false },
+        "mode": { "type": "string", "description": "Start in absolute values or percent-of-opening.", "enum": ["absolute", "percent"], "default": "absolute" },
+        "sort": { "type": "string", "description": "Initial step order: as entered, or by descending magnitude of |delta| (subtotals stay pinned to their position).", "enum": ["entered", "magnitude"], "default": "entered" },
+        "collapseThreshold": { "type": "number", "description": "Initial value of the 'collapse minor steps into Other' threshold (in the report's unit). Steps with |delta| below this merge into one grey 'Other' step. 0 disables collapsing.", "default": 0, "minimum": 0 }
+      }
+    }
+  },
+  "examples": [
+    {
+      "meta": {
+        "org": "{{ORG}}",
+        "project": "{{PROJECT}}",
+        "reportType": "waterfall",
+        "title": "FY2025 → FY2026 Revenue Bridge",
+        "subtitle": "What moved total revenue year over year · $ thousands",
+        "date": "2026-06-22",
+        "author": "{{AUTHOR}}",
+        "theme": "blue"
+      },
+      "unit": "$ thousands",
+      "currency": { "code": "USD", "symbol": "$", "unit": "thousands" },
+      "opening": { "label": "FY2025 revenue", "value": 66490, "note": "Audited prior-year total revenue (base of the bridge)." },
+      "steps": [
+        { "label": "New-logo subscriptions", "delta": 7480, "group": "Revenue", "note": "142 net-new enterprise logos onboarded in the year." },
+        { "label": "Expansion / upsell", "delta": 4120, "group": "Revenue", "note": "Seat and tier expansion within the installed base." },
+        { "label": "Price uplift", "delta": 1960, "group": "Revenue", "note": "List-price increase applied at renewal." },
+        { "label": "Subscription subtotal", "delta": 80050, "type": "subtotal", "note": "Running total after all subscription movements." },
+        { "label": "Gross churn", "delta": -3880, "group": "Revenue", "note": "Lost ARR from non-renewing accounts." },
+        { "label": "Downgrades", "delta": -1240, "group": "Revenue", "note": "Customers moving to a lower tier." },
+        { "label": "Transaction fees", "delta": 2220, "group": "Revenue", "note": "Higher interchange volume." },
+        { "label": "Professional services", "delta": 630, "group": "Revenue" },
+        { "label": "FX translation", "delta": -430, "group": "One-off", "note": "Adverse foreign-exchange movement on overseas revenue." },
+        { "label": "Other", "delta": 330, "group": "One-off" }
+      ],
+      "closing": { "label": "FY2026 revenue", "value": 77680, "note": "Reported current-year total revenue (foots to the bridge)." },
+      "options": { "runningLine": false, "mode": "absolute", "sort": "entered", "collapseThreshold": 0 }
+    }
+  ]
+}

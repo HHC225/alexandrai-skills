@@ -1,0 +1,1329 @@
+<!doctype html>
+<html lang="en" data-theme="indigo">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1440">
+<title>{{PROJECT}} — Process Flowchart</title>
+<style>
+/* ============================================================
+   SHARED FOUNDATION TOKENS  (per _FOUNDATION.md §1)
+   :root = Purple default; data-theme overrides swap 7 values.
+   This document ships data-theme="indigo" (its default).
+   ============================================================ */
+:root{
+  /* surfaces */
+  --bg:#fff; --bg-band:#f6f6f8; --bg-subtle:#fafafb; --bg-deep:#15131a;
+  --rule:#dcdce2; --rule-soft:#ebebef;
+  /* ink */
+  --ink:#11131a; --ink-mid:#33363f; --ink-soft:#5a5e68; --ink-faint:#868b95;
+  /* brand accent (Purple default) */
+  --navy:#a100ff; --navy-deep:#7a00c2; --navy-bg:#f3e8ff; --navy-line:#d9bef5;
+  /* cleared / approved */
+  --ok:#5a2f8a; --ok-bg:#efe8f5; --ok-line:#d0b5e0;
+  /* semantic states — CONSTANT across all themes */
+  --risk:#b3261e; --risk-bg:#fbeceb; --risk-line:#edc7c4;
+  --hold:#8a6d00; --hold-bg:#fbf3da; --hold-line:#e7d8a4;
+  /* type stacks */
+  --mono:ui-monospace,"JetBrains Mono","SFMono-Regular",Menlo,Consolas,monospace;
+  --sans:-apple-system,"Segoe UI",system-ui,Roboto,"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic UI","Apple SD Gothic Neo","Malgun Gothic","PingFang SC","Microsoft YaHei","Noto Sans CJK JP","Noto Sans CJK KR","Noto Sans CJK SC","Noto Sans JP","Noto Sans KR","Noto Sans SC","Noto Sans",sans-serif;
+}
+html[data-theme="blue"]{ --navy:#0b5fd4; --navy-deep:#0842a0; --navy-bg:#e8f1fc; --navy-line:#bcd6f5; --ok:#1a4f9c; --ok-bg:#e9f0fa; --ok-line:#b7cdea; }
+html[data-theme="purple"]{ --navy:#a100ff; --navy-deep:#7a00c2; --navy-bg:#f3e8ff; --navy-line:#d9bef5; --ok:#5a2f8a; --ok-bg:#efe8f5; --ok-line:#d0b5e0; }
+html[data-theme="indigo"]{ --navy:#4338ca; --navy-deep:#312c92; --navy-bg:#ebebfb; --navy-line:#c7c3f0; --ok:#3730a3; --ok-bg:#ebeaf7; --ok-line:#c5c2ea; }
+html[data-theme="teal"]{ --navy:#0e7c86; --navy-deep:#095861; --navy-bg:#e0f3f4; --navy-line:#a9dade; --ok:#0f5d54; --ok-bg:#e3f3ef; --ok-line:#b3ddd4; }
+html[data-theme="cyan"]{ --navy:#0891b2; --navy-deep:#0e6f88; --navy-bg:#e2f4f9; --navy-line:#abdde9; --ok:#0e6b7a; --ok-bg:#e4f3f4; --ok-line:#b0dde2; }
+html[data-theme="green"]{ --navy:#1f7a44; --navy-deep:#155730; --navy-bg:#e6f4ea; --navy-line:#b3dcc1; --ok:#2f6b3c; --ok-bg:#e9f3ea; --ok-line:#bedcc4; }
+html[data-theme="plum"]{ --navy:#a21d6e; --navy-deep:#7c1450; --navy-bg:#fbe8f2; --navy-line:#e8b9d4; --ok:#6d2356; --ok-bg:#f6e8f0; --ok-line:#e3bcd5; }
+html[data-theme="slate"]{ --navy:#3f4f63; --navy-deep:#29384b; --navy-bg:#eef1f5; --navy-line:#c2ccd8; --ok:#34495e; --ok-bg:#eef1f5; --ok-line:#c2ccd8; }
+html[data-theme="black"]{ --navy:#000000; --navy-deep:#000; --navy-bg:#f1f1f3; --navy-line:#d6d6db; --ok:#3f3f46; --ok-bg:#f1f1f3; --ok-line:#cfcfd6; }
+
+*{ box-sizing:border-box; }
+html,body{ margin:0; height:100%; }
+body{
+  font:13px/1.6 var(--sans); color:var(--ink); background:var(--bg-band);
+  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+  overflow:hidden;
+}
+h1,h2,h3,h4,p{ margin:0; }
+.tnum{ font-feature-settings:"tnum" 1; }
+.mono{ font-family:var(--mono); }
+button{ font-family:inherit; }
+
+/* icon sizing (house SVGs, currentColor) */
+.icon{ width:1.15em; height:1.15em; display:inline-block; vertical-align:-.18em; color:inherit; }
+.icon-sm{ width:14px; height:14px; }
+.icon-lg{ width:18px; height:18px; }
+
+/* ---- shared primitives ---- */
+.st-badge{
+  display:inline-flex; align-items:center; gap:6px; font:600 10.5px/1 var(--mono);
+  letter-spacing:.04em; text-transform:uppercase; padding:4px 8px 4px 7px;
+  border:1px solid var(--rule); border-radius:6px; background:var(--bg); white-space:nowrap;
+}
+.st-badge::before{ content:""; width:7px; height:7px; border-radius:50%; background:var(--ink-faint); }
+.st-ok{ color:var(--ok); border-color:var(--ok-line); background:var(--ok-bg); }
+.st-ok::before{ background:var(--ok); }
+.st-risk{ color:var(--risk); border-color:var(--risk-line); background:var(--risk-bg); }
+.st-risk::before{ background:var(--risk); }
+.st-hold{ color:var(--hold); border-color:var(--hold-line); background:var(--hold-bg); }
+.st-hold::before{ background:var(--hold); }
+.st-neutral{ color:var(--ink-soft); }
+.mini-dot{ display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--ink-faint); flex:none; }
+.mini-dot.is-ok{ background:var(--ok); } .mini-dot.is-risk{ background:var(--risk); }
+.mini-dot.is-hold{ background:var(--hold); } .mini-dot.is-neutral{ background:var(--ink-faint); }
+.chip{
+  display:inline-flex; align-items:center; gap:5px; font:500 11px/1 var(--mono); letter-spacing:.02em;
+  color:var(--navy-deep); background:var(--navy-bg); border:1px solid var(--navy-line);
+  border-radius:6px; padding:5px 8px; white-space:nowrap;
+}
+
+/* ============================================================
+   FLOWCHART APP SHELL  (the distinct format silhouette)
+   100vw × 100vh: bar row, then [ lane-panel | canvas | info-panel ]
+   ============================================================ */
+.flowchart{
+  width:100vw; height:100vh; display:grid;
+  grid-template-rows:auto 1fr;
+  grid-template-columns:236px 1fr 300px;
+  grid-template-areas:"bar bar bar" "left canvas right";
+}
+
+/* ---- top app bar ---- */
+.fc-bar{
+  grid-area:bar; display:flex; align-items:center; gap:18px;
+  padding:10px 18px; background:var(--bg); border-bottom:1px solid var(--rule);
+  box-shadow:0 1px 3px rgba(17,19,26,.05); z-index:30; min-width:0;
+}
+.fb-id{ display:flex; align-items:center; gap:11px; min-width:0; }
+.fb-mark{ width:30px; height:30px; border-radius:8px; background:var(--navy); color:#fff;
+  display:inline-flex; align-items:center; justify-content:center; flex:none; }
+.fb-mark svg{ width:19px; height:19px; }
+.fb-titles{ min-width:0; }
+.fb-eyebrow{ font:600 9.5px/1 var(--mono); letter-spacing:.14em; text-transform:uppercase; color:var(--ink-faint); margin-bottom:3px; }
+.fb-title{ font:800 15px/1.15 var(--sans); letter-spacing:-.01em; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+.type-legend{ display:flex; flex-wrap:wrap; gap:6px; margin-left:6px; min-width:0; }
+.legend-chip{
+  display:inline-flex; align-items:center; gap:6px; font:600 10px/1 var(--mono); letter-spacing:.03em;
+  color:var(--ink-mid); background:var(--bg-subtle); border:1px solid var(--rule);
+  border-radius:6px; padding:4px 8px; white-space:nowrap;
+}
+.legend-chip .swatch{ width:14px; height:11px; flex:none; border:1.5px solid var(--navy); background:var(--navy-bg); }
+.legend-chip .swatch.sw-start{ border-radius:7px; }
+.legend-chip .swatch.sw-step{ border-radius:3px; }
+.legend-chip .swatch.sw-decision{ width:12px; height:12px; transform:rotate(45deg); border-radius:2px; }
+.legend-chip .swatch.sw-io{ transform:skewX(-18deg); border-radius:2px; }
+.legend-chip .swatch.sw-end{ border-radius:7px; background:var(--ok-bg); border-color:var(--ok); }
+
+.fb-right{ margin-left:auto; display:flex; align-items:center; gap:16px; flex:none; }
+
+/* ---- step-through control (walks the primary path) ---- */
+.step-through{ display:flex; align-items:center; gap:4px; padding:4px; flex:none;
+  background:var(--bg-subtle); border:1px solid var(--rule); border-radius:9px; }
+.stp-btn{ width:28px; height:28px; border-radius:6px; border:1px solid transparent; background:var(--bg);
+  color:var(--ink-mid); cursor:pointer; display:inline-flex; align-items:center; justify-content:center;
+  transition:background .12s, color .12s, border-color .12s; }
+.stp-btn:hover{ background:var(--navy-bg); color:var(--navy-deep); border-color:var(--navy-line); }
+.stp-btn[aria-pressed="true"]{ background:var(--navy); border-color:var(--navy); color:#fff; }
+.stp-btn svg{ width:15px; height:15px; }
+.stp-readout{ font:700 11px/1 var(--mono); letter-spacing:.03em; color:var(--ink-soft); min-width:42px; text-align:center; padding:0 2px; }
+.stp-readout b{ color:var(--navy-deep); }
+@media print{ .step-through{ display:none; } }
+
+.asof{ font:600 10px/1.4 var(--mono); letter-spacing:.05em; text-transform:uppercase; color:var(--ink-soft); text-align:right; white-space:nowrap; }
+.rc-theme{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--rule);border-radius:7px;
+          padding:3px 4px 3px 7px;background:var(--bg);}
+.rc-theme-sw{width:12px;height:12px;border-radius:50%;background:var(--navy);box-shadow:0 0 0 1px var(--rule);flex:none;}
+.rc-theme-sel{border:0;background:none;font:600 11px/1 var(--mono);color:var(--ink-mid);cursor:pointer;outline:none;padding:2px;}
+@media print{.rc-theme{display:none;}}
+
+/* ============================================================
+   SIDE PANELS (lane toggles + legend left, info right)
+   ============================================================ */
+.side{ background:var(--bg); display:flex; flex-direction:column; min-height:0; overflow:auto; }
+.lane-panel{ grid-area:left; border-right:1px solid var(--rule); }
+.info-panel{ grid-area:right; border-left:1px solid var(--rule); }
+
+.panel-group{ padding:14px 14px 12px; border-bottom:1px solid var(--rule-soft); }
+.group-label{
+  display:flex; align-items:center; gap:7px; font:700 9.5px/1 var(--mono); letter-spacing:.1em;
+  text-transform:uppercase; color:var(--ink-faint); margin-bottom:10px;
+}
+.group-label .gl-ico{ color:var(--navy); display:inline-flex; }
+.group-label .gl-n{ margin-left:auto; color:var(--ink-faint); }
+
+/* lane toggle chips (show/hide + collapse a swimlane) */
+.lane-toggles{ display:flex; flex-direction:column; gap:6px; }
+.lane-chip{
+  display:flex; align-items:center; gap:8px; width:100%; text-align:left;
+  font:600 11.5px/1.1 var(--sans); color:var(--ink-mid);
+  background:var(--bg); border:1px solid var(--rule); border-radius:8px; padding:5px 6px 5px 8px;
+  transition:background .12s, border-color .12s, opacity .12s;
+}
+.lane-chip:hover{ border-color:var(--navy-line); background:var(--navy-bg); }
+.lane-chip .lc-box{ width:15px; height:15px; border-radius:4px; border:1.5px solid var(--rule);
+  flex:none; display:inline-flex; align-items:center; justify-content:center; color:#fff; background:var(--bg); cursor:pointer; }
+.lane-chip[data-on="true"] .lc-box{ background:var(--navy); border-color:var(--navy); }
+.lane-chip[data-on="true"] .lc-box svg{ width:11px; height:11px; }
+.lane-chip[data-on="false"]{ opacity:.5; }
+.lane-chip[data-on="false"] .lc-box svg{ display:none; }
+.lane-chip .lc-ico{ width:15px; height:15px; flex:none; color:var(--navy); display:inline-flex; }
+.lane-chip .lc-ico svg{ width:15px; height:15px; }
+.lane-chip .lc-toggle{ flex:1; min-width:0; display:flex; align-items:center; gap:8px; cursor:pointer; background:none; border:0; padding:0; font:inherit; color:inherit; text-align:left; }
+.lane-chip .lc-label{ flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.collapse-btn{ width:22px; height:22px; border-radius:5px; border:1px solid transparent; background:transparent;
+  color:var(--ink-faint); cursor:pointer; display:inline-flex; align-items:center; justify-content:center; flex:none;
+  transition:background .12s, color .12s, transform .14s; }
+.collapse-btn:hover{ background:var(--navy-bg); color:var(--navy-deep); }
+.collapse-btn svg{ width:13px; height:13px; }
+.lane-chip[data-collapsed="true"] .collapse-btn{ transform:rotate(-90deg); color:var(--navy-deep); }
+
+/* legend rows */
+.leg-rows{ display:flex; flex-direction:column; gap:7px; }
+.leg-row{ display:flex; align-items:center; gap:8px; font:600 11px/1.1 var(--sans); color:var(--ink-mid); }
+.leg-row .lg-sw{ width:18px; height:13px; flex:none; border:1.5px solid var(--navy); background:var(--navy-bg); }
+.leg-row .lg-sw.sw-start{ border-radius:7px; }
+.leg-row .lg-sw.sw-step{ border-radius:3px; }
+.leg-row .lg-sw.sw-decision{ width:13px; height:13px; transform:rotate(45deg); border-radius:2px; }
+.leg-row .lg-sw.sw-io{ transform:skewX(-18deg); border-radius:2px; }
+.leg-row .lg-sw.sw-end{ border-radius:7px; background:var(--ok-bg); border-color:var(--ok); }
+.leg-row .ek{ width:26px; height:0; flex:none; }
+.leg-row .ek.yes{ border-top:2.4px solid var(--navy); }
+.leg-row .ek.no{ border-top:2.4px solid var(--risk); }
+.leg-row .ek.flow{ border-top:2px solid var(--ink-soft); }
+
+/* ---- info panel (selected node) ---- */
+.info-empty{ padding:22px 16px; color:var(--ink-soft); font-size:12px; line-height:1.55; }
+.info-empty .ie-ico{ color:var(--navy-line); display:block; margin-bottom:10px; }
+.info-empty .ie-ico svg{ width:34px; height:34px; }
+.info-empty b{ color:var(--ink-mid); font-weight:700; }
+
+.info-card{ padding:0; display:none; }
+.info-card.show{ display:block; }
+.info-head{ padding:14px 16px 12px; border-bottom:1px solid var(--rule-soft); }
+.info-head .ih-type{ font:700 9.5px/1 var(--mono); letter-spacing:.1em; text-transform:uppercase; color:var(--navy-deep); margin-bottom:7px; display:flex; align-items:center; gap:6px; }
+.info-head .ih-type .iht-ico{ color:var(--navy); display:inline-flex; }
+.info-head .ih-title{ font:800 16px/1.25 var(--sans); letter-spacing:-.01em; color:var(--ink); margin-bottom:9px; }
+.info-chips{ display:flex; flex-wrap:wrap; gap:6px; }
+
+.detail-wrap{ padding:13px 16px; border-bottom:1px solid var(--rule-soft); }
+.detail-wrap .d-label{ font:700 9px/1.1 var(--mono); letter-spacing:.08em; text-transform:uppercase; color:var(--ink-faint); margin-bottom:6px; }
+.detail-wrap .d-body{ font:400 12.5px/1.55 var(--sans); color:var(--ink-mid); }
+
+.eg-wrap{ padding:13px 16px 18px; }
+.eg-label{ font:700 9.5px/1 var(--mono); letter-spacing:.1em; text-transform:uppercase; color:var(--ink-faint); margin-bottom:10px; display:flex; align-items:center; gap:7px; }
+.eg-label .eg-n{ margin-left:auto; color:var(--ink-faint); }
+.eg-list{ display:flex; flex-direction:column; gap:6px; }
+.eg{
+  display:flex; align-items:center; gap:8px; width:100%; text-align:left; cursor:pointer;
+  background:var(--bg-subtle); border:1px solid var(--rule); border-radius:8px; padding:7px 9px;
+  transition:border-color .12s, background .12s;
+}
+.eg:hover{ border-color:var(--navy-line); background:var(--navy-bg); }
+.eg .eg-dir{ color:var(--ink-faint); display:inline-flex; flex:none; }
+.eg .eg-dir.out{ color:var(--navy); }
+.eg .eg-body{ flex:1; min-width:0; }
+.eg .eg-name{ font:700 11.5px/1.2 var(--sans); color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.eg .eg-cap{ font:600 9.5px/1.2 var(--mono); letter-spacing:.03em; color:var(--ink-soft); margin-top:2px; }
+.eg .eg-branch{ font:700 8.5px/1 var(--mono); letter-spacing:.06em; text-transform:uppercase; border-radius:4px; padding:3px 5px; flex:none; }
+.eg .eg-branch.yes{ color:var(--navy-deep); background:var(--navy-bg); border:1px solid var(--navy-line); }
+.eg .eg-branch.no{ color:var(--risk); background:var(--risk-bg); border:1px solid var(--risk-line); }
+
+/* ============================================================
+   THE CANVAS  (full-bleed pannable / zoomable viewport)
+   ============================================================ */
+.fc-canvas{
+  grid-area:canvas; position:relative; overflow:hidden; cursor:grab;
+  background:var(--bg-band);
+  user-select:none; -webkit-user-select:none;
+}
+.fc-canvas.is-panning{ cursor:grabbing; }
+.fc-canvas:fullscreen{ background:var(--bg-band); }
+
+.fc-world{ position:absolute; top:0; left:0; transform-origin:0 0; will-change:transform; }
+
+/* ---- swimlane bands (one banded row per lane) ---- */
+.lane-band{
+  position:absolute; left:0; transition:opacity .16s, top .22s ease, height .22s ease;
+  border-bottom:1px solid var(--rule);
+}
+.lane-band:nth-child(odd){ background:var(--bg); }
+.lane-band:nth-child(even){ background:var(--bg-subtle); }
+.lane-band.is-hidden{ display:none; }
+.lane-band .lane-head{
+  position:absolute; left:0; top:0; bottom:0; width:46px;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:9px;
+  background:var(--bg-deep); color:#fff; overflow:hidden;
+}
+.lane-band:nth-child(even) .lane-head{ background:#211f29; }
+.lane-head .lh-ico{ color:#fff; opacity:.92; display:inline-flex; }
+.lane-head .lh-ico svg{ width:18px; height:18px; }
+.lane-head .lh-label{
+  writing-mode:vertical-rl; transform:rotate(180deg);
+  font:700 11px/1 var(--sans); letter-spacing:.02em; white-space:nowrap; max-height:74%;
+  overflow:hidden; text-overflow:ellipsis;
+}
+.lane-band.is-collapsed .lane-head .lh-label{ writing-mode:horizontal-tb; transform:none; font-size:10px; }
+.lane-band.is-collapsed .lane-head{ flex-direction:row; gap:7px; padding-left:10px; justify-content:flex-start; width:auto; right:0; bottom:auto; height:100%; }
+.lane-band.is-collapsed .lane-head .lh-ico svg{ width:14px; height:14px; }
+
+/* faint column rule overlay */
+.col-rules{ position:absolute; top:0; bottom:0; pointer-events:none; }
+.col-rule{ position:absolute; top:0; bottom:0; width:1px; background:var(--rule-soft); }
+
+/* edge SVG fills the world box exactly */
+svg.fc-edges{ position:absolute; top:0; left:0; overflow:visible; pointer-events:none; z-index:4; }
+path.edge{
+  fill:none; stroke:var(--ink-soft); stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round;
+  transition:stroke .14s, stroke-width .14s, opacity .14s;
+}
+path.edge.hot{ stroke:var(--navy); stroke-width:2.6; marker-end:url(#fc-arrow-hot); }
+path.edge[data-branch="no"]{ stroke:var(--risk); }
+path.edge[data-branch="no"].hot{ stroke:var(--risk); marker-end:url(#fc-arrow-no); }
+path.edge.dim{ opacity:.12; }
+
+/* hover hit-area */
+path.edge-hit{ fill:none; stroke:transparent; stroke-width:16; cursor:pointer; pointer-events:stroke; }
+
+/* edge label / branch chip (a <g>) */
+g.edge-label{ opacity:0; transition:opacity .14s; pointer-events:none; }
+g.edge-label.show{ opacity:1; }
+g.edge-label rect{ fill:var(--bg); stroke:var(--rule); rx:5; }
+g.edge-label text{ font:600 10px var(--mono); fill:var(--ink-mid); letter-spacing:.02em; }
+/* branch chips are always visible (Yes/No), recoloured by branch */
+g.branch-chip{ pointer-events:none; }
+g.branch-chip rect{ rx:5; }
+g.branch-chip.yes rect{ fill:var(--navy-bg); stroke:var(--navy-line); }
+g.branch-chip.yes text{ fill:var(--navy-deep); }
+g.branch-chip.no rect{ fill:var(--risk-bg); stroke:var(--risk-line); }
+g.branch-chip.no text{ fill:var(--risk); }
+g.branch-chip text{ font:700 9px var(--mono); letter-spacing:.06em; text-transform:uppercase; }
+g.branch-chip.dim{ opacity:.18; }
+
+/* arrowheads — explicit SVG markers filled from theme tokens (NOT context-stroke,
+   which silently renders nothing where unsupported, killing directionality) */
+#fc-svg-defs{ position:absolute; width:0; height:0; }
+marker#fc-arrow path{ fill:var(--ink-soft); }
+marker#fc-arrow-hot path{ fill:var(--navy); }
+marker#fc-arrow-no path{ fill:var(--risk); }
+
+/* ---- shaped node elements (positioned by computed lane/col) ---- */
+.fc-node{
+  position:absolute; transform:translate(-50%,-50%);
+  display:flex; align-items:center; justify-content:center; gap:7px; cursor:pointer;
+  background:var(--bg); border:1.5px solid var(--rule); color:var(--ink);
+  box-shadow:0 1px 3px rgba(17,19,26,.10); text-align:center; z-index:5;
+  transition:opacity .14s, box-shadow .14s, border-color .14s, transform .04s;
+}
+.fc-node .node-ico{ flex:none; display:inline-flex; color:var(--navy-deep); }
+.fc-node .node-ico svg{ width:16px; height:16px; }
+.fc-node .node-label{ font:700 12px/1.25 var(--sans); color:var(--ink); }
+.fc-node:hover{ box-shadow:0 3px 11px rgba(17,19,26,.16); border-color:var(--navy-line); }
+
+/* shapes by type */
+.fc-node.n-step{ border-radius:11px; padding:11px 14px; min-width:128px; max-width:188px; }
+.fc-node.n-start, .fc-node.n-end{ border-radius:999px; padding:10px 18px; min-width:118px;
+  background:var(--navy-bg); border-color:var(--navy-line); }
+.fc-node.n-start .node-label, .fc-node.n-end .node-label{ font-weight:800; }
+.fc-node.n-io{ border-radius:6px; padding:11px 18px; min-width:130px; max-width:188px;
+  transform:translate(-50%,-50%) skewX(-12deg); }
+.fc-node.n-io .node-ico, .fc-node.n-io .node-label{ transform:skewX(12deg); }
+/* decision diamond: a rotated square shell + an upright label layer */
+.fc-node.n-decision{ width:128px; height:128px; border:0; background:transparent; box-shadow:none; padding:0; }
+.fc-node.n-decision .diamond{ position:absolute; inset:18px; background:var(--bg); border:1.5px solid var(--rule);
+  transform:rotate(45deg); border-radius:10px; box-shadow:0 1px 3px rgba(17,19,26,.10); transition:border-color .14s, box-shadow .14s, background .14s; }
+.fc-node.n-decision:hover .diamond{ border-color:var(--navy-line); box-shadow:0 3px 11px rgba(17,19,26,.16); }
+.fc-node.n-decision .d-inner{ position:relative; z-index:1; display:flex; flex-direction:column; align-items:center; gap:4px; max-width:108px; padding:0 6px; }
+.fc-node.n-decision .node-label{ font-size:11px; line-height:1.2; }
+
+/* status accents (left bar + icon tint) */
+.fc-node.s-ok{ border-color:var(--ok-line); }
+.fc-node.s-ok .node-ico{ color:var(--ok); }
+.fc-node.s-risk{ border-color:var(--risk-line); }
+.fc-node.s-risk .node-ico{ color:var(--risk); }
+.fc-node.s-hold{ border-color:var(--hold-line); }
+.fc-node.s-hold .node-ico{ color:var(--hold); }
+.fc-node.n-decision.s-ok .diamond{ border-color:var(--ok-line); }
+.fc-node.n-decision.s-risk .diamond{ border-color:var(--risk-line); }
+.fc-node.n-decision.s-hold .diamond{ border-color:var(--hold-line); }
+/* a little status pip on box nodes */
+.fc-node .s-pip{ position:absolute; top:-5px; right:-5px; width:11px; height:11px; border-radius:50%;
+  border:2px solid var(--bg); background:var(--ink-faint); display:none; }
+.fc-node.s-ok .s-pip{ background:var(--ok); display:block; }
+.fc-node.s-risk .s-pip{ background:var(--risk); display:block; }
+.fc-node.s-hold .s-pip{ background:var(--hold); display:block; }
+.fc-node.n-decision .s-pip{ top:14px; right:14px; }
+
+/* selection / path states */
+.fc-node.is-selected{ border-color:var(--navy); box-shadow:0 0 0 3px var(--navy-bg), 0 4px 14px rgba(17,19,26,.18); z-index:9; }
+.fc-node.is-selected .node-ico{ color:var(--navy); }
+.fc-node.n-decision.is-selected{ box-shadow:none; }
+.fc-node.n-decision.is-selected .diamond{ border-color:var(--navy); box-shadow:0 0 0 3px var(--navy-bg), 0 4px 14px rgba(17,19,26,.18); }
+.fc-node.on-path{ border-color:var(--navy-line); z-index:7; }
+.fc-node.n-decision.on-path .diamond{ border-color:var(--navy-line); }
+.fc-node.is-dim{ opacity:.24; }
+.fc-node.hidden{ display:none; }
+/* step-through current */
+@keyframes nodePulse{ 0%{ box-shadow:0 0 0 0 var(--navy-line);} 70%{ box-shadow:0 0 0 12px transparent;} 100%{ box-shadow:0 0 0 0 transparent;} }
+.fc-node.is-step{ border-color:var(--navy); }
+.fc-node.is-step.pulse{ animation:nodePulse .7s ease-out 1; }
+
+/* ============================================================
+   TOOLBAR  (zoom in/out/fit/fullscreen) — pinned to canvas
+   ============================================================ */
+.toolbar{
+  position:absolute; left:16px; bottom:16px; z-index:20;
+  display:flex; align-items:center; gap:4px; padding:5px;
+  background:var(--bg); border:1px solid var(--rule); border-radius:10px;
+  box-shadow:0 2px 8px rgba(17,19,26,.12);
+}
+.tool-btn{
+  width:32px; height:32px; border-radius:7px; border:1px solid transparent; background:var(--bg);
+  color:var(--ink-mid); cursor:pointer; display:inline-flex; align-items:center; justify-content:center;
+  transition:background .12s, color .12s, border-color .12s;
+}
+.tool-btn:hover{ background:var(--navy-bg); color:var(--navy-deep); border-color:var(--navy-line); }
+.tool-btn svg{ width:17px; height:17px; }
+.tool-sep{ width:1px; height:20px; background:var(--rule); margin:0 2px; }
+.zoom-readout{ font:700 11px/1 var(--mono); letter-spacing:.03em; color:var(--ink-soft); min-width:42px; text-align:center; padding:0 4px; }
+
+/* focus banner shown when a node is selected */
+.focus-banner{
+  position:absolute; left:50%; top:14px; transform:translateX(-50%); z-index:20;
+  display:none; align-items:center; flex-wrap:wrap; gap:7px 9px; padding:6px 8px 6px 12px;
+  max-width:min(86%, 720px);
+  background:var(--bg); border:1px solid var(--navy-line); border-radius:9px;
+  box-shadow:0 2px 8px rgba(17,19,26,.12);
+  font:600 11px/1.2 var(--sans); color:var(--ink-mid);
+}
+.focus-banner.show{ display:flex; }
+.focus-banner b{ color:var(--navy-deep); }
+.focus-banner .fb-clear{ border:1px solid var(--rule); background:var(--bg); color:var(--ink-soft);
+  border-radius:6px; padding:4px 7px; cursor:pointer; font:600 10px/1 var(--mono); letter-spacing:.05em; text-transform:uppercase; }
+.focus-banner .fb-clear:hover{ border-color:var(--navy-line); color:var(--navy-deep); background:var(--navy-bg); }
+/* branch-choice prompt + buttons (shown when stepping lands on a decision) */
+.focus-banner .fb-pick{ font:700 9.5px/1 var(--mono); letter-spacing:.06em; text-transform:uppercase; color:var(--ink-faint); }
+.focus-banner .fb-branch{ display:inline-flex; align-items:center; gap:6px; cursor:pointer; max-width:220px;
+  border:1px solid var(--rule); background:var(--bg); color:var(--ink-mid); border-radius:6px; padding:4px 8px 4px 5px;
+  font:700 10.5px/1.1 var(--sans); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.focus-banner .fb-branch:hover{ border-color:var(--navy-line); background:var(--navy-bg); color:var(--navy-deep); }
+.focus-banner .fb-branch .fbb-tag{ font:800 8.5px/1 var(--mono); letter-spacing:.06em; text-transform:uppercase;
+  border-radius:4px; padding:3px 5px; flex:none; color:var(--ink-soft); background:var(--bg-subtle); border:1px solid var(--rule); }
+.focus-banner .fb-branch.yes .fbb-tag{ color:var(--navy-deep); background:var(--navy-bg); border-color:var(--navy-line); }
+.focus-banner .fb-branch.no .fbb-tag{ color:var(--risk); background:var(--risk-bg); border-color:var(--risk-line); }
+
+.print-foot{ display:none; }
+
+.noscript-note{ position:fixed; inset:0; display:flex; align-items:center; justify-content:center;
+  background:var(--bg); z-index:999; padding:40px; text-align:center; color:var(--ink-mid); font-size:14px; }
+
+/* ============================================================
+   PRINT — full flow fit-to-page, controls hidden
+   ============================================================ */
+@media print{
+  html,body{ height:auto; overflow:visible; background:#fff; }
+  .flowchart{ display:block; width:auto; height:auto; }
+  .fc-bar{ box-shadow:none; border-bottom:1px solid var(--rule); flex-wrap:wrap; }
+  .rc-theme{ display:none; }
+  .lane-panel, .info-panel{ display:none; }
+  .toolbar, .focus-banner{ display:none !important; }
+  .fc-canvas{ position:relative; height:auto; cursor:auto; background:#fff;
+    border:1px solid var(--rule); overflow:visible; page-break-inside:avoid; }
+  .fc-node{ box-shadow:none; }
+  .fc-node.is-dim{ opacity:1; }
+  .fc-node.n-decision.is-dim .diamond{ opacity:1; }
+  path.edge.dim{ opacity:1; }
+  g.edge-label{ opacity:1; }
+  g.branch-chip.dim{ opacity:1; }
+  .print-foot{ display:flex; align-items:center; gap:16px; flex-wrap:wrap;
+    margin-top:14px; padding:14px 18px; background:#fff; border-top:1px solid var(--rule); }
+  .print-foot .wm{ display:flex; align-items:center; gap:9px; font:800 13px/1 var(--sans); color:#000; }
+  .print-foot .wm .sq{ width:14px; height:14px; border-radius:4px; background:var(--navy); }
+  .print-foot .fmeta{ font:600 10px/1.5 var(--mono); letter-spacing:.06em; text-transform:uppercase; color:#555; }
+}
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     THE ONLY CONTENT SOURCE — a valid instance of
+     designs/schemas/flowchart.schema.json
+     render() builds the entire DOM below from this.
+     ============================================================ -->
+<script type="application/json" id="report-data">
+{
+  "meta": {
+    "org": "{{ORG}}",
+    "project": "{{PROJECT}}",
+    "reportType": "Approval Workflow",
+    "title": "Account Opening — Review & Approval Flow",
+    "subtitle": "End-to-end path from application intake through KYC, review decisions and account activation",
+    "date": "2026-06-22",
+    "author": "{{AUTHOR}}",
+    "theme": "indigo",
+    "orientation": "lr"
+  },
+  "lanes": [
+    { "id": "applicant", "label": "Applicant", "icon": "user" },
+    { "id": "reviewer", "label": "Onboarding Reviewer", "icon": "reviewer" },
+    { "id": "system", "label": "Core Banking System", "icon": "microservice" }
+  ],
+  "nodes": [
+    { "id": "start", "type": "start", "label": "Application submitted", "lane": "applicant", "col": 0, "status": "neutral", "detail": "Customer submits the online account-opening form with identity documents." },
+    { "id": "intake", "type": "io", "label": "Capture KYC documents", "lane": "applicant", "col": 1, "detail": "ID, proof of address and selfie are uploaded and queued for verification." },
+    { "id": "autocheck", "type": "step", "label": "Automated KYC screening", "lane": "system", "col": 2, "status": "ok", "detail": "Sanctions, PEP and document-authenticity checks run automatically; produces a risk score." },
+    { "id": "riskgate", "type": "decision", "label": "Risk score acceptable?", "lane": "system", "col": 3, "status": "hold", "detail": "If the automated risk score is below threshold, route to fast-track; otherwise send to manual review." },
+    { "id": "manualreview", "type": "step", "label": "Manual review", "lane": "reviewer", "col": 4, "status": "hold", "detail": "Reviewer inspects flagged documents and the customer profile against policy. SLA: 1 business day." },
+    { "id": "approve", "type": "decision", "label": "Approve application?", "lane": "reviewer", "col": 5, "detail": "Reviewer decides to approve, reject, or request more information." },
+    { "id": "requestinfo", "type": "io", "label": "Request more info", "lane": "applicant", "col": 5, "status": "hold", "detail": "Reviewer asks the applicant for additional documentation; the case loops back to intake." },
+    { "id": "fasttrack", "type": "step", "label": "Fast-track approval", "lane": "system", "col": 4, "status": "ok", "detail": "Low-risk applications are auto-approved without manual review." },
+    { "id": "openacct", "type": "step", "label": "Open account", "lane": "system", "col": 6, "status": "ok", "detail": "Core banking provisions the account number, ledger entry and initial limits." },
+    { "id": "notify", "type": "step", "label": "Notify customer", "lane": "applicant", "col": 7, "status": "ok", "detail": "Welcome pack, account details and onboarding next-steps are sent to the customer." },
+    { "id": "reject", "type": "step", "label": "Record rejection", "lane": "reviewer", "col": 6, "status": "risk", "detail": "Rejection reason is logged for audit and the applicant is informed with appeal options." },
+    { "id": "endok", "type": "end", "label": "Account active", "lane": "applicant", "col": 8, "status": "ok", "detail": "Onboarding complete — the account is live and usable." },
+    { "id": "endno", "type": "end", "label": "Application closed", "lane": "reviewer", "col": 7, "status": "risk", "detail": "Application is closed as rejected." }
+  ],
+  "edges": [
+    { "from": "start", "to": "intake" },
+    { "from": "intake", "to": "autocheck", "label": "submit" },
+    { "from": "autocheck", "to": "riskgate" },
+    { "from": "riskgate", "to": "fasttrack", "branch": "yes", "label": "low risk" },
+    { "from": "riskgate", "to": "manualreview", "branch": "no", "label": "elevated" },
+    { "from": "fasttrack", "to": "openacct" },
+    { "from": "manualreview", "to": "approve" },
+    { "from": "approve", "to": "openacct", "branch": "yes", "label": "approved" },
+    { "from": "approve", "to": "requestinfo", "branch": "no", "label": "need info" },
+    { "from": "approve", "to": "reject", "label": "rejected" },
+    { "from": "requestinfo", "to": "intake", "label": "resubmit" },
+    { "from": "openacct", "to": "notify" },
+    { "from": "notify", "to": "endok" },
+    { "from": "reject", "to": "endno" }
+  ],
+  "primaryPath": ["start", "intake", "autocheck", "riskgate", "manualreview", "approve", "openacct", "notify", "endok"],
+  "legend": {
+    "types": { "start": "Start", "step": "Process step", "decision": "Decision", "io": "Input / output", "end": "End" },
+    "status": { "ok": "Approved / done", "risk": "Rejected / fail", "hold": "Pending / review", "neutral": "Standard" }
+  }
+}
+</script>
+
+<noscript><div class="noscript-note">This flowchart renders its diagram from embedded data with JavaScript. Enable JavaScript to pan, zoom, step through the flow and explore each node.</div></noscript>
+
+<main class="flowchart" id="flowchart" hidden>
+  <!-- bar / panels / canvas are built by render() -->
+</main>
+
+<footer class="print-foot" id="print-foot"></footer>
+
+<script>
+/* ============================================================
+   ICON LIBRARY — house SVGs (SPEC.md: 24×24, stroke 1.75,
+   currentColor, round caps/joins, squared signature nodes).
+   ============================================================ */
+var SVG_OPEN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">';
+var ICONS = {
+  /* process-flow — used as the app mark */
+  'process-flow': SVG_OPEN+'<rect x="2" y="9" width="5" height="6" rx="2"/><rect x="9.5" y="4.5" width="5" height="6" rx="2"/><rect x="17" y="13.5" width="5" height="6" rx="2"/><path d="M7 12 9.5 9.5"/><path d="M14.5 7.5 17 16.5"/></svg>',
+  /* node shapes */
+  'node-start': SVG_OPEN+'<rect x="2" y="9" width="7" height="6" rx="2"/><rect x="4" y="11" width="3" height="2" rx="0.8" fill="currentColor" stroke="none"/><line x1="9" y1="12" x2="22" y2="12"/><path d="M19 9.5 22 12l-3 2.5"/></svg>',
+  'node-end': SVG_OPEN+'<line x1="2" y1="12" x2="15" y2="12"/><path d="M12 9.5 15 12l-3 2.5"/><rect x="15" y="9" width="7" height="6" rx="2"/><line x1="19" y1="11" x2="19" y2="15"/><line x1="21" y1="11" x2="21" y2="15"/></svg>',
+  'decision-diamond': SVG_OPEN+'<path d="M12 2.5 21.5 12 12 21.5 2.5 12Z"/><line x1="12" y1="8.5" x2="12" y2="10"/><line x1="15.5" y1="12" x2="17" y2="12"/><line x1="12" y1="14" x2="12" y2="15.5"/></svg>',
+  'step': SVG_OPEN+'<rect x="3" y="6" width="18" height="12" rx="2.5"/><line x1="7" y1="12" x2="17" y2="12"/></svg>',
+  'io': SVG_OPEN+'<path d="M6 6h15l-3 12H3Z"/></svg>',
+  /* lane / actor icons */
+  'swimlane': SVG_OPEN+'<rect x="2" y="3.5" width="20" height="17" rx="2"/><line x1="2" y1="9.5" x2="22" y2="9.5"/><line x1="2" y1="15.5" x2="22" y2="15.5"/><rect x="4" y="11" width="4" height="3" rx="1.2" fill="currentColor" stroke="none"/><rect x="10" y="5" width="4" height="3" rx="1.2" fill="currentColor" stroke="none"/><rect x="16" y="17" width="4" height="3" rx="1.2" fill="currentColor" stroke="none"/></svg>',
+  'user': SVG_OPEN+'<circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.6 3.1-6 7-6s7 2.4 7 6"/></svg>',
+  'reviewer': SVG_OPEN+'<circle cx="11" cy="8" r="3.3"/><path d="M4.5 20c0-3.4 2.9-5.7 6.5-5.7 1 0 2 .2 2.8.5"/><circle cx="17" cy="16.5" r="3.3"/><path d="M19.4 18.9 22 21.5"/></svg>',
+  'microservice': SVG_OPEN+'<rect x="2" y="3" width="7" height="6" rx="1.5"/><rect x="15" y="3" width="7" height="6" rx="1.5"/><rect x="8.5" y="15" width="7" height="6" rx="1.5"/><path d="M9 6h6M5.5 9v3.5h4M18.5 9v3.5h-4M12 15v-3h.5"/></svg>',
+  'database': SVG_OPEN+'<path d="M5 6.2c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5S15.9 3.7 12 3.7 5 4.8 5 6.2Z"/><path d="M5 6.2v11.6c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5V6.2"/><path d="M5 12c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5"/></svg>',
+  /* controls */
+  'zoom-in': SVG_OPEN+'<circle cx="11" cy="11" r="6.5"/><path d="M16 16 20.5 20.5M11 8.5v5M8.5 11h5"/></svg>',
+  'zoom-out': SVG_OPEN+'<circle cx="11" cy="11" r="6.5"/><path d="M16 16 20.5 20.5M8.5 11h5"/></svg>',
+  'fit': SVG_OPEN+'<path d="M4 8.5V5.5A1.5 1.5 0 0 1 5.5 4H8.5M15.5 4H18.5A1.5 1.5 0 0 1 20 5.5V8.5M20 15.5V18.5A1.5 1.5 0 0 1 18.5 20H15.5M8.5 20H5.5A1.5 1.5 0 0 1 4 18.5V15.5"/><rect x="10" y="10" width="4" height="4" rx="1.2" fill="currentColor" stroke="none"/></svg>',
+  'fullscreen': SVG_OPEN+'<path d="M3.5 9V3.5H9"/><path d="M15 3.5H20.5V9"/><path d="M20.5 15V20.5H15"/><path d="M9 20.5H3.5V15"/></svg>',
+  'check': SVG_OPEN+'<path d="M4.5 12.5l5 5 10-10.5"/></svg>',
+  'chevron-down': SVG_OPEN+'<path d="M5.5 9.5 12 16l6.5-6.5"/></svg>',
+  'prev': SVG_OPEN+'<path d="M14.5 5.5 8 12l6.5 6.5"/></svg>',
+  'next': SVG_OPEN+'<path d="M9.5 5.5 16 12l-6.5 6.5"/></svg>',
+  'play': SVG_OPEN+'<path d="M7 5.5 18 12 7 18.5Z" fill="currentColor" stroke="none"/></svg>',
+  'pause': SVG_OPEN+'<rect x="7" y="5.5" width="3.6" height="13" rx="1.2" fill="currentColor" stroke="none"/><rect x="13.4" y="5.5" width="3.6" height="13" rx="1.2" fill="currentColor" stroke="none"/></svg>',
+  'flow-arrow': SVG_OPEN+'<rect x="2" y="9" width="5" height="6" rx="2"/><rect x="9.5" y="9" width="5" height="6" rx="2"/><rect x="17" y="9" width="5" height="6" rx="2"/><line x1="7" y1="12" x2="9.5" y2="12"/><line x1="14.5" y1="12" x2="17" y2="12"/><path d="M8.5 10.5 9.5 12l-1 1.5"/><path d="M16 10.5 17 12l-1 1.5"/></svg>',
+  'arrow-out': SVG_OPEN+'<path d="M5.5 12H18.5M14 7l5 5-5 5"/></svg>',
+  'arrow-in': SVG_OPEN+'<path d="M18.5 12H5.5M10 7l-5 5 5 5"/></svg>',
+  'tap': SVG_OPEN+'<path d="M9 10.5V6.2A1.7 1.7 0 0 1 12.4 6.2V11"/><path d="M12.4 11V9.4A1.6 1.6 0 0 1 15.6 9.4V11M15.6 11V9.9A1.6 1.6 0 0 1 18.8 9.9V14.5A4.5 4.5 0 0 1 14.3 19H12.5A4.5 4.5 0 0 1 8.6 16.7L6.4 13A1.6 1.6 0 0 1 9 11.2Z"/></svg>',
+  'gate-check': SVG_OPEN+'<path d="M12 3.5 20.5 12 12 20.5 3.5 12Z"/><line x1="2" y1="12" x2="3.5" y2="12"/><line x1="20.5" y1="12" x2="22" y2="12"/><path d="M9.5 12.5l2 2 3-4"/></svg>'
+};
+function icon(key){ return ICONS[key] || ICONS['step']; }
+/* icon for a node by type */
+function nodeIcon(n){
+  if(n.type==='start') return icon('node-start');
+  if(n.type==='end') return icon('node-end');
+  if(n.type==='decision') return icon('decision-diamond');
+  if(n.type==='io') return icon('io');
+  return icon('step');
+}
+
+/* ============================================================
+   STATE + DATA
+   ============================================================ */
+var DATA = JSON.parse(document.getElementById('report-data').textContent);
+var NODE_BY_ID = {}; DATA.nodes.forEach(function(n){ NODE_BY_ID[n.id] = n; });
+var LANE_BY_ID = {}; DATA.lanes.forEach(function(l,i){ l._idx = i; LANE_BY_ID[l.id] = l; });
+
+/* ---- layout geometry (the swimlane grid; lane+col -> px) ---- */
+var COL_W = 230, LANE_H = 130, LANE_H_COLLAPSED = 40, PAD_X = 150, PAD_TOP = 22;
+var maxCol = DATA.nodes.reduce(function(m,n){ return Math.max(m, n.col); }, 0);
+
+var view = { zoom:1, panX:0, panY:0 };
+var activeLanes = {}; DATA.lanes.forEach(function(l){ activeLanes[l.id] = true; });
+var collapsed   = {}; DATA.lanes.forEach(function(l){ collapsed[l.id] = false; });
+var selectedId  = null;
+/* ---- branch-aware step-through state ----
+   walkPath = the ordered route actually taken (built as the user advances /
+   picks branches); stepIdx = cursor into walkPath. Stepping never assumes a
+   single hard-coded primaryPath — at a decision (a node with >1 outgoing edge)
+   the user picks which branch to follow, so BOTH branches are reachable. */
+var walkPath    = [];
+var stepIdx     = -1;
+var awaitingBranch = false;    /* true when the frontier node needs a branch choice */
+var playTimer   = null;
+
+/* start node for the walk (an explicit start type, else the data's primaryPath
+   head, else the first node). primaryPath is honoured only as a default auto-
+   route hint for Play; manual stepping is driven entirely by the edges. */
+function stepStartId(){
+  var s = DATA.nodes.filter(function(n){ return n.type==='start'; })[0];
+  if(s) return s.id;
+  if(DATA.primaryPath && DATA.primaryPath.length) return DATA.primaryPath[0];
+  return DATA.nodes.length ? DATA.nodes[0].id : null;
+}
+
+/* directed adjacency for path-through highlighting */
+var OUT = {}, IN = {}, OUTE = {};
+DATA.nodes.forEach(function(n){ OUT[n.id]=[]; IN[n.id]=[]; OUTE[n.id]=[]; });
+DATA.edges.forEach(function(e,i){ if(OUT[e.from]) OUT[e.from].push(e.to); if(IN[e.to]) IN[e.to].push(e.from); if(OUTE[e.from]) OUTE[e.from].push({edge:e, idx:i}); });
+/* outgoing edges from a node that currently lead to a visible node */
+function visibleOuts(id){ return (OUTE[id]||[]).filter(function(o){ var t=NODE_BY_ID[o.edge.to]; return t && nodeVisible(t); }); }
+
+/* BFS reachable in a direction (over visible nodes) — used for "all paths through X" */
+function reach(id, map){
+  var seen={}, q=[id], out={};
+  seen[id]=true;
+  while(q.length){
+    var cur=q.shift();
+    (map[cur]||[]).forEach(function(nx){
+      if(seen[nx]) return; seen[nx]=true;
+      if(!nodeVisible(NODE_BY_ID[nx])) return;
+      out[nx]=true; q.push(nx);
+    });
+  }
+  return out;
+}
+
+/* lane band layout — computes top/height per lane honouring hide+collapse */
+function laneLayout(){
+  var y = PAD_TOP, map = {};
+  DATA.lanes.forEach(function(l){
+    if(activeLanes[l.id]===false){ map[l.id] = { top:y, h:0, hidden:true }; return; }
+    var h = collapsed[l.id] ? LANE_H_COLLAPSED : LANE_H;
+    map[l.id] = { top:y, h:h, hidden:false, collapsed:collapsed[l.id] };
+    y += h;
+  });
+  return { map:map, bottom:y };
+}
+/* world size */
+function worldW(){ return PAD_X + (maxCol+1)*COL_W + 40; }
+function worldH(){ return laneLayout().bottom + 30; }
+
+/* px centre of a node from (lane,col) */
+function nodePos(n){
+  var L = laneLayout().map[n.lane] || { top:PAD_TOP, h:LANE_H };
+  return { x: PAD_X + n.col*COL_W + COL_W/2, y: L.top + (L.h||LANE_H)/2 };
+}
+function nodeVisible(n){ return activeLanes[n.lane] !== false; }
+function edgeVisible(e){ return nodeVisible(NODE_BY_ID[e.from]) && nodeVisible(NODE_BY_ID[e.to]); }
+
+/* ============================================================
+   RENDER — build the entire app shell from DATA
+   ============================================================ */
+function render(){
+  var m = DATA.meta;
+  document.documentElement.dataset.theme = m.theme || 'indigo';
+  document.title = (m.project || 'Process') + ' — Process Flowchart';
+
+  var root = document.getElementById('flowchart');
+  root.hidden = false;
+  root.innerHTML = renderBar(m) + renderLanePanel() + renderCanvas() + renderInfoPanel();
+
+  document.getElementById('print-foot').innerHTML =
+    '<span class="wm"><span class="sq"></span>'+esc(m.org)+'</span>'+
+    '<span class="fmeta">'+esc(m.reportType)+' &middot; '+esc(m.title)+'<br>Prepared by '+esc(m.author)+' &middot; as of '+esc(m.date)+'</span>';
+
+  layoutBands();
+  buildEdges();
+  recountControls();
+  updateStepReadout();
+  fitToView(false);
+}
+
+function renderBar(m){
+  var types = ['start','step','decision','io','end'];
+  var capt = (DATA.legend && DATA.legend.types) || {};
+  var legend = types.map(function(t){
+    return '<span class="legend-chip"><span class="swatch sw-'+t+'"></span>'+esc(capt[t]||t)+'</span>';
+  }).join('');
+  var themeOpts = ['blue','purple','indigo','teal','cyan','green','plum','slate','black']
+    .map(function(v){ return '<option value="'+v+'">'+v.charAt(0).toUpperCase()+v.slice(1)+'</option>'; }).join('');
+  var dots = '<span class="rc-theme-sw" aria-hidden="true"></span><select class="rc-theme-sel" aria-label="Brand theme">'+themeOpts+'</select>';
+  return '<header class="fc-bar">'+
+    '<div class="fb-id"><span class="fb-mark">'+icon('process-flow')+'</span>'+
+      '<div class="fb-titles"><div class="fb-eyebrow">'+esc(m.reportType)+' &middot; '+esc(m.project)+'</div>'+
+      '<div class="fb-title">'+esc(m.title)+'</div></div></div>'+
+    '<div class="type-legend">'+legend+'</div>'+
+    '<div class="fb-right">'+
+      '<div class="step-through" role="group" aria-label="step through the primary path">'+
+        '<button class="stp-btn" id="stp-prev" type="button" title="Previous step">'+icon('prev')+'</button>'+
+        '<button class="stp-btn" id="stp-play" type="button" title="Play / pause walkthrough" aria-pressed="false">'+icon('play')+'</button>'+
+        '<span class="stp-readout" id="stp-readout">—</span>'+
+        '<button class="stp-btn" id="stp-next" type="button" title="Next step">'+icon('next')+'</button>'+
+      '</div>'+
+      '<div class="asof">as of '+esc(m.date)+'<br>'+esc(m.org)+'</div>'+
+      '<label class="rc-theme" title="Brand colour">'+dots+'</label>'+
+    '</div>'+
+  '</header>';
+}
+
+function renderLanePanel(){
+  var laneChips = DATA.lanes.map(function(l){
+    return '<div class="lane-chip" data-lane="'+l.id+'" data-on="true" data-collapsed="false">'+
+      '<span class="lc-box" data-act="toggle" title="Show / hide lane">'+icon('check')+'</span>'+
+      '<button class="lc-toggle" data-act="toggle" type="button">'+
+        '<span class="lc-ico">'+icon(l.icon||'swimlane')+'</span>'+
+        '<span class="lc-label">'+esc(l.label)+'</span></button>'+
+      '<button class="collapse-btn" data-act="collapse" type="button" title="Collapse / expand lane">'+icon('chevron-down')+'</button>'+
+    '</div>';
+  }).join('');
+  var tc = (DATA.legend && DATA.legend.types) || {};
+  var typeRows =
+    '<div class="leg-row"><span class="lg-sw sw-start"></span>'+esc(tc.start||'Start')+'</div>'+
+    '<div class="leg-row"><span class="lg-sw sw-step"></span>'+esc(tc.step||'Process step')+'</div>'+
+    '<div class="leg-row"><span class="lg-sw sw-decision"></span>'+esc(tc.decision||'Decision')+'</div>'+
+    '<div class="leg-row"><span class="lg-sw sw-io"></span>'+esc(tc.io||'Input / output')+'</div>'+
+    '<div class="leg-row"><span class="lg-sw sw-end"></span>'+esc(tc.end||'End')+'</div>';
+  var sc = (DATA.legend && DATA.legend.status) || {};
+  var brRows =
+    '<div class="leg-row"><span class="ek yes"></span>'+esc(sc.ok||'Yes / proceed')+'</div>'+
+    '<div class="leg-row"><span class="ek no"></span>'+esc(sc.risk||'No / reject')+'</div>'+
+    '<div class="leg-row"><span class="ek flow"></span>Sequence flow</div>';
+  return '<aside class="side lane-panel">'+
+    '<div class="panel-group"><div class="group-label"><span class="gl-ico">'+icon('swimlane')+'</span>Swimlanes<span class="gl-n" id="lane-count"></span></div><div class="lane-toggles">'+laneChips+'</div></div>'+
+    '<div class="panel-group"><div class="group-label"><span class="gl-ico">'+icon('flow-arrow')+'</span>Node types</div><div class="leg-rows">'+typeRows+'</div></div>'+
+    '<div class="panel-group" style="border-bottom:0"><div class="group-label"><span class="gl-ico">'+icon('gate-check')+'</span>Connectors</div><div class="leg-rows">'+brRows+'</div></div>'+
+  '</aside>';
+}
+
+function renderCanvas(){
+  /* lane bands */
+  var bands = DATA.lanes.map(function(l){
+    return '<div class="lane-band" data-lane="'+l.id+'">'+
+      '<div class="lane-head"><span class="lh-ico">'+icon(l.icon||'swimlane')+'</span>'+
+      '<span class="lh-label">'+esc(l.label)+'</span></div></div>';
+  }).join('');
+  /* column rules */
+  var rules='';
+  for(var c=0;c<=maxCol;c++){ rules += '<div class="col-rule" data-col="'+c+'"></div>'; }
+  /* nodes */
+  var nodes = DATA.nodes.map(function(n){
+    var s = n.status || 'neutral';
+    var inner;
+    if(n.type==='decision'){
+      inner = '<span class="diamond"></span><span class="d-inner"><span class="node-ico">'+nodeIcon(n)+'</span>'+
+        '<span class="node-label">'+esc(n.label)+'</span></span><span class="s-pip"></span>';
+    } else {
+      inner = '<span class="node-ico">'+nodeIcon(n)+'</span><span class="node-label">'+esc(n.label)+'</span><span class="s-pip"></span>';
+    }
+    return '<button class="fc-node n-'+n.type+' s-'+s+'" data-id="'+n.id+'">'+inner+'</button>';
+  }).join('');
+  return '<section class="fc-canvas" id="canvas" aria-label="process flowchart canvas">'+
+    '<div class="fc-world" id="world">'+
+      '<div class="col-rules" id="col-rules">'+rules+'</div>'+
+      bands +
+      '<svg class="fc-edges" id="edges">'+
+        '<defs id="fc-svg-defs">'+
+          '<marker id="fc-arrow" markerWidth="10" markerHeight="10" refX="7.6" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M1.4 1.4 8.2 5 1.4 8.6 3.3 5Z"/></marker>'+
+          '<marker id="fc-arrow-hot" markerWidth="10.5" markerHeight="10.5" refX="7.8" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M1.4 1.4 8.2 5 1.4 8.6 3.3 5Z"/></marker>'+
+          '<marker id="fc-arrow-no" markerWidth="10.5" markerHeight="10.5" refX="7.8" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M1.4 1.4 8.2 5 1.4 8.6 3.3 5Z"/></marker>'+
+        '</defs>'+
+      '</svg>'+
+      nodes +
+    '</div>'+
+    '<div class="focus-banner" id="focus-banner"></div>'+
+    '<div class="toolbar" role="group" aria-label="zoom controls">'+
+      '<button class="tool-btn" id="zoom-out" title="Zoom out">'+icon('zoom-out')+'</button>'+
+      '<span class="zoom-readout" id="zoom-readout">100%</span>'+
+      '<button class="tool-btn" id="zoom-in" title="Zoom in">'+icon('zoom-in')+'</button>'+
+      '<span class="tool-sep"></span>'+
+      '<button class="tool-btn" id="fit" title="Fit to view / reset">'+icon('fit')+'</button>'+
+      '<button class="tool-btn" id="fullscreen" title="Fullscreen">'+icon('fullscreen')+'</button>'+
+    '</div>'+
+  '</section>';
+}
+
+function renderInfoPanel(){
+  return '<aside class="side info-panel">'+
+    '<div class="info-empty" id="info-empty">'+
+      '<span class="ie-ico">'+icon('tap')+'</span>'+
+      '<b>Select a step</b> to highlight every path that runs through it &mdash; upstream and downstream &mdash; while the rest of the flow dims. Its description and connectors appear here. Use the &#9656; controls to step through the primary path.'+
+    '</div>'+
+    '<div class="info-card" id="info-card"></div>'+
+  '</aside>';
+}
+
+/* ---- position lane bands + column rules + nodes from the grid ---- */
+function layoutBands(){
+  var LL = laneLayout(), W = worldW(), H = worldH();
+  var world = document.getElementById('world');
+  world.style.width = W+'px'; world.style.height = H+'px';
+  document.getElementById('edges').setAttribute('width', W);
+  document.getElementById('edges').setAttribute('height', H);
+
+  DATA.lanes.forEach(function(l){
+    var band = document.querySelector('.lane-band[data-lane="'+l.id+'"]');
+    var g = LL.map[l.id];
+    band.classList.toggle('is-hidden', !!g.hidden);
+    band.classList.toggle('is-collapsed', !!g.collapsed);
+    band.style.top = g.top+'px';
+    band.style.height = (g.h||0)+'px';
+    band.style.width = W+'px';
+  });
+  /* column rules span the full lane stack */
+  var crWrap = document.getElementById('col-rules');
+  crWrap.style.height = (LL.bottom)+'px';
+  for(var c=0;c<=maxCol;c++){
+    var r = crWrap.querySelector('.col-rule[data-col="'+c+'"]');
+    if(r){ r.style.left = (PAD_X + c*COL_W + COL_W/2)+'px'; r.style.top=PAD_TOP+'px'; r.style.height=(LL.bottom-PAD_TOP)+'px'; }
+  }
+  /* nodes */
+  document.querySelectorAll('.fc-node').forEach(function(el){
+    var n = NODE_BY_ID[el.dataset.id], p = nodePos(n);
+    el.style.left = p.x+'px'; el.style.top = p.y+'px';
+    el.classList.toggle('hidden', !nodeVisible(n));
+  });
+}
+
+/* ---- routed orthogonal connectors (elbow) into the SVG ---- */
+function nodeHalf(n){
+  /* approximate half-extents for edge anchoring */
+  if(n.type==='decision') return { hx:56, hy:56 };
+  if(n.type==='start'||n.type==='end') return { hx:70, hy:21 };
+  if(n.type==='io') return { hx:88, hy:23 };
+  return { hx:85, hy:24 };
+}
+function buildEdges(){
+  var svg = document.getElementById('edges');
+  var defs = document.getElementById('fc-svg-defs');
+  svg.innerHTML=''; svg.appendChild(defs);
+  var NS='http://www.w3.org/2000/svg';
+  DATA.edges.forEach(function(e,i){
+    var a = NODE_BY_ID[e.from], b = NODE_BY_ID[e.to];
+    if(!a || !b) return;
+    var pa = nodePos(a), pb = nodePos(b), ha = nodeHalf(a), hb = nodeHalf(b);
+    var d, mid;
+
+    if(Math.abs(pb.y - pa.y) < 2){
+      /* same lane row → straight (with tiny dip if it's a backward loop) */
+      if(pb.x >= pa.x){
+        var x0 = pa.x+ha.hx, x1 = pb.x-hb.hx;
+        d = 'M'+x0+' '+pa.y+' H'+x1;
+        mid = { x:(x0+x1)/2, y:pa.y };
+      } else {
+        /* backward (loop-back) in same lane: drop below then return */
+        var sx = pa.x, ex = pb.x, yy = pa.y + Math.max(ha.hy,hb.hy) + 26;
+        d = 'M'+sx+' '+(pa.y+ha.hy)+' V'+yy+' H'+ex+' V'+(pb.y+hb.hy);
+        mid = { x:(sx+ex)/2, y:yy };
+      }
+    } else {
+      /* cross-lane → elbow: exit horizontally to a mid-x, run vertically, enter target */
+      var down = pb.y > pa.y;
+      var sx2 = pa.x+ha.hx, ex2 = pb.x-hb.hx;
+      if(ex2 > sx2 + 24){
+        /* forward: out the right, vertical at mid, into the left of target */
+        var mx = Math.max(sx2 + 30, Math.min(ex2 - 30, (pa.x+pb.x)/2));
+        d = 'M'+sx2+' '+pa.y+' H'+mx+' V'+pb.y+' H'+ex2;
+        mid = { x:mx, y:(pa.y+pb.y)/2 };
+      } else {
+        /* target is left/above-left: drop out the bottom/top, route around */
+        var oy = pa.y + (down? ha.hy : -ha.hy);
+        var ty = pb.y + (down? -hb.hy : hb.hy);
+        var midY = (oy+ty)/2;
+        d = 'M'+pa.x+' '+oy+' V'+midY+' H'+pb.x+' V'+ty;
+        mid = { x:(pa.x+pb.x)/2, y:midY };
+      }
+    }
+
+    var hit = document.createElementNS(NS,'path');
+    hit.setAttribute('class','edge-hit'); hit.setAttribute('d',d); hit.setAttribute('data-edge',i);
+    svg.appendChild(hit);
+
+    var path = document.createElementNS(NS,'path');
+    path.setAttribute('class','edge'); path.setAttribute('d',d);
+    if(e.branch) path.setAttribute('data-branch', e.branch);
+    path.setAttribute('data-from', e.from); path.setAttribute('data-to', e.to);
+    path.setAttribute('data-edge', i);
+    path.setAttribute('marker-end','url(#fc-arrow)');
+    svg.appendChild(path);
+
+    /* branch chip (always visible Yes/No) OR a hover label */
+    if(e.branch){
+      var g = document.createElementNS(NS,'g');
+      g.setAttribute('class','branch-chip '+e.branch); g.setAttribute('data-edge',i);
+      var txt = e.branch==='yes' ? 'YES' : 'NO';
+      var w = txt.length*7 + 12;
+      var rect = document.createElementNS(NS,'rect');
+      rect.setAttribute('x', mid.x - w/2); rect.setAttribute('y', mid.y - 9);
+      rect.setAttribute('width', w); rect.setAttribute('height', 17); rect.setAttribute('rx',5);
+      var text = document.createElementNS(NS,'text');
+      text.setAttribute('x', mid.x); text.setAttribute('y', mid.y+3.5); text.setAttribute('text-anchor','middle');
+      text.textContent = txt;
+      g.appendChild(rect); g.appendChild(text); svg.appendChild(g);
+    } else if(e.label){
+      var gl = document.createElementNS(NS,'g');
+      gl.setAttribute('class','edge-label'); gl.setAttribute('data-edge',i);
+      var lw = e.label.length*6.0 + 12;
+      var r2 = document.createElementNS(NS,'rect');
+      r2.setAttribute('x', mid.x - lw/2); r2.setAttribute('y', mid.y - 9);
+      r2.setAttribute('width', lw); r2.setAttribute('height', 18); r2.setAttribute('rx',5);
+      var t2 = document.createElementNS(NS,'text');
+      t2.setAttribute('x', mid.x); t2.setAttribute('y', mid.y+3.5); t2.setAttribute('text-anchor','middle');
+      t2.textContent = e.label;
+      gl.appendChild(r2); gl.appendChild(t2); svg.appendChild(gl);
+    }
+  });
+}
+
+/* ============================================================
+   FILTERS (lane show/hide + collapse) → relayout + re-route
+   ============================================================ */
+function applyLanes(){
+  layoutBands();
+  buildEdges();
+  document.querySelectorAll('path.edge, path.edge-hit, g.edge-label, g.branch-chip').forEach(function(el){
+    var e = DATA.edges[+el.dataset.edge];
+    el.style.display = (e && edgeVisible(e)) ? '' : 'none';
+  });
+  recountControls();
+  if(selectedId && !nodeVisible(NODE_BY_ID[selectedId])) clearSelection();
+  else if(selectedId) applySelection();
+}
+function recountControls(){
+  var on = DATA.lanes.filter(function(l){ return activeLanes[l.id]!==false; }).length;
+  var lc = document.getElementById('lane-count'); if(lc) lc.textContent = on+'/'+DATA.lanes.length;
+}
+
+/* ============================================================
+   SELECTION — highlight ALL PATHS THROUGH a node (up+down), dim rest
+   ============================================================ */
+function selectNode(id, opts){
+  opts = opts || {};
+  selectedId = id;
+  applySelection();
+  fillInfo(id);
+  if(opts.center !== false) centerOnNode(id, true);
+}
+function pathSet(id){
+  var up = reach(id, IN), down = reach(id, OUT);
+  var set = {}; set[id]=true;
+  Object.keys(up).forEach(function(k){ set[k]=true; });
+  Object.keys(down).forEach(function(k){ set[k]=true; });
+  return set;
+}
+function applySelection(){
+  var id = selectedId;
+  var on = pathSet(id);
+  document.querySelectorAll('.fc-node').forEach(function(el){
+    var nid = el.dataset.id;
+    el.classList.remove('is-selected','on-path','is-dim');
+    if(el.classList.contains('hidden')) return;
+    if(nid===id) el.classList.add('is-selected');
+    else if(on[nid]) el.classList.add('on-path');
+    else el.classList.add('is-dim');
+  });
+  /* an edge is hot iff both endpoints are on the path AND it's a real edge between consecutive path nodes */
+  document.querySelectorAll('path.edge').forEach(function(p){
+    if(p.style.display==='none') return;
+    var f=p.dataset.from, t=p.dataset.to;
+    var hot = on[f] && on[t];
+    p.classList.toggle('hot', hot);
+    p.classList.toggle('dim', !hot);
+  });
+  document.querySelectorAll('g.branch-chip').forEach(function(g){
+    var e = DATA.edges[+g.dataset.edge]; if(!e) return;
+    g.classList.toggle('dim', !(on[e.from] && on[e.to]));
+  });
+  document.querySelectorAll('g.edge-label').forEach(function(g){
+    var e = DATA.edges[+g.dataset.edge]; if(!e || !edgeVisible(e)){ g.classList.remove('show'); return; }
+    g.classList.toggle('show', !!(on[e.from] && on[e.to]));
+  });
+
+  var n = NODE_BY_ID[id];
+  var cnt = Object.keys(on).length - 1;
+  var fb = document.getElementById('focus-banner');
+  fb.innerHTML = 'Paths through <b>&nbsp;'+esc(n.label)+'&nbsp;</b> &middot; '+cnt+' connected step(s) '+
+    '<span style="width:1px;height:16px;background:var(--rule)"></span>'+
+    '<button class="fb-clear" id="fb-clear" type="button">Clear</button>';
+  fb.classList.add('show');
+  document.getElementById('fb-clear').addEventListener('click', function(ev){ ev.stopPropagation(); clearSelection(); });
+}
+function clearSelection(){
+  selectedId = null;
+  document.querySelectorAll('.fc-node').forEach(function(el){ el.classList.remove('is-selected','on-path','is-dim'); });
+  document.querySelectorAll('path.edge').forEach(function(p){ p.classList.remove('hot','dim'); });
+  document.querySelectorAll('g.branch-chip').forEach(function(g){ g.classList.remove('dim'); });
+  document.querySelectorAll('g.edge-label').forEach(function(g){ g.classList.remove('show'); });
+  document.getElementById('focus-banner').classList.remove('show');
+  document.getElementById('info-card').classList.remove('show');
+  document.getElementById('info-empty').style.display='';
+}
+
+function fillInfo(id){
+  var n = NODE_BY_ID[id], s = n.status||'neutral';
+  var typeCap = (DATA.legend && DATA.legend.types && DATA.legend.types[n.type]) || n.type;
+  var statCap = (DATA.legend && DATA.legend.status && DATA.legend.status[s]) || s;
+  var laneLabel = (LANE_BY_ID[n.lane]||{}).label || n.lane;
+  var stClass = s==='neutral' ? 'st-neutral' : ('st-'+s);
+
+  var chips = '<span class="chip">'+esc(typeCap)+'</span><span class="chip">'+esc(laneLabel)+'</span>';
+  var badge = s==='neutral' ? '' : '<span class="st-badge '+stClass+'">'+esc(statCap)+'</span>';
+
+  /* edges touching this node */
+  var rows = '';
+  DATA.edges.forEach(function(e){
+    if(e.from===id || e.to===id){
+      var out = e.from===id;
+      var other = NODE_BY_ID[out? e.to : e.from];
+      if(!other || !nodeVisible(other)) return;
+      var dirIco = out ? icon('arrow-out') : icon('arrow-in');
+      var cap = e.label ? esc(e.label) : (out?'next':'from');
+      var br = e.branch ? '<span class="eg-branch '+e.branch+'">'+e.branch+'</span>' : '';
+      rows += '<button class="eg" data-goto="'+other.id+'"><span class="eg-dir '+(out?'out':'in')+'">'+dirIco+'</span>'+
+        '<span class="eg-body"><span class="eg-name">'+esc(other.label)+'</span><span class="eg-cap">'+cap+'</span></span>'+br+'</button>';
+    }
+  });
+  var egCount = DATA.edges.filter(function(e){ return (e.from===id||e.to===id) && edgeVisible(e); }).length;
+
+  var card = document.getElementById('info-card');
+  card.innerHTML =
+    '<div class="info-head">'+
+      '<div class="ih-type"><span class="iht-ico">'+nodeIcon(n)+'</span>'+esc(typeCap)+'</div>'+
+      '<div class="ih-title">'+esc(n.label)+'</div>'+
+      '<div class="info-chips">'+badge+chips+'</div>'+
+    '</div>'+
+    (n.detail?'<div class="detail-wrap"><div class="d-label">Description</div><div class="d-body">'+esc(n.detail)+'</div></div>':'')+
+    '<div class="eg-wrap"><div class="eg-label"><span>'+icon('flow-arrow')+'</span>Connectors<span class="eg-n">'+egCount+'</span></div>'+
+      '<div class="eg-list">'+(rows||'<div style="font-size:11.5px;color:var(--ink-faint)">No visible connectors.</div>')+'</div></div>';
+  card.classList.add('show');
+  document.getElementById('info-empty').style.display='none';
+  card.querySelectorAll('.eg').forEach(function(b){ b.addEventListener('click', function(){ selectNode(b.dataset.goto); }); });
+}
+
+/* ============================================================
+   STEP-THROUGH — walk the flow edge-by-edge, BRANCH-AWARE.
+   At a decision (a node with >1 visible outgoing edge) the user picks which
+   branch to follow, so every branch (Yes / No) is reachable — no single
+   hard-coded primary path. `walkPath` is the route taken; `stepIdx` the cursor.
+   ============================================================ */
+/* render the highlight + banner for the current cursor position */
+function showStep(){
+  if(stepIdx<0 || !walkPath.length){ clearStep(); return; }
+  var curId = walkPath[stepIdx];
+  /* edges actually traversed along the walked route (consecutive pairs up to cursor) */
+  var hotEdge = {};        /* "from|to" -> true */
+  var walkedNode = {};
+  for(var k=0;k<=stepIdx;k++){
+    walkedNode[walkPath[k]] = true;
+    if(k>0) hotEdge[walkPath[k-1]+'|'+walkPath[k]] = true;
+  }
+  document.querySelectorAll('.fc-node').forEach(function(el){
+    var nid = el.dataset.id;
+    el.classList.remove('is-selected','on-path','is-dim','is-step','pulse');
+    if(el.classList.contains('hidden')) return;
+    if(nid===curId){ el.classList.add('is-step'); el.classList.add('on-path'); }
+    else if(walkedNode[nid]) el.classList.add('on-path');
+    else el.classList.add('is-dim');
+  });
+  var curEl = document.querySelector('.fc-node[data-id="'+curId+'"]');
+  if(curEl){ curEl.classList.remove('pulse'); void curEl.offsetWidth; curEl.classList.add('pulse'); }
+  /* light only the connectors on the walked route */
+  document.querySelectorAll('path.edge').forEach(function(p){
+    if(p.style.display==='none') return;
+    var hot = !!hotEdge[p.dataset.from+'|'+p.dataset.to];
+    p.classList.toggle('hot', hot); p.classList.toggle('dim', !hot);
+  });
+  document.querySelectorAll('g.branch-chip').forEach(function(g){
+    var e=DATA.edges[+g.dataset.edge]; if(!e) return;
+    g.classList.toggle('dim', !hotEdge[e.from+'|'+e.to]);
+  });
+  document.querySelectorAll('g.edge-label').forEach(function(g){
+    var e=DATA.edges[+g.dataset.edge]; if(!e||!edgeVisible(e)){ g.classList.remove('show'); return; }
+    g.classList.toggle('show', !!hotEdge[e.from+'|'+e.to]);
+  });
+  centerOnNode(curId, true);
+  fillInfo(curId);
+  selectedId = curId;
+
+  /* frontier? (cursor at the end of the route) → maybe offer branch choices */
+  var atFrontier = (stepIdx === walkPath.length-1);
+  var outs = atFrontier ? visibleOuts(curId) : [];
+  awaitingBranch = atFrontier && outs.length > 1;
+
+  var n = NODE_BY_ID[curId];
+  var fb = document.getElementById('focus-banner');
+  var head = 'Step <b>&nbsp;'+(stepIdx+1)+'&nbsp;</b> &middot; '+esc(n.label);
+  var sep = '<span style="width:1px;height:16px;background:var(--rule)"></span>';
+  if(awaitingBranch){
+    var choices = outs.map(function(o){
+      var br = o.edge.branch;                 /* yes | no | undefined */
+      var cap = o.edge.label || (NODE_BY_ID[o.edge.to]||{}).label || o.edge.to;
+      var cls = 'fb-branch'+(br?(' '+br):'');
+      var tag = br ? (br==='yes'?'YES':'NO') : '&rarr;';
+      return '<button class="'+cls+'" type="button" data-to="'+o.edge.to+'">'+
+        '<span class="fbb-tag">'+tag+'</span>'+esc(cap)+'</button>';
+    }).join('');
+    fb.innerHTML = head+sep+'<span class="fb-pick">Pick a branch:</span>'+choices+sep+
+      '<button class="fb-clear" id="fb-clear" type="button">Clear</button>';
+    fb.querySelectorAll('.fb-branch').forEach(function(b){
+      b.addEventListener('click', function(ev){ ev.stopPropagation(); stopPlay(); stepChoose(b.dataset.to); });
+    });
+  } else {
+    var done = atFrontier && outs.length===0 ? ' &middot; <span class="fb-pick">end of path</span>' : '';
+    fb.innerHTML = head+done+sep+'<button class="fb-clear" id="fb-clear" type="button">Clear</button>';
+  }
+  fb.classList.add('show');
+  document.getElementById('fb-clear').addEventListener('click', function(ev){ ev.stopPropagation(); stopPlay(); clearStep(); });
+  updateStepReadout();
+}
+/* advance the route to a chosen downstream node */
+function stepChoose(toId){
+  if(stepIdx<0){ stepStart(); }
+  walkPath = walkPath.slice(0, stepIdx+1);   /* drop any forward route */
+  walkPath.push(toId);
+  stepIdx++;
+  awaitingBranch = false;
+  showStep();
+}
+function stepStart(){
+  var s = stepStartId(); if(!s) return false;
+  walkPath = [s]; stepIdx = 0; awaitingBranch = false;
+  return true;
+}
+function clearStep(){
+  walkPath = []; stepIdx = -1; awaitingBranch = false;
+  updateStepReadout(); clearSelection();
+}
+function updateStepReadout(){
+  var r=document.getElementById('stp-readout');
+  if(r) r.innerHTML = (stepIdx<0?'—':'<b>'+(stepIdx+1)+'</b> / '+walkPath.length);
+}
+/* NEXT: start, or move forward; at a branch we wait for a pick (showStep shows it) */
+function stepNext(){
+  if(stepIdx<0){ if(stepStart()) showStep(); return; }
+  /* moving back-then-forward: just re-advance along the already-chosen route */
+  if(stepIdx < walkPath.length-1){ stepIdx++; showStep(); return; }
+  var outs = visibleOuts(walkPath[stepIdx]);
+  if(outs.length===0){ stopPlay(); showStep(); return; }     /* dead end */
+  if(outs.length===1){ stepChoose(outs[0].edge.to); return; } /* single edge → auto */
+  /* >1 outgoing: a decision — surface the choices and wait */
+  awaitingBranch = true; showStep();
+}
+function stepPrev(){
+  if(stepIdx<=0){ if(stepIdx===0) showStep(); return; }
+  stepIdx--; awaitingBranch=false; showStep();
+}
+function startPlay(){
+  if(playTimer) return;
+  var pb=document.getElementById('stp-play');
+  pb.setAttribute('aria-pressed','true'); pb.innerHTML = icon('pause');
+  /* (re)start from the beginning if we're unstarted or sitting at a dead end */
+  if(stepIdx<0 || visibleOuts(walkPath[stepIdx]).length===0){ stepStart(); showStep(); }
+  else playStep();
+  playTimer = setInterval(playStep, 1100);
+}
+/* one automatic advance — auto-picks the Yes/first branch at decisions so Play
+   keeps flowing; stops cleanly at a node with no onward edges */
+function playStep(){
+  var outs = visibleOuts(walkPath[stepIdx]);
+  if(stepIdx < walkPath.length-1){ stepIdx++; showStep(); return; }
+  if(outs.length===0){ stopPlay(); return; }
+  var pick = outs.filter(function(o){ return o.edge.branch==='yes'; })[0] || outs[0];
+  if(walkPath.indexOf(pick.edge.to) >= 0){ stopPlay(); return; }  /* avoid loops */
+  stepChoose(pick.edge.to);
+}
+function stopPlay(){
+  if(playTimer){ clearInterval(playTimer); playTimer=null; }
+  var b=document.getElementById('stp-play'); if(b){ b.setAttribute('aria-pressed','false'); b.innerHTML=icon('play'); }
+}
+
+/* ============================================================
+   PAN + ZOOM
+   ============================================================ */
+function applyTransform(){
+  var w = document.getElementById('world');
+  w.style.transform = 'translate('+view.panX+'px,'+view.panY+'px) scale('+view.zoom+')';
+  var z=document.getElementById('zoom-readout'); if(z) z.textContent = Math.round(view.zoom*100)+'%';
+}
+function clampZoom(z){ return Math.max(0.3, Math.min(2.4, z)); }
+function zoomAt(factor, cx, cy){
+  var canvas=document.getElementById('canvas'); var r=canvas.getBoundingClientRect();
+  var ox = (cx==null? r.width/2 : cx-r.left), oy = (cy==null? r.height/2 : cy-r.top);
+  var nz = clampZoom(view.zoom*factor); var k = nz/view.zoom;
+  view.panX = ox - (ox-view.panX)*k;
+  view.panY = oy - (oy-view.panY)*k;
+  view.zoom = nz; applyTransform();
+}
+function fitToView(animate){
+  var canvas=document.getElementById('canvas'); if(!canvas) return;
+  var r=canvas.getBoundingClientRect(); var pad=56;
+  var W=worldW(), H=worldH();
+  var z = clampZoom(Math.min((r.width-pad*2)/W, (r.height-pad*2)/H));
+  view.zoom = z;
+  view.panX = (r.width - W*z)/2;
+  view.panY = (r.height - H*z)/2;
+  var w=document.getElementById('world'); if(w){ w.style.transition = animate?'transform .2s ease':'none'; }
+  applyTransform();
+  if(animate) setTimeout(function(){ if(w) w.style.transition='none'; },220);
+}
+function centerOnNode(id, animate){
+  var n = NODE_BY_ID[id]; if(!n) return;
+  var canvas=document.getElementById('canvas'); if(!canvas) return;
+  var r=canvas.getBoundingClientRect(); var p=nodePos(n);
+  view.panX = r.width/2  - p.x*view.zoom;
+  view.panY = r.height/2 - p.y*view.zoom;
+  var w=document.getElementById('world'); if(w){ w.style.transition = animate?'transform .26s ease':'none'; }
+  applyTransform();
+  if(animate && w) setTimeout(function(){ w.style.transition='none'; },280);
+}
+
+/* ============================================================
+   WIRE INTERACTIONS
+   ============================================================ */
+function wireInteractions(){
+  var canvas=document.getElementById('canvas'); var world=document.getElementById('world');
+
+  /* node click → select (highlight all paths through it) */
+  world.querySelectorAll('.fc-node').forEach(function(el){
+    el.addEventListener('click', function(ev){ ev.stopPropagation(); stopPlay(); selectNode(el.dataset.id); });
+  });
+
+  /* edge hover → reveal label / accent line */
+  document.querySelectorAll('path.edge-hit').forEach(function(hit){
+    var i = hit.dataset.edge;
+    var path = document.querySelector('path.edge[data-edge="'+i+'"]');
+    var glabel = document.querySelector('g.edge-label[data-edge="'+i+'"]');
+    hit.addEventListener('mouseenter', function(){ if(path) path.classList.add('hot'); if(glabel) glabel.classList.add('show'); });
+    hit.addEventListener('mouseleave', function(){
+      if(selectedId){ applySelection(); return; }
+      if(path) path.classList.remove('hot'); if(glabel) glabel.classList.remove('show');
+    });
+  });
+
+  /* PAN */
+  var dragging=false, moved=false, sx=0, sy=0, sp={};
+  canvas.addEventListener('pointerdown', function(ev){
+    if(ev.button!==0) return;
+    dragging=true; moved=false; sx=ev.clientX; sy=ev.clientY; sp={x:view.panX,y:view.panY};
+    canvas.classList.add('is-panning'); canvas.setPointerCapture(ev.pointerId);
+  });
+  canvas.addEventListener('pointermove', function(ev){
+    if(!dragging) return;
+    var dx=ev.clientX-sx, dy=ev.clientY-sy;
+    if(Math.abs(dx)+Math.abs(dy)>3) moved=true;
+    view.panX=sp.x+dx; view.panY=sp.y+dy; applyTransform();
+  });
+  function endPan(){ if(!dragging) return; dragging=false; canvas.classList.remove('is-panning'); }
+  canvas.addEventListener('pointerup', endPan);
+  canvas.addEventListener('pointercancel', endPan);
+
+  /* click empty canvas clears selection */
+  canvas.addEventListener('click', function(ev){
+    if(moved) return;
+    if(ev.target===canvas || ev.target===world || ev.target.tagName==='svg' ||
+       ev.target.classList.contains('fc-edges') || ev.target.classList.contains('lane-band') ||
+       ev.target.classList.contains('col-rules') || ev.target.classList.contains('col-rule')){
+      stopPlay(); clearStep();
+    }
+  });
+
+  /* ZOOM via wheel */
+  canvas.addEventListener('wheel', function(ev){
+    ev.preventDefault();
+    zoomAt(ev.deltaY<0 ? 1.12 : 1/1.12, ev.clientX, ev.clientY);
+  }, { passive:false });
+
+  /* toolbar */
+  document.getElementById('zoom-in').addEventListener('click', function(){ zoomAt(1.2); });
+  document.getElementById('zoom-out').addEventListener('click', function(){ zoomAt(1/1.2); });
+  document.getElementById('fit').addEventListener('click', function(){ stopPlay(); clearStep(); fitToView(true); });
+  document.getElementById('fullscreen').addEventListener('click', function(){
+    if(!document.fullscreenElement){ if(canvas.requestFullscreen) canvas.requestFullscreen(); }
+    else if(document.exitFullscreen) document.exitFullscreen();
+  });
+  document.addEventListener('fullscreenchange', function(){ setTimeout(function(){ fitToView(true); },60); });
+
+  /* lane toggle + collapse */
+  document.querySelectorAll('.lane-chip [data-act]').forEach(function(b){
+    b.addEventListener('click', function(ev){
+      ev.stopPropagation();
+      var chip = b.closest('.lane-chip'); var k = chip.dataset.lane; var act = b.dataset.act;
+      if(act==='toggle'){
+        var on = chip.dataset.on!=='true';
+        chip.dataset.on = on?'true':'false'; activeLanes[k]=on; applyLanes();
+      } else if(act==='collapse'){
+        var col = chip.dataset.collapsed!=='true';
+        chip.dataset.collapsed = col?'true':'false'; collapsed[k]=col; applyLanes();
+      }
+    });
+  });
+
+  /* step-through */
+  document.getElementById('stp-next').addEventListener('click', function(){ stopPlay(); stepNext(); });
+  document.getElementById('stp-prev').addEventListener('click', function(){ stopPlay(); stepPrev(); });
+  document.getElementById('stp-play').addEventListener('click', function(){ if(playTimer) stopPlay(); else startPlay(); });
+
+  /* keyboard */
+  document.addEventListener('keydown', function(ev){
+    var t=ev.target; if(t && (t.tagName==='INPUT'||t.tagName==='TEXTAREA')) return;
+    if(ev.key==='Escape'){ stopPlay(); if(stepIdx>=0) clearStep(); else clearSelection(); }
+    else if(ev.key==='+'||ev.key==='=') zoomAt(1.2);
+    else if(ev.key==='-') zoomAt(1/1.2);
+    else if(ev.key==='0'){ stopPlay(); clearStep(); fitToView(true); }
+    else if(ev.key==='ArrowRight'){ ev.preventDefault(); stopPlay(); stepNext(); }
+    else if(ev.key==='ArrowLeft'){ ev.preventDefault(); stopPlay(); stepPrev(); }
+  });
+
+  window.addEventListener('resize', function(){ if(!selectedId && stepIdx<0) fitToView(false); });
+  window.addEventListener('beforeprint', function(){ stopPlay(); clearStep(); fitToView(false); });
+}
+
+/* ============================================================
+   THEME SWITCH
+   ============================================================ */
+function wireThemeSwitch(){
+  var root=document.documentElement;
+  var rcSel=document.querySelector('.rc-theme-sel');
+  if(rcSel){
+    rcSel.value=root.dataset.theme||'blue';
+    rcSel.addEventListener('change',function(){ root.dataset.theme=rcSel.value; });
+  }
+}
+
+function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+
+/* ============================================================ */
+document.addEventListener('DOMContentLoaded', function(){
+  render();
+  wireInteractions();
+  wireThemeSwitch();
+});
+</script>
+</body>
+</html>

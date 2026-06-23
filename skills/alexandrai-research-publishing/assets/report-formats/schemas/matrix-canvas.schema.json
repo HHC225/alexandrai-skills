@@ -1,0 +1,246 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://genesis.local/html_report_design/schemas/matrix-canvas.schema.json",
+  "title": "Matrix / canvas (strategy framework canvas) report",
+  "description": "Data contract for the matrix-canvas format: a strategy whiteboard combining (1) a hero 2×2 plotted plane with labelled axes and positioned items, (2) a SWOT four-pane, and (3) a lean/business-model canvas grid of cells. The reader scans regions and item positions rather than reading prose. Renders to a self-contained, themeable, interactive HTML canvas board. The sample's #report-data is a valid instance of this schema.",
+  "type": "object",
+  "required": ["meta", "matrix"],
+  "additionalProperties": false,
+  "properties": {
+    "meta": {
+      "type": "object",
+      "description": "Shared report chrome (org / project / title / theme). Brand-neutral: keep {{ORG}} / {{PROJECT}} / {{AUTHOR}} placeholders unless real values are supplied.",
+      "required": ["org", "project", "reportType", "title", "date", "theme"],
+      "additionalProperties": false,
+      "properties": {
+        "org": { "type": "string", "description": "Organisation name or {{ORG}} placeholder.", "default": "{{ORG}}" },
+        "project": { "type": "string", "description": "Project / programme name or {{PROJECT}} placeholder.", "default": "{{PROJECT}}" },
+        "reportType": { "type": "string", "description": "Eyebrow label shown above the canvas title, e.g. 'Strategy Workshop' or {{REPORT_TYPE}}." },
+        "title": { "type": "string", "description": "Canvas title shown in the .canvas-head, e.g. 'SME Lending Launch — Strategy Canvas'." },
+        "subtitle": { "type": "string", "description": "Optional short standfirst, e.g. 'Effort × Impact · SWOT · Lean Canvas — Q2 FY26 planning session'." },
+        "date": { "type": "string", "description": "ISO date of the workshop / as-of date (YYYY-MM-DD).", "format": "date" },
+        "author": { "type": "string", "description": "Author / facilitator or {{AUTHOR}} placeholder.", "default": "{{AUTHOR}}" },
+        "theme": {
+          "type": "string",
+          "description": "Initial brand theme; applied as <html data-theme>. Default for this format is 'indigo'.",
+          "enum": ["blue", "purple", "indigo", "teal", "cyan", "green", "plum", "slate"],
+          "default": "indigo"
+        }
+      }
+    },
+    "matrix": {
+      "type": "object",
+      "description": "The hero 2×2 plotted plane — the format's unmistakable silhouette. Contains axis definitions, quadrant labels, and the items plotted as positioned dots/cards.",
+      "required": ["axisX", "axisY", "quadrants", "items"],
+      "additionalProperties": false,
+      "properties": {
+        "axisX": {
+          "type": "object",
+          "description": "The horizontal axis (left = low, right = high).",
+          "required": ["title", "lowLabel", "highLabel"],
+          "additionalProperties": false,
+          "properties": {
+            "title": { "type": "string", "description": "Axis title shown as the tracked-mono centre label, e.g. 'Effort'." },
+            "lowLabel": { "type": "string", "description": "Label at the low (left) end of the axis, e.g. 'Low'." },
+            "highLabel": { "type": "string", "description": "Label at the high (right) end of the axis, e.g. 'High'." }
+          }
+        },
+        "axisY": {
+          "type": "object",
+          "description": "The vertical axis (bottom = low, top = high). Note: in CSS the Y coordinate is measured from the TOP; the schema uses natural 0=bottom / 100=top convention, and the renderer inverts to CSS.",
+          "required": ["title", "lowLabel", "highLabel"],
+          "additionalProperties": false,
+          "properties": {
+            "title": { "type": "string", "description": "Axis title shown rotated vertically, e.g. 'Impact'." },
+            "lowLabel": { "type": "string", "description": "Label at the low (bottom) end, e.g. 'Low'." },
+            "highLabel": { "type": "string", "description": "Label at the high (top) end, e.g. 'High'." }
+          }
+        },
+        "quadrants": {
+          "type": "array",
+          "description": "The four quadrant labels in reading order: top-left, top-right, bottom-left, bottom-right.",
+          "minItems": 4,
+          "maxItems": 4,
+          "items": {
+            "type": "object",
+            "required": ["key", "label"],
+            "additionalProperties": false,
+            "properties": {
+              "key": {
+                "type": "string",
+                "description": "Quadrant position key.",
+                "enum": ["q-tl", "q-tr", "q-bl", "q-br"]
+              },
+              "label": { "type": "string", "description": "Quadrant heading shown in the corner, e.g. 'Quick wins'." },
+              "sublabel": { "type": "string", "description": "Optional sub-label under the heading, e.g. 'High impact, low effort'." },
+              "wash": {
+                "type": "string",
+                "description": "Translucent background wash tone for this quadrant. 'ok' = green tint; 'hold' = amber tint; 'risk' = bordeaux tint; 'navy' = brand tint.",
+                "enum": ["ok", "hold", "risk", "navy"],
+                "default": "ok"
+              }
+            }
+          }
+        },
+        "items": {
+          "type": "array",
+          "description": "Items plotted as positioned dots or mini-cards inside the plane. Position is given as x (0=left, 100=right) and y (0=bottom, 100=top) percentages.",
+          "items": {
+            "type": "object",
+            "required": ["id", "label", "x", "y", "status"],
+            "additionalProperties": false,
+            "properties": {
+              "id": { "type": "string", "description": "Short unique identifier shown as the dot number/label, e.g. '1' or 'A'." },
+              "label": { "type": "string", "description": "Item name shown in the .plot-label chip, e.g. 'SME lending portal'." },
+              "x": { "type": "number", "description": "Horizontal position as a percentage 0–100 (0 = left/low-effort, 100 = right/high-effort).", "minimum": 0, "maximum": 100 },
+              "y": { "type": "number", "description": "Vertical position as a percentage 0–100 (0 = bottom/low-impact, 100 = top/high-impact). The renderer converts to CSS top (100-y).", "minimum": 0, "maximum": 100 },
+              "status": {
+                "type": "string",
+                "description": "Dot/card colour state. 'ok' = proceed/strong (ok green); 'hold' = watch/medium (amber); 'risk' = defer/weak (bordeaux).",
+                "enum": ["ok", "hold", "risk"]
+              },
+              "card": { "type": "boolean", "description": "If true, render as a mini-card (.plot-item--card) with a left-border accent. If false (default), render as a bare dot + label chip.", "default": false },
+              "meta": { "type": "string", "description": "Optional one-line meta note shown inside the mini-card (.pc-meta), e.g. '~6 mo · £1.2M'." },
+              "flip": { "type": "boolean", "description": "If true, the label chip appears to the left of the dot (flex-direction:row-reverse), useful when the dot is near the right edge.", "default": false }
+            }
+          }
+        }
+      }
+    },
+    "swot": {
+      "type": "object",
+      "description": "Optional SWOT four-pane below the hero matrix. Each pane is a short bullet list. Omit the swot object entirely if SWOT is not needed for this canvas.",
+      "additionalProperties": false,
+      "properties": {
+        "title": { "type": "string", "description": "Optional frame heading, e.g. 'SWOT Analysis'." },
+        "subtitle": { "type": "string", "description": "Optional frame subtitle / context, e.g. 'SME lending initiative'." },
+        "strengths": {
+          "type": "array",
+          "description": "Strength bullet points (tinted ok-green). Each string is one bullet line.",
+          "items": { "type": "string" }
+        },
+        "weaknesses": {
+          "type": "array",
+          "description": "Weakness bullet points (tinted hold-amber).",
+          "items": { "type": "string" }
+        },
+        "opportunities": {
+          "type": "array",
+          "description": "Opportunity bullet points (tinted brand/navy).",
+          "items": { "type": "string" }
+        },
+        "threats": {
+          "type": "array",
+          "description": "Threat bullet points (tinted risk-bordeaux).",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "canvas": {
+      "type": "object",
+      "description": "Optional lean/business-model canvas grid of labelled cells, shown beside the SWOT. Omit if not needed.",
+      "required": ["cells"],
+      "additionalProperties": false,
+      "properties": {
+        "title": { "type": "string", "description": "Frame heading, e.g. 'Lean Canvas'." },
+        "subtitle": { "type": "string", "description": "Optional frame context, e.g. 'SME lending launch'." },
+        "cells": {
+          "type": "array",
+          "description": "The canvas cells laid out in a CSS grid (3 columns by default). Order determines visual placement left-to-right, top-to-bottom.",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["key", "title", "items"],
+            "additionalProperties": false,
+            "properties": {
+              "key": { "type": "string", "description": "Stable unique cell key, e.g. 'problem', 'value-prop', 'channels', 'cost', 'revenue'." },
+              "title": { "type": "string", "description": "Cell label shown as the micro tracked-mono heading, e.g. 'Problem' or 'Unique value prop'." },
+              "span": { "type": "integer", "description": "Optional column span (CSS grid-column: span N). Defaults to 1. Use 2 or 3 for wide cells like 'Cost structure'.", "minimum": 1, "maximum": 3, "default": 1 },
+              "rowSpan": { "type": "integer", "description": "Optional row span (CSS grid-row: span N). Defaults to 1.", "minimum": 1, "maximum": 3, "default": 1 },
+              "accent": { "type": "boolean", "description": "If true, this cell gets the brand-tinted accent wash (.canvas-cell.accent) to emphasise it, e.g. the value proposition cell.", "default": false },
+              "items": {
+                "type": "array",
+                "description": "Bullet points shown in the cell body, each a short terse string.",
+                "items": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "meta": {
+        "org": "{{ORG}}",
+        "project": "{{PROJECT}}",
+        "reportType": "Strategy Workshop",
+        "title": "SME Lending Launch — Strategy Canvas",
+        "subtitle": "Effort × Impact · SWOT · Lean Canvas — Q2 FY26 planning session",
+        "date": "2026-06-22",
+        "author": "{{AUTHOR}}",
+        "theme": "indigo"
+      },
+      "matrix": {
+        "axisX": { "title": "Effort", "lowLabel": "Low", "highLabel": "High" },
+        "axisY": { "title": "Impact", "lowLabel": "Low", "highLabel": "High" },
+        "quadrants": [
+          { "key": "q-tl", "label": "Quick wins",      "sublabel": "High impact, low effort",  "wash": "ok"   },
+          { "key": "q-tr", "label": "Major bets",      "sublabel": "High impact, high effort", "wash": "navy" },
+          { "key": "q-bl", "label": "Fill-ins",        "sublabel": "Low impact, low effort",   "wash": "hold" },
+          { "key": "q-br", "label": "Thankless tasks", "sublabel": "Low impact, high effort",  "wash": "risk" }
+        ],
+        "items": [
+          { "id": "1", "label": "Same-day credit decision",     "x": 30, "y": 88, "status": "ok",   "card": true,  "meta": "~4 mo · £0.8M" },
+          { "id": "2", "label": "Open-banking data pull",       "x": 22, "y": 75, "status": "ok"  },
+          { "id": "3", "label": "In-app upsell to depositors",  "x": 18, "y": 62, "status": "ok"  },
+          { "id": "4", "label": "SME portal redesign",          "x": 70, "y": 82, "status": "hold", "card": true,  "meta": "~8 mo · £1.4M" },
+          { "id": "5", "label": "Affordability model v2",       "x": 65, "y": 70, "status": "hold" },
+          { "id": "6", "label": "KYC vendor integration",       "x": 74, "y": 55, "status": "hold", "flip": true },
+          { "id": "7", "label": "Dark-mode UI pass",            "x": 20, "y": 28, "status": "ok"  },
+          { "id": "8", "label": "Legacy report migration",      "x": 35, "y": 15, "status": "hold" },
+          { "id": "9", "label": "Branch terminal replacement",  "x": 82, "y": 22, "status": "risk", "card": true,  "meta": "~12 mo · £2.1M" },
+          { "id": "10","label": "Manual AML review automation", "x": 78, "y": 36, "status": "risk", "flip": true }
+        ]
+      },
+      "swot": {
+        "title": "SWOT Analysis",
+        "subtitle": "SME lending initiative",
+        "strengths": [
+          "Owned ledger + deposit base = cheaper funding cost",
+          "Existing SME depositor base as warm audience",
+          "Regulatory approval already in place for lending"
+        ],
+        "weaknesses": [
+          "No credit-decisioning IP — model must be built or bought",
+          "Legacy loan-origination system hard to extend",
+          "Limited data-science headcount in FY26"
+        ],
+        "opportunities": [
+          "Open-banking mandate opens partner distribution",
+          "SME lending under-served in two regions",
+          "Embedded-finance API as a new revenue line"
+        ],
+        "threats": [
+          "Neobank entrants with 0-fee accounts",
+          "Rising compliance cost (AML / DPIA)",
+          "Cloud-cost inflation squeezing unit margin"
+        ]
+      },
+      "canvas": {
+        "title": "Lean Canvas",
+        "subtitle": "SME lending launch",
+        "cells": [
+          { "key": "problem",     "title": "Problem",          "items": ["SME credit decisions take 11 days", "Manual document collection"] },
+          { "key": "value-prop",  "title": "Unique value prop", "accent": true, "items": ["Same-day SME credit, fully digital", "Decision in < 4 hours"] },
+          { "key": "solution",    "title": "Solution",          "items": ["Open-banking data pull", "Automated affordability model"] },
+          { "key": "channels",    "title": "Channels",          "items": ["In-app upsell to depositors", "Accountancy-software partners"] },
+          { "key": "metrics",     "title": "Key metrics",       "items": ["Approved-loan TTV", "Default rate < 2.5%"] },
+          { "key": "advantage",   "title": "Unfair advantage",  "accent": true, "items": ["Owned ledger + deposit base = cheaper funding"] },
+          { "key": "cost",        "title": "Cost structure",    "span": 2, "items": ["Model build & risk team · cloud compute · KYC vendor calls · loan-loss provision"] },
+          { "key": "revenue",     "title": "Revenue streams",   "items": ["Net interest margin", "Origination & servicing fee"] }
+        ]
+      }
+    }
+  ]
+}

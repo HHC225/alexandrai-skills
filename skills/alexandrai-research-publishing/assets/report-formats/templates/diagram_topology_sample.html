@@ -1,0 +1,1178 @@
+<!doctype html>
+<html lang="en" data-theme="purple">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1440">
+<title>{{PROJECT}} — System Topology Canvas</title>
+<style>
+/* ============================================================
+   SHARED FOUNDATION TOKENS  (per _FOUNDATION.md §1)
+   :root = Purple default; data-theme overrides swap 7 values.
+   This document ships data-theme="purple" (its default).
+   ============================================================ */
+:root{
+  /* surfaces */
+  --bg:#fff; --bg-band:#f6f6f8; --bg-subtle:#fafafb; --bg-deep:#15131a;
+  --rule:#dcdce2; --rule-soft:#ebebef;
+  /* ink */
+  --ink:#11131a; --ink-mid:#33363f; --ink-soft:#5a5e68; --ink-faint:#868b95;
+  /* brand accent (Purple default) */
+  --navy:#a100ff; --navy-deep:#7a00c2; --navy-bg:#f3e8ff; --navy-line:#d9bef5;
+  /* cleared / approved */
+  --ok:#5a2f8a; --ok-bg:#efe8f5; --ok-line:#d0b5e0;
+  /* semantic states — CONSTANT across all themes */
+  --risk:#b3261e; --risk-bg:#fbeceb; --risk-line:#edc7c4;
+  --hold:#8a6d00; --hold-bg:#fbf3da; --hold-line:#e7d8a4;
+  /* type stacks */
+  --mono:ui-monospace,"JetBrains Mono","SFMono-Regular",Menlo,Consolas,monospace;
+  --sans:-apple-system,"Segoe UI",system-ui,Roboto,"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic UI","Apple SD Gothic Neo","Malgun Gothic","PingFang SC","Microsoft YaHei","Noto Sans CJK JP","Noto Sans CJK KR","Noto Sans CJK SC","Noto Sans JP","Noto Sans KR","Noto Sans SC","Noto Sans",sans-serif;
+}
+html[data-theme="blue"]{ --navy:#0b5fd4; --navy-deep:#0842a0; --navy-bg:#e8f1fc; --navy-line:#bcd6f5; --ok:#1a4f9c; --ok-bg:#e9f0fa; --ok-line:#b7cdea; }
+html[data-theme="purple"]{ --navy:#a100ff; --navy-deep:#7a00c2; --navy-bg:#f3e8ff; --navy-line:#d9bef5; --ok:#5a2f8a; --ok-bg:#efe8f5; --ok-line:#d0b5e0; }
+html[data-theme="indigo"]{ --navy:#4338ca; --navy-deep:#312c92; --navy-bg:#ebebfb; --navy-line:#c7c3f0; --ok:#3730a3; --ok-bg:#ebeaf7; --ok-line:#c5c2ea; }
+html[data-theme="teal"]{ --navy:#0e7c86; --navy-deep:#095861; --navy-bg:#e0f3f4; --navy-line:#a9dade; --ok:#0f5d54; --ok-bg:#e3f3ef; --ok-line:#b3ddd4; }
+html[data-theme="cyan"]{ --navy:#0891b2; --navy-deep:#0e6f88; --navy-bg:#e2f4f9; --navy-line:#abdde9; --ok:#0e6b7a; --ok-bg:#e4f3f4; --ok-line:#b0dde2; }
+html[data-theme="green"]{ --navy:#1f7a44; --navy-deep:#155730; --navy-bg:#e6f4ea; --navy-line:#b3dcc1; --ok:#2f6b3c; --ok-bg:#e9f3ea; --ok-line:#bedcc4; }
+html[data-theme="plum"]{ --navy:#a21d6e; --navy-deep:#7c1450; --navy-bg:#fbe8f2; --navy-line:#e8b9d4; --ok:#6d2356; --ok-bg:#f6e8f0; --ok-line:#e3bcd5; }
+html[data-theme="slate"]{ --navy:#3f4f63; --navy-deep:#29384b; --navy-bg:#eef1f5; --navy-line:#c2ccd8; --ok:#34495e; --ok-bg:#eef1f5; --ok-line:#c2ccd8; }
+html[data-theme="black"]{ --navy:#000000; --navy-deep:#000; --navy-bg:#f1f1f3; --navy-line:#d6d6db; --ok:#3f3f46; --ok-bg:#f1f1f3; --ok-line:#cfcfd6; }
+
+*{ box-sizing:border-box; }
+html,body{ margin:0; height:100%; }
+body{
+  font:13px/1.6 var(--sans); color:var(--ink); background:var(--bg-band);
+  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+  overflow:hidden;
+}
+h1,h2,h3,h4,p{ margin:0; }
+.tnum{ font-feature-settings:"tnum" 1; }
+.mono{ font-family:var(--mono); }
+button{ font-family:inherit; }
+
+/* icon sizing (house SVGs, currentColor) */
+.icon{ width:1.15em; height:1.15em; display:inline-block; vertical-align:-.18em; color:inherit; }
+.icon-sm{ width:14px; height:14px; }
+.icon-lg{ width:18px; height:18px; }
+
+/* ---- shared primitives ---- */
+.st-badge{
+  display:inline-flex; align-items:center; gap:6px; font:600 10.5px/1 var(--mono);
+  letter-spacing:.04em; text-transform:uppercase; padding:4px 8px 4px 7px;
+  border:1px solid var(--rule); border-radius:6px; background:var(--bg); white-space:nowrap;
+}
+.st-badge::before{ content:""; width:7px; height:7px; border-radius:50%; background:var(--ink-faint); }
+.st-ok{ color:var(--ok); border-color:var(--ok-line); background:var(--ok-bg); }
+.st-ok::before{ background:var(--ok); }
+.st-risk{ color:var(--risk); border-color:var(--risk-line); background:var(--risk-bg); }
+.st-risk::before{ background:var(--risk); }
+.st-hold{ color:var(--hold); border-color:var(--hold-line); background:var(--hold-bg); }
+.st-hold::before{ background:var(--hold); }
+.st-neutral{ color:var(--ink-soft); }
+.mini-dot{ display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--ink-faint); flex:none; }
+.mini-dot.is-ok{ background:var(--ok); } .mini-dot.is-risk{ background:var(--risk); }
+.mini-dot.is-hold{ background:var(--hold); } .mini-dot.is-neutral{ background:var(--ink-faint); }
+.chip{
+  display:inline-flex; align-items:center; gap:5px; font:500 11px/1 var(--mono); letter-spacing:.02em;
+  color:var(--navy-deep); background:var(--navy-bg); border:1px solid var(--navy-line);
+  border-radius:6px; padding:5px 8px; white-space:nowrap;
+}
+
+/* ============================================================
+   TOPOLOGY APP SHELL  (the distinct format silhouette)
+   100vw × 100vh: bar row, then [ layer-panel | stage | info-panel ]
+   ============================================================ */
+.topo{
+  width:100vw; height:100vh; display:grid;
+  grid-template-rows:auto 1fr;
+  grid-template-columns:230px 1fr 300px;
+  grid-template-areas:"bar bar bar" "left stage right";
+}
+
+/* ---- top app bar ---- */
+.topo-bar{
+  grid-area:bar; display:flex; align-items:center; gap:18px;
+  padding:10px 18px; background:var(--bg); border-bottom:1px solid var(--rule);
+  box-shadow:0 1px 3px rgba(17,19,26,.05); z-index:30; min-width:0;
+}
+.tb-id{ display:flex; align-items:center; gap:11px; min-width:0; }
+.tb-mark{ width:30px; height:30px; border-radius:8px; background:var(--navy); color:#fff;
+  display:inline-flex; align-items:center; justify-content:center; flex:none; }
+.tb-mark svg{ width:19px; height:19px; }
+.tb-titles{ min-width:0; }
+.tb-eyebrow{ font:600 9.5px/1 var(--mono); letter-spacing:.14em; text-transform:uppercase; color:var(--ink-faint); margin-bottom:3px; }
+.tb-title{ font:800 15px/1.15 var(--sans); letter-spacing:-.01em; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.tb-title b{ color:var(--navy-deep); font-weight:800; }
+
+.type-legend{ display:flex; flex-wrap:wrap; gap:6px; margin-left:6px; min-width:0; }
+.legend-chip{
+  display:inline-flex; align-items:center; gap:6px; font:600 10px/1 var(--mono); letter-spacing:.03em;
+  color:var(--ink-mid); background:var(--bg-subtle); border:1px solid var(--rule);
+  border-radius:6px; padding:4px 8px; white-space:nowrap;
+}
+.legend-chip .swatch{ width:13px; height:13px; flex:none; color:var(--navy); display:inline-flex; }
+.legend-chip .swatch svg{ width:13px; height:13px; }
+
+.tb-right{ margin-left:auto; display:flex; align-items:center; gap:16px; flex:none; }
+
+/* ---- node search (find + centre a node) ---- */
+.node-search{ position:relative; flex:none; }
+.node-search .ns-ico{ position:absolute; left:9px; top:50%; transform:translateY(-50%);
+  color:var(--ink-faint); display:inline-flex; pointer-events:none; }
+.node-search .ns-ico svg{ width:14px; height:14px; }
+.node-search input{
+  width:188px; font:600 12px/1 var(--sans); color:var(--ink); background:var(--bg-subtle);
+  border:1px solid var(--rule); border-radius:8px; padding:7px 26px 7px 28px; outline:none;
+  transition:border-color .12s, background .12s, box-shadow .12s;
+}
+.node-search input::placeholder{ color:var(--ink-faint); font-weight:500; }
+.node-search input:focus{ border-color:var(--navy-line); background:var(--bg); box-shadow:0 0 0 3px var(--navy-bg); }
+.node-search .ns-clear{ position:absolute; right:6px; top:50%; transform:translateY(-50%);
+  width:18px; height:18px; border:0; border-radius:5px; background:transparent; color:var(--ink-faint);
+  cursor:pointer; display:none; align-items:center; justify-content:center; padding:0; font:700 13px/1 var(--sans); }
+.node-search.has-text .ns-clear{ display:inline-flex; }
+.node-search .ns-clear:hover{ background:var(--navy-bg); color:var(--navy-deep); }
+.node-search .ns-results{
+  position:absolute; top:calc(100% + 5px); left:0; right:0; z-index:40;
+  background:var(--bg); border:1px solid var(--rule); border-radius:9px; padding:4px;
+  box-shadow:0 6px 20px rgba(17,19,26,.16); max-height:280px; overflow:auto; display:none;
+}
+.node-search.open .ns-results{ display:block; }
+.ns-opt{ display:flex; align-items:center; gap:8px; width:100%; text-align:left; cursor:pointer;
+  background:transparent; border:0; border-radius:6px; padding:6px 8px; }
+.ns-opt:hover, .ns-opt.active{ background:var(--navy-bg); }
+.ns-opt .nso-ico{ width:22px; height:22px; border-radius:6px; flex:none; display:inline-flex;
+  align-items:center; justify-content:center; background:var(--navy-bg); color:var(--navy-deep); }
+.ns-opt .nso-ico svg{ width:14px; height:14px; }
+.ns-opt .nso-body{ flex:1; min-width:0; display:flex; flex-direction:column; }
+.ns-opt .nso-name{ display:block; font:700 11.5px/1.2 var(--sans); color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.ns-opt .nso-name b{ color:var(--navy-deep); background:var(--navy-bg); }
+.ns-opt .nso-sub{ display:block; font:600 9px/1.2 var(--mono); letter-spacing:.05em; text-transform:uppercase; color:var(--ink-faint); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.ns-opt .nso-dot{ width:8px; height:8px; border-radius:50%; flex:none; background:var(--ink-faint); }
+.ns-opt .nso-dot.is-ok{ background:var(--ok); } .ns-opt .nso-dot.is-risk{ background:var(--risk); }
+.ns-opt .nso-dot.is-hold{ background:var(--hold); } .ns-opt .nso-dot.is-neutral{ background:var(--ink-faint); }
+.ns-none{ padding:9px 10px; font:600 11px/1.3 var(--sans); color:var(--ink-faint); }
+@media print{ .node-search{ display:none; } }
+.asof{ font:600 10px/1.4 var(--mono); letter-spacing:.05em; text-transform:uppercase; color:var(--ink-soft); text-align:right; white-space:nowrap; }
+.rc-theme{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--rule);border-radius:7px;padding:3px 4px 3px 7px;background:var(--bg);}
+.rc-theme-sw{width:12px;height:12px;border-radius:50%;background:var(--navy);box-shadow:0 0 0 1px var(--rule);flex:none;}
+.rc-theme-sel{border:0;background:none;font:600 11px/1 var(--mono);color:var(--ink-mid);cursor:pointer;outline:none;padding:2px;}
+@media print{.rc-theme{display:none;}}
+
+/* ============================================================
+   SIDE PANELS (layer/type filter left, info right)
+   ============================================================ */
+.side{
+  background:var(--bg); display:flex; flex-direction:column; min-height:0;
+  overflow:auto;
+}
+.layer-panel{ grid-area:left; border-right:1px solid var(--rule); }
+.info-panel{ grid-area:right; border-left:1px solid var(--rule); }
+
+.panel-group{ padding:14px 14px 12px; border-bottom:1px solid var(--rule-soft); }
+.group-label{
+  display:flex; align-items:center; gap:7px; font:700 9.5px/1 var(--mono); letter-spacing:.1em;
+  text-transform:uppercase; color:var(--ink-faint); margin-bottom:10px;
+}
+.group-label .gl-ico{ color:var(--navy); display:inline-flex; }
+.group-label .gl-n{ margin-left:auto; color:var(--ink-faint); }
+
+.toggle-list{ display:flex; flex-direction:column; gap:6px; }
+.toggle-chip{
+  display:flex; align-items:center; gap:8px; width:100%; text-align:left; cursor:pointer;
+  font:600 11.5px/1.1 var(--sans); color:var(--ink-mid);
+  background:var(--bg); border:1px solid var(--rule); border-radius:8px; padding:7px 9px;
+  transition:background .12s, border-color .12s, opacity .12s;
+}
+.toggle-chip:hover{ border-color:var(--navy-line); background:var(--navy-bg); }
+.toggle-chip .tc-swatch{ width:15px; height:15px; flex:none; color:var(--navy); display:inline-flex; }
+.toggle-chip .tc-swatch svg{ width:15px; height:15px; }
+.toggle-chip .tc-label{ flex:1; min-width:0; }
+.toggle-chip .tc-n{ font:700 10px/1 var(--mono); color:var(--ink-faint); flex:none; }
+.toggle-chip .tc-box{ width:15px; height:15px; border-radius:4px; border:1.5px solid var(--rule);
+  flex:none; display:inline-flex; align-items:center; justify-content:center; color:#fff; background:var(--bg); }
+.toggle-chip[aria-pressed="true"] .tc-box{ background:var(--navy); border-color:var(--navy); }
+.toggle-chip[aria-pressed="true"] .tc-box svg{ width:11px; height:11px; }
+.toggle-chip[aria-pressed="false"]{ opacity:.5; }
+.toggle-chip[aria-pressed="false"] .tc-box svg{ display:none; }
+
+/* status legend block */
+.leg-rows{ display:flex; flex-direction:column; gap:7px; }
+.leg-row{ display:flex; align-items:center; gap:8px; font:600 11px/1.1 var(--sans); color:var(--ink-mid); }
+.leg-row .ek{ width:26px; height:0; flex:none; }
+.leg-row .ek.sync{ border-top:2px solid var(--navy); }
+.leg-row .ek.async{ border-top:2px dashed var(--navy); }
+.leg-row .ek.data{ border-top:3.5px solid var(--ink-soft); }
+.leg-row .ek.dep{ border-top:2px dotted var(--ink-soft); }
+
+/* ---- info panel (selected node) ---- */
+.info-empty{ padding:22px 16px; color:var(--ink-soft); font-size:12px; line-height:1.55; }
+.info-empty .ie-ico{ color:var(--navy-line); display:block; margin-bottom:10px; }
+.info-empty .ie-ico svg{ width:34px; height:34px; }
+.info-empty b{ color:var(--ink-mid); font-weight:700; }
+
+.info-card{ padding:0; display:none; }
+.info-card.show{ display:block; }
+.info-head{ padding:14px 16px 12px; border-bottom:1px solid var(--rule-soft); }
+.info-head .ih-type{ font:700 9.5px/1 var(--mono); letter-spacing:.1em; text-transform:uppercase; color:var(--navy-deep); margin-bottom:7px; display:flex; align-items:center; gap:6px; }
+.info-head .ih-type .iht-ico{ color:var(--navy); display:inline-flex; }
+.info-head .ih-title{ font:800 16px/1.2 var(--sans); letter-spacing:-.01em; color:var(--ink); margin-bottom:9px; }
+.info-chips{ display:flex; flex-wrap:wrap; gap:6px; }
+
+.kv-grid{ padding:12px 16px; display:grid; grid-template-columns:1fr 1fr; gap:0; border-bottom:1px solid var(--rule-soft); }
+.kv{ padding:7px 10px 7px 0; border-bottom:1px solid var(--rule-soft); }
+.kv:nth-child(odd){ border-right:1px solid var(--rule-soft); padding-right:12px; }
+.kv:nth-child(even){ padding-left:12px; }
+.kv-grid .kv:nth-last-child(-n+2){ border-bottom:0; }
+.kv .k{ font:700 9px/1.1 var(--mono); letter-spacing:.08em; text-transform:uppercase; color:var(--ink-faint); margin-bottom:3px; }
+.kv .v{ font:600 12px/1.35 var(--sans); color:var(--ink); word-break:break-word; }
+.kv.wide{ grid-column:1 / -1; border-right:0; padding-left:0; padding-right:0; }
+
+.nb-wrap{ padding:13px 16px 18px; }
+.nb-label{ font:700 9.5px/1 var(--mono); letter-spacing:.1em; text-transform:uppercase; color:var(--ink-faint); margin-bottom:10px; display:flex; align-items:center; gap:7px; }
+.nb-label .nb-n{ margin-left:auto; color:var(--ink-faint); }
+.neighbour-list{ display:flex; flex-direction:column; gap:6px; }
+.nb{
+  display:flex; align-items:center; gap:8px; width:100%; text-align:left; cursor:pointer;
+  background:var(--bg-subtle); border:1px solid var(--rule); border-radius:8px; padding:7px 9px;
+  transition:border-color .12s, background .12s;
+}
+.nb:hover{ border-color:var(--navy-line); background:var(--navy-bg); }
+.nb .nb-dir{ color:var(--ink-faint); display:inline-flex; flex:none; }
+.nb .nb-dir.out{ color:var(--navy); }
+.nb .nb-body{ flex:1; min-width:0; display:flex; flex-direction:column; }
+.nb .nb-name{ display:block; font:700 11.5px/1.2 var(--sans); color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.nb .nb-edge{ display:block; font:600 9.5px/1.2 var(--mono); letter-spacing:.03em; color:var(--ink-soft); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.nb .nb-kind{ font:700 8.5px/1 var(--mono); letter-spacing:.06em; text-transform:uppercase; color:var(--navy-deep);
+  background:var(--navy-bg); border:1px solid var(--navy-line); border-radius:4px; padding:3px 5px; flex:none; }
+
+/* ============================================================
+   THE STAGE  (full-bleed pannable / zoomable viewport)
+   ============================================================ */
+.stage{
+  grid-area:stage; position:relative; overflow:hidden; cursor:grab;
+  background:
+    radial-gradient(circle, var(--rule) 1px, transparent 1.4px) 0 0 / 26px 26px,
+    var(--bg-band);
+  user-select:none; -webkit-user-select:none;
+}
+.stage.is-panning{ cursor:grabbing; }
+.stage:fullscreen{ background:
+    radial-gradient(circle, var(--rule) 1px, transparent 1.4px) 0 0 / 26px 26px,
+    var(--bg-band); }
+
+.stage-world{
+  position:absolute; top:0; left:0; transform-origin:0 0; will-change:transform;
+}
+
+/* edge SVG fills the world box exactly */
+svg.edges{ position:absolute; top:0; left:0; overflow:visible; pointer-events:none; }
+path.edge{
+  fill:none; stroke:var(--ink-soft); stroke-width:1.6; stroke-linecap:round;
+  transition:stroke .14s, stroke-width .14s, opacity .14s;
+}
+path.edge[data-kind="async"]{ stroke-dasharray:6 5; }
+path.edge[data-kind="data"]{ stroke-width:3.4; opacity:.85; }
+path.edge[data-kind="dep"]{ stroke-dasharray:1.5 5; stroke-width:1.6; opacity:.8; }
+path.edge.hot{ stroke:var(--navy); stroke-width:2.6; opacity:1; marker-end:url(#ah-hot); }
+path.edge[data-kind="data"].hot{ stroke-width:4.2; }
+path.edge.dim{ opacity:.12; }
+
+/* hover hit-area (wide, transparent, catches pointer over thin lines) */
+path.edge-hit{ fill:none; stroke:transparent; stroke-width:16; cursor:pointer; pointer-events:stroke; }
+
+/* edge label pill (a <g>): hidden until hover / relevant */
+g.edge-label{ opacity:0; transition:opacity .14s; pointer-events:none; }
+g.edge-label.show{ opacity:1; }
+g.edge-label rect{ fill:var(--bg); stroke:var(--navy-line); rx:5; }
+g.edge-label text{ font:600 10px var(--mono); fill:var(--navy-deep); letter-spacing:.02em; }
+
+/* arrowheads — explicit SVG markers filled from theme tokens (no context-stroke,
+   which silently renders nothing where unsupported, killing directionality) */
+#topo-svg-defs{ position:absolute; width:0; height:0; }
+marker#ah path{ fill:var(--ink-soft); }
+marker#ah-hot path{ fill:var(--navy); }
+
+/* ---- node card (absolutely positioned by x/y) ---- */
+.node{
+  position:absolute; transform:translate(-50%,-50%);
+  display:flex; align-items:center; gap:8px; cursor:pointer;
+  background:var(--bg); border:1px solid var(--rule); border-radius:11px;
+  padding:8px 11px 8px 9px; box-shadow:0 1px 3px rgba(17,19,26,.10);
+  min-width:118px; max-width:190px;
+  transition:opacity .14s, box-shadow .14s, border-color .14s, transform .04s;
+  z-index:5;
+}
+.node:hover{ box-shadow:0 3px 10px rgba(17,19,26,.15); border-color:var(--navy-line); }
+.node .node-ico{ width:30px; height:30px; border-radius:8px; flex:none;
+  display:inline-flex; align-items:center; justify-content:center;
+  background:var(--navy-bg); color:var(--navy-deep); }
+.node .node-ico svg{ width:18px; height:18px; }
+.node .node-main{ min-width:0; display:flex; flex-direction:column; }
+.node .node-label{ display:block; font:700 12.5px/1.2 var(--sans); color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.node .node-type{ display:block; font:600 9px/1.1 var(--mono); letter-spacing:.07em; text-transform:uppercase; color:var(--ink-faint); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.node .node-status{ width:9px; height:9px; border-radius:50%; flex:none; background:var(--ink-faint); align-self:flex-start; margin-top:1px; }
+.node .node-status.is-ok{ background:var(--ok); } .node .node-status.is-risk{ background:var(--risk); }
+.node .node-status.is-hold{ background:var(--hold); } .node .node-status.is-neutral{ background:var(--ink-faint); }
+/* status accent on the node card left edge */
+.node.s-ok{ border-left:3px solid var(--ok); } .node.s-risk{ border-left:3px solid var(--risk); }
+.node.s-hold{ border-left:3px solid var(--hold); } .node.s-neutral{ border-left:3px solid var(--rule); }
+
+.node.is-selected{ border-color:var(--navy); box-shadow:0 0 0 3px var(--navy-bg), 0 4px 14px rgba(17,19,26,.18); z-index:9; }
+.node.is-selected .node-ico{ background:var(--navy); color:#fff; }
+.node.is-neighbour{ border-color:var(--navy-line); z-index:7; }
+/* multi-hop reachable (blast-radius) nodes beyond the direct neighbours */
+.node.is-reach{ border-color:var(--navy-line); z-index:6; box-shadow:0 0 0 2px var(--navy-bg), 0 1px 4px rgba(17,19,26,.10); }
+.node.is-dim{ opacity:.22; }
+.node.hidden{ display:none; }
+/* a brief pulse used when search centres a node */
+@keyframes nodePulse{ 0%{ box-shadow:0 0 0 0 var(--navy-line); } 70%{ box-shadow:0 0 0 12px transparent; } 100%{ box-shadow:0 0 0 0 transparent; } }
+.node.pulse{ animation:nodePulse .7s ease-out 1; }
+
+/* ============================================================
+   TOOLBAR  (zoom in/out/reset/fullscreen) — pinned to stage
+   ============================================================ */
+.toolbar{
+  position:absolute; left:16px; bottom:16px; z-index:20;
+  display:flex; align-items:center; gap:4px; padding:5px;
+  background:var(--bg); border:1px solid var(--rule); border-radius:10px;
+  box-shadow:0 2px 8px rgba(17,19,26,.12);
+}
+.tool-btn{
+  width:32px; height:32px; border-radius:7px; border:1px solid transparent; background:var(--bg);
+  color:var(--ink-mid); cursor:pointer; display:inline-flex; align-items:center; justify-content:center;
+  transition:background .12s, color .12s, border-color .12s;
+}
+.tool-btn:hover{ background:var(--navy-bg); color:var(--navy-deep); border-color:var(--navy-line); }
+.tool-btn svg{ width:17px; height:17px; }
+.tool-sep{ width:1px; height:20px; background:var(--rule); margin:0 2px; }
+.zoom-readout{ font:700 11px/1 var(--mono); letter-spacing:.03em; color:var(--ink-soft); min-width:42px; text-align:center; padding:0 4px; }
+
+/* a small focus-banner shown when a node is selected */
+.focus-banner{
+  position:absolute; left:50%; top:14px; transform:translateX(-50%); z-index:20;
+  display:none; align-items:center; gap:9px; padding:6px 8px 6px 12px;
+  background:var(--bg); border:1px solid var(--navy-line); border-radius:9px;
+  box-shadow:0 2px 8px rgba(17,19,26,.12);
+  font:600 11px/1 var(--sans); color:var(--ink-mid);
+}
+.focus-banner.show{ display:flex; }
+.focus-banner b{ color:var(--navy-deep); }
+.focus-banner .fb-clear{ border:1px solid var(--rule); background:var(--bg); color:var(--ink-soft);
+  border-radius:6px; padding:4px 7px; cursor:pointer; font:600 10px/1 var(--mono); letter-spacing:.05em; text-transform:uppercase; }
+.focus-banner .fb-clear:hover{ border-color:var(--navy-line); color:var(--navy-deep); background:var(--navy-bg); }
+.focus-banner .fb-blast{ display:inline-flex; align-items:center; gap:6px; border:1px solid var(--rule);
+  background:var(--bg); color:var(--ink-soft); border-radius:6px; padding:4px 8px; cursor:pointer;
+  font:700 9.5px/1 var(--mono); letter-spacing:.05em; text-transform:uppercase; }
+.focus-banner .fb-blast svg{ width:13px; height:13px; }
+.focus-banner .fb-blast:hover{ border-color:var(--navy-line); color:var(--navy-deep); background:var(--navy-bg); }
+.focus-banner .fb-blast[aria-pressed="true"]{ background:var(--navy); border-color:var(--navy); color:#fff; }
+.focus-banner .fb-sep{ width:1px; height:16px; background:var(--rule); }
+
+/* print-only footer (hidden on screen, shown in print) */
+.print-foot{ display:none; }
+
+.noscript-note{ position:fixed; inset:0; display:flex; align-items:center; justify-content:center;
+  background:var(--bg); z-index:999; padding:40px; text-align:center; color:var(--ink-mid); font-size:14px; }
+
+/* ============================================================
+   PRINT — full diagram fit-to-page, controls hidden
+   ============================================================ */
+@media print{
+  html,body{ height:auto; overflow:visible; background:#fff; }
+  .topo{ display:block; width:auto; height:auto; }
+  .topo-bar{ box-shadow:none; border-bottom:1px solid var(--rule); flex-wrap:wrap; }
+  .rc-theme, .asof select{ display:none; }
+  .layer-panel, .info-panel{ display:none; }
+  .toolbar, .focus-banner{ display:none !important; }
+  .stage{ position:relative; height:auto; cursor:auto; background:#fff;
+    border:1px solid var(--rule); overflow:visible; page-break-inside:avoid; }
+  /* the world transform is replaced with a fit-to-page scale at print time (JS) */
+  .node{ box-shadow:none; }
+  .node.is-dim{ opacity:1; }                 /* un-dim everything for the static snapshot */
+  path.edge.dim{ opacity:1; }
+  g.edge-label{ opacity:1; }                 /* reveal all labels */
+  .print-foot{ display:flex; align-items:center; gap:16px; flex-wrap:wrap;
+    margin-top:14px; padding:14px 18px; background:#fff; border-top:1px solid var(--rule); }
+  .print-foot .wm{ display:flex; align-items:center; gap:9px; font:800 13px/1 var(--sans); color:#000; }
+  .print-foot .wm .sq{ width:14px; height:14px; border-radius:4px; background:var(--navy); }
+  .print-foot .fmeta{ font:600 10px/1.5 var(--mono); letter-spacing:.06em; text-transform:uppercase; color:#555; }
+}
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     THE ONLY CONTENT SOURCE — a valid instance of
+     designs/schemas/diagram-topology.schema.json
+     render() builds the entire DOM below from this.
+     ============================================================ -->
+<script type="application/json" id="report-data">
+{
+  "meta": {
+    "org": "{{ORG}}",
+    "project": "{{PROJECT}}",
+    "reportType": "System Topology",
+    "title": "Payments Platform — Service & Data-flow Topology",
+    "subtitle": "Request path, event streams and datastores across the edge, service and data tiers",
+    "date": "2026-06-22",
+    "author": "{{AUTHOR}}",
+    "theme": "purple",
+    "canvas": { "w": 1640, "h": 1000, "coords": "norm" }
+  },
+  "layers": [
+    { "key": "edge", "label": "Edge & Channel" },
+    { "key": "svc", "label": "Services" },
+    { "key": "data", "label": "Data & Streaming" }
+  ],
+  "nodeTypes": [
+    { "key": "gateway", "label": "Gateway / LB", "icon": "gateway", "shape": "rounded" },
+    { "key": "service", "label": "Service", "icon": "microservice", "shape": "rounded" },
+    { "key": "datastore", "label": "Datastore", "icon": "database", "shape": "cylinder" },
+    { "key": "queue", "label": "Topic / Queue", "icon": "queue", "shape": "pill" },
+    { "key": "cache", "label": "Cache", "icon": "cache", "shape": "rounded" },
+    { "key": "external", "label": "External", "icon": "external", "shape": "square" }
+  ],
+  "nodes": [
+    { "id": "cdn", "label": "Edge CDN / WAF", "type": "gateway", "layer": "edge", "x": 9, "y": 16, "status": "ok", "meta": { "tier": "edge", "provider": "Fastly", "tls": "1.3" } },
+    { "id": "apigw", "label": "API Gateway", "type": "gateway", "layer": "edge", "x": 27, "y": 30, "status": "ok", "meta": { "tier": "edge", "rps": "4.2k", "owner": "platform" } },
+    { "id": "auth", "label": "Auth / OIDC", "type": "service", "layer": "svc", "x": 27, "y": 64, "status": "hold", "meta": { "owner": "identity", "slo": "99.95%", "note": "token TTL under review" } },
+    { "id": "orders", "label": "Orders API", "type": "service", "layer": "svc", "x": 47, "y": 20, "status": "ok", "meta": { "owner": "checkout", "lang": "Kotlin", "slo": "99.9%" } },
+    { "id": "payments", "label": "Payments Engine", "type": "service", "layer": "svc", "x": 47, "y": 50, "status": "risk", "meta": { "owner": "payments", "lang": "Java", "slo": "99.99%", "note": "p99 latency breach 06-21" } },
+    { "id": "ledger", "label": "Ledger Service", "type": "service", "layer": "svc", "x": 47, "y": 80, "status": "ok", "meta": { "owner": "core-banking", "consistency": "strong" } },
+    { "id": "notif", "label": "Notification Svc", "type": "service", "layer": "svc", "x": 67, "y": 66, "status": "ok", "meta": { "owner": "engagement", "channels": "push, email, sms" } },
+    { "id": "fraud", "label": "Fraud Scoring", "type": "service", "layer": "svc", "x": 67, "y": 36, "status": "hold", "meta": { "owner": "risk", "model": "v7", "note": "shadow-mode rollout" } },
+    { "id": "ordersdb", "label": "Orders DB", "type": "datastore", "layer": "data", "x": 64, "y": 8, "status": "ok", "meta": { "engine": "PostgreSQL 16", "ha": "multi-AZ" } },
+    { "id": "ledgerdb", "label": "Ledger DB", "type": "datastore", "layer": "data", "x": 64, "y": 92, "status": "ok", "meta": { "engine": "Spanner", "region": "asia-northeast1" } },
+    { "id": "cache", "label": "Session Cache", "type": "cache", "layer": "data", "x": 12, "y": 50, "status": "ok", "meta": { "engine": "Redis", "evict": "LRU" } },
+    { "id": "events", "label": "payments.events", "type": "queue", "layer": "data", "x": 85, "y": 50, "status": "ok", "meta": { "broker": "Kafka", "partitions": "24", "retention": "7d" } },
+    { "id": "psp", "label": "Card PSP", "type": "external", "layer": "data", "x": 85, "y": 24, "status": "hold", "meta": { "vendor": "Adyen", "sla": "99.9%", "note": "rate-limited" } },
+    { "id": "analytics", "label": "Analytics Sink", "type": "datastore", "layer": "data", "x": 85, "y": 78, "status": "neutral", "meta": { "engine": "BigQuery", "load": "streaming" } }
+  ],
+  "edges": [
+    { "from": "cdn", "to": "apigw", "kind": "sync", "label": "HTTPS" },
+    { "from": "apigw", "to": "auth", "kind": "sync", "label": "verify token" },
+    { "from": "apigw", "to": "orders", "kind": "sync", "label": "REST" },
+    { "from": "auth", "to": "cache", "kind": "data", "label": "session" },
+    { "from": "orders", "to": "ordersdb", "kind": "data", "label": "read/write" },
+    { "from": "orders", "to": "payments", "kind": "sync", "label": "authorize" },
+    { "from": "payments", "to": "fraud", "kind": "sync", "label": "score" },
+    { "from": "payments", "to": "psp", "kind": "sync", "label": "capture" },
+    { "from": "payments", "to": "ledger", "kind": "sync", "label": "post entry" },
+    { "from": "ledger", "to": "ledgerdb", "kind": "data", "label": "commit" },
+    { "from": "payments", "to": "events", "kind": "async", "label": "PaymentCaptured" },
+    { "from": "events", "to": "notif", "kind": "async", "label": "subscribe" },
+    { "from": "events", "to": "analytics", "kind": "async", "label": "sink" },
+    { "from": "fraud", "to": "events", "kind": "async", "label": "FraudFlagged" },
+    { "from": "notif", "to": "psp", "kind": "dep", "label": "delivery webhook" }
+  ],
+  "legend": {
+    "status": { "ok": "Healthy", "risk": "At risk", "hold": "Watch", "neutral": "Informational" },
+    "kinds": { "sync": "Sync call", "async": "Async event", "data": "Data flow", "dep": "Dependency" }
+  }
+}
+</script>
+
+<noscript><div class="noscript-note">This topology canvas renders its diagram from embedded data with JavaScript. Enable JavaScript to pan, zoom and explore the map.</div></noscript>
+
+<main class="topo" id="topo" hidden>
+  <!-- bar / panels / stage are built by render() -->
+</main>
+
+<!-- print-only footer (rendered into place by JS, shown only in @media print) -->
+<footer class="print-foot" id="print-foot"></footer>
+
+<script>
+/* ============================================================
+   ICON LIBRARY — house SVGs (SPEC.md: 24×24, stroke 1.75,
+   currentColor, round caps/joins, squared signature nodes).
+   Inlined; selected by nodeType.icon / control keys.
+   ============================================================ */
+var SVG_OPEN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">';
+var ICONS = {
+  /* node-network (signature squared nodes) — used as the app mark */
+  'network':   SVG_OPEN+'<path d="M12 7.5 6 16.5M12 7.5 18 16.5M7.5 18.5H16.5"/><rect x="10" y="3.5" width="4" height="4" rx="1.2" fill="currentColor" stroke="none"/><rect x="3.5" y="16.5" width="4" height="4" rx="1.2" fill="currentColor" stroke="none"/><rect x="16.5" y="16.5" width="4" height="4" rx="1.2" fill="currentColor" stroke="none"/></svg>',
+  /* gateway / load-balancer — fan-out from a single entry */
+  'gateway':   SVG_OPEN+'<path d="M4.5 12H9M15 6.5 11 12l4 5.5"/><path d="M15 6.5H19.5M15 12H20M15 17.5H19.5"/><rect x="2.5" y="10" width="4" height="4" rx="1.2" fill="currentColor" stroke="none"/></svg>',
+  /* microservice — hex-ish service unit */
+  'microservice': SVG_OPEN+'<path d="M12 3.2 19 7v8l-7 3.8L5 15V7Z"/><path d="M9.2 10.2 12 11.8l2.8-1.6M12 11.8V15.2"/></svg>',
+  /* database — cylinder */
+  'database':  SVG_OPEN+'<path d="M5 6.2c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5S15.9 3.7 12 3.7 5 4.8 5 6.2Z"/><path d="M5 6.2v11.6c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5V6.2"/><path d="M5 12c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5"/></svg>',
+  /* queue / topic — stacked messages */
+  'queue':     SVG_OPEN+'<rect x="3.5" y="5" width="17" height="4.2" rx="1.6"/><rect x="3.5" y="14.8" width="17" height="4.2" rx="1.6"/><path d="M7 11.8v.4M12 11.8v.4M17 11.8v.4"/></svg>',
+  /* cache — fast store with bolt */
+  'cache':     SVG_OPEN+'<rect x="4" y="4.5" width="16" height="15" rx="2.4"/><path d="M12.6 8 9.5 12.4h2.6L11 16l3.3-4.6h-2.6Z" fill="currentColor" stroke="none"/></svg>',
+  /* external — out-of-bounds box with arrow */
+  'external':  SVG_OPEN+'<path d="M13.5 5.5H6.5A2 2 0 0 0 4.5 7.5V17.5A2 2 0 0 0 6.5 19.5H16.5A2 2 0 0 0 18.5 17.5V10.5"/><path d="M14 4.5H20v6"/><path d="M20 4.5 12.5 12"/></svg>',
+  /* controls */
+  'zoom-in':   SVG_OPEN+'<circle cx="11" cy="11" r="6.5"/><path d="M16 16 20.5 20.5M11 8.5v5M8.5 11h5"/></svg>',
+  'zoom-out':  SVG_OPEN+'<circle cx="11" cy="11" r="6.5"/><path d="M16 16 20.5 20.5M8.5 11h5"/></svg>',
+  'fit':       SVG_OPEN+'<path d="M4 8.5V5.5A1.5 1.5 0 0 1 5.5 4H8.5M15.5 4H18.5A1.5 1.5 0 0 1 20 5.5V8.5M20 15.5V18.5A1.5 1.5 0 0 1 18.5 20H15.5M8.5 20H5.5A1.5 1.5 0 0 1 4 18.5V15.5"/><rect x="10" y="10" width="4" height="4" rx="1.2" fill="currentColor" stroke="none"/></svg>',
+  'fullscreen':SVG_OPEN+'<path d="M4 9V5.5A1.5 1.5 0 0 1 5.5 4H9M15 4H18.5A1.5 1.5 0 0 1 20 5.5V9M20 15V18.5A1.5 1.5 0 0 1 18.5 20H15M9 20H5.5A1.5 1.5 0 0 1 4 18.5V15"/></svg>',
+  'check':     SVG_OPEN+'<path d="M5 12.5 10 17 19 7"/></svg>',
+  'layers':    SVG_OPEN+'<path d="M12 4 4 8.5 12 13l8-4.5Z"/><path d="M4 12.5 12 17l8-4.5M4 16 12 20.5 20 16"/></svg>',
+  'filter':    SVG_OPEN+'<path d="M4.5 5.5h15l-5.8 7v5l-3.4 1.8v-6.8Z"/></svg>',
+  'flow':      SVG_OPEN+'<path d="M5 8h7M5 16h11"/><path d="M12 5l3 3-3 3M16 13l3 3-3 3"/><rect x="3" y="6" width="3.2" height="3.2" rx="1.2" fill="currentColor" stroke="none"/></svg>',
+  'arrow-out': SVG_OPEN+'<path d="M5.5 12H18.5M14 7l5 5-5 5"/></svg>',
+  'arrow-in':  SVG_OPEN+'<path d="M18.5 12H5.5M10 7l-5 5 5 5"/></svg>',
+  'tap':       SVG_OPEN+'<path d="M9 10.5V6.2A1.7 1.7 0 0 1 12.4 6.2V11"/><path d="M12.4 11V9.4A1.6 1.6 0 0 1 15.6 9.4V11M15.6 11V9.9A1.6 1.6 0 0 1 18.8 9.9V14.5A4.5 4.5 0 0 1 14.3 19H12.5A4.5 4.5 0 0 1 8.6 16.7L6.4 13A1.6 1.6 0 0 1 9 11.2Z"/></svg>',
+  'search':    SVG_OPEN+'<circle cx="10.5" cy="10.5" r="6"/><path d="M15 15 20 20"/></svg>',
+  /* blast-radius — concentric reach rings */
+  'blast':     SVG_OPEN+'<circle cx="12" cy="12" r="2.4" fill="currentColor" stroke="none"/><path d="M16.6 7.4A6.5 6.5 0 0 1 16.6 16.6M7.4 16.6A6.5 6.5 0 0 1 7.4 7.4M19.3 4.7A10.3 10.3 0 0 1 19.3 19.3M4.7 19.3A10.3 10.3 0 0 1 4.7 4.7"/></svg>'
+};
+function icon(key){ return ICONS[key] || ICONS['microservice']; }
+
+/* ============================================================
+   STATE + DATA
+   ============================================================ */
+var DATA = JSON.parse(document.getElementById('report-data').textContent);
+var TYPE_BY_KEY = {}; DATA.nodeTypes.forEach(function(t){ TYPE_BY_KEY[t.key] = t; });
+var NODE_BY_ID  = {}; DATA.nodes.forEach(function(n){ NODE_BY_ID[n.id] = n; });
+var CANVAS = (DATA.meta.canvas) || { w:1640, h:1000, coords:'norm' };
+var COORDS = CANVAS.coords || 'norm';
+
+var view = { zoom:1, panX:0, panY:0 };
+var activeLayers = {}; DATA.layers.forEach(function(l){ activeLayers[l.key] = true; });
+var activeTypes  = {}; DATA.nodeTypes.forEach(function(t){ activeTypes[t.key] = true; });
+var selectedId = null;
+var blastMode  = false;   /* multi-hop blast-radius highlight on/off */
+
+/* adjacency (id -> [{other, edge, dir}]) */
+var ADJ = {};
+/* directed downstream map (from -> [to]) for blast-radius reachability */
+var OUT = {};
+DATA.nodes.forEach(function(n){ ADJ[n.id] = []; OUT[n.id] = []; });
+DATA.edges.forEach(function(e){
+  if(ADJ[e.from]) ADJ[e.from].push({ other:e.to, edge:e, dir:'out' });
+  if(ADJ[e.to])   ADJ[e.to].push({ other:e.from, edge:e, dir:'in' });
+  if(OUT[e.from]) OUT[e.from].push(e.to);
+});
+
+/* BFS over the directed OUT map → every node downstream of `id` (the blast radius:
+   "what is affected if this node fails"), honouring the current filters. */
+function reachDownstream(id){
+  var seen = {}, q = [id], reached = {};
+  seen[id] = true;
+  while(q.length){
+    var cur = q.shift();
+    (OUT[cur] || []).forEach(function(to){
+      if(seen[to]) return;
+      seen[to] = true;
+      if(!nodeVisible(NODE_BY_ID[to])) return;   /* don't traverse through filtered-out nodes */
+      reached[to] = true;
+      q.push(to);
+    });
+  }
+  return reached;   /* map of reachable node ids (excludes the origin) */
+}
+
+/* px position of a node on the world canvas */
+function px(n){
+  if(COORDS === 'px') return { x:n.x, y:n.y };
+  return { x:(n.x/100)*CANVAS.w, y:(n.y/100)*CANVAS.h };
+}
+/* whether a node currently passes the layer + type filters */
+function nodeVisible(n){
+  if(n.layer && activeLayers[n.layer] === false) return false;
+  if(activeTypes[n.type] === false) return false;
+  return true;
+}
+function edgeVisible(e){ return nodeVisible(NODE_BY_ID[e.from]) && nodeVisible(NODE_BY_ID[e.to]); }
+
+/* ============================================================
+   RENDER — build the entire app shell from DATA
+   ============================================================ */
+function render(){
+  var m = DATA.meta;
+  document.documentElement.dataset.theme = m.theme || 'purple';
+  document.title = (m.project || 'Topology') + ' — System Topology Canvas';
+
+  var root = document.getElementById('topo');
+  root.hidden = false;
+  root.innerHTML =
+    renderBar(m) +
+    renderLayerPanel() +
+    renderStage() +
+    renderInfoPanel();
+
+  /* print footer */
+  document.getElementById('print-foot').innerHTML =
+    '<span class="wm"><span class="sq"></span>'+esc(m.org)+'</span>'+
+    '<span class="fmeta">'+esc(m.reportType)+' &middot; '+esc(m.title)+'<br>Prepared by '+esc(m.author)+' &middot; as of '+esc(m.date)+'</span>';
+
+  buildEdges();
+  recountControls();
+  fitToView(false);
+}
+
+function renderBar(m){
+  var legend = DATA.nodeTypes.map(function(t){
+    return '<span class="legend-chip"><span class="swatch">'+icon(t.icon)+'</span>'+esc(t.label)+'</span>';
+  }).join('');
+  var themeDropdown =
+    '<label class="rc-theme" title="Brand colour">'+
+      '<span class="rc-theme-sw" aria-hidden="true"></span>'+
+      '<select class="rc-theme-sel" aria-label="Brand theme">'+
+        '<option value="blue">Blue</option>'+
+        '<option value="purple">Purple</option>'+
+        '<option value="indigo">Indigo</option>'+
+        '<option value="teal">Teal</option>'+
+        '<option value="cyan">Cyan</option>'+
+        '<option value="green">Green</option>'+
+        '<option value="plum">Plum</option>'+
+        '<option value="slate">Slate</option>'+
+        '<option value="black">Black</option>'+
+      '</select>'+
+    '</label>';
+  return '<header class="topo-bar">'+
+    '<div class="tb-id"><span class="tb-mark">'+icon('network')+'</span>'+
+      '<div class="tb-titles"><div class="tb-eyebrow">'+esc(m.reportType)+' &middot; '+esc(m.project)+'</div>'+
+      '<div class="tb-title">'+esc(m.title)+'</div></div></div>'+
+    '<div class="type-legend">'+legend+'</div>'+
+    '<div class="tb-right">'+
+      '<div class="node-search" id="node-search">'+
+        '<span class="ns-ico">'+icon('search')+'</span>'+
+        '<input type="text" id="ns-input" placeholder="Find a node…" autocomplete="off" spellcheck="false" aria-label="find a node" aria-expanded="false" role="combobox" aria-controls="ns-results">'+
+        '<button class="ns-clear" id="ns-clear" type="button" title="Clear" aria-label="clear search">&times;</button>'+
+        '<div class="ns-results" id="ns-results" role="listbox"></div>'+
+      '</div>'+
+      '<div class="asof">as of '+esc(m.date)+'<br>'+esc(m.org)+'</div>'+
+      themeDropdown+
+    '</div>'+
+  '</header>';
+}
+
+function renderLayerPanel(){
+  var lay = DATA.layers.map(function(l){
+    return '<button class="toggle-chip" data-layer="'+l.key+'" aria-pressed="true">'+
+      '<span class="tc-box">'+icon('check')+'</span>'+
+      '<span class="tc-label">'+esc(l.label)+'</span>'+
+      '<span class="tc-n" data-layer-n="'+l.key+'"></span></button>';
+  }).join('');
+  var typ = DATA.nodeTypes.map(function(t){
+    return '<button class="toggle-chip" data-type="'+t.key+'" aria-pressed="true">'+
+      '<span class="tc-swatch">'+icon(t.icon)+'</span>'+
+      '<span class="tc-label">'+esc(t.label)+'</span>'+
+      '<span class="tc-n" data-type-n="'+t.key+'"></span></button>';
+  }).join('');
+  var lk = (DATA.legend && DATA.legend.kinds) || {};
+  var legRows =
+    '<div class="leg-row"><span class="ek sync"></span>'+esc(lk.sync||'Sync call')+'</div>'+
+    '<div class="leg-row"><span class="ek async"></span>'+esc(lk.async||'Async event')+'</div>'+
+    '<div class="leg-row"><span class="ek data"></span>'+esc(lk.data||'Data flow')+'</div>'+
+    '<div class="leg-row"><span class="ek dep"></span>'+esc(lk.dep||'Dependency')+'</div>';
+  var ls = (DATA.legend && DATA.legend.status) || {};
+  var statRows =
+    '<div class="leg-row"><span class="mini-dot is-ok"></span>'+esc(ls.ok||'Healthy')+'</div>'+
+    '<div class="leg-row"><span class="mini-dot is-hold"></span>'+esc(ls.hold||'Watch')+'</div>'+
+    '<div class="leg-row"><span class="mini-dot is-risk"></span>'+esc(ls.risk||'At risk')+'</div>'+
+    '<div class="leg-row"><span class="mini-dot is-neutral"></span>'+esc(ls.neutral||'Informational')+'</div>';
+  return '<aside class="side layer-panel">'+
+    '<div class="panel-group"><div class="group-label"><span class="gl-ico">'+icon('layers')+'</span>Layers<span class="gl-n" id="layer-count"></span></div><div class="toggle-list">'+lay+'</div></div>'+
+    '<div class="panel-group"><div class="group-label"><span class="gl-ico">'+icon('filter')+'</span>Node types<span class="gl-n" id="type-count"></span></div><div class="toggle-list">'+typ+'</div></div>'+
+    '<div class="panel-group"><div class="group-label"><span class="gl-ico">'+icon('flow')+'</span>Edge kinds</div><div class="leg-rows">'+legRows+'</div></div>'+
+    '<div class="panel-group" style="border-bottom:0"><div class="group-label">Node status</div><div class="leg-rows">'+statRows+'</div></div>'+
+  '</aside>';
+}
+
+function renderStage(){
+  var nodes = DATA.nodes.map(function(n){
+    var p = px(n), s = n.status || 'neutral', t = TYPE_BY_KEY[n.type] || {};
+    return '<button class="node s-'+s+'" data-id="'+n.id+'" style="left:'+p.x+'px;top:'+p.y+'px">'+
+      '<span class="node-ico">'+icon(t.icon)+'</span>'+
+      '<span class="node-main"><span class="node-label">'+esc(n.label)+'</span>'+
+      '<span class="node-type">'+esc(t.label||n.type)+'</span></span>'+
+      '<span class="node-status is-'+s+'" title="'+s+'"></span></button>';
+  }).join('');
+  return '<section class="stage" id="stage" aria-label="topology canvas">'+
+    '<div class="stage-world" id="world" style="width:'+CANVAS.w+'px;height:'+CANVAS.h+'px">'+
+      '<svg class="edges" id="edges" width="'+CANVAS.w+'" height="'+CANVAS.h+'">'+
+        '<defs id="topo-svg-defs">'+
+          '<marker id="ah" class="mk-base" markerWidth="10" markerHeight="10" refX="7.6" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M1.4 1.4 8.2 5 1.4 8.6 3.3 5Z"/></marker>'+
+          '<marker id="ah-hot" class="mk-hot" markerWidth="10.5" markerHeight="10.5" refX="7.8" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M1.4 1.4 8.2 5 1.4 8.6 3.3 5Z"/></marker>'+
+        '</defs>'+
+      '</svg>'+
+      nodes +
+    '</div>'+
+    '<div class="focus-banner" id="focus-banner"></div>'+
+    '<div class="toolbar" role="group" aria-label="zoom controls">'+
+      '<button class="tool-btn" id="zoom-out" title="Zoom out">'+icon('zoom-out')+'</button>'+
+      '<span class="zoom-readout" id="zoom-readout">100%</span>'+
+      '<button class="tool-btn" id="zoom-in" title="Zoom in">'+icon('zoom-in')+'</button>'+
+      '<span class="tool-sep"></span>'+
+      '<button class="tool-btn" id="fit" title="Reset / fit to view">'+icon('fit')+'</button>'+
+      '<button class="tool-btn" id="fullscreen" title="Fullscreen">'+icon('fullscreen')+'</button>'+
+    '</div>'+
+  '</section>';
+}
+
+function renderInfoPanel(){
+  return '<aside class="side info-panel">'+
+    '<div class="info-empty" id="info-empty">'+
+      '<span class="ie-ico">'+icon('tap')+'</span>'+
+      '<b>Select a node</b> to highlight it, its direct neighbours and their connecting edges &mdash; the rest of the map dims. Its details and links appear here.'+
+    '</div>'+
+    '<div class="info-card" id="info-card"></div>'+
+  '</aside>';
+}
+
+/* ----- build the edge paths (curved) into the SVG ----- */
+function buildEdges(){
+  var svg = document.getElementById('edges');
+  /* keep <defs>, drop the rest */
+  var defs = document.getElementById('topo-svg-defs');
+  svg.innerHTML = ''; svg.appendChild(defs);
+  var NS = 'http://www.w3.org/2000/svg';
+  DATA.edges.forEach(function(e, i){
+    var a = NODE_BY_ID[e.from], b = NODE_BY_ID[e.to];
+    if(!a || !b) return;
+    var pa = px(a), pb = px(b);
+    /* gentle quadratic curve, control point offset perpendicular to the line */
+    var mx=(pa.x+pb.x)/2, my=(pa.y+pb.y)/2;
+    var dx=pb.x-pa.x, dy=pb.y-pa.y, len=Math.sqrt(dx*dx+dy*dy)||1;
+    var off=Math.min(48, len*0.12);
+    var cx=mx + (-dy/len)*off, cy=my + (dx/len)*off;
+    var d='M'+pa.x+' '+pa.y+' Q'+cx+' '+cy+' '+pb.x+' '+pb.y;
+
+    var hit = document.createElementNS(NS,'path');
+    hit.setAttribute('class','edge-hit'); hit.setAttribute('d',d);
+    hit.setAttribute('data-edge',i);
+    svg.appendChild(hit);
+
+    var path = document.createElementNS(NS,'path');
+    path.setAttribute('class','edge'); path.setAttribute('d',d);
+    path.setAttribute('data-kind', e.kind||'sync');
+    path.setAttribute('data-from', e.from); path.setAttribute('data-to', e.to);
+    path.setAttribute('data-edge', i);
+    path.setAttribute('marker-end','url(#ah)');
+    svg.appendChild(path);
+
+    if(e.label){
+      var g = document.createElementNS(NS,'g');
+      g.setAttribute('class','edge-label'); g.setAttribute('data-edge',i);
+      var pt = quadPoint(pa,{x:cx,y:cy},pb,0.5);
+      var w = e.label.length*6.0 + 12;
+      var rect = document.createElementNS(NS,'rect');
+      rect.setAttribute('x', pt.x - w/2); rect.setAttribute('y', pt.y - 9);
+      rect.setAttribute('width', w); rect.setAttribute('height', 18); rect.setAttribute('rx',5);
+      var text = document.createElementNS(NS,'text');
+      text.setAttribute('x', pt.x); text.setAttribute('y', pt.y + 3.5);
+      text.setAttribute('text-anchor','middle'); text.textContent = e.label;
+      g.appendChild(rect); g.appendChild(text); svg.appendChild(g);
+    }
+  });
+}
+function quadPoint(p0,p1,p2,t){
+  var mt=1-t;
+  return { x:mt*mt*p0.x + 2*mt*t*p1.x + t*t*p2.x,
+           y:mt*mt*p0.y + 2*mt*t*p1.y + t*t*p2.y };
+}
+
+/* ============================================================
+   APPLY VISIBILITY (layer toggle + type filter)
+   ============================================================ */
+function applyFilters(){
+  document.querySelectorAll('.node').forEach(function(el){
+    var n = NODE_BY_ID[el.dataset.id];
+    el.classList.toggle('hidden', !nodeVisible(n));
+  });
+  document.querySelectorAll('path.edge, path.edge-hit, g.edge-label').forEach(function(el){
+    var e = DATA.edges[+el.dataset.edge];
+    var vis = e && edgeVisible(e);
+    el.style.display = vis ? '' : 'none';
+  });
+  recountControls();
+  if(selectedId && !nodeVisible(NODE_BY_ID[selectedId])) clearSelection();
+  else if(selectedId) applySelection();
+}
+
+function recountControls(){
+  DATA.layers.forEach(function(l){
+    var c = DATA.nodes.filter(function(n){ return n.layer===l.key && activeTypes[n.type]!==false; }).length;
+    var el = document.querySelector('[data-layer-n="'+l.key+'"]'); if(el) el.textContent = c;
+  });
+  DATA.nodeTypes.forEach(function(t){
+    var c = DATA.nodes.filter(function(n){ return n.type===t.key && (!n.layer||activeLayers[n.layer]!==false); }).length;
+    var el = document.querySelector('[data-type-n="'+t.key+'"]'); if(el) el.textContent = c;
+  });
+  var lc=document.getElementById('layer-count'); if(lc) lc.textContent = Object.keys(activeLayers).filter(function(k){return activeLayers[k];}).length+'/'+DATA.layers.length;
+  var tc=document.getElementById('type-count'); if(tc) tc.textContent = Object.keys(activeTypes).filter(function(k){return activeTypes[k];}).length+'/'+DATA.nodeTypes.length;
+}
+
+/* ============================================================
+   SELECTION — highlight node + neighbours + edges, dim rest
+   ============================================================ */
+function selectNode(id, opts){
+  opts = opts || {};
+  selectedId = id;
+  applySelection();
+  fillInfo(id);
+  /* pan-to-selected: bring the chosen node into view (P2 fix — selecting an
+     off-screen node previously left it off-screen) */
+  if(opts.center !== false) centerOnNode(id, true);
+}
+function applySelection(){
+  var id = selectedId;
+  var neigh = {};
+  ADJ[id].forEach(function(a){ if(nodeVisible(NODE_BY_ID[a.other])) neigh[a.other]=true; });
+  /* blast radius = every node reachable downstream when blastMode is on */
+  var reach = blastMode ? reachDownstream(id) : {};
+
+  document.querySelectorAll('.node').forEach(function(el){
+    var nid = el.dataset.id;
+    el.classList.remove('is-selected','is-neighbour','is-reach','is-dim');
+    if(el.classList.contains('hidden')) return;
+    if(nid===id) el.classList.add('is-selected');
+    else if(neigh[nid]) el.classList.add('is-neighbour');
+    else if(reach[nid]) el.classList.add('is-reach');
+    else el.classList.add('is-dim');
+  });
+  document.querySelectorAll('path.edge').forEach(function(p){
+    if(p.style.display==='none') return;
+    /* hot = touches the selected node, OR (in blast mode) connects two in-radius nodes */
+    var f=p.dataset.from, t=p.dataset.to;
+    var direct = (f===id || t===id);
+    var inRadius = blastMode && (f===id||reach[f]) && (t===id||reach[t]) && OUT[f] && OUT[f].indexOf(t)>=0;
+    var touches = direct || inRadius;
+    p.classList.toggle('hot', touches);
+    p.classList.toggle('dim', !touches);
+  });
+  document.querySelectorAll('g.edge-label').forEach(function(g){
+    var e = DATA.edges[+g.dataset.edge];
+    if(!e || !edgeVisible(e)){ g.classList.remove('show'); return; }
+    var direct = (e.from===id || e.to===id);
+    var inRadius = blastMode && (e.from===id||reach[e.from]) && (reach[e.to]);
+    g.classList.toggle('show', !!(direct||inRadius));
+  });
+
+  var n = NODE_BY_ID[id];
+  var reachN = Object.keys(reach).length;
+  var fb = document.getElementById('focus-banner');
+  var summary = blastMode
+    ? 'Blast radius of <b>&nbsp;'+esc(n.label)+'&nbsp;</b> &middot; '+reachN+' node(s) downstream'
+    : 'Focused on <b>&nbsp;'+esc(n.label)+'&nbsp;</b> &middot; '+Object.keys(neigh).length+' neighbour(s)';
+  fb.innerHTML = summary+
+    ' <button class="fb-blast" id="fb-blast" type="button" aria-pressed="'+(blastMode?'true':'false')+'" title="Toggle multi-hop blast radius (downstream reachability)">'+icon('blast')+'Blast</button>'+
+    '<span class="fb-sep"></span>'+
+    '<button class="fb-clear" id="fb-clear" type="button">Clear</button>';
+  fb.classList.add('show');
+  document.getElementById('fb-clear').addEventListener('click', function(ev){ ev.stopPropagation(); clearSelection(); });
+  document.getElementById('fb-blast').addEventListener('click', function(ev){
+    ev.stopPropagation();
+    blastMode = !blastMode;
+    applySelection();   /* re-render highlight (banner & classes) */
+  });
+}
+function clearSelection(){
+  selectedId = null;
+  document.querySelectorAll('.node').forEach(function(el){ el.classList.remove('is-selected','is-neighbour','is-reach','is-dim'); });
+  document.querySelectorAll('path.edge').forEach(function(p){ p.classList.remove('hot','dim'); });
+  document.querySelectorAll('g.edge-label').forEach(function(g){ g.classList.remove('show'); });
+  document.getElementById('focus-banner').classList.remove('show');
+  document.getElementById('info-card').classList.remove('show');
+  document.getElementById('info-empty').style.display='';
+}
+
+function fillInfo(id){
+  var n = NODE_BY_ID[id], t = TYPE_BY_KEY[n.type] || {}, s = n.status||'neutral';
+  var stLabel = (DATA.legend && DATA.legend.status && DATA.legend.status[s]) || s;
+  var stClass = s==='neutral' ? 'st-neutral' : ('st-'+s);
+  var layer = (DATA.layers.filter(function(l){return l.key===n.layer;})[0]||{}).label;
+
+  var chips = '<span class="chip">'+esc(t.label||n.type)+'</span>' + (layer?'<span class="chip">'+esc(layer)+'</span>':'');
+  var kv='';
+  if(n.meta){
+    Object.keys(n.meta).forEach(function(k){
+      var wide = (k==='note' || String(n.meta[k]).length>22);
+      kv += '<div class="kv'+(wide?' wide':'')+'"><div class="k">'+esc(k)+'</div><div class="v">'+esc(String(n.meta[k]))+'</div></div>';
+    });
+  }
+  var nbs = ADJ[id].filter(function(a){ return nodeVisible(NODE_BY_ID[a.other]); }).map(function(a){
+    var o = NODE_BY_ID[a.other];
+    var dirIco = a.dir==='out' ? icon('arrow-out') : icon('arrow-in');
+    var kind = a.edge.kind||'sync';
+    var lbl = a.edge.label ? esc(a.edge.label) : (a.dir==='out'?'calls':'called by');
+    return '<button class="nb" data-goto="'+o.id+'"><span class="nb-dir '+a.dir+'">'+dirIco+'</span>'+
+      '<span class="nb-body"><span class="nb-name">'+esc(o.label)+'</span><span class="nb-edge">'+lbl+'</span></span>'+
+      '<span class="nb-kind">'+esc(kind)+'</span></button>';
+  }).join('');
+
+  var card = document.getElementById('info-card');
+  card.innerHTML =
+    '<div class="info-head">'+
+      '<div class="ih-type"><span class="iht-ico">'+icon(t.icon)+'</span>'+esc(t.label||n.type)+'</div>'+
+      '<div class="ih-title">'+esc(n.label)+'</div>'+
+      '<div class="info-chips"><span class="st-badge '+stClass+'">'+esc(stLabel)+'</span>'+chips+'</div>'+
+    '</div>'+
+    (kv?'<div class="kv-grid">'+kv+'</div>':'')+
+    '<div class="nb-wrap"><div class="nb-label"><span>'+icon('flow')+'</span>Connections<span class="nb-n">'+ADJ[id].filter(function(a){return nodeVisible(NODE_BY_ID[a.other]);}).length+'</span></div>'+
+      '<div class="neighbour-list">'+(nbs||'<div style="font-size:11.5px;color:var(--ink-faint)">No visible connections.</div>')+'</div></div>';
+  card.classList.add('show');
+  document.getElementById('info-empty').style.display='none';
+  card.querySelectorAll('.nb').forEach(function(b){
+    b.addEventListener('click', function(){ selectNode(b.dataset.goto); });
+  });
+}
+
+/* ============================================================
+   PAN + ZOOM
+   ============================================================ */
+function applyTransform(){
+  var w = document.getElementById('world');
+  w.style.transform = 'translate('+view.panX+'px,'+view.panY+'px) scale('+view.zoom+')';
+  var z=document.getElementById('zoom-readout'); if(z) z.textContent = Math.round(view.zoom*100)+'%';
+}
+function clampZoom(z){ return Math.max(0.3, Math.min(2.6, z)); }
+function zoomAt(factor, cx, cy){
+  var stage=document.getElementById('stage'); var r=stage.getBoundingClientRect();
+  var ox = (cx==null? r.width/2 : cx-r.left), oy = (cy==null? r.height/2 : cy-r.top);
+  var nz = clampZoom(view.zoom*factor);
+  var k = nz/view.zoom;
+  view.panX = ox - (ox-view.panX)*k;
+  view.panY = oy - (oy-view.panY)*k;
+  view.zoom = nz;
+  applyTransform();
+}
+function fitToView(animate){
+  var stage=document.getElementById('stage'); if(!stage) return;
+  var r=stage.getBoundingClientRect();
+  var pad=70;
+  var z = clampZoom(Math.min((r.width-pad*2)/CANVAS.w, (r.height-pad*2)/CANVAS.h));
+  view.zoom = z;
+  view.panX = (r.width  - CANVAS.w*z)/2;
+  view.panY = (r.height - CANVAS.h*z)/2;
+  var w=document.getElementById('world');
+  if(w){ w.style.transition = animate?'transform .2s ease':'none'; }
+  applyTransform();
+  if(animate) setTimeout(function(){ if(w) w.style.transition='none'; },220);
+}
+
+/* pan the world so a node sits at the centre of the visible stage (zoom unchanged) */
+function centerOnNode(id, animate){
+  var n = NODE_BY_ID[id]; if(!n) return;
+  var stage=document.getElementById('stage'); if(!stage) return;
+  var r=stage.getBoundingClientRect();
+  var p=px(n);
+  view.panX = r.width/2  - p.x*view.zoom;
+  view.panY = r.height/2 - p.y*view.zoom;
+  var w=document.getElementById('world');
+  if(w){ w.style.transition = animate?'transform .26s ease':'none'; }
+  applyTransform();
+  if(animate && w) setTimeout(function(){ w.style.transition='none'; },280);
+}
+
+/* ============================================================
+   WIRE INTERACTIONS
+   ============================================================ */
+function wireInteractions(){
+  var stage=document.getElementById('stage');
+  var world=document.getElementById('world');
+
+  /* node click -> select (stop drag from firing) */
+  world.querySelectorAll('.node').forEach(function(el){
+    el.addEventListener('click', function(ev){ ev.stopPropagation(); selectNode(el.dataset.id); });
+  });
+
+  /* edge hover -> reveal label + accent line */
+  document.querySelectorAll('path.edge-hit').forEach(function(hit){
+    var i = hit.dataset.edge;
+    var path = document.querySelector('path.edge[data-edge="'+i+'"]');
+    var glabel = document.querySelector('g.edge-label[data-edge="'+i+'"]');
+    hit.addEventListener('mouseenter', function(){ if(path) path.classList.add('hot'); if(glabel) glabel.classList.add('show'); });
+    hit.addEventListener('mouseleave', function(){
+      if(selectedId){ applySelection(); return; }   /* keep focus styling */
+      if(path) path.classList.remove('hot'); if(glabel) glabel.classList.remove('show');
+    });
+  });
+
+  /* PAN (pointer drag on empty stage) */
+  var dragging=false, moved=false, sx=0, sy=0, sp={};
+  stage.addEventListener('pointerdown', function(ev){
+    if(ev.button!==0) return;
+    dragging=true; moved=false; sx=ev.clientX; sy=ev.clientY; sp={x:view.panX,y:view.panY};
+    stage.classList.add('is-panning'); stage.setPointerCapture(ev.pointerId);
+  });
+  stage.addEventListener('pointermove', function(ev){
+    if(!dragging) return;
+    var dx=ev.clientX-sx, dy=ev.clientY-sy;
+    if(Math.abs(dx)+Math.abs(dy)>3) moved=true;
+    view.panX=sp.x+dx; view.panY=sp.y+dy; applyTransform();
+  });
+  function endPan(ev){ if(!dragging) return; dragging=false; stage.classList.remove('is-panning'); }
+  stage.addEventListener('pointerup', endPan);
+  stage.addEventListener('pointercancel', endPan);
+
+  /* click empty stage clears selection (only if not a drag) */
+  stage.addEventListener('click', function(ev){
+    if(moved) return;
+    if(ev.target===stage || ev.target===world || ev.target.tagName==='svg' || ev.target.classList.contains('edges')) clearSelection();
+  });
+
+  /* ZOOM via wheel (about cursor) */
+  stage.addEventListener('wheel', function(ev){
+    ev.preventDefault();
+    zoomAt(ev.deltaY<0 ? 1.12 : 1/1.12, ev.clientX, ev.clientY);
+  }, { passive:false });
+
+  /* toolbar */
+  document.getElementById('zoom-in').addEventListener('click', function(){ zoomAt(1.2); });
+  document.getElementById('zoom-out').addEventListener('click', function(){ zoomAt(1/1.2); });
+  document.getElementById('fit').addEventListener('click', function(){ clearSelection(); fitToView(true); });
+  document.getElementById('fullscreen').addEventListener('click', function(){
+    if(!document.fullscreenElement){ if(stage.requestFullscreen) stage.requestFullscreen(); }
+    else if(document.exitFullscreen) document.exitFullscreen();
+  });
+  document.addEventListener('fullscreenchange', function(){ setTimeout(function(){ fitToView(true); },60); });
+
+  /* layer toggles */
+  document.querySelectorAll('[data-layer]').forEach(function(b){
+    b.addEventListener('click', function(){
+      var k=b.dataset.layer, on=b.getAttribute('aria-pressed')!=='true';
+      b.setAttribute('aria-pressed', on?'true':'false'); activeLayers[k]=on; applyFilters();
+    });
+  });
+  /* type filter */
+  document.querySelectorAll('[data-type]').forEach(function(b){
+    b.addEventListener('click', function(){
+      var k=b.dataset.type, on=b.getAttribute('aria-pressed')!=='true';
+      b.setAttribute('aria-pressed', on?'true':'false'); activeTypes[k]=on; applyFilters();
+    });
+  });
+
+  /* keyboard: Esc clears, +/- zoom (ignore while typing in the search box) */
+  document.addEventListener('keydown', function(ev){
+    var t=ev.target;
+    if(t && (t.tagName==='INPUT' || t.tagName==='TEXTAREA')){
+      if(ev.key==='Escape' && t.id==='ns-input') t.blur();
+      return;
+    }
+    if(ev.key==='Escape') clearSelection();
+    else if(ev.key==='+'||ev.key==='=') zoomAt(1.2);
+    else if(ev.key==='-') zoomAt(1/1.2);
+    else if(ev.key==='0') { clearSelection(); fitToView(true); }
+  });
+
+  window.addEventListener('resize', function(){ if(!selectedId) fitToView(false); });
+  /* before print: fit so the whole diagram lands on the page */
+  window.addEventListener('beforeprint', function(){ clearSelection(); fitToView(false); });
+}
+
+/* ============================================================
+   NODE SEARCH  (find → centre + select a node)
+   ============================================================ */
+function wireSearch(){
+  var wrap=document.getElementById('node-search');
+  var input=document.getElementById('ns-input');
+  var box=document.getElementById('ns-results');
+  var clr=document.getElementById('ns-clear');
+  if(!wrap||!input||!box) return;
+  var activeIdx=-1, matches=[];
+
+  function typeLabel(n){ return (TYPE_BY_KEY[n.type]||{}).label || n.type; }
+  function find(q){
+    q=q.trim().toLowerCase();
+    if(!q) return [];
+    return DATA.nodes.filter(function(n){
+      return n.label.toLowerCase().indexOf(q)>=0 ||
+             (typeLabel(n)||'').toLowerCase().indexOf(q)>=0 ||
+             n.id.toLowerCase().indexOf(q)>=0;
+    }).slice(0,8);
+  }
+  function hl(label,q){
+    var i=label.toLowerCase().indexOf(q.trim().toLowerCase());
+    if(i<0||!q.trim()) return esc(label);
+    var L=q.trim().length;
+    return esc(label.slice(0,i))+'<b>'+esc(label.slice(i,i+L))+'</b>'+esc(label.slice(i+L));
+  }
+  function renderResults(){
+    var q=input.value;
+    matches=find(q); activeIdx=-1;
+    wrap.classList.toggle('has-text', q.length>0);
+    if(!q.trim()){ box.innerHTML=''; close(); return; }
+    if(!matches.length){
+      box.innerHTML='<div class="ns-none">No node matches “'+esc(q.trim())+'”.</div>';
+    } else {
+      box.innerHTML = matches.map(function(n,idx){
+        var s=n.status||'neutral', t=TYPE_BY_KEY[n.type]||{};
+        var off = !nodeVisible(n) ? ' style="opacity:.5"' : '';
+        return '<button class="ns-opt" type="button" role="option" data-id="'+n.id+'" data-idx="'+idx+'"'+off+'>'+
+          '<span class="nso-ico">'+icon(t.icon)+'</span>'+
+          '<span class="nso-body"><span class="nso-name">'+hl(n.label,q)+'</span>'+
+          '<span class="nso-sub">'+esc(typeLabel(n))+(nodeVisible(n)?'':' &middot; hidden')+'</span></span>'+
+          '<span class="nso-dot is-'+s+'"></span></button>';
+      }).join('');
+      box.querySelectorAll('.ns-opt').forEach(function(b){
+        b.addEventListener('click', function(){ pick(b.dataset.id); });
+      });
+    }
+    open();
+  }
+  function open(){ wrap.classList.add('open'); input.setAttribute('aria-expanded','true'); }
+  function close(){ wrap.classList.remove('open'); input.setAttribute('aria-expanded','false'); activeIdx=-1; }
+  function setActive(i){
+    var opts=box.querySelectorAll('.ns-opt'); if(!opts.length) return;
+    activeIdx=(i+opts.length)%opts.length;
+    opts.forEach(function(o,k){ o.classList.toggle('active', k===activeIdx); });
+    opts[activeIdx].scrollIntoView({ block:'nearest' });
+  }
+  function pick(id){
+    var n=NODE_BY_ID[id]; if(!n) return;
+    /* if the node is filtered out, switch its layer + type back on so it can be shown */
+    if(!nodeVisible(n)){
+      if(n.layer && activeLayers[n.layer]===false){
+        activeLayers[n.layer]=true;
+        var lb=document.querySelector('[data-layer="'+n.layer+'"]'); if(lb) lb.setAttribute('aria-pressed','true');
+      }
+      if(activeTypes[n.type]===false){
+        activeTypes[n.type]=true;
+        var tb=document.querySelector('[data-type="'+n.type+'"]'); if(tb) tb.setAttribute('aria-pressed','true');
+      }
+      applyFilters();
+    }
+    selectNode(id);                 /* selects + pans-to (centerOnNode) */
+    var el=document.querySelector('.node[data-id="'+id+'"]');
+    if(el){ el.classList.remove('pulse'); void el.offsetWidth; el.classList.add('pulse'); }
+    input.value=n.label; wrap.classList.add('has-text');
+    close();
+  }
+
+  input.addEventListener('input', renderResults);
+  input.addEventListener('focus', function(){ if(input.value.trim()) renderResults(); });
+  input.addEventListener('keydown', function(ev){
+    if(ev.key==='ArrowDown'){ ev.preventDefault(); if(!wrap.classList.contains('open')) renderResults(); setActive(activeIdx+1); }
+    else if(ev.key==='ArrowUp'){ ev.preventDefault(); setActive(activeIdx-1); }
+    else if(ev.key==='Enter'){
+      ev.preventDefault();
+      if(activeIdx>=0 && matches[activeIdx]) pick(matches[activeIdx].id);
+      else if(matches.length) pick(matches[0].id);
+    } else if(ev.key==='Escape'){
+      if(wrap.classList.contains('open')){ ev.stopPropagation(); close(); }
+    }
+  });
+  clr.addEventListener('click', function(){ input.value=''; wrap.classList.remove('has-text'); box.innerHTML=''; close(); input.focus(); });
+  document.addEventListener('click', function(ev){ if(!wrap.contains(ev.target)) close(); });
+}
+
+/* ============================================================
+   THEME SWITCH  (canonical dropdown → data-theme)
+   ============================================================ */
+function wireThemeSwitch(){
+  var rcSel = document.querySelector('.rc-theme-sel');
+  if(rcSel){
+    rcSel.value = document.documentElement.dataset.theme || 'purple';
+    rcSel.addEventListener('change', function(){ document.documentElement.dataset.theme = rcSel.value; });
+  }
+}
+
+/* small HTML escaper */
+function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+
+/* ============================================================ */
+document.addEventListener('DOMContentLoaded', function(){
+  render();
+  wireInteractions();
+  wireSearch();
+  wireThemeSwitch();
+});
+</script>
+</body>
+</html>

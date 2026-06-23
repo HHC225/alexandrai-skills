@@ -1,0 +1,1252 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="purple">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1440">
+<title>Operational Resilience &amp; Controls Assessment — {{PROJECT}}</title>
+<style>
+/* ============================================================
+   LONG-FORM REPORT — canonical anchor format.
+   Reproduces the reference report exactly (thin sticky topbar →
+   compact hero → 3-col 208|1fr|244 both-rail layout → stacked
+   rounded section panels → dark split-diff → folded appendix).
+
+   DATA-DRIVEN: the ONLY content source is the JSON in
+   <script id="report-data">. render() builds the whole DOM from it
+   on DOMContentLoaded; wireInteractions()+wireThemeSwitch() add the
+   live behaviour. <noscript> covers the JS-off case.
+   Self-contained: inline CSS + inline SVG + system fonts. No external requests.
+   ============================================================ */
+:root{
+ /* surfaces */
+ --bg:#fff; --bg-band:#f6f6f8; --bg-subtle:#fafafb; --bg-deep:#15131a;
+ --rule:#dcdce2; --rule-soft:#ebebef;
+ /* ink */
+ --ink:#11131a; --ink-mid:#33363f; --ink-soft:#5a5e68; --ink-faint:#868b95;
+ /* brand accent — Purple (default) */
+ --navy:#a100ff; --navy-deep:#7a00c2; --navy-bg:#f3e8ff; --navy-line:#d9bef5;
+ /* cleared / approved */
+ --ok:#5a2f8a; --ok-bg:#efe8f5; --ok-line:#d0b5e0;
+ /* semantic states — constant across themes */
+ --risk:#b3261e; --risk-bg:#fbeceb; --risk-line:#edc7c4;
+ --hold:#8a6d00; --hold-bg:#fbf3da; --hold-line:#e7d8a4;
+ /* type stacks */
+ --mono:ui-monospace,"JetBrains Mono","SFMono-Regular",Menlo,Consolas,monospace;
+ --sans:-apple-system,"Segoe UI",system-ui,Roboto,"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic UI","Apple SD Gothic Neo","Malgun Gothic","PingFang SC","Microsoft YaHei","Noto Sans CJK JP","Noto Sans CJK KR","Noto Sans CJK SC","Noto Sans JP","Noto Sans KR","Noto Sans SC","Noto Sans",sans-serif;
+}
+/* theme overrides — swap ONLY the 7 accent values (all 9 presets incl. Black) */
+html[data-theme="blue"]{ --navy:#0b5fd4; --navy-deep:#0842a0; --navy-bg:#e8f1fc; --navy-line:#bcd6f5; --ok:#1a4f9c; --ok-bg:#e9f0fa; --ok-line:#b7cdea; }
+html[data-theme="purple"]{ --navy:#a100ff; --navy-deep:#7a00c2; --navy-bg:#f3e8ff; --navy-line:#d9bef5; --ok:#5a2f8a; --ok-bg:#efe8f5; --ok-line:#d0b5e0; }
+html[data-theme="indigo"]{ --navy:#4338ca; --navy-deep:#312c92; --navy-bg:#ebebfb; --navy-line:#c7c3f0; --ok:#3730a3; --ok-bg:#ebeaf7; --ok-line:#c5c2ea; }
+html[data-theme="teal"]{ --navy:#0e7c86; --navy-deep:#095861; --navy-bg:#e0f3f4; --navy-line:#a9dade; --ok:#0f5d54; --ok-bg:#e3f3ef; --ok-line:#b3ddd4; }
+html[data-theme="cyan"]{ --navy:#0891b2; --navy-deep:#0e6f88; --navy-bg:#e2f4f9; --navy-line:#abdde9; --ok:#0e6b7a; --ok-bg:#e4f3f4; --ok-line:#b0dde2; }
+html[data-theme="green"]{ --navy:#1f7a44; --navy-deep:#155730; --navy-bg:#e6f4ea; --navy-line:#b3dcc1; --ok:#2f6b3c; --ok-bg:#e9f3ea; --ok-line:#bedcc4; }
+html[data-theme="plum"]{ --navy:#a21d6e; --navy-deep:#7c1450; --navy-bg:#fbe8f2; --navy-line:#e8b9d4; --ok:#6d2356; --ok-bg:#f6e8f0; --ok-line:#e3bcd5; }
+html[data-theme="slate"]{ --navy:#3f4f63; --navy-deep:#29384b; --navy-bg:#eef1f5; --navy-line:#c2ccd8; --ok:#34495e; --ok-bg:#eef1f5; --ok-line:#c2ccd8; }
+html[data-theme="black"]{ --navy:#000000; --navy-deep:#000000; --navy-bg:#f1f1f3; --navy-line:#d6d6db; --ok:#3f3f46; --ok-bg:#f1f1f3; --ok-line:#cfcfd6; }
+
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:13px;line-height:1.6;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
+code{font-family:var(--mono);}
+a{color:var(--navy-deep);}
+.icon{width:1.15em;height:1.15em;display:inline-block;vertical-align:-.18em;color:inherit;}
+.icon-lg{width:20px;height:20px;}
+.tnum{font-feature-settings:"tnum" 1;font-variant-numeric:tabular-nums;}
+
+/* density toggle — compact shaves the base + spacing without inflating */
+html[data-density="compact"] body{font-size:12px;}
+html[data-density="compact"] .sec{margin-bottom:12px;}
+html[data-density="compact"] .sec-head{padding-top:10px;padding-bottom:10px;}
+html[data-density="compact"] .find-body,html[data-density="compact"] .fix-card-grid{padding-top:11px;padding-bottom:11px;}
+html[data-density="compact"] .hero{padding-top:22px;padding-bottom:16px;}
+
+/* ---------- read-progress bar (top of viewport) ---------- */
+.read-prog{position:fixed;top:0;left:0;height:3px;width:0;background:var(--navy);z-index:20;transition:width .08s linear;}
+@media print{.read-prog{display:none!important;}}
+
+/* ---------- noscript notice ---------- */
+.noscript{margin:20px 40px;padding:14px 18px;background:var(--hold-bg);border:1px solid var(--hold-line);border-radius:10px;color:#6b5500;font-size:12.5px;line-height:1.6;}
+
+/* ---------- topbar ---------- */
+.topbar{position:sticky;top:0;z-index:8;background:#fff;border-bottom:1px solid var(--rule);}
+.topbar-inner{max-width:1720px;margin:0 auto;padding:10px 40px;display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;}
+.logo{display:flex;align-items:center;gap:9px;font-weight:800;font-size:15px;letter-spacing:-.01em;color:var(--ink);}
+.logo .mark{width:18px;height:18px;color:var(--navy);}
+.logo small{font-weight:600;font-size:11px;color:var(--ink-faint);margin-left:6px;letter-spacing:0;}
+.topbar-right{display:flex;align-items:center;gap:22px;flex-wrap:wrap;justify-content:flex-end;}
+.crumb{font-size:11.5px;color:var(--ink-faint);}
+.crumb b{color:var(--ink-soft);font-weight:700;}
+.topbar-gen{font-size:11px;color:var(--ink-faint);white-space:nowrap;}
+.topbar-gen b{color:var(--ink-soft);font-weight:700;margin-right:5px;font-size:10px;letter-spacing:.04em;text-transform:uppercase;}
+
+/* topbar controls: density toggle + theme dots */
+.topbar-tools{display:flex;align-items:center;gap:14px;}
+.dens-toggle{display:inline-flex;border:1px solid var(--rule);border-radius:7px;overflow:hidden;background:#fff;}
+.dens-toggle button{font-family:var(--mono);font-size:9.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-faint);background:#fff;border:none;padding:4px 9px;cursor:pointer;}
+.dens-toggle button+button{border-left:1px solid var(--rule);}
+.dens-toggle button.is-on{background:var(--navy-bg);color:var(--navy-deep);}
+.rc-theme{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--rule);border-radius:7px;padding:3px 4px 3px 7px;background:var(--bg);}
+.rc-theme-sw{width:12px;height:12px;border-radius:50%;background:var(--navy);box-shadow:0 0 0 1px var(--rule);flex:none;}
+.rc-theme-sel{border:0;background:none;font:600 11px/1 var(--mono);color:var(--ink-mid);cursor:pointer;outline:none;padding:2px;}
+@media print{.rc-theme{display:none;}}
+
+/* ---------- hero ---------- */
+.hero{max-width:1720px;margin:0 auto;padding:30px 40px 22px;border-bottom:1px solid var(--rule);}
+.hero-eyebrow{font-family:var(--mono);font-size:10.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--navy-deep);}
+.hero-title{font-size:25px;line-height:1.28;font-weight:800;letter-spacing:-.01em;margin:8px 0 13px;color:var(--ink);}
+.hero-badges{display:flex;flex-wrap:wrap;gap:7px;}
+.hero .badge{display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);font-size:11.5px;font-weight:600;padding:3px 10px;border-radius:6px;background:#fff;color:var(--ink-soft);border:1px solid var(--rule);}
+.hero .badge-verdict{color:var(--risk);border-color:var(--risk);font-weight:700;}
+.hero .badge-cat{color:var(--navy-deep);border-color:var(--navy-line);font-weight:700;}
+.hero .badge-sev{color:var(--hold);border-color:var(--hold-line);background:var(--hold-bg);font-weight:700;}
+.hero-sum{font-size:14px;line-height:1.8;color:var(--ink-mid);margin:14px 0 0;max-width:none;}
+.hero-sum code{font-family:var(--mono);font-size:12.5px;color:var(--navy-deep);background:var(--navy-bg);padding:0 4px;border-radius:3px;}
+.hero-sum a.gloss{text-decoration:none;border-bottom:1px dotted var(--navy-line);}
+.hero-meta{display:flex;flex-wrap:wrap;gap:7px 24px;margin-top:16px;padding-top:14px;border-top:1px solid var(--rule-soft);font-size:12px;color:var(--ink-soft);align-items:baseline;}
+.hero-meta>span>b{color:var(--ink-faint);font-weight:700;margin-right:5px;font-size:10px;text-transform:uppercase;letter-spacing:.04em;}
+.hero-meta i{font-style:normal;}
+
+/* ---------- 3-col layout ---------- */
+.content{max-width:1720px;margin:0 auto;padding:28px 40px 72px;display:grid;grid-template-columns:208px minmax(0,1fr) 244px;gap:40px;align-items:start;}
+@media(max-width:1280px){.content{grid-template-columns:208px minmax(0,1fr);}.rail{display:none;}}
+@media(max-width:1000px){.content{grid-template-columns:1fr;gap:20px;padding:22px;}.toc{position:static;}}
+main{min-width:0;}
+
+/* left TOC (sticky + scroll-spy) */
+.toc{position:sticky;top:64px;align-self:start;min-width:0;}
+.toc-label{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);margin:0 0 7px;display:flex;align-items:baseline;justify-content:space-between;gap:8px;}
+.toc-allbtn{font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-faint);background:none;border:none;padding:0;cursor:pointer;}
+.toc-allbtn:hover{color:var(--navy-deep);}
+.toc-nav{display:flex;flex-direction:column;overflow-y:auto;max-height:calc(100vh - 130px);scrollbar-width:thin;}
+.toc a{display:grid;grid-template-columns:28px 1fr;gap:9px;align-items:baseline;padding:6px 0;color:var(--ink-mid);text-decoration:none;font-size:12.5px;line-height:1.35;border-left:2px solid transparent;padding-left:9px;margin-left:-11px;}
+.toc a:hover{color:var(--navy-deep);}
+.toc a .n{font-family:var(--mono);font-size:10.5px;font-weight:700;color:var(--ink-faint);}
+.toc a.active{color:var(--navy-deep);font-weight:700;border-left-color:var(--navy);}
+.toc a.active .n{color:var(--navy-deep);}
+
+/* right rail (sticky metadata) */
+.rail{position:sticky;top:64px;align-self:start;min-width:0;display:flex;flex-direction:column;gap:14px;}
+.rail-card{border:1px solid var(--rule);border-radius:14px;background:#fff;box-shadow:0 1px 3px rgba(17,19,26,.05);overflow:hidden;}
+.rail-card-hd{display:flex;align-items:center;gap:7px;font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);padding:11px 14px 10px;border-bottom:1px solid var(--rule-soft);background:var(--bg-subtle);}
+.rail-facts{margin:0;padding:3px 14px 9px;}
+.rail-facts>div{display:grid;grid-template-columns:74px minmax(0,1fr);gap:10px;padding:8px 0;border-bottom:1px solid var(--rule-soft);align-items:baseline;}
+.rail-facts>div:last-child{border-bottom:none;}
+.rail-facts dt{margin:0;font-size:10px;font-weight:700;letter-spacing:.02em;color:var(--ink-faint);text-transform:uppercase;}
+.rail-facts dd{margin:0;font-size:12px;line-height:1.45;color:var(--ink-mid);min-width:0;word-break:break-word;overflow-wrap:anywhere;}
+.rail-facts dd.mono{font-family:var(--mono);font-size:11px;color:var(--ink);}
+.rail-screen{display:inline-block;font-family:var(--mono);font-size:10.5px;font-weight:700;color:var(--navy-deep);background:var(--navy-bg);border:1px solid var(--navy-line);border-radius:5px;padding:1px 7px;margin:0 4px 4px 0;}
+.rail-prog{padding:11px 14px 13px;}
+.rail-prog-row{display:flex;justify-content:space-between;align-items:baseline;font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-faint);margin:0 0 6px;}
+.rail-prog-row b{font-family:var(--mono);font-size:15px;font-weight:800;color:var(--ink);letter-spacing:0;}
+.rail-bar{height:7px;border-radius:5px;background:var(--bg-band);overflow:hidden;}
+.rail-bar i{display:block;height:100%;border-radius:5px;background:var(--navy);}
+
+/* ---------- section panels ---------- */
+.sec{margin:0 0 18px;border:1px solid var(--rule);border-radius:12px;overflow:hidden;background:#fff;box-shadow:0 1px 2px rgba(17,19,26,.045);scroll-margin-top:84px;}
+.sec-head{display:flex;align-items:center;gap:11px;padding:13px 24px;background:var(--bg-band);border-bottom:1px solid var(--rule);}
+.sec-num{border:1px solid var(--navy-line);color:var(--navy-deep);background:#fff;padding:2px 9px;border-radius:6px;font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.06em;white-space:nowrap;}
+.sec-ico{width:17px;height:17px;color:var(--navy-deep);flex:none;}
+.sec-head h2{font-size:16px;font-weight:800;margin:0;letter-spacing:-.01em;}
+.sec-head-links{margin-left:auto;display:flex;gap:6px;align-items:center;flex:0 0 auto;}
+.sec>*:not(.sec-head){margin-left:24px;margin-right:24px;}
+.sec>.sec-head + *,details.sec>summary.sec-head + *{margin-top:20px;}
+.sec>*:not(.sec-head):last-child{margin-bottom:22px;}
+.sec p{font-size:13px;line-height:1.8;color:var(--ink-mid);}
+.sec p strong{color:var(--ink);}
+.lead{font-size:13.5px;color:var(--ink-mid);}
+
+/* collapsible section caret (every .sec head is now a toggle) */
+.sec-collapse{margin-left:6px;color:var(--ink-faint);font-size:15px;line-height:1;background:none;border:none;cursor:pointer;padding:0 2px;transition:transform .15s ease;flex:none;}
+.sec.is-collapsed .sec-collapse{transform:rotate(-90deg);}
+.sec.is-collapsed>*:not(.sec-head){display:none;}
+.sec.is-collapsed .sec-head{border-bottom:none;}
+
+/* folded supplement / appendix */
+details.sec-fold>summary.sec-head{cursor:pointer;list-style:none;}
+details.sec-fold>summary.sec-head::-webkit-details-marker{display:none;}
+details.sec-fold:not([open])>summary.sec-head{border-bottom:none;}
+.sec-fold-hint{font-family:var(--mono);font-size:9.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-faint);}
+details.sec-fold[open] .sec-fold-hint{display:none;}
+.sec-fold-caret{margin-left:8px;color:var(--ink-faint);font-size:15px;line-height:1;transition:transform .15s ease;}
+details.sec-fold[open] .sec-fold-caret{transform:rotate(90deg);}
+
+/* labels */
+.bugsum-label{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint);margin:0 0 7px;}
+.bugsum{font-size:15px;font-weight:700;color:var(--ink);line-height:1.6;margin:0 0 6px;}
+.exhibit-src{font-size:11.5px;color:var(--ink-faint);font-style:italic;margin:10px 0 0;}
+
+/* §00 key/value grid */
+table.kv-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border:1px solid var(--rule-soft);border-radius:10px;overflow:hidden;background:#fff;width:auto;}
+table.kv-grid tbody{display:contents;}
+table.kv-grid tr{display:flex;flex-direction:column;gap:3px;padding:11px 16px;border-right:1px solid var(--rule-soft);border-bottom:1px solid var(--rule-soft);}
+table.kv-grid th{width:auto;background:transparent;border:none;padding:0;font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint);white-space:nowrap;text-align:left;}
+table.kv-grid td{border:none;padding:0;font-family:var(--mono);font-size:12.5px;color:var(--ink);word-break:break-word;}
+@media(max-width:1000px){table.kv-grid{grid-template-columns:repeat(2,minmax(0,1fr));}}
+
+/* §01 phenomenon rows */
+.phenomenon{border:1px solid var(--rule-soft);border-radius:10px;overflow:hidden;margin:0 0 16px;}
+.phen-row{display:grid;grid-template-columns:128px 1fr;gap:14px;padding:11px 16px;border-bottom:1px solid var(--rule-soft);}
+.phen-row:last-child{border-bottom:none;}
+.phen-k{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-faint);}
+.phenomenon>.phen-row:not(.expect) .phen-k{color:var(--risk);}
+.phen-v{font-size:13.5px;line-height:1.7;color:var(--ink-mid);overflow-wrap:anywhere;}
+.nb{white-space:nowrap;}
+
+/* cause chain */
+ol.cause-chain{list-style:none;margin:0;padding:0;}
+ol.cause-chain>li{display:grid;grid-template-columns:24px 1fr;gap:12px;padding:0 0 12px;}
+.chain-step{display:flex;flex-direction:column;align-items:center;}
+.chain-num{width:20px;height:20px;border-radius:5px;background:var(--navy);color:#fff;font-weight:700;font-size:11px;display:flex;align-items:center;justify-content:center;flex:none;}
+.chain-line{flex:1;width:2px;background:var(--rule-soft);margin-top:4px;}
+ol.cause-chain>li:last-child .chain-line{display:none;}
+.chain-headline{font-size:13.5px;font-weight:700;margin:0 0 3px;color:var(--ink);}
+.chain-detail{font-size:12.5px;line-height:1.65;color:var(--ink-mid);margin:0;overflow-wrap:anywhere;}
+.chain-evref{font-family:var(--mono);font-size:10px;color:var(--navy-deep);background:var(--navy-bg);padding:0 5px;border-radius:5px;text-decoration:none;margin-right:5px;white-space:nowrap;display:inline-block;margin-top:6px;}
+.chain-evref:hover{background:var(--navy);color:#fff;}
+
+/* §02 fix/finding cards + dark diff */
+.fix-card-grid{border:1px solid var(--rule);border-radius:11px;padding:18px 20px;display:grid;gap:14px;background:#fff;margin:0 0 16px;}
+.fc-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.fc-priority{font-family:var(--mono);font-size:10px;font-weight:700;color:#fff;background:var(--risk);padding:3px 10px;border-radius:6px;}
+.fc-priority.fc-priority--rec{background:var(--navy);}
+.fc-where{font-family:var(--mono);font-size:11.5px;color:var(--ink-soft);overflow-wrap:anywhere;}
+.fc-label{font-size:11px;font-weight:700;letter-spacing:.03em;color:var(--navy-deep);margin:0 0 5px;}
+.fc-text{font-size:13px;line-height:1.85;color:var(--ink-mid);margin:0;}
+.fc-tldr-list{margin:0;padding:11px 16px 11px 30px;background:var(--bg-band);border:1px solid var(--rule-soft);border-radius:9px;font-size:12.5px;line-height:1.75;color:var(--ink-mid);}
+.fc-tldr-list li{margin:0 0 2px;}
+.fc-tldr-list code{font-family:var(--mono);font-size:11.5px;color:var(--navy-deep);}
+.diff-split{border:1px solid var(--rule);background:#0b0b0d;color:#e5e7eb;margin:4px 0 0;overflow:hidden;border-radius:10px;}
+.diff-split .diff-header{display:grid;grid-template-columns:1fr 1fr auto;align-items:center;padding:8px 16px;background:#000;border-bottom:1px solid #2a2a2a;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;}
+.diff-split .diff-h-left{color:#f0a0a0;}.diff-split .diff-h-right{color:#a0d8a8;}
+.diff-split .diff-tools{justify-self:end;display:flex;align-items:center;gap:10px;}
+.diff-split .ev-id{font-family:var(--mono);font-size:10px;letter-spacing:.06em;color:#8a8a8a;}
+.copy-btn{display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);font-size:9.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#cfcfd6;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);border-radius:5px;padding:3px 8px;cursor:pointer;}
+.copy-btn:hover{background:rgba(255,255,255,.16);color:#fff;}
+.copy-btn.copied{color:#9be29b;border-color:rgba(155,226,155,.5);}
+.copy-btn .icon{width:12px;height:12px;}
+.diff-split .diff-grid{display:grid;grid-template-columns:1fr 1fr;column-gap:0;}
+.diff-split .diff-cell{display:grid;grid-template-columns:44px 18px minmax(0,1fr);align-items:start;font-family:var(--mono);font-size:12px;line-height:1.7;min-height:1.7em;border-bottom:1px solid #1a1a1a;}
+.diff-split .diff-cell:nth-child(odd){border-right:1px solid #1a1a1a;}
+.diff-split .diff-gutter{padding:1px 8px 1px 14px;text-align:right;color:#6a6a6a;user-select:none;background:rgba(255,255,255,.02);}
+.diff-split .diff-marker{padding:1px 0;text-align:center;color:#6a6a6a;user-select:none;font-weight:700;}
+.diff-split .diff-code{padding:1px 14px 1px 6px;color:#e5e7eb;white-space:pre-wrap;word-break:break-word;overflow-wrap:anywhere;min-width:0;}
+.diff-split .diff-ctx .diff-code{color:#d1d5db;}
+.diff-split .diff-add{background:rgba(46,160,67,.28);}.diff-split .diff-add .diff-marker{color:#9be29b;}.diff-split .diff-add .diff-code{color:#d5f5d5;}
+.diff-split .diff-del{background:rgba(160,39,41,.28);}.diff-split .diff-del .diff-code{color:#ffd0d0;}
+.diff-split .diff-empty{background:repeating-linear-gradient(135deg,#131316 0 6px,#0b0b0d 6px 12px);}.diff-split .diff-empty .diff-code{color:transparent;}
+
+/* §03 findings accordion */
+.find-tools{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0 0 12px;}
+.find-tools .fil-label{font-family:var(--mono);font-size:9.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint);margin-right:2px;}
+.fil-chip{font-family:var(--mono);font-size:10.5px;font-weight:700;color:var(--ink-soft);background:#fff;border:1px solid var(--rule);border-radius:6px;padding:3px 10px;cursor:pointer;}
+.fil-chip:hover{border-color:var(--navy-line);color:var(--navy-deep);}
+.fil-chip.is-on{background:var(--navy-bg);border-color:var(--navy-line);color:var(--navy-deep);}
+.find-bulk{margin-left:auto;display:flex;gap:8px;}
+.find-bulk button{font-family:var(--mono);font-size:9.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-faint);background:none;border:none;cursor:pointer;}
+.find-bulk button:hover{color:var(--navy-deep);}
+.finding-row{border:1px solid var(--rule-soft);border-radius:10px;margin:0 0 10px;overflow:hidden;}
+.finding-row[hidden]{display:none;}
+.finding-row>summary{list-style:none;cursor:pointer;padding:12px 16px;background:var(--bg-band);display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.finding-row>summary::-webkit-details-marker{display:none;}
+.finding-row[open]>summary{border-bottom:1px solid var(--rule-soft);}
+.find-id{display:inline-flex;align-items:center;gap:7px;}
+.fi-type{font-size:9.5px;font-weight:700;letter-spacing:.04em;color:#fff;background:var(--navy);padding:2px 8px;border-radius:5px;white-space:nowrap;}
+.fi-code{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--navy-deep);}
+.find-title{font-size:13px;font-weight:600;color:var(--ink);flex:1;min-width:200px;}
+.find-meta{display:flex;align-items:center;gap:8px;margin-left:auto;}
+.find-caret{color:var(--ink-faint);font-size:11px;transition:transform .15s ease;}
+.finding-row[open] .find-caret{transform:rotate(90deg);}
+.find-body{padding:14px 16px;}
+.find-body p{font-size:13px;line-height:1.75;color:var(--ink-mid);margin:0 0 10px;}
+.find-body p:last-child{margin-bottom:0;}
+.evi-body-card{border:1px solid var(--rule-soft);border-radius:10px;overflow:hidden;margin:0 0 4px;}
+.evi-body-card>h5{margin:0;padding:8px 14px;background:var(--bg-band);border-bottom:1px solid var(--rule-soft);font-size:11px;font-weight:700;letter-spacing:.02em;color:var(--ink-mid);line-height:1.5;display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.evi-body-card>h5 .copy-btn{color:var(--ink-faint);background:var(--bg-subtle);border-color:var(--rule);}
+.evi-body-card>h5 .copy-btn:hover{color:var(--navy-deep);background:#fff;}
+.evi-body-card>h5 .copy-btn.copied{color:var(--ok);border-color:var(--ok-line);}
+.evi-body-card pre{margin:0;padding:12px 14px;font-family:var(--mono);font-size:11.5px;line-height:1.65;color:var(--ink-mid);background:var(--bg-subtle);white-space:pre-wrap;word-break:break-word;overflow-wrap:anywhere;}
+
+/* §04 metrics */
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:0 0 16px;}
+@media(max-width:1000px){.stat-grid{grid-template-columns:repeat(2,1fr);}}
+.stat-box{border:1px solid var(--rule-soft);border-radius:10px;padding:13px 15px;background:#fff;}
+.stat-k{font-family:var(--mono);font-size:9.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-faint);margin:0 0 6px;}
+.stat-v{font-size:30px;font-weight:800;line-height:1;color:var(--ink);font-feature-settings:"tnum" 1;}
+.stat-v small{font-size:14px;font-weight:700;color:var(--ink-soft);margin-left:2px;}
+.stat-d{font-size:11px;margin-top:6px;font-weight:700;}
+.stat-d.up{color:var(--ok);}.stat-d.down{color:var(--risk);}
+
+/* data table (shared primitive) */
+table.dt{width:calc(100% - 48px);border-collapse:collapse;table-layout:fixed;font-size:12.5px;margin:0 0 4px;}
+.sec table.dt{margin-left:24px;margin-right:24px;}
+table.dt th{text-align:left;border-bottom:2px solid var(--ink);padding:6px 12px 6px 0;font-family:var(--mono);font-size:9.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-faint);}
+table.dt th.sortable{cursor:pointer;user-select:none;}
+table.dt th.sortable:hover{color:var(--navy-deep);}
+table.dt th .sort-ind{opacity:.4;margin-left:4px;font-size:9px;}
+table.dt th.sort-asc .sort-ind,table.dt th.sort-desc .sort-ind{opacity:1;color:var(--navy-deep);}
+table.dt td{border-bottom:1px solid var(--rule-soft);padding:8px 12px 8px 0;vertical-align:top;line-height:1.55;color:var(--ink-mid);word-break:break-word;overflow-wrap:anywhere;}
+table.dt tr:hover td{background:var(--bg-subtle);}
+table.dt td code{font-family:var(--mono);font-size:11px;color:var(--navy-deep);font-weight:700;}
+.dt-num{text-align:right;font-family:var(--mono);font-feature-settings:"tnum" 1;}
+td.dt-num[data-exact]{cursor:help;}
+
+/* §05 residual risk */
+.risk-list{list-style:none;margin:0;padding:0;}
+.risk-list li{display:grid;grid-template-columns:auto minmax(0,1fr);gap:12px;align-items:start;font-size:13px;line-height:1.7;color:var(--ink-mid);margin:0 0 9px;overflow-wrap:anywhere;}
+.risk-id{font-family:var(--mono);font-size:10.5px;font-weight:700;color:var(--navy-deep);background:var(--navy-bg);border:1px solid var(--navy-line);border-radius:5px;padding:1px 7px;white-space:nowrap;margin-top:1px;}
+
+/* supplement table column hints */
+.lat-c-id{width:64px;}.lat-c-where{width:24%;}.lat-c-judgement{width:104px;}
+
+/* status badges (shared) */
+.st-badge{display:inline-flex;align-items:center;gap:7px;font-size:11.5px;font-weight:700;white-space:nowrap;padding:2px 9px;border:1px solid var(--rule);border-radius:6px;background:#fff;color:var(--ink-mid);}
+.st-badge::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--ink-faint);}
+.st-risk{color:var(--risk);}.st-risk::before{background:var(--risk);}
+.st-hold{color:var(--hold);}.st-hold::before{background:var(--hold);}
+.st-ok{color:var(--ok);}.st-ok::before{background:var(--ok);}
+
+/* appendix reference index */
+.ref-c-id{width:108px;}.ref-c-type{width:96px;}.ref-c-where{width:34%;}
+.evi-link-icon{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:5px;background:var(--navy);color:#fff;font-family:var(--mono);font-size:11px;font-weight:700;text-decoration:none;flex:none;}
+.evi-link-icon--repo{background:var(--navy-deep);}
+.evi-link-icon--monitor{background:#00ac69;}
+.evi-link-icon--log{background:#d93025;}
+.evi-link-icon--doc{background:#0b6b66;}
+.evi-link-icon--data{background:var(--navy);}
+.ev-usedin{display:block;margin-top:5px;font-size:11px;color:var(--ink-soft);}
+.ev-usedin a{font-family:var(--mono);font-size:10px;color:var(--navy-deep);background:var(--navy-bg);border-radius:5px;padding:0 5px;text-decoration:none;margin-right:4px;white-space:nowrap;display:inline-block;}
+.ev-usedin a:hover{background:var(--navy);color:#fff;}
+tr.ev-flash td{animation:evflash 1.4s ease;}
+@keyframes evflash{0%,30%{background:var(--navy-bg);}100%{background:transparent;}}
+
+/* footnote / definition popover */
+.gloss{cursor:help;text-decoration:none;border-bottom:1px dotted var(--navy-line);color:inherit;}
+.gloss:hover{color:var(--navy-deep);}
+.glosspop{position:fixed;z-index:30;max-width:300px;background:#fff;border:1px solid var(--rule);border-radius:10px;box-shadow:0 6px 24px rgba(17,19,26,.16);padding:11px 13px;font-size:12px;line-height:1.55;color:var(--ink-mid);display:none;}
+.glosspop.is-on{display:block;}
+.glosspop b{display:block;font-family:var(--mono);font-size:10.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--navy-deep);margin:0 0 4px;}
+
+/* footer */
+.footer{background:var(--bg-deep);color:#c9c4d0;padding:36px 40px;margin-top:0;}
+.foot-inner{max-width:1720px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;}
+.brand-dk{display:flex;align-items:center;gap:10px;font-weight:800;font-size:16px;color:#fff;letter-spacing:-.01em;}
+.brand-dk .sq{width:14px;height:14px;border-radius:4px;background:var(--navy);}
+.foot-meta{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#8f8898;text-align:right;line-height:1.7;}
+
+/* print — expanded static snapshot, controls hidden */
+@media print{
+ .topbar,.toc,.rail,.topbar-tools,.dens-toggle,.read-prog,.find-tools,.sec-collapse,.copy-btn,.toc-allbtn,.glosspop{display:none !important;}
+ .content{grid-template-columns:1fr;padding:0;}
+ .sec{break-inside:avoid;box-shadow:none;}
+ .sec.is-collapsed>*:not(.sec-head){display:revert !important;}
+ .sec.is-collapsed .sec-head{border-bottom:1px solid var(--rule) !important;}
+ .finding-row[hidden]{display:block !important;}
+ .footer{background:#fff;color:#333;border-top:1px solid var(--rule);}
+ .brand-dk{color:#111;}.foot-meta{color:#666;}
+ details.sec-fold{display:block;}details.sec-fold[open]{}
+ body{font-size:11px;}
+}
+</style>
+</head>
+<body>
+
+<div class="read-prog" id="read-prog" aria-hidden="true"></div>
+
+<noscript>
+  <div class="noscript"><b>JavaScript is required.</b> This long-form report renders its content from an embedded
+  data block (<code>#report-data</code>) using JavaScript. Enable JavaScript to view the sections, the evidence index,
+  the scroll-spy contents, and the interactive controls (theme, filters, sortable metrics, code-copy).</div>
+</noscript>
+
+<!-- App chrome is built by render(); these are its mount points. -->
+<nav class="topbar" id="topbar"></nav>
+<header class="hero" id="hero"></header>
+<div class="content" id="content"></div>
+<footer class="footer" id="footer"></footer>
+<div class="glosspop" id="glosspop" role="tooltip"></div>
+
+<!-- ============================================================
+     #report-data — THE ONLY CONTENT SOURCE.
+     A valid instance of designs/schemas/long-form-report.schema.json
+     (blocks carry extra render-detail fields; the schema permits
+     additionalProperties on blocks). render() builds the DOM from it.
+     ============================================================ -->
+<script type="application/json" id="report-data">
+{
+  "meta": {
+    "org": "{{ORG}}",
+    "project": "{{PROJECT}}",
+    "reportType": "{{REPORT_TYPE}}",
+    "title": "Operational Resilience & Controls Assessment",
+    "subtitle": "Settlement orchestrator idempotency review — Q2 2026",
+    "date": "{{DATE}}",
+    "author": "{{AUTHOR}}",
+    "theme": "purple"
+  },
+  "hero": {
+    "eyebrow": "Operational Resilience & Controls Assessment · Q2 Review",
+    "title": "Payment-orchestration retry guard is missing on the settlement path, allowing duplicate disbursements to clear under partial-failure conditions",
+    "standfirst": "The settlement orchestrator commits a disbursement before the idempotency key is durably persisted, so a partial timeout between <code>commit()</code> and the ledger write reopens a window in which a client retry produces a second cleared payment. The behaviour deviates from control <code data-term=\"OR-CTL-118\">OR-CTL-118</code> (\"every externally-visible mutation is exactly-once under retry\"), is reproducible against the current release, and has cleared <code>4</code> duplicate disbursements in the review window. This report sets out the cause chain, the recommended remediation with the load-bearing code change, the supporting findings, and a full evidence index.",
+    "badges": [
+      { "label": "Verdict · Non-conformant", "variant": "verdict" },
+      { "label": "Domain · Settlement", "variant": "cat" },
+      { "label": "Severity · High", "variant": "sev" },
+      { "label": "Scope · Production", "variant": "default" },
+      { "label": "Window · 2026-04-01 → 2026-06-15", "variant": "default" }
+    ],
+    "metaItems": [
+      { "key": "Report ID", "value": "OPS-RES-2026-Q2-047" },
+      { "key": "Owner", "value": "{{AUTHOR}}" },
+      { "key": "Reviewers", "value": "Controls Assurance · Platform Engineering" },
+      { "key": "Classification", "value": "Confidential — Internal" },
+      { "key": "Status", "value": "Final · Issued" }
+    ]
+  },
+  "tocSections": [
+    { "id": "engagement", "num": "00",    "title": "Engagement & Scope" },
+    { "id": "summary",    "num": "01",    "title": "Summary of Findings" },
+    { "id": "analysis",   "num": "02",    "title": "Analysis & Remediation" },
+    { "id": "findings",   "num": "03",    "title": "Detailed Findings" },
+    { "id": "metrics",    "num": "04",    "title": "Key Metrics" },
+    { "id": "risks",      "num": "05",    "title": "Residual Risk" },
+    { "id": "lateral",    "num": "Supp.", "title": "Lateral Exposure" },
+    { "id": "appendix",   "num": "App.",  "title": "Evidence Index" }
+  ],
+  "sections": [
+    {
+      "id": "engagement",
+      "num": "Section 00",
+      "title": "Engagement & Scope",
+      "iconCategory": "document",
+      "blocks": [
+        {
+          "kind": "prose",
+          "lead": true,
+          "text": "This assessment was commissioned by the Controls Assurance function to review the exactly-once guarantee on the {{PROJECT}} settlement path following two duplicate-disbursement reports. Scope is the production release; the review combines source inspection, control-mapping, and telemetry replay. Findings are evidence-backed and traceable via the appendix index."
+        },
+        {
+          "kind": "kv-grid",
+          "items": [
+            { "key": "Environment", "value": "Production" },
+            { "key": "Release", "value": "svc-settle 4.12.3" },
+            { "key": "Control mapped", "value": "OR-CTL-118" },
+            { "key": "Affected services", "value": "<span class=\"rail-screen\">settle-orchestrator</span><span class=\"rail-screen\">ledger-writer</span>", "html": true },
+            { "key": "Review window", "value": "2026-04-01 → 2026-06-15" },
+            { "key": "Owner", "value": "{{AUTHOR}}" },
+            { "key": "Method", "value": "Source · Control map · Replay" },
+            { "key": "Duplicates cleared", "value": "4", "tnum": true },
+            { "key": "Entry API", "value": "POST /v1/disbursements" },
+            { "key": "Detection", "value": "Reconciliation break" },
+            { "key": "Handoff", "value": "Platform Engineering" },
+            { "key": "Linked items", "value": "OPS-1183 · OPS-1199" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "summary",
+      "num": "Section 01",
+      "title": "Summary of Findings — what happens and why",
+      "iconCategory": "status",
+      "blocks": [
+        {
+          "kind": "phen-rows",
+          "items": [
+            { "label": "Expected", "expect": true, "value": "Under any client retry, a given disbursement request clears <span class=\"nb\">exactly once</span>; a duplicate request returns the original result without a second ledger mutation (control <span class=\"nb\">OR-CTL-118</span>)." },
+            { "label": "Observed", "value": "A partial timeout between <span class=\"nb\">commit()</span> and the durable idempotency-key write reopens the dedup window; a retried request is treated as new and a <span class=\"nb\">second</span> disbursement clears with <span class=\"nb\">HTTP 200</span>." },
+            { "label": "Trigger", "value": "Downstream latency &gt; the client retry budget during the post-commit / pre-persist window — observed under normal production load, not a synthetic edge case." }
+          ]
+        },
+        {
+          "kind": "prose",
+          "variant": "callout",
+          "label": "Root cause, in one line",
+          "text": "The idempotency key is persisted <em>after</em> the financial commit rather than as part of it, so a crash or timeout in that gap leaves the mutation visible but unrecorded — and the next retry repeats it."
+        },
+        {
+          "kind": "cause-chain",
+          "items": [
+            { "num": "1", "headline": "Control OR-CTL-118 mandates exactly-once for externally-visible mutations, enforced by an idempotency key", "detail": "The control catalogue requires that every externally-visible state mutation be exactly-once under retry, with the idempotency key written in the same transaction boundary as the mutation. The settlement path is in scope for OR-CTL-118 and was certified at design time on the assumption that key-write and commit are atomic.", "evrefs": ["EV-DOC-001"] },
+            { "num": "2", "headline": "The orchestrator commits the disbursement first and persists the key in a separate follow-up write", "detail": "In <code>settle_orchestrator.go</code> the handler calls <code>ledger.Commit()</code> and only then issues <code>idem.Put(key)</code> on a different connection. The two are not in one transaction, so a process restart or a downstream timeout after <code>Commit()</code> but before <code>Put()</code> leaves the mutation durable and the key absent.", "evrefs": ["EV-SRC-001", "EV-SRC-002"] },
+            { "num": "3", "headline": "A client retry inside that gap finds no key and is processed as a brand-new request", "detail": "The client SDK retries on a 5s budget. When downstream latency exceeds it during the gap, the retried request reaches the orchestrator, the dedup lookup misses (the key was never written), and the request proceeds through the full disbursement path a second time.", "evrefs": ["EV-LOG-001"] },
+            { "num": "4", "headline": "The ledger writer has no second-line uniqueness guard, so the duplicate persists and returns 200", "detail": "The ledger schema enforces no unique constraint on the business request id, and the writer trusts the orchestrator's dedup. The second mutation is accepted, committed, and returns <code>HTTP 200</code>; reconciliation later surfaces the duplicate as a break.", "evrefs": ["EV-SRC-003", "EV-DAT-001", "EV-LOG-002"] }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "analysis",
+      "num": "Section 02",
+      "title": "Analysis & Remediation — what to change and how",
+      "iconCategory": "code",
+      "blocks": [
+        {
+          "kind": "fix-card",
+          "priority": "Primary fix",
+          "priorityVariant": "primary",
+          "where": "settle-orchestrator · internal/settle/settle_orchestrator.go:L142–L168 (handleDisbursement)",
+          "headLink": { "kind": "repo", "href": "#ev-EV-SRC-001", "letter": "R", "title": "Open repository" },
+          "current": "The handler commits the ledger mutation and then, on a separate store, writes the idempotency key. Because the two are not in one transaction boundary, a restart or downstream timeout in the gap leaves a durable mutation with no recorded key. The dedup guard is therefore advisory, not enforced, and a retry in that window is processed as new — contradicting control OR-CTL-118, which mandates that the key write and the mutation be atomic.",
+          "proposal": "Move the idempotency-key write <strong>into</strong> the same transaction as the ledger commit so the key is durable exactly when the mutation is — a conditional insert (<code>INSERT … ON CONFLICT DO NOTHING</code>) that aborts the commit if the key already exists. This collapses the TOCTOU window to zero. Apply the matching change to <code>regular_transfer_orchestrator.go</code> and add the second-line uniqueness guard described in Finding EV-SRC-003.",
+          "tldr": [
+            "Change: <code>settle_orchestrator.go:L150</code> — separate <code>idem.Put</code> after commit",
+            "Write key inside the commit txn via <code>ON CONFLICT DO NOTHING</code>; abort if present",
+            "Verify: retry in the gap returns the original result, ledger row count stays at 1"
+          ],
+          "diff": {
+            "evId": "EV-SRC-001",
+            "rows": [
+              { "t": "ctx", "ln": "142", "rn": "142", "l": "func (o *Orchestrator) handleDisbursement(", "r": "func (o *Orchestrator) handleDisbursement(" },
+              { "t": "ctx", "ln": "143", "rn": "143", "l": "    ctx context.Context, req *Disb,", "r": "    ctx context.Context, req *Disb," },
+              { "t": "ctx", "ln": "144", "rn": "144", "l": ") (*Result, error) {", "r": ") (*Result, error) {" },
+              { "t": "ctx", "ln": "145", "rn": "145", "l": "  if o.idem.Seen(req.Key) {", "r": "  if o.idem.Seen(req.Key) {" },
+              { "t": "ctx", "ln": "146", "rn": "146", "l": "    return o.idem.Result(req.Key)", "r": "    return o.idem.Result(req.Key)" },
+              { "t": "ctx", "ln": "147", "rn": "147", "l": "  }", "r": "  }" },
+              { "t": "chg", "ln": "148", "rn": "148", "l": "  res, err := o.ledger.Commit(ctx, req)", "r": "  // commit + key write share one txn boundary" },
+              { "t": "chg", "ln": "149", "rn": "149", "l": "  if err != nil { return nil, err }", "r": "  res, err := o.ledger.CommitTx(ctx, req, func(tx Tx) error {" },
+              { "t": "chg", "ln": "150", "rn": "150", "l": "  // ← gap: restart here loses the key", "r": "    return tx.PutKeyIfAbsent(req.Key, res)  // ON CONFLICT DO NOTHING" },
+              { "t": "chg", "ln": "151", "rn": "151", "l": "  o.idem.Put(req.Key, res)  // separate store", "r": "  })" },
+              { "t": "add", "ln": "", "rn": "152", "l": "", "r": "  if err == ErrKeyExists { return o.idem.Result(req.Key) }" },
+              { "t": "add", "ln": "", "rn": "153", "l": "", "r": "  if err != nil { return nil, err }" },
+              { "t": "ctx", "ln": "152", "rn": "154", "l": "  return res, nil", "r": "  return res, nil" },
+              { "t": "ctx", "ln": "153", "rn": "155", "l": "}", "r": "}" }
+            ]
+          }
+        },
+        {
+          "kind": "fix-card",
+          "priority": "Recommended · defence in depth",
+          "priorityVariant": "rec",
+          "where": "ledger-writer · migrations/0042_unique_request_id.sql",
+          "headLink": { "kind": "repo", "href": "#ev-EV-SRC-003", "letter": "R", "title": "Open repository" },
+          "current": "The ledger table has no unique constraint on the business request id; the writer relies entirely on the orchestrator's dedup. Once the primary fix lands the root cause is closed, but a second-line guard at the data layer makes a duplicate impossible to persist even if a future caller bypasses the orchestrator. This is a recommended hardening, independent of the primary fix.",
+          "proposal": "Add a unique index on <code>(account_id, request_id)</code> so a duplicate insert fails at the database. The writer maps the constraint violation to the existing \"already processed\" result. Backfill is required to confirm no existing duplicates block the index; run the dedup report (EV-DAT-001) first.",
+          "tldr": [
+            "Change: add <code>UNIQUE (account_id, request_id)</code> on <code>ledger_entries</code>",
+            "Map violation → \"already processed\" (no error surfaced to caller)",
+            "Verify: duplicate insert rejected at DB; reconciliation break count → 0"
+          ],
+          "diff": {
+            "evId": "EV-SRC-003",
+            "rows": [
+              { "t": "ctx", "ln": "1", "rn": "1", "l": "CREATE TABLE ledger_entries (", "r": "CREATE TABLE ledger_entries (" },
+              { "t": "ctx", "ln": "2", "rn": "2", "l": "  id          BIGSERIAL PRIMARY KEY,", "r": "  id          BIGSERIAL PRIMARY KEY," },
+              { "t": "ctx", "ln": "3", "rn": "3", "l": "  account_id  BIGINT NOT NULL,", "r": "  account_id  BIGINT NOT NULL," },
+              { "t": "chg", "ln": "4", "rn": "4", "l": "  request_id  UUID NOT NULL  -- no uniqueness", "r": "  request_id  UUID NOT NULL," },
+              { "t": "ctx", "ln": "5", "rn": "5", "l": "  amount      NUMERIC NOT NULL", "r": "  amount      NUMERIC NOT NULL" },
+              { "t": "ctx", "ln": "6", "rn": "6", "l": ");", "r": ");" },
+              { "t": "add", "ln": "", "rn": "7", "l": "", "r": "CREATE UNIQUE INDEX ux_ledger_req" },
+              { "t": "add", "ln": "", "rn": "8", "l": "", "r": "  ON ledger_entries (account_id, request_id);" }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "findings",
+      "num": "Section 03",
+      "title": "Detailed Findings — control, data, and telemetry",
+      "iconCategory": "data",
+      "blocks": [
+        {
+          "kind": "prose",
+          "text": "The findings below <strong>support</strong> the remediation in Section 02. The load-bearing source change is shown there as the diff; this section carries the control-mapping, the production data, and the telemetry that establish the deviation. Each row links to its appendix entry."
+        },
+        { "kind": "findings-accordion" }
+      ]
+    },
+    {
+      "id": "metrics",
+      "num": "Section 04",
+      "title": "Key Metrics — exposure and detection",
+      "iconCategory": "data",
+      "blocks": [
+        {
+          "kind": "data-table",
+          "statBoxes": [
+            { "key": "Duplicates cleared", "value": "4", "trend": "down", "note": "over 11 weeks" },
+            { "key": "Value at risk", "value": "$38.2", "unit": "k", "trend": "down", "note": "reversed manually" },
+            { "key": "Mean detect lag", "value": "26", "unit": "h", "trend": "down", "note": "recon cycle" },
+            { "key": "Window after fix", "value": "0", "unit": "ms", "trend": "up", "note": "atomic key write" }
+          ],
+          "columns": [
+            { "key": "service", "label": "Service", "width": "18%", "code": true },
+            { "key": "control", "label": "Control", "width": "14%" },
+            { "key": "events", "label": "Events", "width": "14%", "num": true },
+            { "key": "disposition", "label": "Disposition" },
+            { "key": "status", "label": "Status", "width": "14%", "status": true }
+          ],
+          "rows": [
+            { "service": "settle-orchestrator", "control": "OR-CTL-118", "events": 4, "disposition": "Atomic key write (primary fix)", "status": "risk:Open" },
+            { "service": "ledger-writer", "control": "OR-CTL-118", "events": 0, "disposition": "Unique index (defence in depth)", "status": "hold:Recommended" },
+            { "service": "transfer-orchestrator", "control": "OR-CTL-118", "events": 0, "disposition": "Same pattern — lateral fix (see Supp.)", "status": "hold:Watch" },
+            { "service": "refund-service", "control": "OR-CTL-118", "events": 0, "disposition": "Already atomic — conformant", "status": "ok:Cleared" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "risks",
+      "num": "Section 05",
+      "title": "Residual Risk & Open Items",
+      "iconCategory": "status",
+      "blocks": [
+        {
+          "kind": "risk-list",
+          "items": [
+            { "id": "R-001", "text": "Until the primary fix ships, the duplicate window remains open under downstream latency spikes. Interim mitigation: a reconciliation alert on same-day duplicate <code>request_id</code> reduces detection lag from 26h to under 1h but does not prevent the duplicate." },
+            { "id": "R-002", "text": "The unique-index hardening (EV-SRC-003) requires a clean backfill. If historical duplicates exist beyond the four found, the index creation will fail until they are reversed; run the dedup report at full history before migrating." },
+            { "id": "R-003", "text": "The transfer orchestrator shares the post-commit key-write shape (see Lateral Exposure). It has produced no incident yet, but the same partial-failure window exists and must be remediated together to avoid a recurrence under a different entry point." }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "lateral",
+      "num": "Supp.",
+      "title": "Lateral Exposure — same pattern, other paths",
+      "folded": true,
+      "iconCategory": "code",
+      "blocks": [
+        {
+          "kind": "prose",
+          "lead": true,
+          "text": "A mechanical scan for the same \"commit-then-persist-key\" shape across the payments services. Each candidate is classified <strong>same pattern</strong> or <strong>needs review</strong>; all require manual confirmation before any change."
+        },
+        {
+          "kind": "data-table",
+          "columns": [
+            { "key": "id", "label": "ID", "width": "64px", "code": true },
+            { "key": "location", "label": "Location", "width": "24%", "code": true },
+            { "key": "verdict", "label": "Verdict", "width": "104px", "status": true },
+            { "key": "rationale", "label": "Rationale", "html": true },
+            { "key": "impact", "label": "Impact", "width": "20%" }
+          ],
+          "rows": [
+            { "id": "LC-001", "location": "transfer-orchestrator · regular_transfer_orchestrator.go:L121–L149", "verdict": "risk:Same pattern", "rationale": "Identical shape: <code>ledger.Commit()</code> followed by a separate <code>idem.Put()</code>. The post-commit / pre-persist gap is present; no incident yet only because retry timing has not coincided with a latency spike on this path.", "impact": "A duplicate scheduled transfer could clear under the same partial-failure condition." },
+            { "id": "LC-002", "location": "payout-batch · batch_finalizer.go:L88–L110", "verdict": "hold:Needs review", "rationale": "Writes the key after commit but inside a retried batch step; whether the batch framework re-runs the step atomically is unclear from source alone. Confirm the framework's at-least-once semantics before judging.", "impact": "If non-atomic, a batch retry could double a payout line." },
+            { "id": "LC-003", "location": "refund-service · refund_handler.go:L64–L79", "verdict": "ok:Conformant", "rationale": "Already writes the key inside the commit transaction (<code>ON CONFLICT DO NOTHING</code>) — the target shape of the primary fix. Listed as the reference implementation, not a candidate.", "impact": "None — meets OR-CTL-118." }
+          ],
+          "footnote": "Mechanical classification. On-call must verify each candidate before remediation; a \"same pattern\" verdict does not authorise an automated change."
+        }
+      ]
+    },
+    {
+      "id": "appendix",
+      "num": "App.",
+      "title": "Appendix — Evidence Index",
+      "folded": true,
+      "iconCategory": "document",
+      "blocks": [
+        { "kind": "prose", "variant": "ref-intro", "text": "Every <code>EV-*</code> id cited in the body resolves to a row below; each row links back to where it is used." }
+      ]
+    }
+  ],
+  "railFacts": [
+    {
+      "label": "Report metadata",
+      "facts": [
+        { "key": "Report ID", "value": "OPS-RES-2026-Q2-047" },
+        { "key": "Type", "value": "{{REPORT_TYPE}}" },
+        { "key": "Owner", "value": "{{AUTHOR}}" },
+        { "key": "Window", "value": "2026-04-01 → 2026-06-15" },
+        { "key": "Scope", "value": "settle-orchestrator · ledger-writer" },
+        { "key": "Classification", "value": "Confidential — Internal" },
+        { "key": "Status", "value": "st:risk:Non-conformant" }
+      ]
+    },
+    {
+      "label": "Remediation",
+      "facts": [
+        { "key": "Controls closed", "value": "2 / 4" },
+        { "key": "Primary fix", "value": "st:risk:Open" },
+        { "key": "Hardening", "value": "st:hold:Recommended" },
+        { "key": "Lateral", "value": "1 same · 1 review" }
+      ]
+    }
+  ],
+  "findings": [
+    {
+      "id": "EV-DOC-001",
+      "type": "Control",
+      "title": "OR-CTL-118 mandates exactly-once for externally-visible mutations, with the idempotency key written atomically with the mutation",
+      "confidence": "ok",
+      "confidenceLabel": "Confidence · High",
+      "body": "The control catalogue defines OR-CTL-118 as a closed requirement: every externally-visible state mutation must be exactly-once under client retry, and the deduplication key must be written within the same transaction boundary as the mutation it guards. The settlement path is explicitly in scope. The current implementation satisfies the \"dedup key exists\" letter of the control but not its atomicity clause, which is the deviation under assessment.",
+      "evidence": "OR-CTL-118  Exactly-once for externally-visible mutations\n  Statement : Any operation that produces an externally-visible state change\n              MUST be idempotent under retry.\n  Mechanism : A deduplication key uniquely identifies the request and MUST be\n              persisted within the SAME transaction boundary as the mutation.\n  Scope     : payments.settlement, payments.transfer, refunds.*\n  Rationale : A non-atomic key write reopens a duplicate-execution window on\n              partial failure between mutation and key persistence.\n  Owner     : Controls Assurance        Last reviewed : 2026-02-18"
+    },
+    {
+      "id": "EV-DAT-001",
+      "type": "Data",
+      "title": "Reconciliation found 4 ledger pairs sharing one request id across the window — confirmed duplicate disbursements, not retries collapsed",
+      "confidence": "hold",
+      "confidenceLabel": "Confidence · Medium",
+      "body": "A dedup query over the review window returned four cases where two <code>ledger_entries</code> rows carry the same <code>(account_id, request_id)</code> with non-overlapping ids and timestamps 0.4–4.8s apart — the signature of a retry processed as new, not of a collapsed idempotent reply. All four were later flagged as reconciliation breaks and reversed manually. The medium confidence reflects that two of the four lack a matching client-side retry log line; telemetry sampling may have dropped them.",
+      "evidence": "SELECT account_id, request_id, count(*), max(ts)-min(ts) AS gap\nFROM ledger_entries\nWHERE created_at >= '2026-04-01' GROUP BY 1,2 HAVING count(*) > 1;\n\n account_id │ request_id │ count │  gap\n────────────┼────────────┼───────┼────────\n   ****1042 │ 7c…e1      │   2   │ 0.41s\n   ****0318 │ a9…44      │   2   │ 2.07s\n   ****8851 │ 1f…b0      │   2   │ 4.83s\n   ****2290 │ d3…9c      │   2   │ 1.12s\n(4 rows)"
+    },
+    {
+      "id": "EV-LOG-002",
+      "type": "Telemetry",
+      "title": "Server logs show the retried request entering the full disbursement path with a dedup-miss, then committing a second mutation with HTTP 200",
+      "confidence": "risk",
+      "confidenceLabel": "Deviation confirmed",
+      "body": "For one reproduced case the orchestrator log shows the first request committing, the client retry arriving 0.41s later, the dedup lookup returning <code>miss</code> (the key write had not completed), and the second mutation committing and returning 200. This is the direct observation that ties the code path in EV-SRC-001 to the duplicate row in EV-DAT-001.",
+      "evidence": "12:04:11.118  commit ok        req=7c…e1  ledger_id=88421  status=200\n12:04:11.119  idem.put start   req=7c…e1\n12:04:11.530  request in       req=7c…e1  attempt=2  (client retry)\n12:04:11.531  dedup lookup     req=7c…e1  result=MISS   ← key not yet durable\n12:04:11.842  commit ok        req=7c…e1  ledger_id=88507  status=200  ← DUPLICATE\n12:04:11.910  idem.put done    req=7c…e1  (too late)"
+    }
+  ],
+  "references": [
+    { "id": "EV-DOC-001", "type": "Control",   "where": "catalogue://controls/OR-CTL-118",                                          "brief": "OR-CTL-118: exactly-once for externally-visible mutations; idempotency key written atomically with the mutation. Settlement path in scope.", "linkKind": "doc" },
+    { "id": "EV-SRC-001", "type": "Source",    "where": "repo://svc-settle@4.12.3:internal/settle/settle_orchestrator.go#L142-L168", "brief": "handleDisbursement: <code>ledger.Commit()</code> then separate <code>idem.Put()</code> — the non-atomic key write that opens the duplicate window.", "linkKind": "repo" },
+    { "id": "EV-SRC-002", "type": "Source",    "where": "repo://svc-settle@4.12.3:internal/idem/store.go#L30-L58",                  "brief": "Idempotency store is a distinct connection from the ledger; <code>Put</code> and <code>Commit</code> cannot share a transaction in the current design.", "linkKind": "repo" },
+    { "id": "EV-SRC-003", "type": "Source",    "where": "repo://svc-settle@4.12.3:migrations/0041_ledger.sql#L1-L9",                "brief": "ledger_entries has no unique constraint on <code>(account_id, request_id)</code> — no second-line guard against a duplicate persist.", "linkKind": "repo" },
+    { "id": "EV-DAT-001", "type": "Data",      "where": "query://warehouse/dedup_breaks@2026-06-15",                             "brief": "Four ledger pairs share one request id across the window with 0.4–4.8s gaps; all four reconciled as breaks and reversed.", "linkKind": "data" },
+    { "id": "EV-LOG-001", "type": "Telemetry", "where": "monitor://traces/settle@2026-05-22T12:04:11Z",                          "brief": "Trace of the reproduced case: first commit, client retry at +0.41s, dedup miss, second commit — the duplicate-execution path end to end.", "linkKind": "monitor" },
+    { "id": "EV-LOG-002", "type": "Telemetry", "where": "log://settle-orchestrator@2026-05-22T12:04:11Z:req=7c…e1",                "brief": "Orchestrator log lines showing dedup <code>MISS</code> on the retry and the second <code>commit ok … status=200</code> — ties the code path to the duplicate row.", "linkKind": "log" }
+  ]
+}
+</script>
+
+<!-- ============================================================
+     RENDER + INTERACTIONS — reads #report-data → DOM on load.
+     ============================================================ -->
+<script>
+(function(){
+  "use strict";
+  var DATA;
+  try { DATA = JSON.parse(document.getElementById('report-data').textContent); }
+  catch(e){ console.error('report-data parse error', e); return; }
+
+  /* ---------- helpers ---------- */
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+  // raw() trusts curated HTML snippets from the data (controlled content, not user input)
+  function raw(s){ return s==null?'':String(s); }
+  function cap(s){ return s ? s.charAt(0).toUpperCase()+s.slice(1) : s; }
+
+  var SVG = 'viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"';
+  var ICON = {
+    shield: '<svg '+SVG+' width="100%" height="100%"><path d="M12 3.25 19 5.75v5.45c0 4.4-3 7.6-7 8.8-4-1.2-7-4.4-7-8.8V5.75Z"/><path d="M9 12l2.2 2.2L15.2 9.6"/></svg>',
+    document: '<svg '+SVG+' width="100%" height="100%"><path d="M6.5 3.5H13l4.5 4.5V20a.5.5 0 0 1-.5.5H6.5a.5.5 0 0 1-.5-.5V4a.5.5 0 0 1 .5-.5Z"/><path d="M13 3.5V7.5a.5.5 0 0 0 .5.5H17.5"/><path d="M9 12.5H15M9 15.5H15M9 18H12.5"/></svg>',
+    status: '<svg '+SVG+' width="100%" height="100%"><path d="M12 7.5 6 16.5M12 7.5 18 16.5M7.5 18.5H16.5"/><rect x="10" y="3.5" width="4" height="4" rx="1.2" fill="currentColor" stroke="none"/><rect x="3.5" y="16.5" width="4" height="4" rx="1.2" fill="currentColor" stroke="none"/><rect x="16.5" y="16.5" width="4" height="4" rx="1.2" fill="currentColor" stroke="none"/></svg>',
+    code: '<svg '+SVG+' width="100%" height="100%"><path d="M8.5 7 4.5 12l4 5"/><path d="M15.5 7 19.5 12l-4 5"/><path d="M13.5 5.5 10.5 18.5"/></svg>',
+    data: '<svg '+SVG+' width="100%" height="100%"><path d="M4 4V20H20"/><rect x="6.75" y="12" width="3" height="8" rx="1.2"/><rect x="11.5" y="8" width="3" height="12" rx="1.2"/><rect x="16.25" y="14.5" width="3" height="5.5" rx="1.2"/></svg>',
+    clock: '<svg '+SVG+' width="100%" height="100%"><circle cx="12" cy="12" r="8.5"/><path d="M12 12 12 6.5M12 12 16 14.5"/></svg>',
+    warn: '<svg '+SVG+' width="100%" height="100%"><path d="M12 3 21 19H3Z"/><path d="M12 9.5v4"/><circle cx="12" cy="16.5" r=".7" fill="currentColor" stroke="none"/></svg>',
+    warnHero: '<svg class="icon" '+SVG+'><path d="M12 3 21 19H3Z"/><path d="M12 10v4.5"/><circle cx="12" cy="17" r=".6" fill="currentColor" stroke="none"/></svg>',
+    copy: '<svg class="icon" '+SVG+'><rect x="8.5" y="8.5" width="10" height="11" rx="2"/><path d="M15.5 8.5V6.5a2 2 0 0 0-2-2h-7a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h2"/></svg>',
+    editorial: '<svg '+SVG+' width="100%" height="100%"><path d="M5 5h14M5 9.5h14M5 14h9M5 18.5h9"/></svg>',
+    source: '<svg '+SVG+' width="100%" height="100%"><path d="M9 18c-3.5 1-3.5-2-5-2.5M15 21v-3.2a2.8 2.8 0 0 0-.8-2.2c2.6-.3 5.4-1.3 5.4-5.8a4.5 4.5 0 0 0-1.3-3.1 4.2 4.2 0 0 0-.1-3.1s-1-.3-3.3 1.2a11.3 11.3 0 0 0-6 0C6.6 3.3 5.6 3.6 5.6 3.6a4.2 4.2 0 0 0-.1 3.1A4.5 4.5 0 0 0 4.2 9.8c0 4.5 2.8 5.5 5.4 5.8a2.8 2.8 0 0 0-.8 2.1V21"/></svg>'
+  };
+  function secIcon(cat){ return ICON[cat] || ICON.document; }
+  var THEMES = [ ['blue','#0b5fd4'],['purple','#a100ff'],['indigo','#4338ca'],['teal','#0e7c86'],['cyan','#0891b2'],['green','#1f7a44'],['plum','#a21d6e'],['slate','#3f4f63'],['black','#000000'] ];
+
+  /* status token "risk:Open" → {st:'risk', label:'Open'} */
+  function stParse(v){ var i=String(v).indexOf(':'); return i<0?{st:'',label:v}:{st:String(v).slice(0,i),label:String(v).slice(i+1)}; }
+  function stBadge(v){ var p=stParse(v); return '<span class="st-badge st-'+esc(p.st)+'">'+esc(p.label)+'</span>'; }
+  function linkIcon(lk){ return '<a class="evi-link-icon evi-link-icon--'+esc(lk.kind)+'" href="'+esc(lk.href)+'" title="'+esc(lk.title||'')+'">'+esc(lk.letter||'·')+'</a>'; }
+  /* link-icon letter + class derived from an evidence/finding type or linkKind */
+  var LK_LETTER={doc:'D',repo:'R',monitor:'M',log:'L',data:'D'};
+  var TYPE_LK={Control:'doc',Source:'repo',Data:'data',Telemetry:'log'};
+  function findMeta(key){ var it=(DATA.hero&&DATA.hero.metaItems||[]).filter(function(x){return x.key===key;})[0]; return it?it.value:''; }
+
+  /* glossary definitions for [data-term] popovers (UI affordance layer;
+     report content proper lives in #report-data). */
+  var GLOSSARY = {
+    "OR-CTL-118": { title:"OR-CTL-118", def:"Control requiring exactly-once for every externally-visible mutation under client retry, with the dedup key written in the same transaction boundary as the mutation." },
+    "request_id": { title:"request_id", def:"The business identifier carried by a disbursement request; reconciliation groups ledger rows by (account_id, request_id) to detect duplicates." },
+    "idempotency key": { title:"Idempotency key", def:"A unique token persisted per request so that a retry returns the original result instead of executing a second mutation." }
+  };
+
+  /* derive "Cited in" back-links for an evidence id by scanning the data
+     (replaces stored usedIn — keeps the appendix bidirectional, from schema fields). */
+  function citedIn(evId){
+    var out=[];
+    (DATA.sections||[]).forEach(function(s){
+      var hit=false;
+      (s.blocks||[]).forEach(function(b){
+        if(b.kind==='cause-chain'){ (b.items||[]).forEach(function(it){ if((it.evrefs||[]).indexOf(evId)>=0) hit=true; }); }
+        if(b.kind==='fix-card' && b.diff && b.diff.evId===evId) hit=true;
+      });
+      if(hit) out.push({ href:'#'+s.id, label:secLabel(s) });
+    });
+    if((DATA.findings||[]).some(function(f){return f.id===evId;})) out.push({ href:'#ev-'+evId, label:'§03 finding' });
+    return out;
+  }
+  function secLabel(s){ var n=String(s.num).replace(/^Section\s*/,''); return '§'+n; }
+
+  /* ---------- TOPBAR ---------- */
+  function renderTopbar(){
+    var m=DATA.meta||{};
+    var reportId=findMeta('Report ID');
+    var themeOpts = THEMES.map(function(t){
+      return '<option value="'+t[0]+'"'+(t[0]===(m.theme||'blue')?' selected':'')+'>'+cap(t[0])+'</option>';
+    }).join('');
+    var themeSwitcher = '<label class="rc-theme" title="Brand colour"><span class="rc-theme-sw" aria-hidden="true"></span><select class="rc-theme-sel" aria-label="Brand theme">'+themeOpts+'</select></label>';
+    document.getElementById('topbar').innerHTML =
+      '<div class="topbar-inner">'
+      + '<div class="logo"><span class="mark">'+ICON.shield+'</span>'+esc(m.org||'{{ORG}}')+' <small>'+esc(m.reportType||'')+'</small></div>'
+      + '<div class="topbar-right">'
+        + '<span class="crumb">'+esc(m.project||'{{PROJECT}}')+' &nbsp;/&nbsp; Internal Assurance &nbsp;/&nbsp; <b>'+esc(reportId)+'</b></span>'
+        + '<span class="topbar-gen"><b>Generated</b> '+esc(m.date||'')+'</span>'
+        + '<span class="topbar-tools">'
+          + '<span class="dens-toggle" id="dens-toggle" role="group" aria-label="density">'
+            + '<button type="button" data-density="comfortable" class="is-on">Comfort</button>'
+            + '<button type="button" data-density="compact">Compact</button>'
+          + '</span>'
+          + themeSwitcher
+        + '</span>'
+      + '</div></div>';
+  }
+
+  /* ---------- HERO ---------- */
+  function renderHero(){
+    var h=DATA.hero||{};
+    var badges=(h.badges||[]).map(function(b){
+      var cls = b.variant==='verdict'?'badge-verdict':b.variant==='cat'?'badge-cat':b.variant==='sev'?'badge-sev':'';
+      var ico = b.variant==='verdict'?ICON.warnHero:'';
+      return '<span class="badge '+cls+'">'+ico+esc(b.label)+'</span>';
+    }).join('');
+    var meta=(h.metaItems||[]).map(function(x){ return '<span><b>'+esc(x.key)+'</b><i>'+esc(x.value)+'</i></span>'; }).join('');
+    document.getElementById('hero').innerHTML =
+      '<div class="hero-eyebrow">'+esc(h.eyebrow||'')+'</div>'
+      + '<h1 class="hero-title">'+esc(h.title||'')+'</h1>'
+      + (badges?'<div class="hero-badges">'+badges+'</div>':'')
+      + '<p class="hero-sum">'+raw(h.standfirst)+'</p>'
+      + (meta?'<div class="hero-meta">'+meta+'</div>':'');
+  }
+
+  /* ---------- BLOCK RENDERERS ---------- */
+  function blKvGrid(b){
+    var rows=(b.items||[]).map(function(it){
+      var val = it.html ? raw(it.value) : esc(it.value);
+      return '<tr><th>'+esc(it.key)+'</th><td'+(it.tnum?' class="tnum"':'')+'>'+val+'</td></tr>';
+    }).join('');
+    return '<table class="kv-grid"><tbody>'+rows+'</tbody></table>';
+  }
+  function blProse(b){
+    if(b.variant==='callout') return '<div class="bugsum-label">'+esc(b.label||'')+'</div><p class="bugsum">'+raw(b.text)+'</p>';
+    return '<p'+(b.lead?' class="lead"':'')+'>'+raw(b.text)+'</p>';
+  }
+  function blPhen(b){
+    var rows=(b.items||[]).map(function(it){
+      return '<div class="phen-row'+(it.expect?' expect':'')+'"><span class="phen-k">'+esc(it.label)+'</span><span class="phen-v">'+raw(it.value)+'</span></div>';
+    }).join('');
+    return '<div class="phenomenon">'+rows+'</div>';
+  }
+  function blChain(b){
+    var lis=(b.items||[]).map(function(it){
+      var refs=(it.evrefs||[]).map(function(r){ return '<a class="chain-evref" href="#ev-'+esc(r)+'">'+esc(r)+'</a>'; }).join(' ');
+      return '<li><div class="chain-step"><div class="chain-num">'+esc(it.num)+'</div><div class="chain-line"></div></div>'
+        + '<div class="chain-body"><p class="chain-headline">'+raw(it.headline)+'</p><p class="chain-detail">'+raw(it.detail)+'</p>'+refs+'</div></li>';
+    }).join('');
+    return '<ol class="cause-chain">'+lis+'</ol>';
+  }
+  function blDiff(d){
+    var rows=d.rows.map(function(r){
+      var lc = r.t==='del'||r.t==='chg' ? 'diff-del' : (r.l===''&&r.t==='add' ? 'diff-empty' : 'diff-ctx');
+      var rc = r.t==='add'||r.t==='chg' ? 'diff-add' : 'diff-ctx';
+      var lm = (lc==='diff-del')?'−':' ';
+      var rm = (rc==='diff-add')?'+':' ';
+      var left = lc==='diff-empty'
+        ? '<div class="diff-cell diff-empty"><span class="diff-gutter"></span><span class="diff-marker"></span><span class="diff-code">&nbsp;</span></div>'
+        : '<div class="diff-cell '+lc+'"><span class="diff-gutter">'+esc(r.ln)+'</span><span class="diff-marker">'+lm+'</span><span class="diff-code">'+esc(r.l)+'</span></div>';
+      var right = '<div class="diff-cell '+rc+'"><span class="diff-gutter">'+esc(r.rn)+'</span><span class="diff-marker">'+rm+'</span><span class="diff-code">'+esc(r.r)+'</span></div>';
+      return left+right;
+    }).join('');
+    var afterText = d.rows.filter(function(r){ return r.r!==''; }).map(function(r){ return r.r; }).join('\n');
+    return '<div class="diff-split">'
+      + '<div class="diff-header"><span class="diff-h-left">Before</span><span class="diff-h-right">After</span>'
+      + '<span class="diff-tools"><button type="button" class="copy-btn" data-copy="'+esc(afterText)+'">'+ICON.copy+'Copy after</button><span class="ev-id">'+esc(d.evId)+'</span></span></div>'
+      + '<div class="diff-grid">'+rows+'</div></div>';
+  }
+  function blFixCard(b){
+    var pv = b.priorityVariant==='rec'?' fc-priority--rec':'';
+    return '<div class="fix-card-grid">'
+      + '<div class="fc-head"><span class="fc-priority'+pv+'">'+esc(b.priority)+'</span>'
+        + '<span class="fc-where">'+esc(b.where)+'</span>'
+        + (b.headLink?linkIcon(b.headLink):'')+'</div>'
+      + '<div class="fc-current"><h4 class="fc-label">Current behaviour</h4><p class="fc-text">'+raw(b.current)+'</p></div>'
+      + '<div class="fc-proposal"><h4 class="fc-label">Recommended change</h4><p class="fc-text">'+raw(b.proposal)+'</p></div>'
+      + '<div class="fc-tldr"><h4 class="fc-label">Three-line summary</h4><ol class="fc-tldr-list">'
+        + (b.tldr||[]).map(function(t){ return '<li>'+raw(t)+'</li>'; }).join('')+'</ol></div>'
+      + (b.diff?blDiff(b.diff):'')
+      + '</div>';
+  }
+  function statBoxesHtml(items){
+    var boxes=(items||[]).map(function(s){
+      return '<div class="stat-box"><div class="stat-k">'+esc(s.key)+'</div>'
+        + '<div class="stat-v tnum">'+esc(s.value)+(s.unit?'<small>'+esc(s.unit)+'</small>':'')+'</div>'
+        + (s.note?'<div class="stat-d '+(s.trend==='up'?'up':'down')+'">'+esc(s.note)+'</div>':'')+'</div>';
+    }).join('');
+    return '<div class="stat-grid">'+boxes+'</div>';
+  }
+  function blDataTable(b, sid){
+    var cols=b.columns||[];
+    var cg=cols.map(function(c){ return '<col'+(c.width?' style="width:'+c.width+'"':'')+'>'; }).join('');
+    var th=cols.map(function(c,i){
+      var sortable=(c.num||c.status||(!c.html))?' sortable':'';
+      return '<th'+(c.num?' class="dt-num'+sortable+'"':(sortable?' class="'+sortable.trim()+'"':''))
+        +' data-col="'+i+'" data-type="'+(c.num?'num':c.status?'status':'text')+'">'+esc(c.label)
+        +(sortable?'<span class="sort-ind">↕</span>':'')+'</th>';
+    }).join('');
+    var body=b.rows.map(function(r){ return rowHtml(r,cols); }).join('');
+    var pre = b.statBoxes ? statBoxesHtml(b.statBoxes) : '';
+    var tbl=pre+'<table class="dt" data-table="'+esc(sid||'')+'"><colgroup>'+cg+'</colgroup>'
+      + '<thead><tr>'+th+'</tr></thead><tbody>'+body+'</tbody></table>';
+    if(b.footnote) tbl += '<p class="exhibit-src">'+raw(b.footnote)+'</p>';
+    return tbl;
+  }
+  function rowHtml(r,cols){
+    var tds=cols.map(function(c){
+      var v=r[c.key];
+      if(c.status) return '<td>'+stBadge(v)+'</td>';
+      if(c.num){ return '<td class="dt-num" data-exact="'+esc(v)+'" title="Exact: '+esc(v)+'">'+esc(v)+'</td>'; }
+      if(c.code) return '<td><code>'+esc(v)+'</code></td>';
+      if(c.html) return '<td>'+raw(v)+'</td>';
+      return '<td>'+esc(v)+'</td>';
+    }).join('');
+    return '<tr>'+tds+'</tr>';
+  }
+  function blRiskList(b){
+    var lis=(b.items||[]).map(function(it){ return '<li><span class="risk-id">'+esc(it.id)+'</span><span>'+raw(it.text)+'</span></li>'; }).join('');
+    return '<ul class="risk-list">'+lis+'</ul>';
+  }
+  function blFindings(){
+    var rows=(DATA.findings||[]).map(function(f,i){
+      var lkKind = TYPE_LK[f.type] || 'log';
+      var lk = linkIcon({kind:lkKind, href:'#ev-'+f.id, letter:LK_LETTER[lkKind]||'·', title:'Open '+f.type+' evidence'});
+      var eviTitle = f.type+' evidence — '+f.id;
+      var evi = f.evidence
+        ? '<div class="evi-body-card"><h5>'+esc(eviTitle)+'<button type="button" class="copy-btn" data-copy="'+esc(f.evidence)+'">'+ICON.copy+'Copy</button></h5><pre>'+esc(f.evidence)+'</pre></div>'
+        : '';
+      return '<details class="finding-row" data-type="'+esc(f.type)+'" data-conf="'+esc(f.confidence)+'"'+(i===0?' open':'')+' id="ev-'+esc(f.id)+'">'
+        + '<summary><span class="find-id"><span class="fi-type">'+esc(f.type)+'</span><span class="fi-code">'+esc(f.id)+'</span></span>'
+          + '<span class="find-title">'+esc(f.title)+'</span>'
+          + '<span class="find-meta"><span class="st-badge st-'+esc(f.confidence)+'">'+esc(f.confidenceLabel||f.confidence)+'</span>'+lk+'<span class="find-caret">›</span></span></summary>'
+        + '<div class="find-body"><p>'+raw(f.body)+'</p>'+evi+'</div></details>';
+    }).join('');
+    // filter toolbar (type + confidence chips + bulk expand/collapse)
+    var types={}, confs={};
+    (DATA.findings||[]).forEach(function(f){ types[f.type]=1; confs[f.confidence]=1; });
+    var confLabel={ok:'High',hold:'Medium',risk:'Confirmed'};
+    var typeChips=Object.keys(types).map(function(t){ return '<button type="button" class="fil-chip" data-filter="type" data-val="'+esc(t)+'">'+esc(t)+'</button>'; }).join('');
+    var confChips=Object.keys(confs).map(function(c){ return '<button type="button" class="fil-chip" data-filter="conf" data-val="'+esc(c)+'"><span class="st-badge st-'+esc(c)+'" style="border:none;background:none;padding:0;gap:5px">'+esc(confLabel[c]||c)+'</span></button>'; }).join('');
+    var tools='<div class="find-tools"><span class="fil-label">Type</span>'+typeChips
+      + '<span class="fil-label" style="margin-left:6px">Conf</span>'+confChips
+      + '<span class="find-bulk"><button type="button" data-bulk="open">Expand all</button><button type="button" data-bulk="close">Collapse all</button></span></div>';
+    return tools+rows;
+  }
+  function blRefIndex(){
+    var rows=(DATA.references||[]).map(function(r){
+      var lkKind = r.linkKind || 'log';
+      var lk = ' '+linkIcon({kind:lkKind, href:'#ev-'+r.id, letter:LK_LETTER[lkKind]||'·', title:'Open '+lkKind});
+      var cites = citedIn(r.id);
+      var used = cites.length
+        ? '<span class="ev-usedin">Cited in: '+cites.map(function(u){ return '<a href="'+esc(u.href)+'">'+esc(u.label)+'</a>'; }).join('')+'</span>'
+        : '';
+      return '<tr id="ev-'+esc(r.id)+'"><td><code class="id">'+esc(r.id)+'</code></td><td>'+esc(r.type)+'</td>'
+        + '<td><code>'+esc(r.where)+'</code>'+lk+'</td><td>'+raw(r.brief)+used+'</td></tr>';
+    }).join('');
+    return '<table class="dt reference-index"><colgroup><col class="ref-c-id"><col class="ref-c-type"><col class="ref-c-where"><col></colgroup>'
+      + '<thead><tr><th>ID</th><th>Type</th><th>Locator</th><th>Précis</th></tr></thead><tbody>'+rows+'</tbody></table>';
+  }
+
+  function renderBlock(b, sid){
+    switch(b.kind){
+      case 'prose': return blProse(b);
+      case 'kv-grid': return blKvGrid(b);
+      case 'phen-rows': return blPhen(b);
+      case 'cause-chain': return blChain(b);
+      case 'fix-card': return blFixCard(b);
+      case 'findings-accordion': return blFindings();
+      case 'data-table': return blDataTable(b, sid);
+      case 'risk-list': return blRiskList(b);
+      default: return '';
+    }
+  }
+
+  /* ---------- SECTIONS + RAILS ---------- */
+  function sectionHead(s, asSummary){
+    var tag = asSummary ? 'summary' : 'header';
+    var foldUi = s.folded
+      ? '<span class="sec-fold-hint">Click to expand</span><span class="sec-fold-caret">›</span>'
+      : '<span class="sec-head-links"><button type="button" class="sec-collapse" aria-label="Collapse section" title="Collapse / expand">›</button></span>';
+    return '<'+tag+' class="sec-head">'
+      + '<span class="sec-ico">'+secIcon(s.iconCategory)+'</span>'
+      + '<div class="sec-num">'+esc(s.num)+'</div>'
+      + '<h2>'+esc(s.title)+'</h2>'
+      + foldUi
+      + '</'+tag+'>';
+  }
+  function renderSection(s){
+    var body=(s.blocks||[]).map(function(b){ return renderBlock(b, s.id); }).join('');
+    // the Appendix section is driven from the top-level references ledger
+    if(s.id==='appendix') body += blRefIndex();
+    if(s.folded){
+      return '<details class="sec sec-fold" id="'+esc(s.id)+'">'+sectionHead(s,true)+body+'</details>';
+    }
+    return '<section class="sec" id="'+esc(s.id)+'">'+sectionHead(s,false)+body+'</section>';
+  }
+  function renderTOC(){
+    var links=(DATA.tocSections||[]).map(function(t){
+      return '<a href="#'+esc(t.id)+'"><span class="n">'+esc(t.num)+'</span><span>'+esc(t.title)+'</span></a>';
+    }).join('');
+    return '<aside class="toc"><div class="toc-label">Contents<button type="button" class="toc-allbtn" id="toc-allbtn">Collapse all</button></div><nav class="toc-nav">'+links+'</nav></aside>';
+  }
+  var FRAC=/^\s*(\d+)\s*\/\s*(\d+)\s*$/;  // "2 / 4" → progress widget
+  function renderRail(){
+    var cards=(DATA.railFacts||[]).map(function(c){
+      var prog='';
+      var facts=(c.facts||[]).map(function(f){
+        var v=String(f.value), fm=v.match(FRAC);
+        // a "N / M" fact becomes the card's progress meter (kept above the facts)
+        if(fm && !prog){ var pct=(+fm[2])? (+fm[1]/+fm[2])*100 : 0;
+          prog='<div class="rail-prog"><div class="rail-prog-row"><span>'+esc(f.key)+'</span><b class="tnum">'+esc(v)+'</b></div>'
+            + '<div class="rail-bar"><i style="width:'+pct+'%"></i></div></div>';
+          return ''; }
+        var val = (v.indexOf('st:')===0) ? stBadge(v.slice(3)) : esc(v);
+        var monoCls = /^[A-Z0-9][A-Z0-9.\-]*$/.test(v) ? ' class="mono"' : '';
+        return '<div><dt>'+esc(f.key)+'</dt><dd'+monoCls+'>'+val+'</dd></div>';
+      }).join('');
+      return '<div class="rail-card"><div class="rail-card-hd">'+ICON.document+esc(c.label)+'</div>'+prog+'<dl class="rail-facts">'+facts+'</dl></div>';
+    }).join('');
+    return '<aside class="rail" aria-label="Report metadata">'+cards+'</aside>';
+  }
+  function renderContent(){
+    var secs=(DATA.sections||[]).map(renderSection).join('');
+    document.getElementById('content').innerHTML = renderTOC()+'<main>'+secs+'</main>'+renderRail();
+  }
+
+  /* ---------- FOOTER ---------- */
+  function renderFooter(){
+    var m=DATA.meta||{};
+    document.getElementById('footer').innerHTML =
+      '<div class="foot-inner"><div class="brand-dk"><span class="sq"></span>'+esc(m.org||'{{ORG}}')+' &nbsp;·&nbsp; '+esc(m.org2||'')+'</div>'
+      + '<div class="foot-meta">'+esc(m.reportId||'')+' · '+esc(m.project||'')+' · '+esc(m.date||'')
+      + '<br>Confidential — Internal · Distribution controlled · '+esc(m.reportType||'')+'</div></div>';
+  }
+
+  /* ---------- RENDER ---------- */
+  function render(){
+    document.documentElement.dataset.theme = (DATA.meta&&DATA.meta.theme)||'purple';
+    document.documentElement.dataset.density = 'comfortable';
+    document.title = (DATA.meta&&DATA.meta.title?DATA.meta.title+' — ':'')+((DATA.meta&&DATA.meta.project)||'{{PROJECT}}');
+    renderTopbar(); renderHero(); renderContent(); renderFooter();
+  }
+
+  /* ============================================================
+     INTERACTIONS
+     ============================================================ */
+  function wireThemeSwitch(){
+    var rcSel = document.querySelector('.rc-theme-sel');
+    if (rcSel) {
+      rcSel.value = document.documentElement.dataset.theme || 'blue';
+      rcSel.addEventListener('change', function(){ document.documentElement.dataset.theme = rcSel.value; });
+    }
+  }
+
+  function wireDensity(){
+    document.addEventListener('click', function(e){
+      var b=e.target.closest && e.target.closest('.dens-toggle button');
+      if(!b) return;
+      document.documentElement.dataset.density = b.dataset.density;
+      b.parentElement.querySelectorAll('button').forEach(function(x){ x.classList.toggle('is-on', x===b); });
+    });
+  }
+
+  /* scroll-spy: activate the TOPMOST visible section (correct on scroll-up) */
+  function wireScrollSpy(){
+    var links={}, tocNav=document.querySelector('.toc-nav');
+    document.querySelectorAll('.toc a').forEach(function(a){ links[a.getAttribute('href').slice(1)]=a; });
+    var secs=Array.prototype.slice.call(document.querySelectorAll('.sec'));
+    if(!secs.length) return;
+    function update(){
+      // Activation line sits just below the sticky chrome.
+      var line=96;
+      // The active section is the TOPMOST whose top edge has passed the line:
+      // i.e. the section with the greatest top that is still <= line. This is
+      // correct on scroll-up too (it re-evaluates every frame, not just on enter).
+      var pick=null, pickTop=-Infinity, firstBelow=null, firstBelowTop=Infinity;
+      secs.forEach(function(s){
+        var t=s.getBoundingClientRect().top;
+        if(t<=line+4){ if(t>pickTop){ pick=s; pickTop=t; } }
+        else if(t<firstBelowTop){ firstBelow=s; firstBelowTop=t; }
+      });
+      // Near the very top, nothing has crossed yet → use the first section below.
+      if(!pick) pick=firstBelow||secs[0];
+      var id=pick.id;
+      Object.keys(links).forEach(function(k){ links[k].classList.toggle('active', k===id); });
+      // keep active link in view within a long TOC
+      var act=links[id];
+      if(act && tocNav){
+        var ar=act.getBoundingClientRect(), nr=tocNav.getBoundingClientRect();
+        if(ar.top<nr.top) tocNav.scrollTop -= (nr.top-ar.top)+8;
+        else if(ar.bottom>nr.bottom) tocNav.scrollTop += (ar.bottom-nr.bottom)+8;
+      }
+    }
+    var ticking=false;
+    function onScroll(){ if(!ticking){ ticking=true; requestAnimationFrame(function(){ update(); ticking=false; }); } }
+    window.addEventListener('scroll', onScroll, {passive:true});
+    window.addEventListener('resize', onScroll, {passive:true});
+    update();
+  }
+
+  /* read-progress bar */
+  function wireProgress(){
+    var bar=document.getElementById('read-prog');
+    function upd(){
+      var h=document.documentElement.scrollHeight - window.innerHeight;
+      var p = h>0 ? (window.scrollY/h)*100 : 0;
+      bar.style.width = Math.max(0,Math.min(100,p))+'%';
+    }
+    window.addEventListener('scroll', upd, {passive:true});
+    window.addEventListener('resize', upd, {passive:true});
+    upd();
+  }
+
+  /* collapsible sections (every .sec head) + TOC expand/collapse all */
+  function wireCollapse(){
+    document.addEventListener('click', function(e){
+      var btn=e.target.closest && e.target.closest('.sec-collapse');
+      if(btn){ e.preventDefault(); btn.closest('.sec').classList.toggle('is-collapsed'); return; }
+      var all=e.target.closest && e.target.closest('#toc-allbtn');
+      if(all){
+        var secs=document.querySelectorAll('section.sec'); // only the non-folded panels
+        var anyOpen=Array.prototype.some.call(secs,function(s){ return !s.classList.contains('is-collapsed'); });
+        secs.forEach(function(s){ s.classList.toggle('is-collapsed', anyOpen); });
+        all.textContent = anyOpen ? 'Expand all' : 'Collapse all';
+        return;
+      }
+    });
+  }
+
+  /* findings filter (type + confidence) + bulk expand/collapse */
+  function wireFindings(){
+    var active={type:{}, conf:{}};
+    function apply(){
+      var rows=document.querySelectorAll('.finding-row');
+      var tSel=Object.keys(active.type).filter(function(k){return active.type[k];});
+      var cSel=Object.keys(active.conf).filter(function(k){return active.conf[k];});
+      rows.forEach(function(r){
+        var okT = !tSel.length || tSel.indexOf(r.dataset.type)>=0;
+        var okC = !cSel.length || cSel.indexOf(r.dataset.conf)>=0;
+        r.hidden = !(okT&&okC);
+      });
+    }
+    document.addEventListener('click', function(e){
+      var chip=e.target.closest && e.target.closest('.fil-chip');
+      if(chip){ var f=chip.dataset.filter, v=chip.dataset.val; active[f][v]=!active[f][v]; chip.classList.toggle('is-on', active[f][v]); apply(); return; }
+      var bulk=e.target.closest && e.target.closest('[data-bulk]');
+      if(bulk){ var open=bulk.dataset.bulk==='open';
+        document.querySelectorAll('.finding-row').forEach(function(r){ if(!r.hidden) r.open=open; }); return; }
+    });
+  }
+
+  /* sortable data tables (the metrics + supplement tables) */
+  function wireSort(){
+    document.addEventListener('click', function(e){
+      var th=e.target.closest && e.target.closest('table.dt th.sortable');
+      if(!th) return;
+      var table=th.closest('table'), tbody=table.querySelector('tbody');
+      var idx=+th.dataset.col, type=th.dataset.type;
+      var asc = !th.classList.contains('sort-asc');
+      table.querySelectorAll('th').forEach(function(h){ h.classList.remove('sort-asc','sort-desc'); });
+      th.classList.add(asc?'sort-asc':'sort-desc');
+      var rows=Array.prototype.slice.call(tbody.querySelectorAll('tr'));
+      rows.sort(function(a,b){
+        var ca=a.children[idx], cb=b.children[idx];
+        var va,vb;
+        if(type==='num'){ va=parseFloat((ca.dataset.exact||ca.textContent).replace(/[^0-9.\-]/g,''))||0; vb=parseFloat((cb.dataset.exact||cb.textContent).replace(/[^0-9.\-]/g,''))||0; return asc?va-vb:vb-va; }
+        va=ca.textContent.trim().toLowerCase(); vb=cb.textContent.trim().toLowerCase();
+        return asc? (va<vb?-1:va>vb?1:0) : (va>vb?-1:va<vb?1:0);
+      });
+      rows.forEach(function(r){ tbody.appendChild(r); });
+    });
+  }
+
+  /* code/diff copy buttons */
+  function wireCopy(){
+    document.addEventListener('click', function(e){
+      var b=e.target.closest && e.target.closest('.copy-btn');
+      if(!b) return;
+      var txt=b.getAttribute('data-copy')||'';
+      var done=function(){ var o=b.innerHTML; b.classList.add('copied'); b.textContent='Copied'; setTimeout(function(){ b.classList.remove('copied'); b.innerHTML=o; },1400); };
+      if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(txt).then(done,fallback); }
+      else fallback();
+      function fallback(){ var ta=document.createElement('textarea'); ta.value=txt; ta.style.position='fixed'; ta.style.opacity='0'; document.body.appendChild(ta); ta.select(); try{document.execCommand('copy');}catch(_){} document.body.removeChild(ta); done(); }
+    });
+  }
+
+  /* evidence cross-links: auto-open folded sections on anchor jump + flash target row */
+  function wireAnchors(){
+    function openTo(hash){
+      if(!hash || hash.length<2) return;
+      var el=document.getElementById(decodeURIComponent(hash.slice(1)));
+      if(!el) return;
+      var n=el;
+      while(n){ if(n.tagName==='DETAILS') n.open=true;
+        if(n.classList && n.classList.contains('sec') && n.classList.contains('is-collapsed')) n.classList.remove('is-collapsed');
+        n=n.parentElement; }
+      el.scrollIntoView({block:'start'});
+      if(el.tagName==='TR'){ el.classList.remove('ev-flash'); void el.offsetWidth; el.classList.add('ev-flash'); }
+    }
+    document.addEventListener('click', function(e){
+      var a=e.target.closest && e.target.closest('a[href^="#"]');
+      if(a){ var h=a.getAttribute('href'); if(h.length>1){ setTimeout(function(){ openTo(h); },0); } }
+    });
+    window.addEventListener('hashchange', function(){ openTo(location.hash); });
+    if(location.hash) setTimeout(function(){ openTo(location.hash); }, 0);
+  }
+
+  /* glossary / definition popovers on control IDs + jargon ([data-term]) */
+  function wireGlossary(){
+    var gl=GLOSSARY;
+    var pop=document.getElementById('glosspop');
+    // auto-tag <code> tokens whose exact text is a known term (plus any pre-tagged [data-term])
+    document.querySelectorAll('.sec code, .hero-sum code').forEach(function(el){
+      if(el.getAttribute('data-term')) return;
+      var t=(el.textContent||'').trim();
+      if(gl[t]){ el.setAttribute('data-term', t); }
+    });
+    document.querySelectorAll('[data-term]').forEach(function(el){
+      if(gl[el.getAttribute('data-term')]) el.classList.add('gloss');
+    });
+    function show(el){
+      var g=gl[el.getAttribute('data-term')]; if(!g) return;
+      pop.innerHTML='<b>'+esc(g.title||g.term)+'</b>'+esc(g.def);
+      pop.classList.add('is-on');
+      var r=el.getBoundingClientRect();
+      var pw=Math.min(300, pop.offsetWidth||300);
+      var left=Math.min(r.left, window.innerWidth-pw-12);
+      var top=r.bottom+6;
+      if(top+pop.offsetHeight+12>window.innerHeight && r.top-pop.offsetHeight-6>0) top=r.top-pop.offsetHeight-6;
+      pop.style.left=Math.max(8,left)+'px'; pop.style.top=top+'px';
+    }
+    function hide(){ pop.classList.remove('is-on'); }
+    document.addEventListener('mouseover', function(e){ var el=e.target.closest && e.target.closest('[data-term]'); if(el) show(el); });
+    document.addEventListener('mouseout', function(e){ var el=e.target.closest && e.target.closest('[data-term]'); if(el && !(e.relatedTarget && e.relatedTarget.closest && e.relatedTarget.closest('#glosspop'))) hide(); });
+    document.addEventListener('click', function(e){ var el=e.target.closest && e.target.closest('[data-term]'); if(el){ e.preventDefault(); pop.classList.contains('is-on')?hide():show(el); } else if(!(e.target.closest&&e.target.closest('#glosspop'))) hide(); });
+    window.addEventListener('scroll', hide, {passive:true});
+  }
+
+  function wireInteractions(){
+    wireDensity();
+    wireScrollSpy();
+    wireProgress();
+    wireCollapse();
+    wireFindings();
+    wireSort();
+    wireCopy();
+    wireAnchors();
+    wireGlossary();
+  }
+
+  /* ---------- BOOT ---------- */
+  function boot(){ render(); wireInteractions(); wireThemeSwitch(); }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
+})();
+</script>
+
+</body>
+</html>

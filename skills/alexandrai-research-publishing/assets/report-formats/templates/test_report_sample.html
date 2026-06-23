@@ -1,0 +1,1132 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="green">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>{{PROJECT}} · Test Execution Report — {{ORG}}</title>
+
+<!-- ============================================================
+     DATA-DRIVEN: the ONLY content source. render() builds the DOM
+     from this JSON; it is a valid instance of
+     designs/schemas/test-report.schema.json.
+     Per-run case outcomes live in cases[].results[runId]; the donut,
+     pass-rate, totals and suite roll-ups are COMPUTED from the active
+     run — nothing about the result is hard-coded in the body.
+     ============================================================ -->
+<script type="application/json" id="report-data">
+{
+  "meta": {
+    "org": "{{ORG}}",
+    "project": "{{PROJECT}}",
+    "reportType": "Test execution",
+    "title": "Test Execution Report",
+    "subtitle": "payments-platform · CI regression suite",
+    "date": "2026-06-22",
+    "author": "{{AUTHOR}}",
+    "theme": "green"
+  },
+  "runs": [
+    { "id": "run-1042", "label": "Run #1042", "env": "CI · staging", "branch": "release/4.18", "trigger": "merge-queue", "startedAt": "2026-06-22T08:31:04Z", "finishedAt": "2026-06-22T08:43:58Z", "durationMs": 774000 },
+    { "id": "run-1041", "label": "Run #1041", "env": "CI · staging", "branch": "main@9f3a1c2", "trigger": "nightly",     "startedAt": "2026-06-21T23:02:11Z", "finishedAt": "2026-06-21T23:14:40Z", "durationMs": 749000 },
+    { "id": "run-1038", "label": "Run #1038", "env": "CI · staging", "branch": "main@4d7e0b1", "trigger": "nightly",     "startedAt": "2026-06-20T23:01:55Z", "finishedAt": "2026-06-20T23:12:10Z", "durationMs": 615000 }
+  ],
+  "activeRunId": "run-1042",
+  "statuses": { "pass": "Passed", "fail": "Failed", "skip": "Skipped", "flaky": "Flaky" },
+  "suites": [
+    { "id": "api",         "name": "API" },
+    { "id": "api-auth",    "name": "Auth endpoints",     "parentId": "api" },
+    { "id": "api-txn",     "name": "Transfer endpoints",  "parentId": "api" },
+    { "id": "integration", "name": "Integration" },
+    { "id": "int-ledger",  "name": "Ledger ↔ core",       "parentId": "integration" },
+    { "id": "e2e",         "name": "E2E" },
+    { "id": "regression",  "name": "Regression" }
+  ],
+  "cases": [
+    {
+      "id": "tc-auth-001", "suiteId": "api-auth", "name": "rejects an expired access token", "owner": "@a.lee", "tags": ["smoke", "p0", "auth"],
+      "history": ["pass","pass","fail","pass","pass","pass","pass","pass"],
+      "results": {
+        "run-1042": { "status": "pass", "durationMs": 184 },
+        "run-1041": { "status": "fail", "durationMs": 203, "failure": { "message": "expected status 401 but received 200", "stack": "AssertionError: expected 401 to deeply equal 200\n    at Context.<anonymous> (test/api/auth.spec.ts:64:18)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)", "steps": [ { "name": "POST /v1/session with an expired token", "status": "pass", "durationMs": 41 }, { "name": "assert response.status === 401", "status": "fail", "durationMs": 2 } ], "attachments": [ { "name": "response-body.json", "kind": "data" }, { "name": "gateway.log", "kind": "log" } ] } },
+        "run-1038": { "status": "pass", "durationMs": 191 }
+      }
+    },
+    {
+      "id": "tc-auth-002", "suiteId": "api-auth", "name": "issues a token for valid credentials", "owner": "@a.lee", "tags": ["smoke", "p0", "auth"],
+      "history": ["pass","pass","pass","pass","pass","pass","pass","pass"],
+      "results": {
+        "run-1042": { "status": "pass", "durationMs": 142 },
+        "run-1041": { "status": "pass", "durationMs": 138 },
+        "run-1038": { "status": "pass", "durationMs": 150 }
+      }
+    },
+    {
+      "id": "tc-auth-003", "suiteId": "api-auth", "name": "locks the account after 5 failed attempts", "owner": "@s.ito", "tags": ["security", "p1"],
+      "history": ["pass","pass","pass","fail","pass","pass","fail","pass"],
+      "results": {
+        "run-1042": { "status": "flaky", "durationMs": 612, "retries": 1, "failure": { "message": "flaky: passed on retry 2 of 2 (lock counter race under parallel load)", "stack": "RetryError: attempt 1 failed — expected 423 Locked, got 200 OK\n    at lockout.spec.ts:88:7\n  attempt 2 passed after 240ms backoff", "steps": [ { "name": "submit 5 bad passwords in sequence", "status": "pass", "durationMs": 360 }, { "name": "expect 6th attempt → 423 Locked", "status": "pass", "durationMs": 210 } ], "attachments": [ { "name": "retry-timeline.json", "kind": "data" } ] } },
+        "run-1041": { "status": "pass", "durationMs": 588 },
+        "run-1038": { "status": "flaky", "durationMs": 640, "retries": 1 }
+      }
+    },
+    {
+      "id": "tc-auth-004", "suiteId": "api-auth", "name": "rotates refresh tokens on reuse", "owner": "@s.ito", "tags": ["security", "p2"],
+      "history": ["skip","skip","pass","pass","skip","skip","skip","skip"],
+      "results": {
+        "run-1042": { "status": "skip" },
+        "run-1041": { "status": "skip" },
+        "run-1038": { "status": "pass", "durationMs": 305 }
+      }
+    },
+    {
+      "id": "tc-txn-101", "suiteId": "api-txn", "name": "creates a transfer within the daily limit", "owner": "@m.tan", "tags": ["p0", "transfer"],
+      "history": ["pass","pass","pass","pass","pass","pass","pass","pass"],
+      "results": {
+        "run-1042": { "status": "pass", "durationMs": 268 },
+        "run-1041": { "status": "pass", "durationMs": 271 },
+        "run-1038": { "status": "pass", "durationMs": 259 }
+      }
+    },
+    {
+      "id": "tc-txn-102", "suiteId": "api-txn", "name": "rejects a transfer over the daily limit", "owner": "@m.tan", "tags": ["p0", "transfer", "limits"],
+      "history": ["pass","pass","pass","fail","pass","pass","pass","fail"],
+      "results": {
+        "run-1042": { "status": "fail", "durationMs": 312, "failure": { "message": "expected 422 Unprocessable but received 201 Created — daily-limit guard not enforced", "stack": "AssertionError: transfer over limit was accepted\n    expected: 422\n    actual:   201\n    at test/api/transfers.spec.ts:147:20\n    at TransferClient.post (src/clients/transfer.ts:58:11)", "steps": [ { "name": "seed account with a 1,000,000 JPY daily limit", "status": "pass", "durationMs": 90 }, { "name": "POST /v1/transfers for 1,500,000 JPY", "status": "pass", "durationMs": 180 }, { "name": "assert response.status === 422", "status": "fail", "durationMs": 3 }, { "name": "assert no ledger entry written", "status": "skip" } ], "attachments": [ { "name": "request.http", "kind": "data" }, { "name": "response-body.json", "kind": "data" }, { "name": "transfer-service.log", "kind": "log" } ] } },
+        "run-1041": { "status": "pass", "durationMs": 298 },
+        "run-1038": { "status": "pass", "durationMs": 301 }
+      }
+    },
+    {
+      "id": "tc-txn-103", "suiteId": "api-txn", "name": "is idempotent for a repeated request key", "owner": "@m.tan", "tags": ["p1", "transfer"],
+      "history": ["pass","pass","pass","pass","pass","pass","pass","pass"],
+      "results": {
+        "run-1042": { "status": "pass", "durationMs": 224 },
+        "run-1041": { "status": "pass", "durationMs": 219 },
+        "run-1038": { "status": "pass", "durationMs": 230 }
+      }
+    },
+    {
+      "id": "tc-int-201", "suiteId": "int-ledger", "name": "posts a ledger entry for a settled transfer", "owner": "@h.cho", "tags": ["p0", "ledger"],
+      "history": ["pass","pass","pass","pass","pass","pass","pass","pass"],
+      "results": {
+        "run-1042": { "status": "pass", "durationMs": 1840 },
+        "run-1041": { "status": "pass", "durationMs": 1795 },
+        "run-1038": { "status": "pass", "durationMs": 1902 }
+      }
+    },
+    {
+      "id": "tc-int-202", "suiteId": "int-ledger", "name": "reconciles balances after a batch close", "owner": "@h.cho", "tags": ["p1", "ledger", "slow"],
+      "history": ["fail","pass","pass","pass","fail","pass","pass","fail"],
+      "results": {
+        "run-1042": { "status": "fail", "durationMs": 4210, "failure": { "message": "balance drift of 3 JPY after batch close (sum of entries ≠ account balance)", "stack": "ReconcileError: drift detected\n    accountBalance=842,117  sumOfEntries=842,114  delta=3\n    at ReconcileJob.verify (src/jobs/reconcile.ts:212:13)\n    at IntegrationTest.run (test/int/ledger.int.ts:96:9)", "steps": [ { "name": "post 2,400 transfer entries", "status": "pass", "durationMs": 2600 }, { "name": "trigger batch close", "status": "pass", "durationMs": 1500 }, { "name": "assert sum(entries) === accountBalance", "status": "fail", "durationMs": 110 } ], "attachments": [ { "name": "reconcile-report.csv", "kind": "data" }, { "name": "ledger-diff.txt", "kind": "log" } ] } },
+        "run-1041": { "status": "pass", "durationMs": 4080 },
+        "run-1038": { "status": "fail", "durationMs": 4190 }
+      }
+    },
+    {
+      "id": "tc-int-203", "suiteId": "int-ledger", "name": "publishes a settlement event to the stream", "owner": "@k.org", "tags": ["p1", "events"],
+      "history": ["pass","pass","pass","pass","pass","pass","pass","pass"],
+      "results": {
+        "run-1042": { "status": "pass", "durationMs": 980 },
+        "run-1041": { "status": "pass", "durationMs": 1010 },
+        "run-1038": { "status": "pass", "durationMs": 965 }
+      }
+    },
+    {
+      "id": "tc-e2e-301", "suiteId": "e2e", "name": "a user logs in and views the dashboard", "owner": "@p.web", "tags": ["e2e", "p1"],
+      "history": ["pass","pass","pass","pass","pass","pass","pass","pass"],
+      "results": {
+        "run-1042": { "status": "pass", "durationMs": 5400 },
+        "run-1041": { "status": "pass", "durationMs": 5210 },
+        "run-1038": { "status": "pass", "durationMs": 5380 }
+      }
+    },
+    {
+      "id": "tc-e2e-302", "suiteId": "e2e", "name": "a user completes a transfer end to end", "owner": "@p.web", "tags": ["e2e", "p1", "slow"],
+      "history": ["fail","fail","pass","fail","fail","pass","fail","fail"],
+      "results": {
+        "run-1042": { "status": "fail", "durationMs": 9120, "failure": { "message": "Timed out 8000ms waiting for selector '[data-test=receipt]'", "stack": "TimeoutError: waiting for selector `[data-test=receipt]` failed: timeout 8000ms exceeded\n    at Page.waitForSelector (e2e/lib/page.ts:88:15)\n    at TransferFlow.confirm (e2e/flows/transfer.ts:142:22)\n    at Object.<anonymous> (e2e/transfer.e2e.ts:54:5)", "steps": [ { "name": "log in as the seeded test user", "status": "pass", "durationMs": 2100 }, { "name": "open the transfer form", "status": "pass", "durationMs": 640 }, { "name": "submit a 25,000 JPY transfer", "status": "pass", "durationMs": 380 }, { "name": "await the receipt screen", "status": "fail", "durationMs": 8000 } ], "attachments": [ { "name": "screenshot-final.png", "kind": "image" }, { "name": "trace.zip", "kind": "trace" }, { "name": "console.log", "kind": "log" } ] } },
+        "run-1041": { "status": "fail", "durationMs": 9050, "failure": { "message": "Timed out 8000ms waiting for selector '[data-test=receipt]'" } },
+        "run-1038": { "status": "fail", "durationMs": 9080 }
+      }
+    },
+    {
+      "id": "tc-e2e-303", "suiteId": "e2e", "name": "a user updates their profile photo", "owner": "@p.web", "tags": ["e2e", "p2"],
+      "history": ["pass","pass","skip","pass","pass","pass","skip","skip"],
+      "results": {
+        "run-1042": { "status": "skip" },
+        "run-1041": { "status": "pass", "durationMs": 4720 },
+        "run-1038": { "status": "skip" }
+      }
+    },
+    {
+      "id": "tc-reg-401", "suiteId": "regression", "name": "legacy SOAP balance endpoint still responds", "owner": "@s.ito", "tags": ["regression", "legacy"],
+      "history": ["pass","pass","pass","pass","pass","pass","pass","pass"],
+      "results": {
+        "run-1042": { "status": "pass", "durationMs": 430 },
+        "run-1041": { "status": "pass", "durationMs": 445 },
+        "run-1038": { "status": "pass", "durationMs": 422 }
+      }
+    },
+    {
+      "id": "tc-reg-402", "suiteId": "regression", "name": "statement PDF renders for a 12-month range", "owner": "@p.web", "tags": ["regression", "p2", "slow"],
+      "history": ["pass","pass","pass","pass","fail","pass","pass","fail"],
+      "results": {
+        "run-1042": { "status": "flaky", "durationMs": 7300, "retries": 1, "failure": { "message": "flaky: passed on retry 2 of 2 (PDF font subsetting timed out on first attempt)", "stack": "RetryError: attempt 1 failed — render exceeded 6000ms budget\n    at StatementRenderer.render (src/reports/statement.ts:301:9)\n  attempt 2 passed in 4900ms", "steps": [ { "name": "request a 12-month statement", "status": "pass", "durationMs": 200 }, { "name": "render to PDF within budget", "status": "pass", "durationMs": 7100 } ], "attachments": [ { "name": "statement-2026.pdf", "kind": "other" } ] } },
+        "run-1041": { "status": "pass", "durationMs": 6800 },
+        "run-1038": { "status": "pass", "durationMs": 6650 }
+      }
+    },
+    {
+      "id": "tc-reg-403", "suiteId": "regression", "name": "currency rounding matches the spec table", "owner": "@h.cho", "tags": ["regression", "p1"],
+      "history": ["pass","pass","pass","pass","pass","pass","pass","pass"],
+      "results": {
+        "run-1042": { "status": "pass", "durationMs": 96 },
+        "run-1041": { "status": "pass", "durationMs": 92 },
+        "run-1038": { "status": "pass", "durationMs": 99 }
+      }
+    }
+  ]
+}
+</script>
+
+<style>
+/* ============================================================
+   TEST-REPORT — a CI test-runner console
+   Inherits the family DNA from designs/_FOUNDATION.md.
+   Default theme: Green (shipped in :root). Self-contained.
+   Content is rendered from #report-data by render() below.
+   ============================================================ */
+
+/* ---- 1. tokens (Green is the default for this format) ---- */
+:root{
+  /* surfaces */
+  --bg:#fff; --bg-band:#f6f6f8; --bg-subtle:#fafafb; --bg-deep:#15131a;
+  --rule:#dcdce2; --rule-soft:#ebebef;
+  /* ink */
+  --ink:#11131a; --ink-mid:#33363f; --ink-soft:#5a5e68; --ink-faint:#868b95;
+  /* brand accent — GREEN default */
+  --navy:#1f7a44; --navy-deep:#155730; --navy-bg:#e6f4ea; --navy-line:#b3dcc1;
+  /* cleared / approved */
+  --ok:#2f6b3c; --ok-bg:#e9f3ea; --ok-line:#bedcc4;
+  /* semantic states — CONSTANT across themes */
+  --risk:#b3261e; --risk-bg:#fbeceb; --risk-line:#edc7c4;
+  --hold:#8a6d00; --hold-bg:#fbf3da; --hold-line:#e7d8a4;
+  /* type stacks */
+  --mono:ui-monospace,"JetBrains Mono","SFMono-Regular",Menlo,Consolas,monospace;
+  --sans:-apple-system,"Segoe UI",system-ui,Roboto,"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic UI","Apple SD Gothic Neo","Malgun Gothic","PingFang SC","Microsoft YaHei","Noto Sans CJK JP","Noto Sans CJK KR","Noto Sans CJK SC","Noto Sans JP","Noto Sans KR","Noto Sans SC","Noto Sans",sans-serif;
+  /* console geometry */
+  --tree-w:288px;
+  --shadow:0 1px 2px rgba(17,19,26,.045);
+  --shadow-rail:0 1px 3px rgba(17,19,26,.05);
+}
+/* alternate theme swaps (all 9 per _FOUNDATION §1 / _DATA_DRIVEN §3 — Black mandatory) */
+html[data-theme="blue"]{   --navy:#0b5fd4; --navy-deep:#0842a0; --navy-bg:#e8f1fc; --navy-line:#bcd6f5; --ok:#1a4f9c; --ok-bg:#e9f0fa; --ok-line:#b7cdea; }
+html[data-theme="purple"]{ --navy:#a100ff; --navy-deep:#7a00c2; --navy-bg:#f3e8ff; --navy-line:#d9bef5; --ok:#5a2f8a; --ok-bg:#efe8f5; --ok-line:#d0b5e0; }
+html[data-theme="indigo"]{ --navy:#4338ca; --navy-deep:#312c92; --navy-bg:#ebebfb; --navy-line:#c7c3f0; --ok:#3730a3; --ok-bg:#ebeaf7; --ok-line:#c5c2ea; }
+html[data-theme="teal"]{   --navy:#0e7c86; --navy-deep:#095861; --navy-bg:#e0f3f4; --navy-line:#a9dade; --ok:#0f5d54; --ok-bg:#e3f3ef; --ok-line:#b3ddd4; }
+html[data-theme="cyan"]{   --navy:#0891b2; --navy-deep:#0e6f88; --navy-bg:#e2f4f9; --navy-line:#abdde9; --ok:#0e6b7a; --ok-bg:#e4f3f4; --ok-line:#b0dde2; }
+html[data-theme="green"]{  --navy:#1f7a44; --navy-deep:#155730; --navy-bg:#e6f4ea; --navy-line:#b3dcc1; --ok:#2f6b3c; --ok-bg:#e9f3ea; --ok-line:#bedcc4; }
+html[data-theme="plum"]{   --navy:#a21d6e; --navy-deep:#7c1450; --navy-bg:#fbe8f2; --navy-line:#e8b9d4; --ok:#6d2356; --ok-bg:#f6e8f0; --ok-line:#e3bcd5; }
+html[data-theme="slate"]{  --navy:#3f4f63; --navy-deep:#29384b; --navy-bg:#eef1f5; --navy-line:#c2ccd8; --ok:#34495e; --ok-bg:#eef1f5; --ok-line:#c2ccd8; }
+html[data-theme="black"]{  --navy:#000000; --navy-deep:#000000; --navy-bg:#f1f1f3; --navy-line:#d6d6db; --ok:#3f3f46; --ok-bg:#f1f1f3; --ok-line:#cfcfd6; }
+
+*{ box-sizing:border-box; }
+html,body{ margin:0; }
+body{
+  font:13px/1.6 var(--sans); color:var(--ink);
+  background:var(--bg-band);
+  -webkit-font-smoothing:antialiased;
+}
+.tnum{ font-feature-settings:"tnum" 1; font-variant-numeric:tabular-nums; }
+
+/* ---- icons ---- */
+.icon{ width:1.15em; height:1.15em; display:inline-block; vertical-align:-.18em; color:inherit; }
+.icon-lg{ width:20px; height:20px; }
+
+/* ---- shared primitives: status badge / dot / chip ---- */
+.st-badge{
+  display:inline-flex; align-items:center; gap:.4em;
+  font:600 11px/1 var(--sans); padding:4px 8px 4px 7px; border-radius:6px;
+  border:1px solid var(--rule); color:var(--ink-mid); background:var(--bg);
+  white-space:nowrap;
+}
+.st-badge::before{ content:""; width:7px; height:7px; border-radius:50%; background:var(--ink-faint); }
+.st-ok{ color:var(--ok); background:var(--ok-bg); border-color:var(--ok-line); }
+.st-ok::before{ background:var(--ok); }
+.st-risk{ color:var(--risk); background:var(--risk-bg); border-color:var(--risk-line); }
+.st-risk::before{ background:var(--risk); }
+.st-hold{ color:var(--hold); background:var(--hold-bg); border-color:var(--hold-line); }
+.st-hold::before{ background:var(--hold); }
+.st-skip{ color:var(--ink-soft); background:var(--bg-band); border-color:var(--rule); }
+.st-skip::before{ background:var(--ink-faint); }
+.chip{
+  display:inline-flex; align-items:center; gap:.35em;
+  font:600 10px/1 var(--mono); letter-spacing:.02em;
+  padding:3px 6px; border-radius:5px;
+  background:var(--navy-bg); color:var(--navy-deep); border:1px solid var(--navy-line);
+}
+.muted{ color:var(--ink-faint); }
+.mlabel{ font:600 10px/1.4 var(--mono); letter-spacing:.1em; text-transform:uppercase; color:var(--ink-faint); }
+
+/* ---- noscript banner ---- */
+.noscript-note{
+  margin:0; padding:14px 22px; background:var(--hold-bg); color:var(--hold);
+  border-bottom:1px solid var(--hold-line); font:600 12.5px/1.5 var(--sans);
+}
+.noscript-note code{ font:600 11.5px/1 var(--mono); }
+
+/* ============================================================
+   2. APP SHELL — summary band on top, tree + table below
+   ============================================================ */
+.tr-shell{ display:flex; flex-direction:column; min-height:100vh; }
+
+/* ---- top run SUMMARY band (the signature) ---- */
+.tr-summary{
+  position:sticky; top:0; z-index:20;
+  background:rgba(255,255,255,.94); backdrop-filter:saturate(1.2) blur(4px);
+  border-bottom:1px solid var(--rule);
+  padding:14px 24px 15px;
+  display:grid; grid-template-columns:auto auto 1fr auto; align-items:center; gap:22px;
+}
+.tr-brand .eyebrow{ font:700 10px/1.3 var(--mono); letter-spacing:.12em; text-transform:uppercase; color:var(--ink-faint); }
+.tr-brand h1{ margin:2px 0 0; font:800 19px/1.1 var(--sans); letter-spacing:-.01em; }
+.tr-brand h1 b{ color:var(--navy-deep); }
+.tr-brand .sub{ margin-top:3px; font:600 11px/1 var(--mono); letter-spacing:.03em; color:var(--ink-faint); }
+
+/* run selector + env chip cluster */
+.tr-runline{ display:flex; align-items:center; gap:10px; }
+.tr-run-sel{ position:relative; }
+.tr-run-sel select{
+  -webkit-appearance:none; appearance:none; cursor:pointer;
+  font:700 13px/1 var(--sans); color:var(--ink);
+  background:var(--bg); border:1px solid var(--rule); border-radius:8px;
+  padding:8px 30px 8px 11px; box-shadow:var(--shadow);
+}
+.tr-run-sel select:hover{ border-color:var(--navy-line); }
+.tr-run-sel::after{
+  content:""; position:absolute; right:11px; top:50%; width:7px; height:7px;
+  border-right:2px solid var(--ink-soft); border-bottom:2px solid var(--ink-soft);
+  transform:translateY(-70%) rotate(45deg); pointer-events:none;
+}
+.tr-env{
+  font:700 10.5px/1 var(--mono); letter-spacing:.05em; text-transform:uppercase;
+  padding:6px 9px; border-radius:6px; background:var(--bg-deep); color:#fff; white-space:nowrap;
+}
+.tr-branch{ font:600 11px/1 var(--mono); color:var(--ink-soft); letter-spacing:.02em; }
+
+/* result block: donut + pass-rate + totals strip */
+.tr-result{ display:flex; align-items:center; gap:20px; justify-self:end; }
+.tr-donut{ position:relative; width:96px; height:96px; flex:none; cursor:default; }
+.tr-donut svg{ display:block; width:96px; height:96px; transform:rotate(-90deg); }
+.tr-donut .seg{ fill:none; stroke-width:11; transition:stroke-width .12s, opacity .12s; cursor:pointer; }
+.tr-donut .seg.pass{ stroke:var(--ok); }
+.tr-donut .seg.fail{ stroke:var(--risk); }
+.tr-donut .seg.flaky{ stroke:var(--hold); }
+.tr-donut .seg.skip{ stroke:var(--rule); }
+.tr-donut .seg.dim{ opacity:.32; }
+.tr-donut .seg.hot{ stroke-width:13; }
+.tr-donut-center{ position:absolute; inset:11px; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+.tr-donut-center b{ font:800 18px/1 var(--mono); letter-spacing:-.03em; color:var(--ink); }
+.tr-donut-center em{ font:600 8.5px/1.2 var(--mono); font-style:normal; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-faint); margin-top:2px; }
+.tr-totals{ display:flex; gap:0; }
+.tr-tot{ padding:0 14px; border-right:1px solid var(--rule-soft); text-align:left; }
+.tr-tot:last-child{ border-right:0; padding-right:0; }
+.tr-tot .mlabel{ margin-bottom:4px; }
+.tr-tot b{ font:800 20px/1 var(--mono); letter-spacing:-.01em; color:var(--ink); white-space:nowrap; }
+.tr-tot b.ok{ color:var(--ok); } .tr-tot b.risk{ color:var(--risk); } .tr-tot b.hold{ color:var(--hold); } .tr-tot b.skip{ color:var(--ink-soft); }
+/* unit suffixes (m/s/ms) live INSIDE <b> and must stay inline; only the direct timestamp <small> is a block */
+.tr-tot b small{ font:inherit; font-size:.62em; font-weight:600; color:var(--ink-faint); }
+.tr-tot > small{ display:block; font:600 10px/1.3 var(--mono); color:var(--ink-faint); margin-top:3px; white-space:nowrap; }
+
+/* donut hover tooltip */
+.tr-tip{
+  position:fixed; z-index:60; pointer-events:none;
+  background:#000; color:#fff; border-radius:7px; padding:7px 9px;
+  font:600 11px/1.4 var(--sans); white-space:nowrap; box-shadow:0 4px 14px rgba(0,0,0,.3);
+  opacity:0; transition:opacity .1s; transform:translate(-50%,-100%);
+}
+.tr-tip.show{ opacity:1; }
+.tr-tip .tt-h{ font:700 10px/1.3 var(--mono); letter-spacing:.06em; text-transform:uppercase; color:#cfd3db; margin-bottom:3px; }
+.tr-tip .tt-row{ display:flex; align-items:center; gap:6px; }
+.tr-tip .tt-row i{ width:8px; height:8px; border-radius:2px; flex:none; }
+.tr-tip .tt-row b{ font:700 11.5px/1 var(--mono); }
+
+/* theme switcher (MANDATORY, canonical dropdown per _DATA_DRIVEN §3) */
+.rc-theme{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--rule);border-radius:7px;padding:3px 4px 3px 7px;background:var(--bg);}
+.rc-theme-sw{width:12px;height:12px;border-radius:50%;background:var(--navy);box-shadow:0 0 0 1px var(--rule);flex:none;}
+.rc-theme-sel{border:0;background:none;font:600 11px/1 var(--mono);color:var(--ink-mid);cursor:pointer;outline:none;padding:2px;}
+@media print{.rc-theme{display:none;}}
+
+/* ============================================================
+   3. BODY GRID — left suite tree + center case table
+   ============================================================ */
+.tr-body{ display:grid; grid-template-columns:var(--tree-w) 1fr; align-items:start; flex:1 1 auto; min-height:0; }
+
+/* ---- left SUITE TREE ---- */
+.tr-tree{
+  position:sticky; top:126px; align-self:start;
+  background:var(--bg); border-right:1px solid var(--rule);
+  padding:14px 12px 18px; max-height:calc(100vh - 126px); overflow:auto;
+}
+.tr-tree-head{ display:flex; align-items:center; gap:7px; padding:0 6px 10px; }
+.tr-tree-head .icon{ color:var(--navy); width:15px; height:15px; }
+.tr-tree-head span{ font:700 11px/1 var(--mono); letter-spacing:.09em; text-transform:uppercase; color:var(--ink-faint); }
+.tr-suite{ }
+.tr-suite-row{
+  display:grid; grid-template-columns:16px 1fr auto; align-items:center; gap:7px;
+  padding:7px 6px; border-radius:8px; cursor:pointer; transition:background .12s;
+}
+.tr-suite-row:hover{ background:var(--bg-subtle); }
+.tr-suite-row.is-active{ background:var(--navy-bg); }
+.tr-suite-row.is-active .tr-suite-name{ color:var(--navy-deep); }
+.tr-caret{
+  width:16px; height:16px; display:grid; place-items:center; color:var(--ink-faint);
+  border:0; background:none; cursor:pointer; padding:0;
+}
+.tr-caret .icon{ width:13px; height:13px; transition:transform .15s; }
+.tr-suite.is-open > .tr-suite-row .tr-caret .icon{ transform:rotate(90deg); }
+.tr-caret.empty{ visibility:hidden; }
+.tr-suite-main{ min-width:0; }
+.tr-suite-name{ font:600 12.5px/1.2 var(--sans); color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.tr-minibar{ display:flex; height:5px; border-radius:3px; overflow:hidden; margin-top:5px; background:var(--rule-soft); }
+.tr-minibar i{ display:block; height:100%; transition:width .35s ease; }
+.tr-minibar i.pass{ background:var(--ok); } .tr-minibar i.fail{ background:var(--risk); }
+.tr-minibar i.flaky{ background:var(--hold); } .tr-minibar i.skip{ background:var(--ink-faint); }
+.tr-suite-count{ font:700 11px/1 var(--mono); color:var(--ink-soft); text-align:right; white-space:nowrap; }
+.tr-suite-count b{ color:var(--ink); }
+.tr-suite-count .x{ color:var(--risk); }
+.tr-children{ overflow:hidden; }
+.tr-suite:not(.is-open) > .tr-children{ display:none; }
+.tr-children .tr-suite-row{ margin-left:14px; }
+
+/* ---- center CASE area ---- */
+.tr-main{ min-width:0; padding:16px 24px 22px; }
+
+/* filters bar: status chips + search + sort hint */
+.tr-filters{
+  display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+  margin-bottom:13px;
+}
+.tr-scope{ font:700 14px/1.2 var(--sans); color:var(--ink); margin-right:2px; }
+.tr-scope b{ color:var(--navy-deep); }
+.tr-chips{ display:inline-flex; gap:6px; flex-wrap:wrap; }
+.tr-chip{
+  display:inline-flex; align-items:center; gap:6px; cursor:pointer;
+  font:600 11px/1 var(--mono); letter-spacing:.03em; color:var(--ink-soft);
+  border:1px solid var(--rule); background:var(--bg); border-radius:7px; padding:6px 9px;
+  transition:background .12s,color .12s,border-color .12s;
+}
+.tr-chip .dot{ width:8px; height:8px; border-radius:50%; background:var(--ink-faint); }
+.tr-chip .dot.pass{ background:var(--ok); } .tr-chip .dot.fail{ background:var(--risk); }
+.tr-chip .dot.flaky{ background:var(--hold); } .tr-chip .dot.skip{ background:var(--ink-faint); }
+.tr-chip .n{ font-weight:700; color:var(--ink); }
+.tr-chip:hover{ border-color:var(--navy-line); }
+.tr-chip.on{ background:var(--navy-bg); color:var(--navy-deep); border-color:var(--navy-line); }
+.tr-chip.on .n{ color:var(--navy-deep); }
+.tr-search{ position:relative; margin-left:auto; }
+.tr-search .icon{ position:absolute; left:9px; top:50%; transform:translateY(-50%); width:14px; height:14px; color:var(--ink-faint); pointer-events:none; }
+.tr-search input{
+  font:600 12px/1 var(--sans); color:var(--ink);
+  border:1px solid var(--rule); border-radius:8px; background:var(--bg);
+  padding:8px 11px 8px 30px; width:240px; outline:none; transition:border-color .12s;
+}
+.tr-search input:focus{ border-color:var(--navy-line); }
+.tr-search input::placeholder{ color:var(--ink-faint); }
+
+/* ---- the CASE TABLE ---- */
+.tr-table-wrap{
+  background:var(--bg); border:1px solid var(--rule); border-radius:12px;
+  box-shadow:var(--shadow); overflow:hidden;
+}
+.tr-table{ width:100%; border-collapse:collapse; }
+.tr-table thead th{
+  font:700 9.5px/1.2 var(--mono); letter-spacing:.08em; text-transform:uppercase;
+  color:var(--ink-faint); text-align:left; padding:11px 14px 9px; border-bottom:2px solid var(--ink);
+  white-space:nowrap; background:var(--bg);
+}
+.tr-table thead th.num{ text-align:right; }
+.tr-table thead th.sortable{ cursor:pointer; user-select:none; }
+.tr-table thead th.sortable:hover{ color:var(--navy-deep); }
+.tr-table thead th .sort-ar{ opacity:0; margin-left:3px; font-size:9px; }
+.tr-table thead th.sorted .sort-ar{ opacity:1; color:var(--navy-deep); }
+.tr-table tbody td{ padding:10px 14px; border-bottom:1px solid var(--rule-soft); vertical-align:middle; }
+.tr-case{ cursor:pointer; transition:background .12s; }
+.tr-case:hover{ background:var(--bg-subtle); }
+.tr-case.is-open{ background:var(--navy-bg); }
+.tr-case.is-hidden{ display:none; }
+.tr-case .tr-cname{ font:600 12.5px/1.35 var(--sans); color:var(--ink); display:flex; align-items:center; gap:7px; }
+.tr-case .caret{ display:inline-block; width:0; height:0; border-left:5px solid var(--ink-faint); border-top:4px solid transparent; border-bottom:4px solid transparent; transition:transform .15s; flex:none; }
+.tr-case.is-open .caret{ transform:rotate(90deg); }
+.tr-cid{ font:600 10px/1.3 var(--mono); color:var(--ink-faint); margin-top:2px; }
+.tr-dur{ text-align:right; font:600 12px/1.3 var(--mono); color:var(--ink); white-space:nowrap; }
+.tr-dur small{ color:var(--ink-faint); }
+.tr-owner{ font:600 11.5px/1.3 var(--mono); color:var(--ink-soft); white-space:nowrap; }
+.tr-tags{ display:flex; gap:4px; flex-wrap:wrap; }
+
+/* per-case last-N-runs square sparkline */
+.tr-spark{ display:inline-flex; gap:3px; align-items:center; }
+.tr-spark i{ width:9px; height:9px; border-radius:2px; background:var(--ink-faint); position:relative; }
+.tr-spark i.pass{ background:var(--ok); } .tr-spark i.fail{ background:var(--risk); }
+.tr-spark i.skip{ background:var(--rule); box-shadow:inset 0 0 0 1px var(--rule); }
+.tr-spark i.now{ outline:2px solid var(--navy); outline-offset:1px; }
+
+/* ---- FAILURE DETAIL panel (row expand) ---- */
+.tr-detail-row.is-hidden{ display:none; }
+.tr-detail-row > td{ padding:0; background:var(--bg-subtle); border-bottom:1px solid var(--rule-soft); }
+.tr-detail{ max-height:0; overflow:hidden; transition:max-height .22s ease; }
+.tr-detail-row.is-open .tr-detail{ max-height:900px; }
+.tr-detail-in{ padding:14px 18px 16px; display:grid; grid-template-columns:1.4fr 1fr; gap:16px; }
+.tr-det-msg{
+  grid-column:1 / -1; display:flex; align-items:flex-start; gap:9px;
+  background:var(--risk-bg); border:1px solid var(--risk-line); border-radius:9px; padding:10px 12px;
+  color:var(--risk); font:600 12.5px/1.5 var(--sans);
+}
+.tr-det-msg.flaky{ background:var(--hold-bg); border-color:var(--hold-line); color:var(--hold); }
+.tr-det-msg .icon{ width:16px; height:16px; flex:none; margin-top:1px; }
+.tr-det-blk .mlabel{ margin-bottom:7px; }
+.tr-stack{
+  background:var(--bg-deep); color:#d7dbe2; border-radius:10px; padding:12px 13px;
+  font:600 11px/1.6 var(--mono); white-space:pre; overflow-x:auto; margin:0;
+}
+.tr-stack .hl{ color:#f3b7b2; }
+.tr-steps{ display:flex; flex-direction:column; gap:0; }
+.tr-step{ display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:9px; padding:7px 0; border-bottom:1px solid var(--rule-soft); }
+.tr-step:last-child{ border-bottom:0; }
+.tr-step .sdot{ width:9px; height:9px; border-radius:50%; background:var(--ink-faint); flex:none; }
+.tr-step .sdot.pass{ background:var(--ok); } .tr-step .sdot.fail{ background:var(--risk); } .tr-step .sdot.skip{ background:var(--ink-faint); }
+.tr-step .sname{ font:600 12px/1.4 var(--sans); color:var(--ink-mid); }
+.tr-step.fail .sname{ color:var(--risk); }
+.tr-step.skip .sname{ color:var(--ink-faint); }
+.tr-step .sdur{ font:600 10.5px/1 var(--mono); color:var(--ink-faint); white-space:nowrap; }
+.tr-att{ display:flex; gap:6px; flex-wrap:wrap; margin-top:9px; }
+.tr-att .att{ display:inline-flex; align-items:center; gap:5px; font:600 10.5px/1 var(--mono); color:var(--ink-soft); border:1px solid var(--rule); background:var(--bg); border-radius:6px; padding:5px 8px; }
+.tr-att .att .icon{ width:13px; height:13px; color:var(--ink-faint); }
+
+/* empty state */
+.tr-empty{ padding:34px 14px; text-align:center; color:var(--ink-faint); font:600 12.5px/1.5 var(--sans); }
+
+/* ---- footer strip ---- */
+.tr-foot{
+  margin-top:auto; background:var(--bg-deep); color:#cfd3db;
+  display:flex; align-items:center; gap:14px; padding:13px 24px;
+  font:600 10.5px/1.4 var(--mono); letter-spacing:.05em; text-transform:uppercase;
+}
+.tr-foot .wm{ display:inline-flex; align-items:center; gap:8px; color:#fff; font:800 12px/1 var(--sans); letter-spacing:-.01em; text-transform:none; }
+.tr-foot .wm i{ width:16px; height:16px; border-radius:4px; background:var(--navy); display:inline-block; }
+.tr-foot .sp{ flex:1 1 auto; }
+
+/* ---- print: static, complete snapshot; expand failures; hide controls ---- */
+@media print{
+  body{ background:#fff; }
+  .tr-summary{ position:static; background:#fff; }
+  .tr-tree{ position:static; max-height:none; }
+  .tr-chips, .tr-search, .rc-theme, .tr-run-sel::after, .tr-table thead th .sort-ar, .tr-caret{ display:none !important; }
+  .tr-run-sel select{ -webkit-appearance:none; appearance:none; }
+  .tr-tip{ display:none !important; }
+  .tr-suite:not(.is-open) > .tr-children{ display:block !important; }
+  .tr-case.is-hidden{ display:table-row !important; }
+  .tr-detail-row{ display:table-row !important; }
+  .tr-detail{ max-height:none !important; }
+  .tr-table-wrap, .tr-summary{ box-shadow:none; }
+  .tr-stack{ white-space:pre-wrap; }
+  .tr-foot{ background:#fff; color:#000; border-top:2px solid #000; }
+  .tr-foot .wm{ color:#000; } .tr-foot .wm i{ background:#000; }
+}
+</style>
+</head>
+<body>
+
+<noscript>
+  <div class="noscript-note">
+    This test report renders from embedded run data and requires JavaScript for its
+    interactive controls (run selector, suite tree, status filters, search, sort, failure drill-down).
+    The complete run data is in the <code>#report-data</code> block above.
+  </div>
+</noscript>
+
+<div class="tr-shell" id="shell"><!-- built by render() --></div>
+
+<!-- floating donut/spark tooltip (single shared instance) -->
+<div class="tr-tip" id="tr-tip" role="status" aria-live="polite"></div>
+
+<script>
+/* ============================================================
+   TEST-REPORT RENDERER + INTERACTIONS  (vanilla JS, no libraries)
+   - render()          : #report-data JSON  →  console DOM
+   - renderForRun(id)  : recompute donut / totals / suite roll-ups /
+                         case statuses for the active run
+   - wire*()           : run selector · tree · status chips · search ·
+                         sort · row expand · donut & spark tooltips
+   - wireThemeSwitch() : canonical 9-option .rc-theme switcher (§3)
+   Reading requires JS (data-driven, per _DATA_DRIVEN §1); a
+   <noscript> notice + the raw JSON are provided above.
+   ============================================================ */
+(function(){
+  "use strict";
+
+  var DATA;
+  try { DATA = JSON.parse(document.getElementById('report-data').textContent); }
+  catch(e){ document.getElementById('shell').innerHTML =
+    '<p style="padding:24px;font:600 13px var(--sans);color:var(--risk)">Could not parse #report-data: '+e.message+'</p>'; return; }
+
+  var root  = document.documentElement;
+  var shell = document.getElementById('shell');
+  var tip   = document.getElementById('tr-tip');
+
+  /* ---- helpers ---- */
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+  function fmtDur(ms){
+    if(ms==null) return '—';
+    if(ms < 1000) return ms+'<small>ms</small>';
+    var s = ms/1000;
+    if(s < 60) return (s>=10?s.toFixed(0):s.toFixed(1)).replace(/\.0$/,'')+'<small>s</small>';
+    var m = Math.floor(s/60), r = Math.round(s%60);
+    return m+'<small>m</small> '+r+'<small>s</small>';
+  }
+  function fmtClock(iso){
+    if(!iso) return '—';
+    var d = new Date(iso); if(isNaN(d)) return esc(iso);
+    function p(n){ return String(n).padStart(2,'0'); }
+    return p(d.getUTCHours())+':'+p(d.getUTCMinutes())+':'+p(d.getUTCSeconds())+' UTC';
+  }
+  var STATUS_LABEL = Object.assign({ pass:'Passed', fail:'Failed', skip:'Skipped', flaky:'Flaky' }, DATA.statuses||{});
+  var STATUS_BADGE = { pass:'st-ok', fail:'st-risk', flaky:'st-hold', skip:'st-skip' };
+  var STATUS_ORDER = { fail:0, flaky:1, pass:2, skip:3 };
+
+  /* ---- inline SVG icon set (monoline, per icons/SPEC.md) ---- */
+  var ICON = {
+    flask:'<path d="M9 3h6"/><path d="M10 3v6.2L4.8 18A2 2 0 0 0 6.5 21h11a2 2 0 0 0 1.7-3L14 9.2V3"/><path d="M7.5 14h9"/>',
+    check:'<path d="M4.5 12.5l4.5 4.5L19.5 6.5"/>',
+    cross:'<path d="M6 6l12 12M18 6L6 18"/>',
+    retry:'<path d="M20 11a8 8 0 1 0-1.6 5.4"/><path d="M20 5v6h-6"/>',
+    chevron:'<path d="M9 6l6 6-6 6"/>',
+    search:'<circle cx="11" cy="11" r="6.5"/><path d="M20 20l-3.6-3.6"/>',
+    stack:'<rect x="3.5" y="4" width="17" height="4" rx="1.2"/><rect x="3.5" y="10" width="17" height="4" rx="1.2"/><rect x="3.5" y="16" width="11" height="4" rx="1.2"/>',
+    attach:'<path d="M16.5 7.5l-7.1 7.1a3 3 0 0 0 4.2 4.2l7.1-7.1a5 5 0 0 0-7.1-7.1l-7.1 7.1"/>',
+    image:'<rect x="3.5" y="4.5" width="17" height="15" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="M5 18l4.5-4.5 3.5 3.5 2.5-2.5L20 18"/>',
+    trace:'<path d="M4 7h7M4 12h11M4 17h7"/><rect x="16" y="9" width="4" height="4" rx="1.2" fill="currentColor" stroke="none"/>',
+    log:'<rect x="4.5" y="3.5" width="15" height="17" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/>'
+  };
+  function svg(name, cls){
+    return '<svg class="icon'+(cls?' '+cls:'')+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" '
+      + 'stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
+      + (ICON[name]||ICON.flask) + '</svg>';
+  }
+  var ATT_ICON = { image:'image', trace:'trace', log:'log', data:'log', video:'image', other:'attach' };
+
+  /* ============================================================
+     STATE
+     ============================================================ */
+  var STATE = {
+    runId:    DATA.activeRunId || (DATA.runs[0] && DATA.runs[0].id),
+    suiteId:  '__all__',
+    status:   'all',
+    query:    '',
+    sortKey:  'status',
+    sortDir:  1,
+    open:     {}   /* caseId -> expanded? */
+  };
+
+  /* lookups */
+  var SUITE_BY_ID = {}; DATA.suites.forEach(function(s){ SUITE_BY_ID[s.id]=s; });
+  function childrenOf(pid){ return DATA.suites.filter(function(s){ return (s.parentId||null)===(pid||null); }); }
+  function descendantIds(sid){
+    var out=[sid]; childrenOf(sid).forEach(function(c){ out=out.concat(descendantIds(c.id)); }); return out;
+  }
+  /* case result for the active run */
+  function resOf(c){ return (c.results && c.results[STATE.runId]) || { status:'skip' }; }
+  function statusOf(c){ return resOf(c).status || 'skip'; }
+  function casesInSuite(sid){
+    if(sid==='__all__') return DATA.cases.slice();
+    var ids = descendantIds(sid);
+    return DATA.cases.filter(function(c){ return ids.indexOf(c.suiteId)>=0; });
+  }
+  function tally(cases){
+    var t={ pass:0, fail:0, skip:0, flaky:0, total:cases.length };
+    cases.forEach(function(c){ var s=statusOf(c); t[s]=(t[s]||0)+1; });
+    return t;
+  }
+  function passRate(t){
+    /* passed / total — matches the green arc fraction (pass/total) drawn in the donut */
+    if(t.total<=0) return 0;
+    return (t.pass/t.total)*100;
+  }
+
+  /* ============================================================
+     RENDER — build the whole shell from data
+     ============================================================ */
+  function render(){
+    root.dataset.theme = (DATA.meta && DATA.meta.theme) || 'green';
+
+    var html = ''
+      + summaryHTML()
+      + '<div class="tr-body">'
+      +   '<aside class="tr-tree" id="tree"></aside>'
+      +   '<section class="tr-main">'
+      +     '<div class="tr-filters" id="filters"></div>'
+      +     '<div class="tr-table-wrap"><table class="tr-table" id="table"></table></div>'
+      +   '</section>'
+      + '</div>'
+      + footHTML();
+    shell.innerHTML = html;
+
+    renderTree();
+    renderFilters();
+    renderTable();
+
+    wireThemeSwitch();
+    wireRunSelector();
+    wireTree();
+    wireFilters();
+    wireDonut();
+  }
+
+  /* ---- 2. summary band (run selector + donut + totals) ---- */
+  function summaryHTML(){
+    var m = DATA.meta||{};
+    var run = DATA.runs.filter(function(r){ return r.id===STATE.runId; })[0] || DATA.runs[0];
+
+    var runOpts = DATA.runs.map(function(r){
+      return '<option value="'+esc(r.id)+'"'+(r.id===STATE.runId?' selected':'')+'>'+esc(r.label||r.id)+'</option>';
+    }).join('');
+
+    var themeSwitcher = '<label class="rc-theme" title="Brand colour">'
+      + '<span class="rc-theme-sw" aria-hidden="true"></span>'
+      + '<select class="rc-theme-sel" aria-label="Brand theme">'
+      + '<option value="blue">Blue</option>'
+      + '<option value="purple">Purple</option>'
+      + '<option value="indigo">Indigo</option>'
+      + '<option value="teal">Teal</option>'
+      + '<option value="cyan">Cyan</option>'
+      + '<option value="green">Green</option>'
+      + '<option value="plum">Plum</option>'
+      + '<option value="slate">Slate</option>'
+      + '<option value="black">Black</option>'
+      + '</select></label>';
+
+    return '<header class="tr-summary">'
+      + '<div class="tr-brand">'
+      +   '<div class="eyebrow">'+esc(m.reportType||'Test execution')+'</div>'
+      +   '<h1>'+esc(m.project||'{{PROJECT}}')+' <b>·</b> '+esc(m.title||'Test Execution Report')+'</h1>'
+      +   (m.subtitle?'<div class="sub">'+esc(m.subtitle)+'</div>':'')
+      + '</div>'
+      + '<div class="tr-runline">'
+      +   '<span class="tr-run-sel"><select id="run-sel" aria-label="Select run">'+runOpts+'</select></span>'
+      +   '<span class="tr-env">'+esc(run.env||'')+'</span>'
+      +   (run.branch?'<span class="tr-branch">'+esc(run.branch)+'</span>':'')
+      + '</div>'
+      + '<div></div>'
+      + '<div class="tr-result" id="result"></div>'
+      + '<div style="position:absolute;right:24px;top:14px">'+themeSwitcher+'</div>'
+      + '</header>';
+  }
+
+  /* the result block (donut + pass-rate + totals) — recomputed per run */
+  function renderResult(){
+    var box = document.getElementById('result');
+    if(!box) return;
+    var run = DATA.runs.filter(function(r){ return r.id===STATE.runId; })[0] || DATA.runs[0];
+    var all = DATA.cases.slice();
+    var t = tally(all);
+    var pr = passRate(t);
+
+    /* donut geometry */
+    var R=40, C=2*Math.PI*R, cx=48, cy=48;
+    var order=['pass','flaky','fail','skip'];
+    var off=0, segs='';
+    order.forEach(function(k){
+      var frac = t.total? (t[k]/t.total) : 0;
+      var len = frac*C;
+      if(frac>0){
+        segs += '<circle class="seg '+k+'" data-k="'+k+'" data-n="'+t[k]+'" data-pct="'+(frac*100).toFixed(1)+'" '
+          + 'cx="'+cx+'" cy="'+cy+'" r="'+R+'" '
+          + 'stroke-dasharray="'+len.toFixed(2)+' '+(C-len).toFixed(2)+'" stroke-dashoffset="'+(-off).toFixed(2)+'"></circle>';
+      }
+      off += len;
+    });
+
+    var dur = fmtDur(run.durationMs);
+
+    box.innerHTML = ''
+      + '<div class="tr-donut" id="donut" title="Result breakdown">'
+      +   '<svg viewBox="0 0 96 96"><circle class="seg skip" cx="48" cy="48" r="40" stroke-dasharray="'+C.toFixed(2)+' 0" style="stroke:var(--rule-soft);opacity:.6"></circle>'+segs+'</svg>'
+      +   '<div class="tr-donut-center"><b class="tnum">'+pr.toFixed(1)+'%</b><em>Pass rate</em></div>'
+      + '</div>'
+      + '<div class="tr-totals">'
+      +   tot('Tests', t.total, '')
+      +   tot('Passed', t.pass, 'ok')
+      +   tot('Failed', t.fail, 'risk')
+      +   tot('Flaky', t.flaky, 'hold')
+      +   tot('Skipped', t.skip, 'skip')
+      +   '<div class="tr-tot"><div class="mlabel">Duration</div><b class="tnum">'+dur+'</b>'
+      +     '<small>'+fmtClock(run.startedAt)+' → '+fmtClock(run.finishedAt)+'</small></div>'
+      + '</div>';
+  }
+  function tot(label, n, cls){
+    return '<div class="tr-tot"><div class="mlabel">'+esc(label)+'</div>'
+      + '<b class="tnum '+cls+'">'+n+'</b></div>';
+  }
+
+  /* ---- 3a. suite tree ---- */
+  function renderTree(){
+    var tree = document.getElementById('tree');
+    var allT = tally(DATA.cases);
+    var head = '<div class="tr-tree-head">'+svg('flask')+'<span>Suites</span></div>';
+
+    /* synthetic "All" root */
+    var allRow = suiteRowHTML({ id:'__all__', name:'All suites' }, allT, false, true);
+
+    var roots = childrenOf(null).map(function(s){ return suiteNodeHTML(s); }).join('');
+    tree.innerHTML = head + '<div class="tr-suite is-open" data-suite="__all__">'+allRow+'</div>' + roots;
+  }
+  function suiteNodeHTML(s){
+    var cases = casesInSuite(s.id);
+    var t = tally(cases);
+    var kids = childrenOf(s.id);
+    var hasKids = kids.length>0;
+    var inner = hasKids ? '<div class="tr-children">'+kids.map(suiteNodeHTML).join('')+'</div>' : '';
+    return '<div class="tr-suite is-open" data-suite="'+esc(s.id)+'">'
+      + suiteRowHTML(s, t, hasKids, false)
+      + inner
+      + '</div>';
+  }
+  function suiteRowHTML(s, t, hasKids, isAll){
+    var caret = '<button class="tr-caret'+(hasKids?'':' empty')+'" aria-label="toggle">'+svg('chevron')+'</button>';
+    var active = (STATE.suiteId===s.id) ? ' is-active' : '';
+    var pct = function(k){ return t.total? (t[k]/t.total*100).toFixed(2)+'%' : '0%'; };
+    var bar = '<div class="tr-minibar" title="'+t.pass+' pass · '+t.fail+' fail · '+t.flaky+' flaky · '+t.skip+' skip">'
+      + '<i class="pass" style="width:'+pct('pass')+'"></i>'
+      + '<i class="flaky" style="width:'+pct('flaky')+'"></i>'
+      + '<i class="fail" style="width:'+pct('fail')+'"></i>'
+      + '<i class="skip" style="width:'+pct('skip')+'"></i>'
+      + '</div>';
+    var count = t.fail>0
+      ? '<b>'+t.pass+'</b>/'+t.total+' <span class="x">'+t.fail+'✕</span>'
+      : '<b>'+t.pass+'</b>/'+t.total;
+    return '<div class="tr-suite-row'+active+'" data-suite="'+esc(s.id)+'" role="button" tabindex="0">'
+      + caret
+      + '<div class="tr-suite-main"><div class="tr-suite-name">'+esc(s.name)+'</div>'+bar+'</div>'
+      + '<div class="tr-suite-count tnum">'+count+'</div>'
+      + '</div>';
+  }
+
+  /* ---- 3b. filters bar (status chips + search) ---- */
+  function renderFilters(){
+    var bar = document.getElementById('filters');
+    var cases = casesInSuite(STATE.suiteId);
+    var t = tally(cases);
+    var scopeName = STATE.suiteId==='__all__' ? 'All suites' : (SUITE_BY_ID[STATE.suiteId]||{}).name || '';
+
+    function chip(key, label, n){
+      var dot = key==='all' ? '' : '<span class="dot '+key+'"></span>';
+      return '<button class="tr-chip'+(STATE.status===key?' on':'')+'" data-status="'+key+'">'
+        + dot + esc(label) + ' <span class="n tnum">'+n+'</span></button>';
+    }
+
+    bar.innerHTML = ''
+      + '<div class="tr-scope">Cases · <b>'+esc(scopeName)+'</b></div>'
+      + '<div class="tr-chips">'
+      +   chip('all', 'All', t.total)
+      +   chip('pass', STATUS_LABEL.pass, t.pass)
+      +   chip('fail', STATUS_LABEL.fail, t.fail)
+      +   chip('flaky', STATUS_LABEL.flaky, t.flaky)
+      +   chip('skip', STATUS_LABEL.skip, t.skip)
+      + '</div>'
+      + '<div class="tr-search">'+svg('search')
+      +   '<input id="search" type="search" placeholder="Search cases…" value="'+esc(STATE.query)+'" aria-label="Search cases by name">'
+      + '</div>';
+  }
+
+  /* ---- 3c. case table ---- */
+  function renderTable(){
+    var table = document.getElementById('table');
+    var cases = casesInSuite(STATE.suiteId);
+
+    /* sort */
+    cases.sort(function(a,b){
+      var d=0;
+      if(STATE.sortKey==='status') d = STATUS_ORDER[statusOf(a)] - STATUS_ORDER[statusOf(b)];
+      else if(STATE.sortKey==='duration') d = (resOf(a).durationMs||0) - (resOf(b).durationMs||0);
+      else if(STATE.sortKey==='name') d = a.name.localeCompare(b.name);
+      if(d===0) d = a.name.localeCompare(b.name);
+      return d*STATE.sortDir;
+    });
+
+    function th(key,label,extra){
+      var on = STATE.sortKey===key;
+      var ar = on ? (STATE.sortDir>0?'▲':'▼') : '▲';
+      return '<th class="sortable'+(on?' sorted':'')+(extra||'')+'" data-sort="'+key+'">'+esc(label)
+        + '<span class="sort-ar">'+ar+'</span></th>';
+    }
+
+    var head = '<thead><tr>'
+      + th('status','Status')
+      + th('name','Case')
+      + th('duration','Duration',' num')
+      + '<th>Owner</th>'
+      + '<th>Last 8 runs</th>'
+      + '<th>Tags</th>'
+      + '</tr></thead>';
+
+    var rows = cases.map(caseRowsHTML).join('');
+    if(!rows) rows = '<tr><td colspan="6"><div class="tr-empty">No cases match this filter.</div></td></tr>';
+
+    table.innerHTML = head + '<tbody>'+rows+'</tbody>';
+    applyFilter();
+    wireTableRows();
+  }
+
+  function caseRowsHTML(c){
+    var r = resOf(c);
+    var st = r.status || 'skip';
+    var badge = '<span class="st-badge '+STATUS_BADGE[st]+'">'+esc(STATUS_LABEL[st])+'</span>';
+    var dur = (st==='skip') ? '<span class="muted">—</span>' : fmtDur(r.durationMs);
+    var retr = (r.retries>0) ? ' <small>·'+r.retries+'↻</small>' : '';
+    var tags = (c.tags||[]).map(function(tg){ return '<span class="chip">'+esc(tg)+'</span>'; }).join('');
+    var hist = sparkHTML(c);
+    var hasDetail = !!r.failure;
+
+    var caret = hasDetail
+      ? '<span class="caret" aria-hidden="true"></span>'
+      : '<span class="caret" style="visibility:hidden" aria-hidden="true"></span>';
+
+    var main = '<tr class="tr-case'+(STATE.open[c.id]?' is-open':'')+'" data-id="'+esc(c.id)
+      + '" data-status="'+st+'" data-name="'+esc(c.name.toLowerCase())+'" data-detail="'+(hasDetail?1:0)+'">'
+      + '<td>'+badge+'</td>'
+      + '<td><div class="tr-cname">'+caret+'<span>'+esc(c.name)+'</span></div><div class="tr-cid">'+esc(c.id)+'</div></td>'
+      + '<td class="tr-dur tnum">'+dur+retr+'</td>'
+      + '<td class="tr-owner">'+esc(c.owner||'—')+'</td>'
+      + '<td>'+hist+'</td>'
+      + '<td><div class="tr-tags">'+tags+'</div></td>'
+      + '</tr>';
+
+    var detail = '<tr class="tr-detail-row'+(STATE.open[c.id]?' is-open':' is-hidden')+'" data-detail-for="'+esc(c.id)+'">'
+      + '<td colspan="6"><div class="tr-detail">'+ (hasDetail?detailHTML(r):'') +'</div></td></tr>';
+
+    return main + detail;
+  }
+
+  /* per-case last-N-runs square sparkline */
+  function sparkHTML(c){
+    var h = c.history||[];
+    var sq = h.map(function(s, i){
+      var last = (i===h.length-1);
+      return '<i class="'+esc(s)+(last?' now':'')+'" data-s="'+esc(s)+'" data-i="'+i+'" data-n="'+h.length+'"></i>';
+    }).join('');
+    return '<span class="tr-spark" data-case="'+esc(c.name)+'">'+sq+'</span>';
+  }
+
+  /* failure detail panel */
+  function detailHTML(r){
+    var f = r.failure; if(!f) return '';
+    var isFlaky = r.status==='flaky';
+    var msg = '<div class="tr-det-msg'+(isFlaky?' flaky':'')+'">'+svg(isFlaky?'retry':'cross')+'<span>'+esc(f.message)+'</span></div>';
+
+    var left = '';
+    if(f.stack){
+      left = '<div class="tr-det-blk"><div class="mlabel">'+svg('stack')+' Stack trace</div>'
+        + '<pre class="tr-stack">'+esc(f.stack)+'</pre></div>';
+    }
+
+    var right = '';
+    if(f.steps && f.steps.length){
+      var steps = f.steps.map(function(s){
+        return '<div class="tr-step '+esc(s.status)+'"><span class="sdot '+esc(s.status)+'"></span>'
+          + '<span class="sname">'+esc(s.name)+'</span>'
+          + '<span class="sdur">'+(s.durationMs!=null?fmtDur(s.durationMs).replace(/<\/?small>/g,''):'')+'</span></div>';
+      }).join('');
+      right += '<div class="tr-det-blk"><div class="mlabel">Steps</div><div class="tr-steps">'+steps+'</div></div>';
+    }
+    if(f.attachments && f.attachments.length){
+      var atts = f.attachments.map(function(a){
+        return '<span class="att">'+svg(ATT_ICON[a.kind]||'attach')+esc(a.name)+'</span>';
+      }).join('');
+      right += '<div class="tr-det-blk" style="margin-top:12px"><div class="mlabel">'+svg('attach')+' Attachments</div>'
+        + '<div class="tr-att">'+atts+'</div></div>';
+    }
+    if(!right) right = '<div class="tr-det-blk"><div class="mlabel">Steps</div><div class="tr-empty" style="padding:14px 0">No step breakdown recorded.</div></div>';
+
+    return '<div class="tr-detail-in">'+msg+left+right+'</div>';
+  }
+
+  /* ---- footer ---- */
+  function footHTML(){
+    var m = DATA.meta||{};
+    return '<footer class="tr-foot">'
+      + '<span class="wm"><i></i>'+esc(m.org||'{{ORG}}')+'</span>'
+      + '<span class="sp"></span>'
+      + '<span>'+esc(m.reportType||'Test execution')+'</span>'
+      + '<span>·</span><span>'+esc(m.date||'')+'</span>'
+      + '<span>·</span><span>'+esc(m.author||'{{AUTHOR}}')+'</span>'
+      + '</footer>';
+  }
+
+  /* ============================================================
+     FILTER (status + search) — show/hide rows, never re-fetch
+     ============================================================ */
+  function applyFilter(){
+    var q = STATE.query.trim().toLowerCase();
+    var rows = shell.querySelectorAll('.tr-case');
+    var shown = 0;
+    rows.forEach(function(tr){
+      var st = tr.dataset.status;
+      var nm = tr.dataset.name||'';
+      var okStatus = (STATE.status==='all') || (st===STATE.status);
+      var okQuery  = !q || nm.indexOf(q)>=0;
+      var show = okStatus && okQuery;
+      tr.classList.toggle('is-hidden', !show);
+      /* keep an open detail row visible only if its case is shown & open */
+      var det = tr.nextElementSibling;
+      if(det && det.classList.contains('tr-detail-row')){
+        var isOpen = tr.classList.contains('is-open');
+        det.classList.toggle('is-hidden', !(show && isOpen));
+        det.classList.toggle('is-open', show && isOpen);
+      }
+      if(show) shown++;
+    });
+    var empty = shell.querySelector('.tr-table .tr-empty');
+    if(empty && !empty.closest('tr')) {} /* noop */
+  }
+
+  /* ============================================================
+     WIRING
+     ============================================================ */
+  function wireRunSelector(){
+    var sel = document.getElementById('run-sel');
+    if(!sel) return;
+    sel.addEventListener('change', function(){
+      STATE.runId = sel.value;
+      STATE.open = {};                 /* collapse details on run switch */
+      /* env/branch chip + result block + tree counts + table all recompute */
+      var run = DATA.runs.filter(function(r){ return r.id===STATE.runId; })[0]||DATA.runs[0];
+      var env = shell.querySelector('.tr-env'); if(env) env.textContent = run.env||'';
+      var br = shell.querySelector('.tr-branch'); if(br) br.textContent = run.branch||'';
+      renderResult(); wireDonut();
+      renderTree(); wireTree();
+      renderFilters(); wireFilters();
+      renderTable();
+    });
+    renderResult();          /* first paint of the result block */
+  }
+
+  function wireTree(){
+    var tree = document.getElementById('tree');
+    if(!tree) return;
+    /* caret = toggle children; row = select suite */
+    tree.querySelectorAll('.tr-caret').forEach(function(btn){
+      btn.addEventListener('click', function(e){
+        e.stopPropagation();
+        var node = btn.closest('.tr-suite');
+        if(node) node.classList.toggle('is-open');
+      });
+    });
+    tree.querySelectorAll('.tr-suite-row').forEach(function(row){
+      function select(){
+        STATE.suiteId = row.dataset.suite;
+        STATE.status = 'all'; STATE.query=''; STATE.open={};
+        tree.querySelectorAll('.tr-suite-row').forEach(function(r){ r.classList.toggle('is-active', r===row); });
+        renderFilters(); wireFilters();
+        renderTable();
+      }
+      row.addEventListener('click', select);
+      row.addEventListener('keydown', function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); select(); } });
+    });
+  }
+
+  function wireFilters(){
+    shell.querySelectorAll('.tr-chip').forEach(function(ch){
+      ch.addEventListener('click', function(){
+        STATE.status = ch.dataset.status;
+        shell.querySelectorAll('.tr-chip').forEach(function(c){ c.classList.toggle('on', c===ch); });
+        applyFilter();
+      });
+    });
+    var search = document.getElementById('search');
+    if(search){
+      search.addEventListener('input', function(){ STATE.query = search.value; applyFilter(); });
+    }
+  }
+
+  function wireTableRows(){
+    /* sortable headers */
+    shell.querySelectorAll('.tr-table thead th.sortable').forEach(function(th){
+      th.addEventListener('click', function(){
+        var k = th.dataset.sort;
+        if(STATE.sortKey===k) STATE.sortDir *= -1;
+        else { STATE.sortKey = k; STATE.sortDir = (k==='name'?1:1); }
+        renderTable();
+      });
+    });
+    /* row expand → failure detail */
+    shell.querySelectorAll('.tr-case').forEach(function(tr){
+      if(tr.dataset.detail!=='1') return;
+      tr.addEventListener('click', function(){
+        var id = tr.dataset.id;
+        var open = !STATE.open[id];
+        STATE.open[id] = open;
+        tr.classList.toggle('is-open', open);
+        var det = tr.nextElementSibling;
+        if(det && det.classList.contains('tr-detail-row')){
+          det.classList.toggle('is-hidden', !open);
+          det.classList.toggle('is-open', open);
+        }
+      });
+    });
+    /* per-square sparkline tooltip */
+    shell.querySelectorAll('.tr-spark i').forEach(function(sq){
+      sq.addEventListener('mouseenter', function(e){
+        var i=+sq.dataset.i, n=+sq.dataset.n, s=sq.dataset.s;
+        var ago = (n-1-i);
+        var when = ago===0 ? 'latest run' : ago+' run'+(ago>1?'s':'')+' ago';
+        showTip('<div class="tt-h">'+esc(when)+'</div><div class="tt-row"><i style="background:'+colorOf(s)+'"></i>'
+          + esc(STATUS_LABEL[s]||s)+'</div>', e.clientX, e.clientY);
+      });
+      sq.addEventListener('mouseleave', hideTip);
+    });
+  }
+
+  function wireDonut(){
+    var donut = document.getElementById('donut');
+    if(!donut) return;
+    var segs = donut.querySelectorAll('.seg[data-k]');
+    segs.forEach(function(seg){
+      seg.addEventListener('mouseenter', function(e){
+        var k=seg.dataset.k, n=seg.dataset.n, pct=seg.dataset.pct;
+        segs.forEach(function(o){ o.classList.toggle('dim', o!==seg); o.classList.toggle('hot', o===seg); });
+        var r = donut.getBoundingClientRect();
+        showTip('<div class="tt-h">'+esc(STATUS_LABEL[k]||k)+'</div><div class="tt-row"><i style="background:'+colorOf(k)+'"></i>'
+          + '<b>'+n+'</b> · '+pct+'%</div>', r.left+r.width/2, r.top+8);
+      });
+      seg.addEventListener('mousemove', function(e){ moveTip(e.clientX, e.clientY); });
+      seg.addEventListener('mouseleave', function(){
+        segs.forEach(function(o){ o.classList.remove('dim'); o.classList.remove('hot'); });
+        hideTip();
+      });
+    });
+  }
+
+  function colorOf(k){
+    return { pass:'var(--ok)', fail:'var(--risk)', flaky:'var(--hold)', skip:'var(--ink-faint)' }[k] || 'var(--ink-faint)';
+  }
+
+  /* shared tooltip */
+  function showTip(html, x, y){ tip.innerHTML = html; tip.classList.add('show'); moveTip(x,y); }
+  function moveTip(x, y){ tip.style.left = x+'px'; tip.style.top = (y-10)+'px'; }
+  function hideTip(){ tip.classList.remove('show'); }
+
+  /* ---- canonical dropdown theme switcher (per _DATA_DRIVEN §3) ---- */
+  function wireThemeSwitch(){
+    var rcSel = document.querySelector('.rc-theme-sel');
+    if (rcSel) {
+      rcSel.value = document.documentElement.dataset.theme || 'green';
+      rcSel.addEventListener('change', function(){ document.documentElement.dataset.theme = rcSel.value; });
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', render);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,257 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://genesis.local/html_report_design/schemas/magazine.schema.json",
+  "title": "Magazine / editorial feature",
+  "description": "Data contract for the magazine format: a print-editorial long-read feature. Opens with a dramatic full-width title spread (kicker → large display headline → deck → byline), then flows through CSS multi-column justified body with a drop-cap, run-in subheads, pull-quotes, figure spreads, and a folio footer. No top bar, no TOC, no dashboard tiles — pure editorial reading rhythm. The sample's #report-data is a valid instance of this schema.",
+  "type": "object",
+  "required": ["meta", "body", "folio"],
+  "additionalProperties": false,
+  "properties": {
+    "meta": {
+      "type": "object",
+      "description": "Title spread content plus shared chrome (org / theme). The kicker, headline, deck, and byline are the magazine cover — they replace the long-form top bar and hero entirely.",
+      "required": ["org", "project", "kicker", "headline", "deck", "byline", "date", "theme"],
+      "additionalProperties": false,
+      "properties": {
+        "org": { "type": "string", "description": "Organisation name or {{ORG}} placeholder. Appears in the folio wordmark.", "default": "{{ORG}}" },
+        "project": { "type": "string", "description": "Project / publication name or {{PROJECT}} placeholder. Appears in the kicker.", "default": "{{PROJECT}}" },
+        "reportType": { "type": "string", "description": "Optional eyebrow section label shown after the project in the kicker, e.g. 'The Field Notebook' or 'Feature'." },
+        "kicker": { "type": "string", "description": "Tracked-uppercase mono eyebrow before the hairline rule, e.g. 'Engineering Culture'. The editorial 'section / rubric' voice." },
+        "headline": { "type": "string", "description": "The display headline shown large (clamp 38–88px). The ONE big-type moment. Keep it to 1–3 lines. May contain HTML like <em> for italic accent words." },
+        "deck": { "type": "string", "description": "Standfirst / intro paragraph under the headline (18–22px). Sets up the piece in 1–3 sentences. May start with a lead-cap span." },
+        "byline": {
+          "type": "object",
+          "description": "The credit line under the deck — author, role, date, read-time, and optional issue chip.",
+          "required": ["author", "date"],
+          "additionalProperties": false,
+          "properties": {
+            "author": { "type": "string", "description": "Author name or {{AUTHOR}} placeholder.", "default": "{{AUTHOR}}" },
+            "role": { "type": "string", "description": "Optional author role / title, e.g. 'Principal Engineer, Platform'." },
+            "date": { "type": "string", "description": "Publication date (ISO YYYY-MM-DD or display string).", "format": "date" },
+            "readTime": { "type": "string", "description": "Estimated reading time shown after the date, e.g. '14 min read'." },
+            "issueRef": { "type": "string", "description": "Optional issue/publication reference shown as a .ref-chip, e.g. '{{PROJECT}} · No. 04'." }
+          }
+        },
+        "date": { "type": "string", "description": "ISO publication date (YYYY-MM-DD).", "format": "date" },
+        "theme": {
+          "type": "string",
+          "description": "Initial brand theme; applied as <html data-theme>. Default for this format is 'slate'.",
+          "enum": ["blue", "purple", "indigo", "teal", "cyan", "green", "plum", "slate"],
+          "default": "slate"
+        }
+      }
+    },
+    "body": {
+      "type": "array",
+      "description": "The flowing body of the article — an ordered array of content blocks. Blocks flow through CSS columns; pullquotes and figures use column-span:all to break the measure. The first block should be a 'para' with dropcap:true.",
+      "minItems": 1,
+      "items": {
+        "oneOf": [
+          {
+            "type": "object",
+            "description": "A prose paragraph. If dropcap is true, the first character gets the drop-cap float treatment.",
+            "required": ["type", "text"],
+            "additionalProperties": false,
+            "properties": {
+              "type": { "type": "string", "const": "para", "description": "Block type identifier." },
+              "text": { "type": "string", "description": "Paragraph text. May contain light HTML (bold, em, code)." },
+              "dropcap": { "type": "boolean", "description": "If true, this is the lead paragraph — the first character renders as a .dropcap float and the first words may use small-caps .lead-words. Only the first para should set this.", "default": false }
+            }
+          },
+          {
+            "type": "object",
+            "description": "A run-in subhead — a small tracked uppercase head that segments prose without heavy panel bands.",
+            "required": ["type", "text"],
+            "additionalProperties": false,
+            "properties": {
+              "type": { "type": "string", "const": "subhead", "description": "Block type identifier." },
+              "text": { "type": "string", "description": "Subhead text shown in small mono uppercase accent colour." },
+              "num": { "type": "string", "description": "Optional section number prefix shown faint, e.g. '01'." }
+            }
+          },
+          {
+            "type": "object",
+            "description": "A pull-quote that breaks the measure with column-span:all — the editorial breathing space.",
+            "required": ["type", "quote"],
+            "additionalProperties": false,
+            "properties": {
+              "type": { "type": "string", "const": "pullquote", "description": "Block type identifier." },
+              "quote": { "type": "string", "description": "The pull-quote text (a sentence or phrase pulled from the body for emphasis)." },
+              "attribution": { "type": "string", "description": "Optional attribution / source line shown below the quote in small mono." },
+              "wide": { "type": "boolean", "description": "If true, renders as .pullquote.wide — breaks past the reading measure for a dramatic full-width pause.", "default": false }
+            }
+          },
+          {
+            "type": "object",
+            "description": "A captioned figure spread holding CSS/SVG art (no raster). May break the measure.",
+            "required": ["type", "num", "caption"],
+            "additionalProperties": false,
+            "properties": {
+              "type": { "type": "string", "const": "figure", "description": "Block type identifier." },
+              "num": { "type": "string", "description": "Figure number shown in mono uppercase, e.g. 'Fig. 1'." },
+              "captionHeadline": { "type": "string", "description": "Optional bold first phrase in the caption, summarising what the figure shows." },
+              "caption": { "type": "string", "description": "Full figcaption text. 1–3 sentences doing real explanatory work." },
+              "full": { "type": "boolean", "description": "If true, renders as .figure.full — breaks to full page width for a dramatic spread.", "default": false },
+              "artDescription": { "type": "string", "description": "Accessible text description of the CSS/SVG art for aria-label (the art itself is generated inline by the template)." }
+            }
+          },
+          {
+            "type": "object",
+            "description": "A tinted box-out / sidebar for a key-points list or 'by the numbers' aside. Uses column-span:all.",
+            "required": ["type", "heading"],
+            "additionalProperties": false,
+            "properties": {
+              "type": { "type": "string", "const": "sidebar", "description": "Block type identifier." },
+              "heading": { "type": "string", "description": "Box-out heading shown in small mono uppercase, e.g. 'By the numbers'." },
+              "kvItems": {
+                "type": "array",
+                "description": "Optional key/value number items for a by-the-numbers grid.",
+                "items": {
+                  "type": "object",
+                  "required": ["key", "value"],
+                  "additionalProperties": false,
+                  "properties": {
+                    "key": { "type": "string", "description": "Label shown in small mono uppercase." },
+                    "value": { "type": "string", "description": "Value shown large in tnum, e.g. '18'. May include <small>mo</small> for a unit." }
+                  }
+                }
+              },
+              "badges": {
+                "type": "array",
+                "description": "Optional .st-badge pills shown below the kv grid.",
+                "items": {
+                  "type": "object",
+                  "required": ["label", "state"],
+                  "additionalProperties": false,
+                  "properties": {
+                    "label": { "type": "string", "description": "Badge text." },
+                    "state": { "type": "string", "description": "Badge semantic state.", "enum": ["ok", "hold", "risk", "default"] }
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    "folio": {
+      "type": "object",
+      "description": "The running-foot footer at the bottom of the feature — the magazine folio, not the dark report footer band.",
+      "required": ["publication"],
+      "additionalProperties": false,
+      "properties": {
+        "publication": { "type": "string", "description": "Publication / series name shown beside the wordmark, e.g. 'The Field Notebook'." },
+        "issue": { "type": "string", "description": "Issue / section reference, e.g. '{{PROJECT}} · No. 04'." },
+        "section": { "type": "string", "description": "Optional section / category label, e.g. 'Engineering Culture'." },
+        "pageLabel": { "type": "string", "description": "Page number text, e.g. 'Page 1 of 1'.", "default": "Page 1 of 1" }
+      }
+    }
+  },
+  "examples": [
+    {
+      "meta": {
+        "org": "{{ORG}}",
+        "project": "{{PROJECT}}",
+        "reportType": "The Field Notebook",
+        "kicker": "Engineering Culture",
+        "headline": "The Quiet <em>Rewrite</em>",
+        "deck": "For eighteen months the platform team shipped nothing visible — no launch, no headline, no demo. Then the incident graph went quiet. This is the story of how a team replaced its core ledger engine in flight, one careful seam at a time, and what they learned about the unglamorous art of changing everything while breaking nothing.",
+        "byline": {
+          "author": "{{AUTHOR}}",
+          "role": "Principal Engineer, Platform",
+          "date": "2026-06-22",
+          "readTime": "14 min read",
+          "issueRef": "{{PROJECT}} · No. 04"
+        },
+        "date": "2026-06-22",
+        "theme": "slate"
+      },
+      "body": [
+        {
+          "type": "para",
+          "dropcap": true,
+          "text": "The room was wrong. Not loud-wrong, not on-fire wrong — wrong in the way a familiar staircase is wrong when one step is a half-inch taller than the rest. Every quarter the ledger service grew a little slower to change. A migration that once took an afternoon took a week. Nobody had broken anything; everybody had, together, built a structure that resisted being touched."
+        },
+        {
+          "type": "para",
+          "text": "The instinct, when a codebase calcifies, is to declare a Rewrite — capital R, a clean room, a green field, a date on a slide eighteen months out. The platform team had watched two such rewrites die in other parts of the company. They wanted none of it. What they wanted was duller and, it turned out, far harder: to change the engine without stopping the car."
+        },
+        {
+          "type": "subhead",
+          "num": "01",
+          "text": "Begin where it hurts"
+        },
+        {
+          "type": "para",
+          "text": "They started not with the code but with the pain, instrumenting the change-cost of the system the way you would instrument latency. How many files did a typical change touch? How many services had to deploy together to ship one feature? The numbers were ugly, and being ugly, they were useful."
+        },
+        {
+          "type": "pullquote",
+          "quote": "We stopped asking whether the old system was good. We asked how expensive it had become to change our minds.",
+          "attribution": "— The platform team's first principle"
+        },
+        {
+          "type": "subhead",
+          "num": "02",
+          "text": "The strangler, patiently"
+        },
+        {
+          "type": "para",
+          "text": "The pattern they reached for is an old one: the strangler fig, the vine that grows around a tree until, years later, the tree is gone and only the lattice remains. They stood up the new path beside the old, sent it a shadow copy of every request, and compared the answers in the dark for six weeks. When the new path had been right ten million times in a row, they moved one percent of live traffic to it."
+        },
+        {
+          "type": "figure",
+          "num": "Fig. 1",
+          "captionHeadline": "One seam at a time.",
+          "caption": "A thin routing layer mirrors then migrates traffic from the legacy ledger to the new engine, percentage by percentage. The median number of files touched per change fell from 31 to 4 over the program.",
+          "full": true,
+          "artDescription": "Diagram showing traffic migrating from the legacy ledger path to the new engine through a routing seam, with a change-cost chart showing files touched dropping from 31 to 4."
+        },
+        {
+          "type": "subhead",
+          "num": "03",
+          "text": "The invisible months"
+        },
+        {
+          "type": "para",
+          "text": "There is a stretch in the middle of any honest migration that no roadmap prepares you for: the long plateau where the new system is real but not yet trusted. Morale is the actual risk here, not technology. What saved it was a small ritual. Every Friday they posted a single number to a shared channel: the percentage of ledger traffic now served by the new engine."
+        },
+        {
+          "type": "pullquote",
+          "quote": "A migration has no launch day. It has ten thousand quiet Tuesdays, and the discipline is to make each one boring on purpose.",
+          "attribution": "— on the culture of patient change",
+          "wide": true
+        },
+        {
+          "type": "sidebar",
+          "heading": "By the numbers",
+          "kvItems": [
+            { "key": "Duration",       "value": "18<small>mo</small>" },
+            { "key": "Seams cut",      "value": "37" },
+            { "key": "Rollbacks",      "value": "6" },
+            { "key": "Sev-1 at cutover", "value": "0" }
+          ],
+          "badges": [
+            { "label": "Zero customer-visible incidents", "state": "ok" },
+            { "label": "2 paused seams, later resumed",   "state": "hold" }
+          ]
+        },
+        {
+          "type": "subhead",
+          "num": "04",
+          "text": "What stayed behind"
+        },
+        {
+          "type": "para",
+          "text": "When the last write was finally moved and the legacy schema dropped, there was no party. The less obvious artefact, and the more valuable, was a team that now reflexively built seams: every new capability arrived behind a routing boundary, mirrored before it was trusted, reversible before it was relied upon. The rewrite had rewritten the people, too. The lesson they kept repeating was almost embarrassingly plain: you need a way to measure the cost of change, a seam small enough to be safe, and the patience to do the boring thing ten thousand times."
+        }
+      ],
+      "folio": {
+        "publication": "The Field Notebook",
+        "issue": "{{PROJECT}} · No. 04",
+        "section": "Engineering Culture",
+        "pageLabel": "Page 1 of 1"
+      }
+    }
+  ]
+}

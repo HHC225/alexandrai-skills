@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="teal">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>{{PROJECT}} · Regional Breakdown — {{ORG}}</title>
+
+<!-- ============================================================
+     DATA-DRIVEN: the ONLY content source. render() builds the DOM
+     from this JSON; it is a valid instance of
+     designs/schemas/geo-region.schema.json (== examples[0]).
+     Tiles are placed by gridRow/gridCol and shaded along the
+     single-hue brand accent ramp by the active metric.
+     ============================================================ -->
+<script type="application/json" id="report-data">
+{
+  "meta": {
+    "org": "{{ORG}}",
+    "project": "{{PROJECT}}",
+    "reportType": "Regional breakdown",
+    "title": "Regional Performance — retail network",
+    "subtitle": "Net revenue and active accounts across 12 territories",
+    "date": "2026-06-22",
+    "author": "{{AUTHOR}}",
+    "asOf": "FY26 Q1",
+    "theme": "teal"
+  },
+  "metric": { "key": "revenue", "label": "Net revenue", "unit": "$M", "format": "currency", "higherIsBetter": true },
+  "metrics": [
+    { "key": "revenue", "label": "Net revenue", "unit": "$M", "format": "currency", "higherIsBetter": true },
+    { "key": "accounts", "label": "Active accounts", "unit": "k", "format": "compact", "higherIsBetter": true }
+  ],
+  "scale": {
+    "min": 0,
+    "max": 60,
+    "bands": [
+      { "to": 12, "label": "< 12" },
+      { "to": 24, "label": "12–24" },
+      { "to": 36, "label": "24–36" },
+      { "to": 48, "label": "36–48" },
+      { "to": 60, "label": "48–60" }
+    ]
+  },
+  "regions": [
+    { "code": "PNW", "name": "Pacific Northwest", "gridRow": 1, "gridCol": 1, "value": 18.4, "group": "West", "metrics": { "revenue": 18.4, "accounts": 96 }, "note": "Steady mid-tier territory; account base growing faster than revenue.", "stats": [ { "label": "Branches", "value": "42" }, { "label": "YoY rev", "value": "+6.1%", "state": "ok" }, { "label": "Rank", "value": "#7" } ] },
+    { "code": "NCA", "name": "Northern California", "gridRow": 2, "gridCol": 1, "value": 51.7, "group": "West", "metrics": { "revenue": 51.7, "accounts": 188 }, "note": "Top revenue territory; flagship metro branches drive the result.", "stats": [ { "label": "Branches", "value": "118" }, { "label": "YoY rev", "value": "+9.4%", "state": "ok" }, { "label": "Rank", "value": "#1" } ] },
+    { "code": "SCA", "name": "Southern California", "gridRow": 3, "gridCol": 1, "value": 44.2, "group": "West", "metrics": { "revenue": 44.2, "accounts": 205 }, "note": "Largest account base; revenue per account below network median.", "stats": [ { "label": "Branches", "value": "131" }, { "label": "YoY rev", "value": "+3.0%", "state": "hold" }, { "label": "Rank", "value": "#2" } ] },
+    { "code": "MTN", "name": "Mountain", "gridRow": 1, "gridCol": 2, "value": 9.6, "group": "West", "metrics": { "revenue": 9.6, "accounts": 38 }, "note": "Smallest territory by revenue; thin branch coverage.", "stats": [ { "label": "Branches", "value": "19" }, { "label": "YoY rev", "value": "+2.2%", "state": "hold" }, { "label": "Rank", "value": "#12" } ] },
+    { "code": "SWT", "name": "Southwest", "gridRow": 3, "gridCol": 2, "value": 27.9, "group": "West", "metrics": { "revenue": 27.9, "accounts": 121 }, "note": "Mid-tier; consistent growth across all branches.", "stats": [ { "label": "Branches", "value": "73" }, { "label": "YoY rev", "value": "+5.5%", "state": "ok" }, { "label": "Rank", "value": "#5" } ] },
+    { "code": "TXC", "name": "Texas Central", "gridRow": 2, "gridCol": 3, "value": 38.1, "group": "Central", "metrics": { "revenue": 38.1, "accounts": 164 }, "note": "Strong metro performance; second-fastest growing territory.", "stats": [ { "label": "Branches", "value": "97" }, { "label": "YoY rev", "value": "+11.2%", "state": "ok" }, { "label": "Rank", "value": "#3" } ] },
+    { "code": "GLK", "name": "Great Lakes", "gridRow": 1, "gridCol": 4, "value": 31.5, "group": "Central", "metrics": { "revenue": 31.5, "accounts": 142 }, "note": "Established territory; flat YoY, watch attrition.", "stats": [ { "label": "Branches", "value": "88" }, { "label": "YoY rev", "value": "+0.4%", "state": "hold" }, { "label": "Rank", "value": "#4" } ] },
+    { "code": "MWP", "name": "Midwest Plains", "gridRow": 2, "gridCol": 4, "value": 14.3, "group": "Central", "metrics": { "revenue": 14.3, "accounts": 67 }, "note": "Rural footprint; low density but high revenue per account.", "stats": [ { "label": "Branches", "value": "34" }, { "label": "YoY rev", "value": "+4.8%", "state": "ok" }, { "label": "Rank", "value": "#9" } ] },
+    { "code": "GULF", "name": "Gulf Coast", "gridRow": 3, "gridCol": 4, "value": 21.7, "group": "Central", "metrics": { "revenue": 21.7, "accounts": 103 }, "note": "Recovering after prior-year storm disruption.", "stats": [ { "label": "Branches", "value": "61" }, { "label": "YoY rev", "value": "+7.9%", "state": "ok" }, { "label": "Rank", "value": "#6" } ] },
+    { "code": "NEA", "name": "Northeast", "gridRow": 1, "gridCol": 5, "value": 47.0, "group": "East", "metrics": { "revenue": 47.0, "accounts": 176 }, "note": "Dense urban network; high revenue per branch.", "stats": [ { "label": "Branches", "value": "104" }, { "label": "YoY rev", "value": "+5.0%", "state": "ok" }, { "label": "Rank", "value": "#1" } ] },
+    { "code": "MAT", "name": "Mid-Atlantic", "gridRow": 2, "gridCol": 5, "value": 16.8, "group": "East", "metrics": { "revenue": 16.8, "accounts": 84 }, "note": "Underperforming vs branch count; remediation underway.", "stats": [ { "label": "Branches", "value": "59" }, { "label": "YoY rev", "value": "-1.3%", "state": "risk" }, { "label": "Rank", "value": "#8" } ] },
+    { "code": "SEA", "name": "Southeast", "gridRow": 3, "gridCol": 5, "value": 12.0, "group": "East", "metrics": { "revenue": 12.0, "accounts": 58 }, "note": "Newest territory; building presence, early-stage.", "stats": [ { "label": "Branches", "value": "27" }, { "label": "YoY rev", "value": "+18.6%", "state": "ok" }, { "label": "Rank", "value": "#10" } ] }
+  ]
+}
+</script>
+
+<style>
+/* ============================================================
+   GEO-REGION — regional breakdown as an abstract tile-grid
+   choropleth (NO real maps / tiles / images). Inherits the
+   family DNA from designs/_FOUNDATION.md. Default theme: Teal.
+   Self-contained. Content is rendered from #report-data below.
+   ============================================================ */
+
+/* ---- 1. tokens (Teal is the default for this format) ---- */
+:root{
+  /* surfaces */
+  --bg:#fff; --bg-band:#f6f6f8; --bg-subtle:#fafafb; --bg-deep:#15131a;
+  --rule:#dcdce2; --rule-soft:#ebebef;
+  /* ink */
+  --ink:#11131a; --ink-mid:#33363f; --ink-soft:#5a5e68; --ink-faint:#868b95;
+  /* brand accent — TEAL default */
+  --navy:#0e7c86; --navy-deep:#095861; --navy-bg:#e0f3f4; --navy-line:#a9dade;
+  /* cleared / approved */
+  --ok:#0f5d54; --ok-bg:#e3f3ef; --ok-line:#b3ddd4;
+  /* semantic states — CONSTANT across themes */
+  --risk:#b3261e; --risk-bg:#fbeceb; --risk-line:#edc7c4;
+  --hold:#8a6d00; --hold-bg:#fbf3da; --hold-line:#e7d8a4;
+  /* type stacks */
+  --mono:ui-monospace,"JetBrains Mono","SFMono-Regular",Menlo,Consolas,monospace;
+  --sans:-apple-system,"Segoe UI",system-ui,Roboto,"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic UI","Apple SD Gothic Neo","Malgun Gothic","PingFang SC","Microsoft YaHei","Noto Sans CJK JP","Noto Sans CJK KR","Noto Sans CJK SC","Noto Sans JP","Noto Sans KR","Noto Sans SC","Noto Sans",sans-serif;
+  /* geometry */
+  --shadow:0 1px 2px rgba(17,19,26,.045);
+  --shadow-rail:0 1px 3px rgba(17,19,26,.05);
+}
+/* alternate theme swaps (all 9 per _FOUNDATION §1 / _DATA_DRIVEN §3 — Black mandatory) */
+html[data-theme="blue"]{   --navy:#0b5fd4; --navy-deep:#0842a0; --navy-bg:#e8f1fc; --navy-line:#bcd6f5; --ok:#1a4f9c; --ok-bg:#e9f0fa; --ok-line:#b7cdea; }
+html[data-theme="purple"]{ --navy:#a100ff; --navy-deep:#7a00c2; --navy-bg:#f3e8ff; --navy-line:#d9bef5; --ok:#5a2f8a; --ok-bg:#efe8f5; --ok-line:#d0b5e0; }
+html[data-theme="indigo"]{ --navy:#4338ca; --navy-deep:#312c92; --navy-bg:#ebebfb; --navy-line:#c7c3f0; --ok:#3730a3; --ok-bg:#ebeaf7; --ok-line:#c5c2ea; }
+html[data-theme="teal"]{   --navy:#0e7c86; --navy-deep:#095861; --navy-bg:#e0f3f4; --navy-line:#a9dade; --ok:#0f5d54; --ok-bg:#e3f3ef; --ok-line:#b3ddd4; }
+html[data-theme="cyan"]{   --navy:#0891b2; --navy-deep:#0e6f88; --navy-bg:#e2f4f9; --navy-line:#abdde9; --ok:#0e6b7a; --ok-bg:#e4f3f4; --ok-line:#b0dde2; }
+html[data-theme="green"]{  --navy:#1f7a44; --navy-deep:#155730; --navy-bg:#e6f4ea; --navy-line:#b3dcc1; --ok:#2f6b3c; --ok-bg:#e9f3ea; --ok-line:#bedcc4; }
+html[data-theme="plum"]{   --navy:#a21d6e; --navy-deep:#7c1450; --navy-bg:#fbe8f2; --navy-line:#e8b9d4; --ok:#6d2356; --ok-bg:#f6e8f0; --ok-line:#e3bcd5; }
+html[data-theme="slate"]{  --navy:#3f4f63; --navy-deep:#29384b; --navy-bg:#eef1f5; --navy-line:#c2ccd8; --ok:#34495e; --ok-bg:#eef1f5; --ok-line:#c2ccd8; }
+html[data-theme="black"]{  --navy:#000000; --navy-deep:#000000; --navy-bg:#f1f1f3; --navy-line:#d6d6db; --ok:#3f3f46; --ok-bg:#f1f1f3; --ok-line:#cfcfd6; }
+
+*{ box-sizing:border-box; }
+html,body{ margin:0; }
+body{
+  font:13px/1.6 var(--sans); color:var(--ink);
+  background:var(--bg-band);
+  -webkit-font-smoothing:antialiased;
+}
+.tnum{ font-feature-settings:"tnum" 1; font-variant-numeric:tabular-nums; }
+
+/* ---- icons ---- */
+.icon{ width:1.15em; height:1.15em; display:inline-block; vertical-align:-.18em; color:inherit; }
+
+/* ---- shared primitives: status badge / dot / chip ---- */
+.st-badge{
+  display:inline-flex; align-items:center; gap:.4em;
+  font:600 11px/1 var(--sans); padding:3px 8px 3px 7px; border-radius:6px;
+  border:1px solid var(--rule); color:var(--ink-mid); background:var(--bg); white-space:nowrap;
+}
+.st-badge::before{ content:""; width:7px; height:7px; border-radius:50%; background:var(--ink-faint); }
+.st-ok{ color:var(--ok); background:var(--ok-bg); border-color:var(--ok-line); }
+.st-ok::before{ background:var(--ok); }
+.st-risk{ color:var(--risk); background:var(--risk-bg); border-color:var(--risk-line); }
+.st-risk::before{ background:var(--risk); }
+.st-hold{ color:var(--hold); background:var(--hold-bg); border-color:var(--hold-line); }
+.st-hold::before{ background:var(--hold); }
+.chip{
+  display:inline-flex; align-items:center; gap:.35em;
+  font:700 10.5px/1 var(--mono); letter-spacing:.04em;
+  padding:4px 8px; border-radius:6px;
+  background:var(--navy-bg); color:var(--navy-deep); border:1px solid var(--navy-line);
+}
+.mlabel{ font:600 10px/1.4 var(--mono); letter-spacing:.1em; text-transform:uppercase; color:var(--ink-faint); }
+.muted{ color:var(--ink-faint); }
+
+/* ---- noscript banner ---- */
+.noscript-note{
+  margin:0; padding:14px 22px; background:var(--hold-bg); color:var(--hold);
+  border-bottom:1px solid var(--hold-line); font:600 12.5px/1.5 var(--sans);
+}
+.noscript-note code{ font:600 11.5px/1 var(--mono); }
+
+/* ============================================================
+   2. ATLAS SHELL — slim header + two-pane body, ~1500px
+   ============================================================ */
+.atlas{ max-width:1500px; margin:0 auto; padding:0 28px 30px; }
+
+/* ---- header strip ---- */
+.geo-header{
+  display:flex; align-items:flex-end; gap:20px; flex-wrap:wrap;
+  padding:22px 4px 16px; border-bottom:2px solid var(--ink); margin-bottom:18px;
+}
+.geo-head-main{ flex:1 1 360px; min-width:0; }
+.geo-eyebrow{
+  display:flex; align-items:center; gap:7px;
+  font:700 10.5px/1 var(--mono); letter-spacing:.14em; text-transform:uppercase; color:var(--ink-faint);
+  margin-bottom:9px;
+}
+.geo-eyebrow .icon{ color:var(--navy); width:15px; height:15px; }
+.geo-title{ font:800 25px/1.12 var(--sans); letter-spacing:-.015em; color:var(--ink); margin:0; }
+.geo-title b{ color:var(--navy-deep); }
+.geo-stand{ margin:7px 0 0; font:600 13px/1.5 var(--sans); color:var(--ink-soft); max-width:60ch; }
+.geo-head-side{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+
+/* metric switcher (segmented) */
+.metric-switch{
+  display:inline-flex; align-items:center; border:1px solid var(--rule); border-radius:9px; overflow:hidden; background:var(--bg);
+}
+.metric-switch .ms-label{ font:600 9.5px/1 var(--mono); letter-spacing:.1em; text-transform:uppercase; color:var(--ink-faint); padding:0 10px 0 11px; border-right:1px solid var(--rule-soft); align-self:stretch; display:flex; align-items:center; }
+.metric-switch button{
+  border:0; background:var(--bg); cursor:pointer;
+  font:700 11.5px/1 var(--sans); color:var(--ink-soft);
+  padding:8px 13px; border-right:1px solid var(--rule-soft); transition:background .12s,color .12s;
+  display:inline-flex; align-items:center; gap:6px;
+}
+.metric-switch button:last-child{ border-right:0; }
+.metric-switch button .icon{ width:14px; height:14px; }
+.metric-switch button:hover{ background:var(--navy-bg); color:var(--navy-deep); }
+.metric-switch button.on{ background:var(--navy); color:#fff; }
+.metric-switch button.on:hover{ background:var(--navy); color:#fff; }
+
+.asof-chip{
+  font:700 10.5px/1 var(--mono); letter-spacing:.06em; text-transform:uppercase;
+  padding:6px 10px; border-radius:6px; background:var(--bg-deep); color:#fff;
+}
+
+/* theme picker — canonical dropdown .rc-theme (per _DATA_DRIVEN §3) */
+.rc-theme{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--rule);border-radius:7px;padding:3px 4px 3px 7px;background:var(--bg);}
+.rc-theme-sw{width:12px;height:12px;border-radius:50%;background:var(--navy);box-shadow:0 0 0 1px var(--rule);flex:none;}
+.rc-theme-sel{border:0;background:none;font:600 11px/1 var(--mono);color:var(--ink-mid);cursor:pointer;outline:none;padding:2px;}
+@media print{.rc-theme{display:none;}}
+
+/* ---- two-pane body ---- */
+.atlas-body{ display:grid; grid-template-columns:minmax(0,1fr) 392px; gap:20px; align-items:start; }
+.panel{
+  background:var(--bg); border:1px solid var(--rule); border-radius:12px; box-shadow:var(--shadow);
+  min-width:0;
+}
+.panel-head{
+  display:flex; align-items:center; gap:9px; padding:13px 16px 11px; border-bottom:1px solid var(--rule-soft);
+}
+.panel-head .icon{ color:var(--navy); width:16px; height:16px; }
+.panel-title{ font:700 13px/1.1 var(--sans); color:var(--ink); }
+.panel-head .ph-meta{ margin-left:auto; }
+
+/* ============================================================
+   3. TILEMAP PANEL — the choropleth canvas (signature)
+   ============================================================ */
+.tilemap-body{ padding:18px; }
+.tilemap{
+  display:grid; gap:11px; justify-content:center;
+  grid-auto-rows:1fr;
+}
+.tile{
+  position:relative; border-radius:10px; border:1px solid var(--rule);
+  background:var(--fill,var(--navy-bg)); color:var(--tink,var(--ink));
+  min-height:92px; padding:11px 12px; cursor:pointer; text-align:left;
+  display:flex; flex-direction:column; justify-content:space-between;
+  transition:transform .12s ease, box-shadow .12s ease, opacity .15s ease, filter .15s ease;
+  overflow:hidden; appearance:none; font:inherit;
+}
+.tile:hover{ transform:translateY(-2px); box-shadow:0 4px 14px rgba(17,19,26,.16); z-index:2; }
+.tile:focus-visible{ outline:2px solid var(--navy); outline-offset:2px; }
+.tile .tile-code{ font:800 14px/1 var(--mono); letter-spacing:.02em; }
+.tile .tile-grp{ font:600 9px/1.3 var(--mono); letter-spacing:.08em; text-transform:uppercase; opacity:.72; margin-top:3px; }
+.tile .tile-val{ font:800 19px/1 var(--mono); letter-spacing:-.01em; align-self:flex-start; }
+.tile .tile-val small{ font:700 10px/1 var(--mono); opacity:.7; letter-spacing:0; }
+.tile.is-active{ box-shadow:0 0 0 2px var(--bg),0 0 0 4px var(--navy); }
+.tile.is-active:hover{ box-shadow:0 0 0 2px var(--bg),0 0 0 4px var(--navy),0 4px 14px rgba(17,19,26,.16); }
+.tile.below{ opacity:.26; filter:saturate(.55); }
+.tile.below:hover{ opacity:.5; }
+
+/* colour-scale legend */
+.scale-legend{ margin-top:18px; padding-top:15px; border-top:1px solid var(--rule-soft); }
+.lg-head{ display:flex; align-items:center; gap:7px; margin-bottom:9px; }
+.lg-head .mlabel{ color:var(--ink-soft); }
+.lg-metric{ font:700 11px/1 var(--sans); color:var(--navy-deep); }
+.lg-bar{ height:13px; border-radius:7px; border:1px solid var(--rule);
+  background:linear-gradient(90deg,var(--navy-bg),var(--navy) 62%,var(--navy-deep)); position:relative; }
+.lg-bands{ display:flex; height:13px; border-radius:7px; position:relative; border:1px solid var(--rule); }
+.lg-band{ flex:1 1 0; border-right:1px solid rgba(255,255,255,.55); }
+.lg-band:first-child{ border-top-left-radius:6px; border-bottom-left-radius:6px; }
+.lg-band:last-child{ border-right:0; border-top-right-radius:6px; border-bottom-right-radius:6px; }
+.lg-cut{ position:absolute; top:-4px; bottom:-4px; width:2px; background:var(--ink); border-radius:2px; opacity:0; transition:opacity .12s,left .12s; }
+.lg-cut.on{ opacity:.85; }
+.lg-cut::after{ content:attr(data-cut); position:absolute; top:-15px; left:50%; transform:translateX(-50%); font:700 9px/1 var(--mono); color:var(--ink); white-space:nowrap; }
+.lg-scale{ display:flex; justify-content:space-between; margin-top:6px; font:700 9.5px/1 var(--mono); color:var(--ink-faint); }
+.lg-ticks{ display:flex; justify-content:space-between; margin-top:5px; font:600 9px/1 var(--mono); color:var(--ink-faint); }
+
+/* ============================================================
+   4. SIDE COLUMN — ranked list + detail panel
+   ============================================================ */
+.side{ display:flex; flex-direction:column; gap:20px; }
+
+/* ---- ranked region list ---- */
+.rl-controls{ display:flex; align-items:center; gap:6px; }
+.rl-sort{ display:inline-flex; border:1px solid var(--rule); border-radius:7px; overflow:hidden; }
+.rl-sort button{ border:0; background:var(--bg); cursor:pointer; font:600 10px/1 var(--mono); letter-spacing:.04em; color:var(--ink-soft); padding:5px 8px; border-right:1px solid var(--rule-soft); transition:background .12s,color .12s; display:inline-flex; align-items:center; gap:4px; }
+.rl-sort button:last-child{ border-right:0; }
+.rl-sort button .icon{ width:12px; height:12px; }
+.rl-sort button:hover{ background:var(--navy-bg); color:var(--navy-deep); }
+.rl-sort button.on{ background:var(--navy); color:#fff; }
+
+.threshold-row{ display:flex; align-items:center; gap:10px; padding:11px 16px; border-bottom:1px solid var(--rule-soft); background:var(--bg-subtle); }
+.threshold-row .mlabel{ flex:none; }
+.threshold{ flex:1 1 auto; accent-color:var(--navy); cursor:pointer; height:4px; }
+.th-val{ font:700 11px/1 var(--mono); color:var(--navy-deep); min-width:54px; text-align:right; }
+
+.region-list{ list-style:none; margin:0; padding:6px; max-height:430px; overflow:auto; }
+.rl-row{
+  display:grid; grid-template-columns:22px 12px 1fr auto; align-items:center; gap:9px;
+  padding:8px 10px; border-radius:9px; cursor:pointer; transition:background .12s; border:1px solid transparent;
+}
+.rl-row + .rl-row{ margin-top:1px; }
+.rl-row:hover{ background:var(--bg-subtle); }
+.rl-row.is-active{ background:var(--navy-bg); border-color:var(--navy-line); }
+.rl-row.below{ opacity:.4; }
+.rl-rank{ font:700 11px/1 var(--mono); color:var(--ink-faint); text-align:right; }
+.rl-sw{ width:12px; height:12px; border-radius:4px; background:var(--fill,var(--navy-bg)); border:1px solid rgba(17,19,26,.12); }
+.rl-name{ min-width:0; }
+.rl-name b{ font:700 12.5px/1.2 var(--sans); color:var(--ink); }
+.rl-name span{ display:block; font:600 10px/1.3 var(--mono); color:var(--ink-faint); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.rl-fig{ text-align:right; display:flex; flex-direction:column; align-items:flex-end; gap:4px; }
+.rl-val{ font:800 13px/1 var(--mono); color:var(--ink); }
+.rl-val small{ font:700 9px/1 var(--mono); color:var(--ink-faint); }
+.rl-bar{ width:64px; height:5px; border-radius:3px; background:var(--bg-band); border:1px solid var(--rule-soft); overflow:hidden; }
+.rl-bar i{ display:block; height:100%; border-radius:3px; background:var(--navy); width:var(--w,30%); transition:width .3s ease; }
+
+/* ---- detail panel ---- */
+.detail-panel .panel-head .ph-meta{ font:700 10px/1 var(--mono); letter-spacing:.06em; text-transform:uppercase; color:var(--ink-faint); }
+.dp-body{ padding:16px; }
+.dp-head{ display:flex; align-items:center; gap:10px; margin-bottom:13px; }
+.dp-name{ font:800 16px/1.15 var(--sans); letter-spacing:-.01em; color:var(--ink); }
+.dp-grp{ font:600 10px/1.3 var(--mono); letter-spacing:.06em; text-transform:uppercase; color:var(--ink-faint); margin-top:2px; }
+.dp-value-wrap{ display:flex; align-items:baseline; gap:10px; padding:12px 14px; background:var(--navy-bg); border:1px solid var(--navy-line); border-radius:10px; margin-bottom:14px; }
+.dp-value{ font:800 34px/1 var(--mono); letter-spacing:-.02em; color:var(--navy-deep); }
+.dp-value small{ font:700 14px/1 var(--mono); color:var(--navy-deep); opacity:.7; letter-spacing:0; }
+.dp-value-lbl{ margin-left:auto; text-align:right; }
+.dp-value-lbl .mlabel{ color:var(--navy-deep); opacity:.8; }
+.dp-value-lbl b{ font:700 11px/1.3 var(--sans); color:var(--navy-deep); display:block; margin-top:2px; }
+
+/* per-metric mini-bars (vs network max) */
+.dp-metrics{ margin-bottom:14px; }
+.dp-metric{ display:grid; grid-template-columns:1fr auto; align-items:center; gap:8px 10px; margin-bottom:9px; }
+.dp-metric:last-child{ margin-bottom:0; }
+.dp-metric .dm-lbl{ font:600 11px/1.2 var(--sans); color:var(--ink-mid); }
+.dp-metric .dm-val{ font:700 12px/1 var(--mono); color:var(--ink); text-align:right; }
+.dp-metric .dm-val small{ font:600 9px/1 var(--mono); color:var(--ink-faint); }
+.dp-metric .dm-track{ grid-column:1 / -1; height:7px; border-radius:4px; background:var(--bg-band); border:1px solid var(--rule-soft); overflow:hidden; }
+.dp-metric .dm-fill{ height:100%; border-radius:4px; background:var(--navy); width:var(--w,30%); transition:width .35s ease; }
+.dp-metric.is-active .dm-lbl{ color:var(--navy-deep); font-weight:700; }
+
+/* key/value facts grid */
+.dp-kv{ display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--rule-soft); border:1px solid var(--rule-soft); border-radius:10px; overflow:hidden; margin-bottom:13px; }
+.dp-kv .kv{ background:var(--bg); padding:10px 11px; }
+.dp-kv .kv .mlabel{ margin-bottom:4px; }
+.dp-kv .kv b{ font:700 14px/1.1 var(--mono); color:var(--ink); }
+.dp-kv .kv b.ok{ color:var(--ok); } .dp-kv .kv b.risk{ color:var(--risk); } .dp-kv .kv b.hold{ color:var(--hold); }
+.dp-note{ display:flex; gap:8px; padding:11px 12px; background:var(--bg-subtle); border:1px solid var(--rule-soft); border-radius:10px; font:600 12px/1.5 var(--sans); color:var(--ink-mid); }
+.dp-note .icon{ color:var(--navy); flex:none; width:15px; height:15px; margin-top:2px; }
+.dp-empty{ padding:30px 16px; text-align:center; color:var(--ink-faint); font:600 12px/1.5 var(--sans); }
+
+/* ---- shared chart tooltip (region + active value) ---- */
+.chart-tip{
+  position:fixed; z-index:60; pointer-events:none;
+  background:#000; color:#fff; border-radius:7px; padding:7px 10px;
+  font:600 11px/1.4 var(--sans); white-space:nowrap; box-shadow:0 4px 14px rgba(0,0,0,.3);
+  opacity:0; transition:opacity .1s; transform:translate(-50%,-100%);
+}
+.chart-tip.show{ opacity:1; }
+.chart-tip .ct-h{ font:700 10px/1.3 var(--mono); letter-spacing:.06em; text-transform:uppercase; color:#cfd3db; margin-bottom:3px; }
+.chart-tip .ct-row{ display:flex; align-items:center; gap:7px; }
+.chart-tip .ct-row i{ width:9px; height:9px; border-radius:3px; flex:none; }
+.chart-tip .ct-row b{ font:800 12px/1 var(--mono); }
+
+/* ---- footer strip ---- */
+.foot{
+  margin-top:22px; background:var(--bg-deep); color:#cfd3db; border-radius:12px;
+  display:flex; align-items:center; gap:14px; padding:14px 20px;
+  font:600 10.5px/1.4 var(--mono); letter-spacing:.05em; text-transform:uppercase;
+}
+.foot .wm{ display:inline-flex; align-items:center; gap:8px; color:#fff; font:800 12px/1 var(--sans); letter-spacing:-.01em; text-transform:none; }
+.foot .wm i{ width:16px; height:16px; border-radius:4px; background:var(--navy); display:inline-block; }
+.foot .sp{ flex:1 1 auto; }
+
+/* ---- responsive narrowing (still a PC deliverable) ---- */
+@media (max-width:1180px){
+  .atlas-body{ grid-template-columns:1fr; }
+  .region-list{ max-height:none; }
+}
+
+/* ---- print: static, complete snapshot; hide controls ---- */
+@media print{
+  body{ background:#fff; }
+  .metric-switch, .rc-theme, .rl-sort, .threshold-row, .chart-tip{ display:none !important; }
+  .atlas-body{ grid-template-columns:1fr; }
+  .panel{ box-shadow:none; break-inside:avoid; }
+  .region-list{ max-height:none; overflow:visible; }
+  .tile.below, .rl-row.below{ opacity:1 !important; filter:none !important; }
+  .tile{ cursor:default; }
+  .foot{ background:#fff; color:#000; border:2px solid #000; }
+  .foot .wm{ color:#000; } .foot .wm i{ background:#000; }
+}
+</style>
+</head>
+<body>
+
+<noscript>
+  <div class="noscript-note">
+    This regional breakdown renders from embedded data and requires JavaScript for its interactive
+    tile-grid choropleth (metric switch, hover tooltips, region detail, sort, threshold filter). The
+    complete snapshot data is in the <code>#report-data</code> block above.
+  </div>
+</noscript>
+
+<main class="atlas" id="atlas"><!-- built by render() --></main>
+
+<!-- floating tile tooltip (single shared instance) -->
+<div class="chart-tip" id="chart-tip" role="status" aria-live="polite"></div>
+
+<script>
+/* ============================================================
+   GEO-REGION RENDERER + INTERACTIONS  (vanilla JS, no libraries)
+   - render()            : #report-data JSON  →  atlas DOM
+   - paintTiles()        : shade tiles along the accent ramp for
+                           the active metric (single hue, NOT rainbow)
+   - renderList()        : ranked region list for the active metric
+   - renderDetail(code)  : per-region detail panel
+   - wireInteractions()  : metric switch · tile/row select · hover
+                           tooltip · sort · threshold filter
+   - wireThemeSwitch()   : canonical 9-dot .rc-theme switcher (§3)
+   Reading requires JS (data-driven, per _DATA_DRIVEN §1); a
+   <noscript> notice + the raw JSON are provided above.
+   ============================================================ */
+(function(){
+  "use strict";
+
+  var DATA;
+  try { DATA = JSON.parse(document.getElementById('report-data').textContent); }
+  catch(e){ document.getElementById('atlas').innerHTML =
+    '<p style="padding:24px;font:600 13px var(--sans);color:var(--risk)">Could not parse #report-data: '+e.message+'</p>'; return; }
+
+  var root  = document.documentElement;
+  var atlas = document.getElementById('atlas');
+  var tip   = document.getElementById('chart-tip');
+
+  /* ---- helpers ---- */
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+
+  /* compact / currency / percent formatting per metric.format */
+  function fmt(v, m){
+    if(v==null || isNaN(v)) return '—';
+    var f = m && m.format;
+    if(f==='compact'){ return v>=1000 ? (v/1000).toFixed(1).replace(/\.0$/,'')+'k' : String(+(+v).toFixed(1)); }
+    if(f==='percent'){ return (+v).toFixed(1); }
+    return String(+(+v).toFixed(1)); /* number / currency share plain numerics; unit carries $M etc. */
+  }
+  function metricOf(key){
+    var list = METRICS();
+    for(var i=0;i<list.length;i++){ if(list[i].key===key) return list[i]; }
+    return DATA.metric;
+  }
+  function METRICS(){
+    if(DATA.metrics && DATA.metrics.length) return DATA.metrics;
+    return [DATA.metric];
+  }
+  function valOf(r, key){
+    if(r.metrics && r.metrics[key]!=null) return r.metrics[key];
+    return r.value; /* schema fallback */
+  }
+  /* normalise a value to 0..1 across the scale domain */
+  function norm(v){
+    var sc = DATA.scale||{min:0,max:1};
+    var lo = sc.min, hi = sc.max;
+    if(hi===lo) return 0;
+    return Math.max(0, Math.min(1, (v-lo)/(hi-lo)));
+  }
+
+  /* ---- the single-hue choropleth ramp ----
+     We blend along the brand accent: --navy-bg (lightest) → --navy → --navy-deep (darkest).
+     Done with layered translucent --navy over --navy-bg so it re-derives per theme automatically.
+     t in 0..1 → returns {bg, ink} where ink auto-contrasts. */
+  function ramp(t){
+    /* opacity of the deep accent painted over the light band; gentle gamma for even steps */
+    var a = Math.pow(Math.max(0, Math.min(1, t)), 0.85);
+    return {
+      /* mix the deep accent into the light band → single-hue ramp, re-derives per theme */
+      bg: 'color-mix(in srgb, var(--navy-deep) ' + Math.round(a*100) + '%, var(--navy-bg))',
+      ink: t > 0.52 ? '#fff' : 'var(--ink)'
+    };
+  }
+
+  /* state shared across interactions */
+  var STATE = { metric:null, selected:null, sort:'value', threshold:0 };
+
+  /* ============================================================
+     RENDER — build the atlas from DATA
+     ============================================================ */
+  function render(){
+    var m = DATA.meta || {};
+    root.dataset.theme = m.theme || 'teal';
+    STATE.metric = (DATA.metric && DATA.metric.key) || (METRICS()[0] && METRICS()[0].key);
+    var sc = DATA.scale || {min:0,max:1};
+    STATE.threshold = sc.min;
+
+    var dots = '<label class="rc-theme" title="Brand colour">'
+      +'<span class="rc-theme-sw" aria-hidden="true"></span>'
+      +'<select class="rc-theme-sel" aria-label="Brand theme">'
+      +'<option value="blue">Blue</option>'
+      +'<option value="purple">Purple</option>'
+      +'<option value="indigo">Indigo</option>'
+      +'<option value="teal">Teal</option>'
+      +'<option value="cyan">Cyan</option>'
+      +'<option value="green">Green</option>'
+      +'<option value="plum">Plum</option>'
+      +'<option value="slate">Slate</option>'
+      +'<option value="black">Black</option>'
+      +'</select></label>';
+
+    /* metric switcher (only when 2+ metrics) */
+    var ms = METRICS();
+    var switchHTML = ms.length>1
+      ? '<div class="metric-switch" role="group" aria-label="Choropleth metric">'
+        + '<span class="ms-label">'+svg('data')+'&nbsp;Metric</span>'
+        + ms.map(function(mm){
+            return '<button data-metric="'+esc(mm.key)+'"'+(mm.key===STATE.metric?' class="on"':'')+' type="button" '
+              + 'aria-pressed="'+(mm.key===STATE.metric?'true':'false')+'">'+esc(mm.label)+'</button>'; }).join('')
+        + '</div>'
+      : '';
+
+    atlas.innerHTML = ''
+    + '<header class="geo-header">'
+    +   '<div class="geo-head-main">'
+    +     '<div class="geo-eyebrow">'+svg('maps')+esc((m.reportType||'Regional breakdown').toUpperCase())
+    +       (m.project?' · '+esc(m.project):'')+'</div>'
+    +     '<h1 class="geo-title">'+esc(m.title||'Regional breakdown')+'</h1>'
+    +     (m.subtitle?'<p class="geo-stand">'+esc(m.subtitle)+'</p>':'')
+    +   '</div>'
+    +   '<div class="geo-head-side">'
+    +     (m.asOf?'<span class="asof-chip">'+esc(m.asOf)+'</span>':'')
+    +     switchHTML
+    +     dots
+    +   '</div>'
+    + '</header>'
+
+    + '<div class="atlas-body">'
+
+    /* ---- TILEMAP PANEL ---- */
+    +   '<section class="panel tilemap-panel" aria-label="Tile-grid choropleth">'
+    +     '<div class="panel-head">'+svg('maps')
+    +       '<span class="panel-title">Tile-grid choropleth</span>'
+    +       '<span class="ph-meta mlabel" id="tm-meta"></span></div>'
+    +     '<div class="tilemap-body">'
+    +       '<div class="tilemap" id="tilemap" role="group" aria-label="Region tiles"></div>'
+    +       legendHTML()
+    +     '</div>'
+    +   '</section>'
+
+    /* ---- SIDE COLUMN ---- */
+    +   '<div class="side">'
+    +     '<section class="panel" aria-label="Ranked region list">'
+    +       '<div class="panel-head">'+svg('list')
+    +         '<span class="panel-title">Regions ranked</span>'
+    +         '<span class="ph-meta"><span class="rl-controls"><span class="rl-sort" role="group" aria-label="Sort regions">'
+    +           '<button data-sort="value" class="on" type="button" title="Sort by value">'+svg('sortDesc')+'Value</button>'
+    +           '<button data-sort="name" type="button" title="Sort by name">A–Z</button>'
+    +           '<button data-sort="rank" type="button" title="Sort by stated rank">Rank</button>'
+    +         '</span></span></span>'
+    +       '</div>'
+    +       '<div class="threshold-row">'+svg('filter')
+    +         '<span class="mlabel">Min</span>'
+    +         '<input class="threshold" id="threshold" type="range" min="'+sc.min+'" max="'+sc.max+'" step="'+thStep(sc)+'" value="'+sc.min+'" aria-label="Threshold filter">'
+    +         '<span class="th-val tnum" id="th-val"></span>'
+    +       '</div>'
+    +       '<ul class="region-list" id="region-list"></ul>'
+    +     '</section>'
+
+    +     '<section class="panel detail-panel" aria-label="Region detail">'
+    +       '<div class="panel-head">'+svg('check')
+    +         '<span class="panel-title">Region detail</span>'
+    +         '<span class="ph-meta" id="dp-meta">SELECT A REGION</span></div>'
+    +       '<div id="detail-body"><div class="dp-empty">Click a tile or a list row to inspect a region.</div></div>'
+    +     '</section>'
+    +   '</div>'
+    + '</div>'
+
+    + '<footer class="foot">'
+    +   '<span class="wm"><i></i>'+esc(m.org||'{{ORG}}')+'</span>'
+    +   '<span class="sp"></span>'
+    +   '<span>'+esc(m.project||'{{PROJECT}}')+' · '+esc((m.reportType||'REGIONAL BREAKDOWN').toUpperCase())+'</span>'
+    +   '<span>AS OF '+esc(m.asOf||m.date||'')+'</span>'
+    +   '<span>'+esc((DATA.regions||[]).length)+' REGIONS · ABSTRACT TILE-GRID (NO MAP DATA)</span>'
+    +   '<span>'+esc(m.author||'{{AUTHOR}}')+'</span>'
+    + '</footer>';
+
+    buildTiles();
+    paintTiles();
+    renderList();
+    updateLegend();
+  }
+
+  /* ---- tilemap: place tiles by gridRow/gridCol ---- */
+  function buildTiles(){
+    var tm = document.getElementById('tilemap');
+    var regs = DATA.regions || [];
+    var maxCol = regs.reduce(function(a,r){ return Math.max(a, r.gridCol||1); }, 1);
+    var maxRow = regs.reduce(function(a,r){ return Math.max(a, r.gridRow||1); }, 1);
+    tm.style.gridTemplateColumns = 'repeat('+maxCol+', minmax(96px,128px))';
+    tm.style.gridTemplateRows    = 'repeat('+maxRow+', minmax(92px,1fr))';
+    tm.innerHTML = regs.map(function(r){
+      return '<button class="tile" type="button" data-code="'+esc(r.code)+'" '
+        + 'style="grid-row:'+(r.gridRow||1)+';grid-column:'+(r.gridCol||1)+';" '
+        + 'aria-label="'+esc(r.name)+'">'
+        + '<span><span class="tile-code">'+esc(r.code)+'</span>'
+        +   (r.group?'<span class="tile-grp">'+esc(r.group)+'</span>':'')+'</span>'
+        + '<span class="tile-val tnum" data-val></span>'
+        + '</button>';
+    }).join('');
+  }
+
+  /* ---- paint tiles along the single-hue accent ramp for the active metric ---- */
+  function paintTiles(){
+    var mdef = metricOf(STATE.metric);
+    document.querySelectorAll('#tilemap .tile').forEach(function(el){
+      var r = regionOf(el.dataset.code); if(!r) return;
+      var v = valOf(r, STATE.metric);
+      var t = norm(v);
+      var c = ramp(t);
+      el.style.setProperty('--fill', c.bg);
+      el.style.setProperty('--tink', c.ink);
+      var valEl = el.querySelector('[data-val]');
+      valEl.innerHTML = fmt(v, mdef) + (mdef.unit?'<small> '+esc(mdef.unit)+'</small>':'');
+      el.classList.toggle('below', v < STATE.threshold);
+      el.classList.toggle('is-active', r.code===STATE.selected);
+    });
+    var tmMeta = document.getElementById('tm-meta');
+    if(tmMeta) tmMeta.textContent = 'shaded by ' + (mdef.label||mdef.key);
+  }
+
+  function regionOf(code){
+    var regs = DATA.regions||[];
+    for(var i=0;i<regs.length;i++){ if(regs[i].code===code) return regs[i]; }
+    return null;
+  }
+
+  /* ---- ranked list for the active metric ---- */
+  function renderList(){
+    var ul = document.getElementById('region-list');
+    if(!ul) return;
+    var mdef = metricOf(STATE.metric);
+    var hib = mdef.higherIsBetter !== false;
+    var regs = (DATA.regions||[]).slice();
+
+    if(STATE.sort==='name'){
+      regs.sort(function(a,b){ return a.name<b.name?-1:a.name>b.name?1:0; });
+    } else if(STATE.sort==='rank'){
+      regs.sort(function(a,b){ return rankNum(a)-rankNum(b); });
+    } else { /* value */
+      regs.sort(function(a,b){ var av=valOf(a,STATE.metric), bv=valOf(b,STATE.metric); return hib ? bv-av : av-bv; });
+    }
+    /* magnitude rank (independent of sort) for the # column */
+    var byVal = (DATA.regions||[]).slice().sort(function(a,b){
+      var av=valOf(a,STATE.metric), bv=valOf(b,STATE.metric); return hib ? bv-av : av-bv; });
+    var rankMap = {}; byVal.forEach(function(r,i){ rankMap[r.code]=i+1; });
+
+    var maxV = Math.max.apply(null, (DATA.regions||[]).map(function(r){ return valOf(r,STATE.metric); }));
+
+    ul.innerHTML = regs.map(function(r){
+      var v = valOf(r, STATE.metric);
+      var t = norm(v);
+      var c = ramp(t);
+      var w = maxV>0 ? Math.round((v/maxV)*100) : 0;
+      var below = v < STATE.threshold;
+      return '<li class="rl-row'+(r.code===STATE.selected?' is-active':'')+(below?' below':'')+'" '
+        + 'data-code="'+esc(r.code)+'" role="button" tabindex="0" aria-label="'+esc(r.name)+'">'
+        + '<span class="rl-rank tnum">'+rankMap[r.code]+'</span>'
+        + '<span class="rl-sw" style="--fill:'+c.bg+'"></span>'
+        + '<span class="rl-name"><b>'+esc(r.code)+'</b><span>'+esc(r.name)+'</span></span>'
+        + '<span class="rl-fig"><span class="rl-val tnum">'+fmt(v,mdef)+(mdef.unit?'<small> '+esc(mdef.unit)+'</small>':'')+'</span>'
+        +   '<span class="rl-bar"><i style="--w:'+w+'%"></i></span></span>'
+        + '</li>';
+    }).join('');
+  }
+  function rankNum(r){
+    var s = (r.stats||[]).filter(function(x){ return /rank/i.test(x.label); })[0];
+    if(s){ var n=parseInt(String(s.value).replace(/[^0-9]/g,''),10); if(isFinite(n)) return n; }
+    return 999;
+  }
+
+  /* ---- detail panel ---- */
+  function renderDetail(code){
+    var r = regionOf(code);
+    var body = document.getElementById('detail-body');
+    var meta = document.getElementById('dp-meta');
+    if(!body) return;
+    if(!r){ body.innerHTML = '<div class="dp-empty">Click a tile or a list row to inspect a region.</div>';
+      if(meta) meta.textContent = 'SELECT A REGION'; return; }
+    if(meta) meta.textContent = esc(r.code);
+    var mdef = metricOf(STATE.metric);
+    var actV = valOf(r, STATE.metric);
+    var maxAll = {}; METRICS().forEach(function(mm){
+      maxAll[mm.key] = Math.max.apply(null, (DATA.regions||[]).map(function(x){ return valOf(x,mm.key); })); });
+
+    var metricsHTML = METRICS().map(function(mm){
+      var v = valOf(r, mm.key);
+      var w = maxAll[mm.key]>0 ? Math.round((v/maxAll[mm.key])*100) : 0;
+      return '<div class="dp-metric'+(mm.key===STATE.metric?' is-active':'')+'">'
+        + '<span class="dm-lbl">'+esc(mm.label)+'</span>'
+        + '<span class="dm-val">'+fmt(v,mm)+(mm.unit?'<small> '+esc(mm.unit)+'</small>':'')+'</span>'
+        + '<span class="dm-track"><span class="dm-fill" style="--w:'+w+'%"></span></span>'
+        + '</div>';
+    }).join('');
+
+    var kv = (r.stats||[]).map(function(s){
+      var cl = (s.state && s.state!=='neutral') ? ' '+s.state : '';
+      return '<div class="kv"><div class="mlabel">'+esc(s.label)+'</div><b class="'+cl.trim()+'">'+esc(s.value)+'</b></div>';
+    }).join('');
+
+    body.innerHTML = ''
+    + '<div class="dp-body">'
+    +   '<div class="dp-head"><span class="chip">'+esc(r.code)+'</span>'
+    +     '<div><div class="dp-name">'+esc(r.name)+'</div>'
+    +       (r.group?'<div class="dp-grp">'+esc(r.group)+' region</div>':'')+'</div></div>'
+    +   '<div class="dp-value-wrap"><div class="dp-value tnum">'+fmt(actV,mdef)
+    +       (mdef.unit?'<small> '+esc(mdef.unit)+'</small>':'')+'</div>'
+    +     '<div class="dp-value-lbl"><div class="mlabel">Active metric</div><b>'+esc(mdef.label)+'</b></div></div>'
+    +   '<div class="dp-metrics">'+metricsHTML+'</div>'
+    +   (kv?'<div class="dp-kv">'+kv+'</div>':'')
+    +   (r.note?'<div class="dp-note">'+svg('check')+'<span>'+esc(r.note)+'</span></div>':'')
+    + '</div>';
+  }
+
+  /* ---- legend (continuous gradient or discrete bands) ---- */
+  function legendHTML(){
+    var sc = DATA.scale || {min:0,max:1};
+    var bandsHTML;
+    if(sc.bands && sc.bands.length){
+      bandsHTML = '<div class="lg-bands" id="lg-bar">'
+        + sc.bands.map(function(b,i){
+            var t = (i+1)/sc.bands.length; var c = ramp(t*0.92+0.06);
+            return '<span class="lg-band" style="background:'+c.bg+'" title="'+esc(b.label||('≤ '+b.to))+'"></span>'; }).join('')
+        + '<span class="lg-cut" id="lg-cut" data-cut=""></span></div>';
+    } else {
+      bandsHTML = '<div class="lg-bar" id="lg-bar"><span class="lg-cut" id="lg-cut" data-cut=""></span></div>';
+    }
+    var ticks = (sc.bands && sc.bands.length)
+      ? '<div class="lg-ticks">'+sc.bands.map(function(b){ return '<span>'+esc(b.label||b.to)+'</span>'; }).join('')+'</div>'
+      : '';
+    return '<div class="scale-legend">'
+      + '<div class="lg-head">'+svg('data')+'<span class="mlabel">Colour scale</span> <span class="lg-metric" id="lg-metric"></span></div>'
+      + bandsHTML
+      + '<div class="lg-scale"><span class="tnum" id="lg-min"></span><span class="tnum" id="lg-max"></span></div>'
+      + ticks
+      + '</div>';
+  }
+  function updateLegend(){
+    var sc = DATA.scale || {min:0,max:1};
+    var mdef = metricOf(STATE.metric);
+    var lm = document.getElementById('lg-metric'); if(lm) lm.textContent = (mdef.label||mdef.key)+(mdef.unit?' ('+mdef.unit+')':'');
+    var lmin = document.getElementById('lg-min'); if(lmin) lmin.textContent = fmt(sc.min,mdef);
+    var lmax = document.getElementById('lg-max'); if(lmax) lmax.textContent = fmt(sc.max,mdef);
+    /* threshold cut marker */
+    var cut = document.getElementById('lg-cut');
+    if(cut){
+      var t = norm(STATE.threshold);
+      cut.style.left = (t*100)+'%';
+      cut.classList.toggle('on', STATE.threshold > sc.min);
+      cut.setAttribute('data-cut', fmt(STATE.threshold,mdef));
+    }
+  }
+
+  function thStep(sc){
+    var span = (sc.max-sc.min) || 1;
+    if(span<=20) return 0.1;
+    if(span<=200) return 1;
+    return Math.round(span/100);
+  }
+
+  /* ============================================================
+     INTERACTIONS
+     ============================================================ */
+  function wireInteractions(){
+    /* ---- METRIC SWITCH → recolour tiles + re-rank list + re-point legend ---- */
+    atlas.addEventListener('click', function(e){
+      var b = e.target.closest('.metric-switch button[data-metric]'); if(!b) return;
+      atlas.querySelectorAll('.metric-switch button').forEach(function(x){ x.classList.remove('on'); x.setAttribute('aria-pressed','false'); });
+      b.classList.add('on'); b.setAttribute('aria-pressed','true');
+      STATE.metric = b.dataset.metric;
+      /* clamp threshold into the (shared) scale domain — scale is metric-independent here */
+      paintTiles(); renderList(); updateLegend();
+      if(STATE.selected) renderDetail(STATE.selected);
+    });
+
+    /* ---- TILE click → select + detail ---- */
+    atlas.addEventListener('click', function(e){
+      var tl = e.target.closest('.tile[data-code]'); if(!tl) return;
+      select(tl.dataset.code);
+    });
+
+    /* ---- LIST row click → select + detail ---- */
+    atlas.addEventListener('click', function(e){
+      var row = e.target.closest('.rl-row[data-code]'); if(!row) return;
+      select(row.dataset.code);
+    });
+    atlas.addEventListener('keydown', function(e){
+      var row = e.target.closest('.rl-row[data-code], .tile[data-code]');
+      if(row && (e.key==='Enter'||e.key===' ')){ e.preventDefault(); select(row.dataset.code); }
+    });
+
+    /* ---- SORT list ---- */
+    atlas.addEventListener('click', function(e){
+      var b = e.target.closest('.rl-sort button[data-sort]'); if(!b) return;
+      atlas.querySelectorAll('.rl-sort button').forEach(function(x){ x.classList.remove('on'); });
+      b.classList.add('on');
+      STATE.sort = b.dataset.sort;
+      renderList();
+    });
+
+    /* ---- THRESHOLD filter → dim tiles + rows below cutoff ---- */
+    var th = document.getElementById('threshold');
+    var thv = document.getElementById('th-val');
+    if(th){
+      var setTh = function(){
+        STATE.threshold = parseFloat(th.value);
+        var mdef = metricOf(STATE.metric);
+        thv.textContent = '≥ ' + fmt(STATE.threshold, mdef) + (mdef.unit?' '+mdef.unit:'');
+        paintTiles(); renderList(); updateLegend();
+      };
+      th.addEventListener('input', setTh);
+      setTh();
+    }
+
+    /* ---- TILE hover tooltip (region + active value) ---- */
+    wireTooltip();
+  }
+
+  function select(code){
+    STATE.selected = (STATE.selected===code) ? null : code;
+    /* sync tile rings */
+    document.querySelectorAll('#tilemap .tile').forEach(function(el){
+      el.classList.toggle('is-active', el.dataset.code===STATE.selected); });
+    /* sync list rows */
+    document.querySelectorAll('#region-list .rl-row').forEach(function(el){
+      el.classList.toggle('is-active', el.dataset.code===STATE.selected); });
+    renderDetail(STATE.selected);
+    if(STATE.selected){
+      var row = document.querySelector('#region-list .rl-row[data-code="'+cssEsc(STATE.selected)+'"]');
+      if(row && row.scrollIntoView) row.scrollIntoView({ block:'nearest' });
+    }
+  }
+  function cssEsc(s){ return String(s).replace(/["\\]/g,'\\$&'); }
+
+  /* ---- tooltip ---- */
+  function wireTooltip(){
+    var mdefNow = function(){ return metricOf(STATE.metric); };
+    function show(html, x, y){ tip.innerHTML=html; tip.style.left=x+'px'; tip.style.top=(y-8)+'px'; tip.classList.add('show'); }
+    function hide(){ tip.classList.remove('show'); }
+
+    var tm = document.getElementById('tilemap');
+    tm.addEventListener('mousemove', function(e){
+      var tl = e.target.closest('.tile[data-code]');
+      if(!tl){ hide(); return; }
+      var r = regionOf(tl.dataset.code); if(!r){ hide(); return; }
+      var mdef = mdefNow();
+      var v = valOf(r, STATE.metric);
+      var rc = tl.getBoundingClientRect();
+      show('<div class="ct-h">'+esc(r.code)+' · '+esc(r.name)+'</div>'
+         + '<div class="ct-row"><i style="background:var(--navy)"></i>'+esc(mdef.label)
+         + ' <b>'+fmt(v,mdef)+(mdef.unit?' '+esc(mdef.unit):'')+'</b></div>',
+           rc.left+rc.width/2, rc.top);
+    });
+    tm.addEventListener('mouseleave', hide);
+  }
+
+  /* ---- inline house SVG icons (24×24, stroke=currentColor) ---- */
+  var ICON = {
+    /* maps-location: pin over an abstract tile grid + squared signature node */
+    maps:'<rect x="3.5" y="13" width="6.5" height="6.5" rx="2"/><path d="M13.5 5.5a3.5 3.5 0 0 1 7 0c0 2.6-3.5 6-3.5 6s-3.5-3.4-3.5-6Z"/><path d="M3.5 9.5h4M3.5 5.75h4M14 16.5h6.5M17 13.5v6"/><rect x="15.6" y="3.9" width="3.2" height="3.2" rx="1.2" fill="currentColor" stroke="none"/>',
+    data:'<path d="M4 4V20H20"/><rect x="6.75" y="12" width="3" height="8" rx="1.2"/><rect x="11.5" y="8" width="3" height="12" rx="1.2"/><rect x="16.25" y="14.5" width="3" height="5.5" rx="1.2"/>',
+    list:'<path d="M9 6.5H20M9 12H20M9 17.5H20"/><rect x="3.5" y="5" width="3" height="3" rx="1.2" fill="currentColor" stroke="none"/><rect x="3.5" y="10.5" width="3" height="3" rx="1.2" fill="currentColor" stroke="none"/><rect x="3.5" y="16" width="3" height="3" rx="1.2" fill="currentColor" stroke="none"/>',
+    check:'<circle cx="12" cy="12" r="8.5"/><path d="M8.3 12.4l2.5 2.5 4.9-5.3"/>',
+    filter:'<path d="M4.5 5.5h15l-6 7v5l-3 1.5v-6.5Z"/>',
+    sortDesc:'<path d="M7 5v13M7 18l-3-3M7 18l3-3"/><path d="M12.5 7H20M12.5 11.5H18M12.5 16H15.5"/>'
+  };
+  function svg(name){ return '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" '
+    + 'stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">'+(ICON[name]||'')+'</svg>'; }
+
+  /* ---- canonical dropdown theme switcher (per _DATA_DRIVEN §3) ---- */
+  function wireThemeSwitch(){
+    var rcSel = document.querySelector('.rc-theme-sel');
+    if(rcSel){
+      rcSel.value = root.dataset.theme || 'teal';
+      rcSel.addEventListener('change', function(){
+        root.dataset.theme = rcSel.value;
+        /* the accent-derived ramp must re-derive in the new theme */
+        paintTiles(); renderList(); updateLegend();
+        if(STATE.selected) renderDetail(STATE.selected);
+      });
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', function(){
+    render();
+    wireInteractions();
+    wireThemeSwitch();
+  });
+})();
+</script>
+</body>
+</html>

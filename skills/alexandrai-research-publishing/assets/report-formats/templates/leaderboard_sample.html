@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="cyan">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>{{REPORT_TYPE}} — Delivery squad standings · {{PROJECT}}</title>
+<style>
+/* ============================================================
+   LEADERBOARD  ·  ranked standings board (podium + ranked value-bars)
+   Default theme: Cyan.  Self-contained: system fonts + inline SVG, no external requests.
+   Body is rendered from #report-data by render(); interactions re-rank / recolour live.
+   ============================================================ */
+:root{
+  /* surfaces */
+  --bg:#fff; --bg-band:#f6f6f8; --bg-subtle:#fafafb; --bg-deep:#15131a;
+  --rule:#dcdce2; --rule-soft:#ebebef;
+  /* ink */
+  --ink:#11131a; --ink-mid:#33363f; --ink-soft:#5a5e68; --ink-faint:#868b95;
+  /* brand accent (Cyan default — overridden per theme below) */
+  --navy:#0891b2; --navy-deep:#0e6f88; --navy-bg:#e2f4f9; --navy-line:#abdde9;
+  --ok:#0e6b7a; --ok-bg:#e4f3f4; --ok-line:#b0dde2;
+  /* semantic states — CONSTANT across themes */
+  --risk:#b3261e; --risk-bg:#fbeceb; --risk-line:#edc7c4;
+  --hold:#8a6d00; --hold-bg:#fbf3da; --hold-line:#e7d8a4;
+  /* type stacks */
+  --mono:ui-monospace,"JetBrains Mono","SFMono-Regular",Menlo,Consolas,monospace;
+  --sans:-apple-system,"Segoe UI",system-ui,Roboto,"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic UI","Apple SD Gothic Neo","Malgun Gothic","PingFang SC","Microsoft YaHei","Noto Sans CJK JP","Noto Sans CJK KR","Noto Sans CJK SC","Noto Sans JP","Noto Sans KR","Noto Sans SC","Noto Sans",sans-serif;
+}
+/* ---- theme swaps (only the 7 accent values change) ---- */
+html[data-theme="blue"]{ --navy:#0b5fd4; --navy-deep:#0842a0; --navy-bg:#e8f1fc; --navy-line:#bcd6f5; --ok:#1a4f9c; --ok-bg:#e9f0fa; --ok-line:#b7cdea; }
+html[data-theme="purple"]{ --navy:#a100ff; --navy-deep:#7a00c2; --navy-bg:#f3e8ff; --navy-line:#d9bef5; --ok:#5a2f8a; --ok-bg:#efe8f5; --ok-line:#d0b5e0; }
+html[data-theme="indigo"]{ --navy:#4338ca; --navy-deep:#312c92; --navy-bg:#ebebfb; --navy-line:#c7c3f0; --ok:#3730a3; --ok-bg:#ebeaf7; --ok-line:#c5c2ea; }
+html[data-theme="teal"]{ --navy:#0e7c86; --navy-deep:#095861; --navy-bg:#e0f3f4; --navy-line:#a9dade; --ok:#0f5d54; --ok-bg:#e3f3ef; --ok-line:#b3ddd4; }
+html[data-theme="cyan"]{ --navy:#0891b2; --navy-deep:#0e6f88; --navy-bg:#e2f4f9; --navy-line:#abdde9; --ok:#0e6b7a; --ok-bg:#e4f3f4; --ok-line:#b0dde2; }
+html[data-theme="green"]{ --navy:#1f7a44; --navy-deep:#155730; --navy-bg:#e6f4ea; --navy-line:#b3dcc1; --ok:#2f6b3c; --ok-bg:#e9f3ea; --ok-line:#bedcc4; }
+html[data-theme="plum"]{ --navy:#a21d6e; --navy-deep:#7c1450; --navy-bg:#fbe8f2; --navy-line:#e8b9d4; --ok:#6d2356; --ok-bg:#f6e8f0; --ok-line:#e3bcd5; }
+html[data-theme="slate"]{ --navy:#3f4f63; --navy-deep:#29384b; --navy-bg:#eef1f5; --navy-line:#c2ccd8; --ok:#34495e; --ok-bg:#eef1f5; --ok-line:#c2ccd8; }
+html[data-theme="black"]{ --navy:#000000; --navy-deep:#000; --navy-bg:#f1f1f3; --navy-line:#d6d6db; --ok:#3f3f46; --ok-bg:#f1f1f3; --ok-line:#cfcfd6; }
+
+*{ box-sizing:border-box; }
+body{
+  margin:0; font:13px/1.6 var(--sans); color:var(--ink); background:var(--bg-band);
+  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+}
+.icon{ width:1.15em; height:1.15em; display:inline-block; vertical-align:-.18em; color:inherit; flex:none; }
+.icon-sm{ width:14px; height:14px; }
+.icon-lg{ width:20px; height:20px; }
+
+/* ---------- tone helpers: a tier/row's accent set from its tone (brand by default) ---------- */
+.tone-ok   { --tone:var(--ok);   --tone-bg:var(--ok-bg);   --tone-line:var(--ok-line); }
+.tone-hold { --tone:var(--hold); --tone-bg:var(--hold-bg); --tone-line:var(--hold-line); }
+.tone-risk { --tone:var(--risk); --tone-bg:var(--risk-bg); --tone-line:var(--risk-line); }
+.tone-brand{ --tone:var(--navy); --tone-bg:var(--navy-bg); --tone-line:var(--navy-line); }
+
+/* ============================================================ PAGE SHELL (centred, PC-wide) */
+.page{ max-width:1400px; margin:0 auto; padding:0 40px 60px; }
+
+/* ---------- masthead ---------- */
+.lb-masthead{
+  display:flex; align-items:flex-end; justify-content:space-between; gap:24px;
+  padding:26px 0 18px; border-bottom:2px solid var(--ink); margin-bottom:0;
+}
+.mh-l{ min-width:0; }
+.wordmark{ display:inline-flex; align-items:center; gap:9px; font-weight:800; font-size:12.5px; letter-spacing:-.01em; color:var(--ink-soft); margin-bottom:9px; }
+.wordmark .mark{ width:19px; height:19px; border-radius:5px; background:var(--navy); color:#fff; display:grid; place-items:center; }
+.wordmark .mark .icon{ width:12px; height:12px; }
+.wordmark .sep{ color:var(--rule); font-weight:400; }
+.wordmark .proj{ color:var(--ink-mid); }
+.mh-eyebrow{ font:600 10px/1 var(--mono); letter-spacing:.16em; text-transform:uppercase; color:var(--navy-deep); }
+.mh-title{ margin:9px 0 6px; font-size:25px; font-weight:800; letter-spacing:-.012em; color:var(--ink); }
+.mh-sub{ margin:0; max-width:64ch; color:var(--ink-soft); font-size:13px; line-height:1.55; }
+.mh-r{ flex:none; text-align:right; }
+.mh-period{
+  display:inline-flex; flex-direction:column; align-items:flex-end; gap:3px;
+}
+.mh-period .pk{ font:600 9px/1 var(--mono); letter-spacing:.12em; text-transform:uppercase; color:var(--ink-faint); }
+.mh-period .pv{ font:800 17px/1 var(--mono); color:var(--ink); font-feature-settings:"tnum" 1; }
+.mh-period .pp{ font:600 10.5px/1 var(--mono); color:var(--ink-faint); }
+
+/* ============================================================ STANDINGS BAR (sticky) */
+.lb-bar{
+  position:sticky; top:0; z-index:30;
+  display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+  margin:0 -40px 22px; padding:11px 40px;
+  background:rgba(255,255,255,.94); backdrop-filter:saturate(1.4) blur(6px);
+  border-bottom:1px solid var(--rule); box-shadow:0 1px 3px rgba(17,19,26,.05);
+}
+.tool-group{ display:flex; align-items:center; gap:8px; }
+.tool-group + .tool-group{ padding-left:12px; border-left:1px solid var(--rule); }
+.tool-label{ font:600 9.5px/1 var(--mono); letter-spacing:.12em; text-transform:uppercase; color:var(--ink-faint); }
+
+/* metric selector */
+.metric-sel{ position:relative; display:inline-flex; align-items:center; }
+.metric-sel select{
+  font:700 12px/1 var(--sans); color:var(--ink); background:var(--bg);
+  border:1px solid var(--rule); border-radius:7px; padding:7px 28px 7px 10px; cursor:pointer; appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235a5e68' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M7 10l5 5 5-5'/%3E%3C/svg%3E");
+  background-repeat:no-repeat; background-position:right 7px center; background-size:14px;
+}
+.metric-sel select:focus{ outline:none; border-color:var(--navy); box-shadow:0 0 0 3px var(--navy-bg); }
+
+/* search */
+.search{ position:relative; display:flex; align-items:center; }
+.search .icon{ position:absolute; left:9px; color:var(--ink-faint); pointer-events:none; }
+.search input{
+  font:13px/1 var(--sans); color:var(--ink); background:var(--bg);
+  border:1px solid var(--rule); border-radius:7px; padding:7px 9px 7px 30px; width:210px;
+}
+.search input::placeholder{ color:var(--ink-faint); font-family:var(--mono); font-size:11.5px; }
+.search input:focus{ outline:none; border-color:var(--navy); box-shadow:0 0 0 3px var(--navy-bg); }
+
+/* tier filter chips */
+.filter-chip{
+  display:inline-flex; align-items:center; gap:6px; cursor:pointer;
+  font:600 11.5px/1 var(--sans); color:var(--ink-mid);
+  background:var(--bg); border:1px solid var(--rule); border-radius:6px; padding:6px 10px;
+}
+.filter-chip .swatch{ width:8px; height:8px; border-radius:2.5px; background:var(--tone,var(--navy)); }
+.filter-chip .ct{ font:700 10px/1 var(--mono); color:var(--ink-faint); font-feature-settings:"tnum" 1; }
+.filter-chip[aria-pressed="true"]{ background:var(--navy); border-color:var(--navy-deep); color:#fff; }
+.filter-chip[aria-pressed="true"] .ct{ color:#fff; opacity:.85; }
+.filter-chip[aria-pressed="true"] .swatch{ box-shadow:0 0 0 1.5px #fff; }
+
+/* sort-direction toggle */
+.tbtn{
+  display:inline-flex; align-items:center; gap:6px; cursor:pointer;
+  font:600 11.5px/1 var(--sans); color:var(--ink-mid);
+  background:var(--bg); border:1px solid var(--rule); border-radius:7px; padding:7px 10px;
+}
+.tbtn:hover{ border-color:var(--navy-line); }
+.tbtn .icon{ color:var(--ink-soft); }
+.tbtn[aria-pressed="true"]{ border-color:var(--navy); color:var(--navy-deep); background:var(--navy-bg); }
+
+/* theme switcher (canonical .rc-theme dropdown) */
+.rc-theme{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--rule);border-radius:7px;
+          padding:3px 4px 3px 7px;background:var(--bg);margin-left:auto;}
+.rc-theme-sw{width:12px;height:12px;border-radius:50%;background:var(--navy);box-shadow:0 0 0 1px var(--rule);flex:none;}
+.rc-theme-sel{border:0;background:none;font:600 11px/1 var(--mono);color:var(--ink-mid);cursor:pointer;outline:none;padding:2px;}
+@media print{.rc-theme{display:none;}}
+
+/* ============================================================ PODIUM */
+.podium-wrap{ margin-bottom:8px; }
+.podium-cap{ display:flex; align-items:center; gap:8px; margin-bottom:12px; font:600 10px/1 var(--mono); letter-spacing:.14em; text-transform:uppercase; color:var(--ink-faint); }
+.podium-cap .icon{ color:var(--navy); }
+.podium-cap b{ color:var(--ink-mid); }
+.podium{
+  display:grid; grid-template-columns:1fr 1.12fr 1fr; align-items:end; gap:18px;
+  padding:4px 0 0;
+}
+.plinth{
+  position:relative; display:flex; flex-direction:column; align-items:center; text-align:center;
+  background:var(--bg); border:1px solid var(--rule); border-top:3px solid var(--tone,var(--navy));
+  border-radius:13px; padding:16px 16px 0; box-shadow:0 1px 2px rgba(17,19,26,.045);
+  transition:transform .16s ease;
+}
+.plinth.p1{ padding-top:20px; }
+.plinth .medal{
+  position:absolute; top:-15px; left:50%; transform:translateX(-50%);
+  width:30px; height:30px; border-radius:8px; display:grid; place-items:center;
+  font:800 13px/1 var(--mono); color:#fff; background:var(--tone,var(--navy));
+  border:2px solid var(--bg); box-shadow:0 1px 3px rgba(17,19,26,.18); font-feature-settings:"tnum" 1;
+}
+.plinth .crest{
+  width:38px; height:38px; border-radius:10px; display:grid; place-items:center; margin:8px 0 9px;
+  color:var(--tone,var(--navy)); background:var(--tone-bg,var(--navy-bg)); border:1px solid var(--tone-line,var(--navy-line));
+}
+.plinth .crest .icon{ width:21px; height:21px; }
+.plinth-name{ font-weight:800; font-size:14px; color:var(--ink); letter-spacing:-.01em; }
+.plinth-detail{ margin-top:2px; font:600 10.5px/1.3 var(--sans); color:var(--ink-faint); }
+.plinth-val{ margin:9px 0 2px; font:800 30px/1 var(--mono); color:var(--ink); font-feature-settings:"tnum" 1; letter-spacing:-.02em; }
+.plinth.p1 .plinth-val{ font-size:36px; color:var(--tone,var(--navy)); }
+.plinth-unit{ font:600 11px/1 var(--mono); color:var(--ink-faint); }
+.plinth .move{ margin:9px 0 0; }
+/* the riser bars under each plinth — different heights = a podium silhouette */
+.plinth .riser{
+  width:100%; margin-top:13px; border-radius:9px 9px 0 0;
+  background:linear-gradient(180deg,var(--tone-bg,var(--navy-bg)),transparent);
+  border-top:2px solid var(--tone,var(--navy));
+  display:flex; align-items:flex-start; justify-content:center;
+}
+.plinth.p1 .riser{ height:46px; } .plinth.p2 .riser{ height:30px; } .plinth.p3 .riser{ height:20px; }
+.plinth:hover{ transform:translateY(-3px); }
+
+/* ============================================================ THE BOARD (ranked rows) */
+.board-cap{
+  display:flex; align-items:baseline; gap:10px; margin:24px 0 9px;
+}
+.board-cap h2{ margin:0; font-size:15px; font-weight:800; color:var(--ink); }
+.board-cap .metric-now{ font:700 10.5px/1 var(--mono); letter-spacing:.04em; color:var(--navy-deep); background:var(--navy-bg); border:1px solid var(--navy-line); border-radius:5px; padding:4px 8px; }
+.board-cap .metric-now .dir{ color:var(--ink-faint); font-weight:600; }
+.board-cap .spacer{ flex:1; }
+.board-cap .shown{ font:600 10px/1 var(--mono); letter-spacing:.06em; text-transform:uppercase; color:var(--ink-faint); }
+.board-cap .shown b{ color:var(--ink-mid); font-feature-settings:"tnum" 1; }
+
+/* column header strip for the rows */
+.lb-head{
+  display:grid; grid-template-columns:54px minmax(190px,1.3fr) minmax(220px,2fr) 104px 96px;
+  gap:14px; align-items:center; padding:0 16px 7px; margin-bottom:2px;
+  border-bottom:1px solid var(--rule);
+  font:600 9.5px/1 var(--mono); letter-spacing:.1em; text-transform:uppercase; color:var(--ink-faint);
+}
+.lb-head .h-val{ text-align:left; } .lb-head .h-tier{ text-align:center; } .lb-head .h-move{ text-align:center; }
+
+.board{ display:flex; flex-direction:column; gap:7px; padding-top:8px; }
+
+.tier-divider{
+  display:flex; align-items:center; gap:9px; margin:9px 2px 3px; padding-top:2px;
+  font:700 9.5px/1 var(--mono); letter-spacing:.12em; text-transform:uppercase; color:var(--tone,var(--ink-faint));
+}
+.tier-divider::before{ content:""; width:9px; height:9px; border-radius:2.5px; background:var(--tone,var(--ink-faint)); }
+.tier-divider::after{ content:""; flex:1; height:1px; background:var(--rule-soft); }
+
+.lb-row{
+  display:grid; grid-template-columns:54px minmax(190px,1.3fr) minmax(220px,2fr) 104px 96px;
+  gap:14px; align-items:center;
+  background:var(--bg); border:1px solid var(--rule); border-left:3px solid var(--tone,var(--rule));
+  border-radius:11px; padding:11px 16px; box-shadow:0 1px 2px rgba(17,19,26,.04);
+  transition:background .14s, border-color .14s, transform .14s, box-shadow .14s;
+}
+.lb-row:hover{ border-color:var(--tone,var(--navy-line)); background:var(--bg-subtle); }
+.lb-row.is-top3{ background:linear-gradient(90deg,var(--tone-bg,var(--navy-bg)),transparent 62%); }
+.lb-row.is-hit{ border-color:var(--navy); box-shadow:0 0 0 3px var(--navy-bg); }
+.lb-row.dim{ opacity:.4; }
+
+/* rank badge */
+.rank{
+  display:inline-flex; align-items:center; justify-content:center; gap:1px;
+  width:38px; height:34px; border-radius:8px; font:800 15px/1 var(--mono); font-feature-settings:"tnum" 1;
+  color:var(--tone,var(--navy-deep)); background:var(--tone-bg,var(--navy-bg)); border:1px solid var(--tone-line,var(--navy-line));
+}
+.rank .hash{ font-size:10px; opacity:.6; margin-right:1px; }
+.lb-row.is-top3 .rank{ color:#fff; background:var(--tone,var(--navy)); border-color:var(--tone,var(--navy)); }
+
+/* name cell */
+.lb-name-cell{ display:flex; align-items:center; gap:11px; min-width:0; }
+.crest{
+  width:30px; height:30px; flex:none; border-radius:8px; display:grid; place-items:center;
+  color:var(--tone,var(--navy)); background:var(--tone-bg,var(--navy-bg)); border:1px solid var(--tone-line,var(--navy-line));
+}
+.crest .icon{ width:17px; height:17px; }
+.lb-name{ min-width:0; }
+.lb-name .nm{ font-weight:700; font-size:13.5px; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.lb-name .lb-detail{ display:block; margin-top:1px; font:600 10.5px/1.3 var(--sans); color:var(--ink-faint); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+/* value bar */
+.bar{ position:relative; display:flex; align-items:center; gap:10px; }
+.bar .track{ flex:1; height:14px; border-radius:7px; background:var(--rule-soft); overflow:hidden; }
+.bar .bar-fill{ display:block; height:100%; border-radius:7px; background:var(--tone,var(--navy)); width:0; min-width:3px; transition:width .5s cubic-bezier(.2,.7,.2,1); }
+.bar .bar-val{ font:800 13px/1 var(--mono); color:var(--ink); font-feature-settings:"tnum" 1; min-width:62px; text-align:right; }
+.bar .bar-val .u{ font-size:9.5px; font-weight:600; color:var(--ink-faint); margin-left:2px; }
+
+/* tier chip */
+.tier-chip{
+  justify-self:center; display:inline-flex; align-items:center; gap:5px; white-space:nowrap;
+  font:700 10.5px/1 var(--sans); border:1px solid; border-radius:6px; padding:4px 9px;
+  color:var(--tone); background:var(--tone-bg); border-color:var(--tone-line);
+}
+.tier-chip::before{ content:""; width:6px; height:6px; border-radius:50%; background:var(--tone); }
+
+/* movement chip */
+.move{
+  justify-self:center; display:inline-flex; align-items:center; gap:4px; white-space:nowrap;
+  font:700 11px/1 var(--mono); border-radius:6px; padding:4px 8px; font-feature-settings:"tnum" 1;
+}
+.move .icon{ width:13px; height:13px; }
+.move-up   { color:var(--ok);   background:var(--ok-bg);   }
+.move-down { color:var(--risk); background:var(--risk-bg); }
+.move-flat { color:var(--ink-soft); background:var(--bg-band); }
+.move-new  { color:var(--navy-deep); background:var(--navy-bg); }
+.move-flat .icon{ color:var(--ink-faint); }
+
+/* secondary stats — inline strip + hover detail */
+.lb-extra{ grid-column:1 / -1; }
+.stats{ display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; padding-top:9px; border-top:1px dashed var(--rule-soft); }
+.stat{
+  display:inline-flex; align-items:baseline; gap:5px;
+  font:600 10.5px/1 var(--sans); color:var(--ink-mid);
+  background:var(--bg-band); border:1px solid var(--rule); border-radius:5px; padding:4px 8px;
+}
+.stat .k{ font:600 8.5px/1 var(--mono); letter-spacing:.08em; text-transform:uppercase; color:var(--ink-faint); }
+.stat .v{ font-family:var(--mono); font-feature-settings:"tnum" 1; color:var(--ink); }
+.stat .delta{ font:600 9.5px/1 var(--mono); }
+.stat .delta.up{ color:var(--ok); } .stat .delta.down{ color:var(--risk); } .stat .delta.flat{ color:var(--ink-faint); }
+/* the extra strip is collapsed by default; revealed on hover / focus / search hit */
+.lb-row .lb-extra{ display:none; }
+.lb-row:hover .lb-extra, .lb-row.is-hit .lb-extra, .lb-row:focus-within .lb-extra{ display:block; }
+
+/* tier legend */
+.tier-legend{ display:flex; flex-wrap:wrap; gap:14px; margin-top:18px; padding:11px 16px; background:var(--bg-subtle); border:1px solid var(--rule); border-radius:10px; }
+.tier-legend .ll{ font:600 9.5px/1 var(--mono); letter-spacing:.12em; text-transform:uppercase; color:var(--ink-faint); margin-right:2px; align-self:center; }
+.leg{ display:inline-flex; align-items:center; gap:7px; font:600 11px/1 var(--sans); color:var(--ink-mid); }
+.leg .swatch{ width:11px; height:11px; border-radius:3px; background:var(--tone,var(--navy)); }
+.leg .rng{ font:600 10px/1 var(--mono); color:var(--ink-faint); font-feature-settings:"tnum" 1; }
+
+/* empty state */
+.empty{ display:none; padding:46px 24px; text-align:center; color:var(--ink-faint); }
+.empty .icon{ width:26px; height:26px; color:var(--rule); }
+.empty p{ margin:10px 0 0; font:600 12.5px/1.5 var(--sans); }
+.empty .mono{ font-family:var(--mono); color:var(--ink-soft); }
+
+/* ============================================================ FOOTER */
+.footer{
+  margin:34px -40px 0; padding:16px 40px; background:var(--bg-deep); color:#cdd0d8;
+  display:flex; align-items:center; gap:18px; flex-wrap:wrap;
+  font:600 10px/1.4 var(--mono); letter-spacing:.06em; text-transform:uppercase;
+}
+.footer .icon{ color:#9aa0ad; }
+.footer b{ color:#fff; font-feature-settings:"tnum" 1; }
+.footer .f-spacer{ flex:1; }
+.footer .wm{ display:inline-flex; align-items:center; gap:7px; color:#9aa0ad; }
+.footer .wm .sq{ width:10px; height:10px; border-radius:2px; background:var(--navy); }
+
+/* ============================================================ no-JS notice */
+.noscript-note{
+  margin:0 0 16px; padding:12px 16px; background:var(--hold-bg); color:var(--hold);
+  border:1px solid var(--hold-line); border-radius:9px; font:600 12.5px/1.5 var(--sans);
+}
+
+/* ============================================================ print: static full snapshot */
+@media print{
+  body{ background:#fff; }
+  .page{ max-width:none; padding:0; }
+  .lb-bar, .rc-theme{ display:none !important; }
+  .lb-masthead, .footer{ margin-left:0; margin-right:0; }
+  .footer{ background:#fff; color:#000; border-top:1px solid var(--rule); }
+  .footer .wm .sq{ background:#000; }
+  .lb-row{ box-shadow:none; break-inside:avoid; }
+  .lb-row .lb-extra{ display:block !important; }   /* expand all stats on paper */
+  .plinth{ box-shadow:none; }
+  @page{ margin:14mm; size:landscape; }
+}
+</style>
+</head>
+
+<body>
+<main class="page" id="page">
+
+  <!-- ============ MASTHEAD ============ -->
+  <header class="lb-masthead">
+    <div class="mh-l">
+      <span class="wordmark">
+        <span class="mark"><svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4V20H20"/><rect x="6.75" y="12" width="3" height="8" rx="1.2"/><rect x="11.5" y="8" width="3" height="12" rx="1.2"/><rect x="16.25" y="14.5" width="3" height="5.5" rx="1.2"/></svg></span>
+        <span id="wmOrg">{{ORG}}</span> <span class="sep">/</span> <span class="proj" id="wmProj">{{PROJECT}}</span>
+      </span>
+      <div class="mh-eyebrow" id="mhEyebrow">{{REPORT_TYPE}}</div>
+      <h1 class="mh-title" id="mhTitle">Delivery squad standings</h1>
+      <p class="mh-sub" id="mhSub"></p>
+    </div>
+    <div class="mh-r">
+      <span class="mh-period">
+        <span class="pk">Period</span>
+        <span class="pv" id="mhPeriod">—</span>
+        <span class="pp" id="mhPrev"></span>
+      </span>
+    </div>
+  </header>
+
+  <!-- ============ STANDINGS BAR (sticky) ============ -->
+  <div class="lb-bar">
+    <div class="tool-group">
+      <span class="tool-label">Rank by</span>
+      <span class="metric-sel">
+        <select id="metricSelect" aria-label="Ranking metric"><!-- options injected from metrics[] --></select>
+      </span>
+    </div>
+
+    <div class="tool-group" id="tierChips">
+      <span class="tool-label">Tier</span>
+      <!-- tier filter chips injected from tiers[] -->
+    </div>
+
+    <div class="tool-group">
+      <button class="tbtn" id="dirToggle" type="button" aria-pressed="false" title="Reverse ranking order">
+        <svg class="icon" id="dirIcon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10M7 12h6M7 17h3"/><path d="M19 9V19M19 19l-2.5-2.5M19 19l2.5-2.5"/></svg>
+        <span id="dirLabel">Best first</span>
+      </button>
+    </div>
+
+    <div class="tool-group">
+      <span class="search">
+        <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg>
+        <input type="text" id="search" placeholder="Find an entry…" aria-label="Find an entry">
+      </span>
+    </div>
+
+    <label class="rc-theme" id="themeDots" title="Brand colour">
+      <span class="rc-theme-sw" aria-hidden="true"></span>
+      <select class="rc-theme-sel" aria-label="Brand theme">
+        <option value="blue">Blue</option>
+        <option value="purple">Purple</option>
+        <option value="indigo">Indigo</option>
+        <option value="teal">Teal</option>
+        <option value="cyan">Cyan</option>
+        <option value="green">Green</option>
+        <option value="plum">Plum</option>
+        <option value="slate">Slate</option>
+        <option value="black">Black</option>
+      </select>
+    </label>
+  </div>
+
+  <!-- no-JS notice: the podium + rows + filters render from #report-data, which requires JS. -->
+  <noscript>
+    <p class="noscript-note">This interactive leaderboard renders its podium, ranked rows, tier bands and movement from embedded data using JavaScript. Enable JavaScript to re-rank by metric, filter by tier and search the standings.</p>
+  </noscript>
+
+  <!-- ============ PODIUM ============ -->
+  <section class="podium-wrap" aria-label="Top three">
+    <div class="podium-cap"><svg class="icon icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4.5h10v3a5 5 0 0 1-10 0Z"/><path d="M7 5.5H4.5V7a3 3 0 0 0 3 3M17 5.5h2.5V7a3 3 0 0 1-3 3"/><path d="M12 12.5V16M9 19.5h6M9.5 19.5l.6-3.5h3.8l.6 3.5"/></svg> Podium · top <b id="podiumLead">3</b> on <b id="podiumMetric">—</b></div>
+    <div class="podium" id="podium"><!-- three .plinth injected --></div>
+  </section>
+
+  <!-- ============ THE BOARD ============ -->
+  <section aria-label="Standings">
+    <div class="board-cap">
+      <h2>Standings</h2>
+      <span class="metric-now" id="metricNow">—</span>
+      <span class="spacer"></span>
+      <span class="shown"><b id="shownCt">0</b> / <b id="totalCt">0</b> ranked</span>
+    </div>
+
+    <div class="lb-head">
+      <span>Rank</span><span>Entry</span><span class="h-val" id="hVal">Value</span><span class="h-tier">Tier</span><span class="h-move">Move</span>
+    </div>
+
+    <div class="board" id="board"><!-- ranked rows injected from entries[] --></div>
+
+    <div class="empty" id="emptyState">
+      <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg>
+      <p>No entries match the current tier filter or search.<br><span class="mono">Clear the tier chips or the search box.</span></p>
+    </div>
+
+    <div class="tier-legend" id="tierLegend"><span class="ll">Tiers</span><!-- legend swatches injected --></div>
+  </section>
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="footer">
+    <svg class="icon icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4V20H20"/><rect x="6.75" y="12" width="3" height="8" rx="1.2"/><rect x="11.5" y="8" width="3" height="12" rx="1.2"/><rect x="16.25" y="14.5" width="3" height="5.5" rx="1.2"/></svg>
+    <span><b id="fCount">0</b> entries ranked</span>
+    <span id="fPeriod">Period · —</span>
+    <span id="fSource">Source · standings</span>
+    <span class="f-spacer"></span>
+    <span class="wm"><span class="sq"></span><span id="fOrg">{{ORG}}</span></span>
+  </footer>
+</main>
+
+<!-- ============================================================
+     THE ONLY CONTENT SOURCE — a valid instance of
+     designs/schemas/leaderboard.schema.json. render() reads this island
+     on DOMContentLoaded and builds the podium, ranked rows, tier chips,
+     metric selector and legend from it; interactions re-rank / recolour live.
+     ============================================================ -->
+<script type="application/json" id="report-data">
+{
+  "meta": {
+    "org": "{{ORG}}",
+    "project": "{{PROJECT}}",
+    "reportType": "{{REPORT_TYPE}}",
+    "title": "Delivery squad standings",
+    "subtitle": "Quarterly performance standings across the twelve delivery squads, ranked on a composite delivery score. Switch the metric to re-rank on throughput or escaped defects.",
+    "date": "{{DATE}}",
+    "author": "Delivery PMO",
+    "period": "Q2 2026",
+    "prevPeriod": "Q1 2026",
+    "theme": "cyan"
+  },
+  "metric": { "key": "score", "label": "Delivery score", "unit": "pts", "betterWhen": "high" },
+  "metrics": [
+    { "key": "score", "label": "Delivery score", "unit": "pts", "betterWhen": "high" },
+    { "key": "throughput", "label": "Throughput", "unit": "/sprint", "betterWhen": "high" },
+    { "key": "escapes", "label": "Escaped defects", "unit": "", "betterWhen": "low" }
+  ],
+  "tiers": [
+    { "label": "Gold", "min": 850, "tone": "ok" },
+    { "label": "Contender", "min": 720, "tone": "brand" },
+    { "label": "Challenger", "min": 0, "tone": "hold" }
+  ],
+  "entries": [
+    { "id": "sq-aurora", "name": "Squad Aurora", "detail": "Payments · Lead: A. Reyes", "icon": "team", "value": 928, "prev": 871, "prevRank": 2, "stats": { "throughput": 47, "escapes": 3, "wins": 9, "streak": "W4" } },
+    { "id": "sq-borealis", "name": "Squad Borealis", "detail": "Core ledger · Lead: M. Tan", "icon": "team", "value": 910, "prev": 933, "prevRank": 1, "stats": { "throughput": 44, "escapes": 5, "wins": 8, "streak": "L1" } },
+    { "id": "sq-cinder", "name": "Squad Cinder", "detail": "Identity · Lead: K. Owusu", "icon": "team", "value": 884, "prev": 802, "prevRank": 5, "stats": { "throughput": 51, "escapes": 4, "wins": 8, "streak": "W3" } },
+    { "id": "sq-delta", "name": "Squad Delta", "detail": "Channels · Lead: J. Becker", "icon": "team", "value": 861, "prev": 858, "prevRank": 4, "stats": { "throughput": 39, "escapes": 6, "wins": 7, "streak": "W1" } },
+    { "id": "sq-ember", "name": "Squad Ember", "detail": "Data platform · Lead: S. Imai", "icon": "team", "value": 838, "prev": 864, "prevRank": 3, "stats": { "throughput": 41, "escapes": 7, "wins": 7, "streak": "L2" } },
+    { "id": "sq-frost", "name": "Squad Frost", "detail": "Risk engine · Lead: P. Novak", "icon": "team", "value": 796, "prev": 744, "prevRank": 8, "stats": { "throughput": 36, "escapes": 5, "wins": 6, "streak": "W2" } },
+    { "id": "sq-glade", "name": "Squad Glade", "detail": "Onboarding · Lead: R. Costa", "icon": "team", "value": 771, "prev": 779, "prevRank": 6, "stats": { "throughput": 33, "escapes": 8, "wins": 6, "streak": "L1" } },
+    { "id": "sq-halo", "name": "Squad Halo", "detail": "Cards · Lead: D. Singh", "icon": "team", "value": 748, "prev": 769, "prevRank": 7, "stats": { "throughput": 31, "escapes": 9, "wins": 5, "streak": "L3" } },
+    { "id": "sq-iris", "name": "Squad Iris", "detail": "Comms · Lead: L. Haas", "icon": "team", "value": 712, "prev": 668, "prevRank": 10, "stats": { "throughput": 29, "escapes": 7, "wins": 5, "streak": "W1" } },
+    { "id": "sq-jet", "name": "Squad Jet", "detail": "Lending · Lead: T. Mori", "icon": "team", "value": 689, "prev": 701, "prevRank": 9, "stats": { "throughput": 27, "escapes": 11, "wins": 4, "streak": "L1" } },
+    { "id": "sq-kite", "name": "Squad Kite", "detail": "Treasury · Lead: B. Quartey", "icon": "team", "value": 654, "prevRank": 11, "stats": { "throughput": 24, "escapes": 12, "wins": 3, "streak": "L4" } },
+    { "id": "sq-lumen", "name": "Squad Lumen", "detail": "Reporting · Lead: E. Vogt", "icon": "team", "value": 618, "stats": { "throughput": 22, "escapes": 14, "wins": 3, "streak": "W1" } }
+  ]
+}
+</script>
+
+<script>
+/* ============================================================
+   Leaderboard behaviour — single inline script, no libraries.
+   ALL content is read from #report-data (JSON) and rendered to the DOM
+   by render() on DOMContentLoaded. Switching the metric re-ranks, rescales
+   the bars and reassigns tiers from that metric; filter/search/sort all
+   operate on the live data so print captures a complete static snapshot.
+   ============================================================ */
+(function(){
+  "use strict";
+
+  const MODEL = JSON.parse(document.getElementById('report-data').textContent);
+  const META = MODEL.meta || {};
+  const TIERS = (MODEL.tiers || []).slice();           // best -> worst as authored
+  const ENTRIES = (MODEL.entries || []).slice();
+  // metric list: prefer metrics[]; else just the default metric. De-dupe by key, default first.
+  const DEFAULT_METRIC = MODEL.metric;
+  let METRICS = (MODEL.metrics && MODEL.metrics.length) ? MODEL.metrics.slice() : [DEFAULT_METRIC];
+  if(DEFAULT_METRIC && !METRICS.some(m => m.key === DEFAULT_METRIC.key)) METRICS.unshift(DEFAULT_METRIC);
+
+  const TONE_CLASS = { ok:'tone-ok', risk:'tone-risk', hold:'tone-hold', brand:'tone-brand' };
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const fmt = n => (typeof n === 'number' ? n.toLocaleString('en-US') : esc(n));
+
+  /* ---- inline SVG icons, keyed by schema icon category + chrome glyphs ---- */
+  const IC = {
+    'team':'<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8.5" r="3"/><path d="M3.5 19.5c0-3 2.5-5 5.5-5s5.5 2 5.5 5"/><path d="M16 6.2a3 3 0 0 1 0 5.6M17.5 14.7c2.2.5 3.5 2.3 3.5 4.8"/></svg>',
+    'user':'<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.4 3-6 7-6s7 2.6 7 6"/></svg>',
+    'finance':'<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M9 9h5M9 12h6M12 8.5v7"/></svg>',
+    'data':'<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4V20H20"/><rect x="6.75" y="12" width="3" height="8" rx="1.2"/><rect x="11.5" y="8" width="3" height="12" rx="1.2"/><rect x="16.25" y="14.5" width="3" height="5.5" rx="1.2"/></svg>',
+    'process':'<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 7a7 7 0 0 1 12-2M19 5v3.5h-3.5"/><path d="M19 17a7 7 0 0 1-12 2M5 19v-3.5h3.5"/></svg>',
+    'security':'<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.25 19 5.75v5.45c0 4.4-3 7.6-7 8.8-4-1.2-7-4.4-7-8.8V5.75Z"/><path d="M9 12l2.2 2.2L15.2 9.6"/></svg>',
+    'generic':'<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.25 6 6v5.2c0 4.2 2.6 6.7 6 8 3.4-1.3 6-3.8 6-8V6Z"/></svg>'
+  };
+  const ARROW_UP   = '<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V6M12 6l-5 5M12 6l5 5"/></svg>';
+  const ARROW_DOWN = '<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v13M12 18l-5-5M12 18l5-5"/></svg>';
+  const DASH       = '<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 12h12"/></svg>';
+
+  const crestFor = e => IC[e.icon] || IC['generic'];
+
+  /* ---- DOM handles ---- */
+  const elPodium   = document.getElementById('podium');
+  const elBoard    = document.getElementById('board');
+  const elTierChips= document.getElementById('tierChips');
+  const elMetricSel= document.getElementById('metricSelect');
+  const elLegend   = document.getElementById('tierLegend');
+
+  /* ---- metric helpers ---- */
+  const metricByKey = k => METRICS.find(m => m.key === k) || METRICS[0];
+  // a metric's value for an entry: default metric reads .value, others read .stats[key]
+  function metricVal(e, m){
+    if(m.key === DEFAULT_METRIC.key && e.value != null) return +e.value;
+    const s = e.stats || {};
+    return s[m.key] != null ? +s[m.key] : (e.value != null ? +e.value : 0);
+  }
+  function prevVal(e, m){
+    if(m.key === DEFAULT_METRIC.key) return e.prev != null ? +e.prev : null;
+    return null; // only the default metric carries a previous value in this schema
+  }
+
+  /* ---- tier assignment, normalised to the ACTIVE metric's range ----
+     Tiers are authored on the default-metric scale (best -> worst by min).
+     For another metric we map each tier's min proportionally into that
+     metric's [min,max] so the leading values still land in the top tier.
+     For betterWhen:'low' metrics we invert, so smallest values are "top". */
+  function tierScales(m){
+    const vals = ENTRIES.map(e => metricVal(e, m));
+    const mn = Math.min.apply(null, vals), mx = Math.max.apply(null, vals);
+    const span = (mx - mn) || 1;
+    // default-metric authored range, to normalise authored tier mins onto [0,1]
+    const dvals = ENTRIES.map(e => metricVal(e, DEFAULT_METRIC));
+    const dmn = Math.min.apply(null, dvals), dmx = Math.max.apply(null, dvals);
+    const dspan = (dmx - dmn) || 1;
+    return {mn, mx, span, dmn, dspan, low: m.betterWhen === 'low'};
+  }
+  // "goodness" 0..1 (1 = best on the active metric, honouring direction)
+  function goodness(e, m, sc){
+    const v = metricVal(e, m);
+    const t = (v - sc.mn) / sc.span;       // 0..1 within active metric range
+    return sc.low ? (1 - t) : t;
+  }
+  function tierFor(e, m, sc){
+    const g = goodness(e, m, sc);
+    // map authored tier mins (default scale) to 0..1 goodness thresholds
+    for(let i = 0; i < TIERS.length; i++){
+      const thr = (TIERS[i].min - sc.dmn) / sc.dspan;
+      if(g + 1e-9 >= thr) return { tier: TIERS[i], idx: i };
+    }
+    return { tier: TIERS[TIERS.length - 1], idx: TIERS.length - 1 };
+  }
+  const toneClassFor = tier => TONE_CLASS[tier && tier.tone] || 'tone-brand';
+
+  /* ---- live state ---- */
+  let metricKey = (DEFAULT_METRIC && DEFAULT_METRIC.key) || (METRICS[0] && METRICS[0].key);
+  let bestFirst = true;                         // sort direction
+  const tierFilter = new Set();                 // empty = all tiers
+  let q = "";
+
+  /* ---- compute the ranked, filtered view for the active metric ---- */
+  function computeView(){
+    const m = metricByKey(metricKey);
+    const sc = tierScales(m);
+    // rank: betterWhen high -> descending; low -> ascending. bestFirst flips it.
+    const rows = ENTRIES.map(e => {
+      const v = metricVal(e, m);
+      const ti = tierFor(e, m, sc);
+      return { e, v, tier: ti.tier, tierIdx: ti.idx, good: goodness(e, m, sc) };
+    });
+    rows.sort((a,b) => b.good - a.good);          // best first by goodness
+    if(!bestFirst) rows.reverse();
+    // assign live ranks from the best-first order (rank is by goodness, independent of display flip)
+    const byGood = rows.slice().sort((a,b) => b.good - a.good);
+    byGood.forEach((r,i) => { r.rank = i + 1; });
+    // bar scaling: relative to the leading *value* on the active metric (max for high, min->full for low)
+    const vmax = Math.max.apply(null, rows.map(r => r.v));
+    const vmin = Math.min.apply(null, rows.map(r => r.v));
+    rows.forEach(r => {
+      r.pct = sc.low
+        ? (r.v <= vmin ? 100 : Math.max(8, Math.round((vmin / r.v) * 100)))     // smaller = fuller
+        : (vmax ? Math.max(6, Math.round((r.v / vmax) * 100)) : 0);
+    });
+    return { m, sc, rows };
+  }
+
+  /* ---- movement chip (default metric only carries prev/prevRank) ---- */
+  function moveHTML(r){
+    const e = r.e;
+    if(e.prevRank == null) return `<span class="move move-new">NEW</span>`;
+    const d = e.prevRank - r.rank;                // +ve = climbed
+    if(d > 0)  return `<span class="move move-up" title="Up ${d} from #${e.prevRank}">${ARROW_UP}${d}</span>`;
+    if(d < 0)  return `<span class="move move-down" title="Down ${-d} from #${e.prevRank}">${ARROW_DOWN}${-d}</span>`;
+    return `<span class="move move-flat" title="Held #${r.rank}">${DASH}</span>`;
+  }
+
+  /* ---- secondary stats strip (+ value delta vs prev on the default metric) ---- */
+  function statsHTML(r, m){
+    const e = r.e, bits = [];
+    const pv = prevVal(e, m);
+    if(pv != null){
+      const dv = r.v - pv, cls = dv > 0 ? 'up' : (dv < 0 ? 'down' : 'flat'), sign = dv > 0 ? '+' : '';
+      bits.push(`<span class="stat"><span class="k">${esc(m.label)} prev</span><span class="v">${fmt(pv)}</span><span class="delta ${cls}">${sign}${fmt(dv)}</span></span>`);
+    }
+    if(e.prevRank != null) bits.push(`<span class="stat"><span class="k">Prev rank</span><span class="v">#${e.prevRank}</span></span>`);
+    // descriptive stats (skip keys that are themselves switchable metrics — those drive the bar)
+    const metricKeys = new Set(METRICS.map(x => x.key));
+    Object.keys(e.stats || {}).forEach(k => {
+      if(metricKeys.has(k)) {
+        const mm = metricByKey(k);
+        bits.push(`<span class="stat"><span class="k">${esc(mm.label)}</span><span class="v">${fmt(e.stats[k])}${mm.unit ? '<span class="k" style="margin-left:3px">'+esc(mm.unit)+'</span>' : ''}</span></span>`);
+      } else {
+        bits.push(`<span class="stat"><span class="k">${esc(k)}</span><span class="v">${fmt(e.stats[k])}</span></span>`);
+      }
+    });
+    return bits.length ? `<div class="lb-extra"><div class="stats">${bits.join('')}</div></div>` : '';
+  }
+
+  /* ---- a single ranked row ---- */
+  function rowHTML(r, m){
+    const e = r.e, tone = toneClassFor(r.tier);
+    const unit = m.unit ? `<span class="u">${esc(m.unit)}</span>` : '';
+    const top3 = r.rank <= 3 ? ' is-top3' : '';
+    return `
+    <div class="lb-row ${tone}${top3}" data-id="${esc(e.id)}" data-tier="${esc(r.tier.label)}" data-blob="${esc((e.name+' '+(e.detail||'')).toLowerCase())}" tabindex="0">
+      <span class="rank"><span class="hash">#</span>${r.rank}</span>
+      <div class="lb-name-cell">
+        <span class="crest">${crestFor(e)}</span>
+        <span class="lb-name"><span class="nm">${esc(e.name)}</span>${e.detail ? `<span class="lb-detail">${esc(e.detail)}</span>` : ''}</span>
+      </div>
+      <div class="bar"><span class="track"><i class="bar-fill" style="width:${r.pct}%"></i></span><span class="bar-val">${fmt(r.v)}${unit}</span></div>
+      <span class="tier-chip">${esc(r.tier.label)}</span>
+      ${moveHTML(r)}
+      ${statsHTML(r, m)}
+    </div>`;
+  }
+
+  /* ---- a podium plinth (place 1..3) ---- */
+  function plinthHTML(r, m, place){
+    const e = r.e, tone = toneClassFor(r.tier);
+    const unit = m.unit ? `<span class="plinth-unit"> ${esc(m.unit)}</span>` : '';
+    return `
+    <div class="plinth p${place} ${tone}">
+      <span class="medal">${r.rank}</span>
+      <span class="crest">${crestFor(e)}</span>
+      <span class="plinth-name">${esc(e.name)}</span>
+      ${e.detail ? `<span class="plinth-detail">${esc(e.detail)}</span>` : ''}
+      <span class="plinth-val">${fmt(r.v)}${unit}</span>
+      ${moveHTML(r)}
+      <span class="riser"></span>
+    </div>`;
+  }
+
+  /* ---- tier filter chips (counts from current metric assignment) ---- */
+  function renderTierChips(view){
+    const counts = {};
+    view.rows.forEach(r => { counts[r.tier.label] = (counts[r.tier.label]||0) + 1; });
+    let html = '<span class="tool-label">Tier</span>';
+    TIERS.forEach(t => {
+      const tone = toneClassFor(t), on = tierFilter.has(t.label);
+      html += `<button class="filter-chip ${tone}" data-tier="${esc(t.label)}" aria-pressed="${on}" type="button"><span class="swatch"></span>${esc(t.label)} <span class="ct">${counts[t.label]||0}</span></button>`;
+    });
+    elTierChips.innerHTML = html;
+    elTierChips.querySelectorAll('.filter-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        const lab = chip.dataset.tier;
+        tierFilter.has(lab) ? tierFilter.delete(lab) : tierFilter.add(lab);
+        update();
+      });
+    });
+  }
+
+  /* ---- tier legend (ranges on the active metric) ---- */
+  function renderLegend(view){
+    const sc = view.sc;
+    let html = '<span class="ll">Tiers</span>';
+    TIERS.forEach((t,i) => {
+      const tone = toneClassFor(t);
+      // show the authored min mapped back into the active metric's value space (informational)
+      const thrGood = (t.min - sc.dmn) / sc.dspan;          // 0..1 goodness threshold
+      const val = sc.low ? Math.round(sc.mx - thrGood * sc.span) : Math.round(sc.mn + thrGood * sc.span);
+      const rng = sc.low ? `≤ ${fmt(val)}` : `≥ ${fmt(val)}`;
+      html += `<span class="leg ${tone}"><span class="swatch"></span>${esc(t.label)} <span class="rng">${rng}</span></span>`;
+    });
+    elLegend.innerHTML = html;
+  }
+
+  /* ---- metric selector ---- */
+  function renderMetricSelect(){
+    elMetricSel.innerHTML = METRICS.map(m =>
+      `<option value="${esc(m.key)}">${esc(m.label)}${m.unit ? ' ('+esc(m.unit)+')' : ''}</option>`).join('');
+    elMetricSel.value = metricKey;
+    elMetricSel.addEventListener('change', () => { metricKey = elMetricSel.value; tierFilter.clear(); update(); });
+  }
+
+  /* ---- meta / chrome ---- */
+  function renderMeta(){
+    const set = (id, v) => { const el = document.getElementById(id); if(el) el.textContent = v; };
+    set('wmOrg', META.org || '{{ORG}}'); set('wmProj', META.project || '{{PROJECT}}');
+    set('fOrg', META.org || '{{ORG}}');
+    set('mhEyebrow', META.reportType || ''); set('mhTitle', META.title || 'Standings');
+    set('mhSub', META.subtitle || '');
+    set('mhPeriod', META.period || (META.date || '—'));
+    set('mhPrev', META.prevPeriod ? ('vs ' + META.prevPeriod) : '');
+    set('fPeriod', 'Period · ' + (META.period || META.date || '—') + (META.prevPeriod ? ' (vs '+META.prevPeriod+')' : ''));
+    set('fSource', 'Source · ' + (META.reportType || 'standings') + (META.date ? ' · ' + META.date : ''));
+    set('totalCt', ENTRIES.length); set('fCount', ENTRIES.length);
+    document.title = (META.reportType ? META.reportType + ' — ' : '') + (META.title || 'Standings') + (META.project ? ' · ' + META.project : '');
+    const theme = META.theme || 'cyan';
+    document.documentElement.setAttribute('data-theme', theme);
+    const rcSel = elThemeDots.querySelector('.rc-theme-sel');
+    if(rcSel) rcSel.value = theme;
+  }
+
+  /* ---- the main update: recompute view from metric/sort, apply filter+search, paint ---- */
+  function update(){
+    const view = computeView();
+    const m = view.m;
+    renderTierChips(view);
+    renderLegend(view);
+
+    // metric-now badge + podium caption + value header
+    document.getElementById('metricNow').innerHTML = esc(m.label) + (m.unit ? ' <span class="dir">'+esc(m.unit)+'</span>' : '') + ` <span class="dir">· ${m.betterWhen === 'low' ? 'lower is better' : 'higher is better'}</span>`;
+    document.getElementById('podiumMetric').textContent = m.label;
+    document.getElementById('hVal').textContent = m.label + (m.unit ? ' ('+m.unit+')' : '');
+
+    // filter (tier + search) on the ranked rows
+    const visible = view.rows.filter(r => {
+      if(tierFilter.size && !tierFilter.has(r.tier.label)) return false;
+      if(q && !((r.e.name+' '+(r.e.detail||'')).toLowerCase().includes(q))) return false;
+      return true;
+    });
+
+    // podium = the top 3 by rank that are currently visible
+    const top3 = visible.slice().sort((a,b)=>a.rank-b.rank).slice(0,3);
+    // order plinths visually: p2 (left), p1 (centre), p3 (right)
+    const order = [top3[1], top3[0], top3[2]].filter(Boolean);
+    const placeOf = r => (top3[0]===r?1:top3[1]===r?2:3);
+    elPodium.innerHTML = order.map(r => plinthHTML(r, m, placeOf(r))).join('') || '';
+    document.getElementById('podiumLead').textContent = Math.min(3, top3.length);
+
+    // board rows (in display order = current sort)
+    elBoard.innerHTML = visible.map(r => rowHTML(r, m)).join('');
+
+    // search emphasis
+    if(q){
+      elBoard.querySelectorAll('.lb-row').forEach(row => {
+        const hit = row.dataset.blob.includes(q);
+        row.classList.toggle('is-hit', hit);
+        row.classList.toggle('dim', !hit);
+      });
+      const first = elBoard.querySelector('.lb-row.is-hit');
+      if(first) first.scrollIntoView({block:'center', behavior:'smooth'});
+    }
+
+    document.getElementById('shownCt').textContent = visible.length;
+    document.getElementById('emptyState').style.display = visible.length ? 'none' : 'block';
+  }
+
+  /* ---- wire controls ---- */
+  document.getElementById('search').addEventListener('input', e => { q = e.target.value.trim().toLowerCase(); update(); });
+
+  const dirBtn = document.getElementById('dirToggle');
+  dirBtn.addEventListener('click', () => {
+    bestFirst = !bestFirst;
+    dirBtn.setAttribute('aria-pressed', String(!bestFirst));
+    document.getElementById('dirLabel').textContent = bestFirst ? 'Best first' : 'Worst first';
+    update();
+  });
+
+  const elThemeDots = document.getElementById('themeDots');
+  const elRcSel = elThemeDots.querySelector('.rc-theme-sel');
+  if(elRcSel) elRcSel.addEventListener('change', () => { document.documentElement.dataset.theme = elRcSel.value; });
+
+  /* ---- init ---- */
+  function init(){ renderMeta(); renderMetricSelect(); update(); }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,1134 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="cyan">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1440">
+<title>{{PROJECT}} Status — Platform service status · {{ORG}}</title>
+
+<!-- ============================================================
+     STATUS PAGE — service status / uptime page. Data-driven, interactive, themeable.
+     A current-status BANNER (label + colour DERIVED from the worst current component)
+     + per-component UPTIME-HISTORY day-bar strips (90/60/30-day window selector) +
+     a PAST-INCIDENTS feed grouped by date (expandable update timelines) + a
+     SCHEDULED-MAINTENANCE section. This is uptime HISTORY + incident COMMS — NOT a
+     live-metric dashboard (no KPI tiles) and NOT a single-incident postmortem.
+     Self-contained: #report-data JSON is the ONLY content source; inline CSS (9
+     data-theme blocks incl Black) + inline SVG icons + ONE inline render() script.
+     No external requests. Default theme: cyan. PC-wide (centred ~1180px).
+     ============================================================ -->
+
+<!-- ====== CONTENT SOURCE — the ONLY place data lives (valid schema instance) ====== -->
+<script type="application/json" id="report-data">
+{
+  "meta": {
+    "org": "{{ORG}}",
+    "project": "{{PROJECT}}",
+    "reportType": "Service Status",
+    "title": "Platform Status",
+    "subtitle": "Live operational status, 90-day uptime history, and incident communications for the {{PROJECT}} platform.",
+    "date": "2026-06-22",
+    "author": "{{AUTHOR}}",
+    "theme": "cyan"
+  },
+  "windows": [90, 60, 30],
+  "asOf": "2026-06-22T09:40:00+09:00",
+  "groups": [
+    { "id": "edge",     "name": "Edge & Access" },
+    { "id": "core",     "name": "Core Services" },
+    { "id": "data",     "name": "Data & Async" }
+  ],
+  "components": [
+    {
+      "id": "api", "groupId": "edge", "name": "API Gateway",
+      "description": "Public REST / GraphQL ingress and routing.",
+      "days": "__GEN__"
+    },
+    {
+      "id": "auth", "groupId": "edge", "name": "Authentication",
+      "description": "Sign-in, token issuance, and session validation.",
+      "days": "__GEN__"
+    },
+    {
+      "id": "payments", "groupId": "core", "name": "Payments",
+      "description": "Authorisation, capture, and settlement of transactions.",
+      "days": "__GEN__"
+    },
+    {
+      "id": "notifications", "groupId": "core", "name": "Notifications",
+      "description": "Email, push, and webhook delivery.",
+      "days": "__GEN__"
+    },
+    {
+      "id": "batch", "groupId": "data", "name": "Batch Processing",
+      "description": "Scheduled reconciliation and reporting jobs.",
+      "days": "__GEN__"
+    },
+    {
+      "id": "db", "groupId": "data", "name": "Primary Database",
+      "description": "Transactional datastore and read replicas.",
+      "days": "__GEN__"
+    }
+  ],
+  "incidents": [
+    {
+      "date": "2026-06-22",
+      "title": "Elevated error rate on Payments authorisation",
+      "severity": "partial",
+      "status": "monitoring",
+      "components": ["payments", "api"],
+      "updates": [
+        { "time": "2026-06-22T08:12:00+09:00", "status": "investigating", "body": "We are investigating elevated 5xx responses on the Payments authorisation endpoint. Some authorisation requests may be failing or retrying." },
+        { "time": "2026-06-22T08:34:00+09:00", "status": "identified", "body": "A connection-pool exhaustion on the Payments service was identified after a downstream datastore slowdown. Pool limits have been raised and saturated instances are recycling." },
+        { "time": "2026-06-22T09:05:00+09:00", "status": "monitoring", "body": "Error rate has returned to baseline. Authorisations are succeeding normally; we are monitoring for recurrence before declaring resolution." }
+      ]
+    },
+    {
+      "date": "2026-06-18",
+      "title": "Notification delivery delays",
+      "severity": "degraded",
+      "status": "resolved",
+      "components": ["notifications"],
+      "updates": [
+        { "time": "2026-06-18T14:02:00+09:00", "status": "investigating", "body": "Customers may experience delays of up to 20 minutes in email and push notifications. Webhook delivery is unaffected." },
+        { "time": "2026-06-18T14:48:00+09:00", "status": "identified", "body": "A backlog accumulated in the notification queue after a worker deployment failed its readiness probe. The previous worker version has been restored." },
+        { "time": "2026-06-18T15:30:00+09:00", "status": "monitoring", "body": "The queue is draining steadily. Notification latency is approaching normal levels." },
+        { "time": "2026-06-18T16:10:00+09:00", "status": "resolved", "body": "The backlog has cleared and notification delivery has fully recovered. A guardrail has been added to block deploys that fail readiness checks." }
+      ]
+    },
+    {
+      "date": "2026-06-11",
+      "title": "Primary Database failover",
+      "severity": "major",
+      "status": "resolved",
+      "components": ["db", "payments", "api", "auth"],
+      "updates": [
+        { "time": "2026-06-11T02:41:00+09:00", "status": "investigating", "body": "We are investigating a widespread elevation in request errors across the platform. Multiple services are returning timeouts." },
+        { "time": "2026-06-11T02:53:00+09:00", "status": "identified", "body": "The primary database became unresponsive following a storage-layer fault. An automatic failover to the standby replica has been triggered." },
+        { "time": "2026-06-11T03:08:00+09:00", "status": "monitoring", "body": "Failover to the standby completed and services are recovering. Read and write traffic is being served by the promoted replica." },
+        { "time": "2026-06-11T03:45:00+09:00", "status": "resolved", "body": "All services have returned to normal operation. No data loss occurred; the replication lag at failover was under one second. A full incident review is scheduled." }
+      ]
+    }
+  ],
+  "maintenance": [
+    {
+      "window": "2026-06-26T22:00:00+09:00/2026-06-27T01:00:00+09:00",
+      "title": "Primary Database engine upgrade",
+      "status": "scheduled",
+      "components": ["db", "payments"],
+      "body": "The primary database will be upgraded to the next major engine version. A brief failover to the standby is expected near the start of the window; clients should retry on transient connection errors. No data loss is anticipated."
+    },
+    {
+      "window": "2026-07-02T23:00:00+09:00/2026-07-03T00:30:00+09:00",
+      "title": "Edge certificate rotation",
+      "status": "scheduled",
+      "components": ["api", "auth"],
+      "body": "TLS certificates on the edge will be rotated. Long-lived connections may be reset once during the window and should reconnect automatically."
+    }
+  ]
+}
+</script>
+
+<style>
+/* ============================================================
+   STATUS PAGE — service status / uptime page
+   Inherits the family DNA from designs/_FOUNDATION.md + _DATA_DRIVEN.md.
+   Default theme: Cyan (shipped in :root). Self-contained.
+   Content is rendered from #report-data by render() on DOMContentLoaded.
+   ============================================================ */
+
+/* ---- 1. tokens (Cyan is the default for this format) ---- */
+:root{
+  /* surfaces */
+  --bg:#fff; --bg-band:#f6f6f8; --bg-subtle:#fafafb; --bg-deep:#15131a;
+  --rule:#dcdce2; --rule-soft:#ebebef;
+  /* ink */
+  --ink:#11131a; --ink-mid:#33363f; --ink-soft:#5a5e68; --ink-faint:#868b95;
+  /* brand accent — CYAN default */
+  --navy:#0891b2; --navy-deep:#0e6f88; --navy-bg:#e2f4f9; --navy-line:#abdde9;
+  /* cleared / approved */
+  --ok:#0e6b7a; --ok-bg:#e4f3f4; --ok-line:#b0dde2;
+  /* semantic states — CONSTANT across all themes */
+  --risk:#b3261e; --risk-bg:#fbeceb; --risk-line:#edc7c4;
+  --hold:#8a6d00; --hold-bg:#fbf3da; --hold-line:#e7d8a4;
+  /* type stacks (CJK-aware --sans) */
+  --mono:ui-monospace,"JetBrains Mono","SFMono-Regular",Menlo,Consolas,monospace;
+  --sans:-apple-system,"Segoe UI",system-ui,Roboto,"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic UI","Apple SD Gothic Neo","Malgun Gothic","PingFang SC","Microsoft YaHei","Noto Sans CJK JP","Noto Sans CJK KR","Noto Sans CJK SC","Noto Sans JP","Noto Sans KR","Noto Sans SC","Noto Sans",sans-serif;
+  /* page geometry — status page is intentionally narrower (still PC) */
+  --page:1180px;
+  --shadow:0 1px 2px rgba(17,19,26,.045);
+  --shadow-rail:0 1px 3px rgba(17,19,26,.05);
+}
+/* alternate theme swaps (all 9 per _FOUNDATION §1 / _DATA_DRIVEN §3 — Black mandatory) */
+html[data-theme="blue"]  { --navy:#0b5fd4; --navy-deep:#0842a0; --navy-bg:#e8f1fc; --navy-line:#bcd6f5; --ok:#1a4f9c; --ok-bg:#e9f0fa; --ok-line:#b7cdea; }
+html[data-theme="purple"]{ --navy:#a100ff; --navy-deep:#7a00c2; --navy-bg:#f3e8ff; --navy-line:#d9bef5; --ok:#5a2f8a; --ok-bg:#efe8f5; --ok-line:#d0b5e0; }
+html[data-theme="indigo"]{ --navy:#4338ca; --navy-deep:#312c92; --navy-bg:#ebebfb; --navy-line:#c7c3f0; --ok:#3730a3; --ok-bg:#ebeaf7; --ok-line:#c5c2ea; }
+html[data-theme="teal"]  { --navy:#0e7c86; --navy-deep:#095861; --navy-bg:#e0f3f4; --navy-line:#a9dade; --ok:#0f5d54; --ok-bg:#e3f3ef; --ok-line:#b3ddd4; }
+html[data-theme="cyan"]  { --navy:#0891b2; --navy-deep:#0e6f88; --navy-bg:#e2f4f9; --navy-line:#abdde9; --ok:#0e6b7a; --ok-bg:#e4f3f4; --ok-line:#b0dde2; }
+html[data-theme="green"] { --navy:#1f7a44; --navy-deep:#155730; --navy-bg:#e6f4ea; --navy-line:#b3dcc1; --ok:#2f6b3c; --ok-bg:#e9f3ea; --ok-line:#bedcc4; }
+html[data-theme="plum"]  { --navy:#a21d6e; --navy-deep:#7c1450; --navy-bg:#fbe8f2; --navy-line:#e8b9d4; --ok:#6d2356; --ok-bg:#f6e8f0; --ok-line:#e3bcd5; }
+html[data-theme="slate"] { --navy:#3f4f63; --navy-deep:#29384b; --navy-bg:#eef1f5; --navy-line:#c2ccd8; --ok:#34495e; --ok-bg:#eef1f5; --ok-line:#c2ccd8; }
+html[data-theme="black"] { --navy:#000000; --navy-deep:#000000; --navy-bg:#f1f1f3; --navy-line:#d6d6db; --ok:#3f3f46; --ok-bg:#f1f1f3; --ok-line:#cfcfd6; }
+
+*{ box-sizing:border-box; }
+html,body{ margin:0; }
+body{
+  font:13px/1.6 var(--sans); color:var(--ink);
+  background:var(--bg-band);
+  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+}
+code{ font-family:var(--mono); }
+.tnum{ font-feature-settings:"tnum" 1; font-variant-numeric:tabular-nums; }
+
+/* ---- icons ---- */
+.icon{ width:1.15em; height:1.15em; display:inline-block; vertical-align:-.18em; color:inherit; flex:none; }
+.icon-sm{ width:14px; height:14px; }
+
+/* ---- shared primitives: status badge / dot / chip ---- */
+.st-badge{
+  display:inline-flex; align-items:center; gap:.42em;
+  font:600 11px/1 var(--sans); padding:4px 9px 4px 8px; border-radius:6px;
+  border:1px solid var(--rule); color:var(--ink-mid); background:var(--bg);
+  white-space:nowrap;
+}
+.st-badge::before{ content:""; width:7px; height:7px; border-radius:50%; background:var(--ink-faint); flex:none; }
+.st-ok{ color:var(--ok); background:var(--ok-bg); border-color:var(--ok-line); }
+.st-ok::before{ background:var(--ok); }
+.st-risk{ color:var(--risk); background:var(--risk-bg); border-color:var(--risk-line); }
+.st-risk::before{ background:var(--risk); }
+.st-hold{ color:var(--hold); background:var(--hold-bg); border-color:var(--hold-line); }
+.st-hold::before{ background:var(--hold); }
+.mini-dot{ display:inline-block; width:9px; height:9px; border-radius:50%; background:var(--ink-faint); flex:none; }
+.mini-dot.ok{ background:var(--ok); } .mini-dot.hold{ background:var(--hold); } .mini-dot.risk{ background:var(--risk); }
+.chip{
+  display:inline-flex; align-items:center; gap:.35em;
+  font:600 10.5px/1 var(--mono); letter-spacing:.02em;
+  padding:3px 8px; border-radius:6px;
+  background:var(--navy-bg); color:var(--navy-deep); border:1px solid var(--navy-line);
+}
+.muted{ color:var(--ink-faint); }
+.mlabel{ font:600 10px/1.4 var(--mono); letter-spacing:.1em; text-transform:uppercase; color:var(--ink-faint); }
+
+/* ---- noscript banner ---- */
+.noscript-note{
+  margin:0; padding:14px 22px; background:var(--hold-bg); color:var(--hold);
+  border-bottom:1px solid var(--hold-line); font:600 12.5px/1.5 var(--sans);
+}
+.noscript-note code{ font:600 11.5px/1 var(--mono); }
+
+/* ============================================================
+   2. PAGE SHELL — centred, intentionally narrow status page
+   ============================================================ */
+.sp-page{ max-width:var(--page); margin:0 auto; padding:0 24px 40px; }
+
+/* ---- masthead row (brand + as-of + controls) ---- */
+.sp-mast{
+  display:flex; align-items:center; gap:14px; flex-wrap:wrap;
+  padding:22px 2px 16px;
+}
+.sp-brand{ display:flex; align-items:center; gap:11px; min-width:0; }
+.sp-mark{
+  width:38px; height:38px; border-radius:10px;
+  background:var(--navy); color:#fff; flex:none;
+  display:grid; place-items:center; font:800 16px/1 var(--sans); letter-spacing:-.02em;
+  box-shadow:0 1px 0 rgba(255,255,255,.14) inset;
+}
+.sp-brand h1{ margin:0; font:800 18px/1.15 var(--sans); letter-spacing:-.01em; color:var(--ink); }
+.sp-brand .sub{ font:600 10.5px/1.3 var(--mono); letter-spacing:.06em; text-transform:uppercase; color:var(--ink-faint); margin-top:3px; }
+.sp-mast-sp{ flex:1 1 auto; }
+.sp-asof{ display:inline-flex; align-items:center; gap:6px; font:600 11.5px/1 var(--sans); color:var(--ink-soft); white-space:nowrap; }
+.sp-asof .icon{ width:14px; height:14px; color:var(--navy); }
+.sp-asof b{ color:var(--ink-mid); font-feature-settings:"tnum" 1; }
+
+/* theme switcher (MANDATORY, canonical dropdown per _DATA_DRIVEN §3) */
+.rc-theme{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--rule);border-radius:7px;padding:3px 4px 3px 7px;background:var(--bg);}
+.rc-theme-sw{width:12px;height:12px;border-radius:50%;background:var(--navy);box-shadow:0 0 0 1px var(--rule);flex:none;}
+.rc-theme-sel{border:0;background:none;font:600 11px/1 var(--mono);color:var(--ink-mid);cursor:pointer;outline:none;padding:2px;}
+@media print{.rc-theme{display:none;}}
+
+/* ============================================================
+   3. OVERALL STATUS BANNER (colour + label DERIVED from worst component)
+   ============================================================ */
+.sp-banner{
+  display:flex; align-items:center; gap:16px;
+  border:1px solid var(--ok-line); background:var(--ok-bg);
+  border-radius:14px; padding:18px 20px; margin-bottom:8px;
+  box-shadow:var(--shadow);
+}
+.sp-banner.is-hold{ border-color:var(--hold-line); background:var(--hold-bg); }
+.sp-banner.is-risk{ border-color:var(--risk-line); background:var(--risk-bg); }
+.sp-banner-ico{
+  width:44px; height:44px; border-radius:12px; flex:none;
+  display:grid; place-items:center; background:var(--bg);
+  border:1px solid var(--ok-line); color:var(--ok);
+}
+.sp-banner.is-hold .sp-banner-ico{ border-color:var(--hold-line); color:var(--hold); }
+.sp-banner.is-risk .sp-banner-ico{ border-color:var(--risk-line); color:var(--risk); }
+.sp-banner-ico .icon{ width:24px; height:24px; }
+.sp-banner-txt{ min-width:0; flex:1 1 auto; }
+.sp-banner-txt h2{ margin:0; font:800 19px/1.2 var(--sans); letter-spacing:-.01em; color:var(--ok); }
+.sp-banner.is-hold .sp-banner-txt h2{ color:var(--hold); }
+.sp-banner.is-risk .sp-banner-txt h2{ color:var(--risk); }
+.sp-banner-txt p{ margin:4px 0 0; font:600 12px/1.5 var(--sans); color:var(--ink-mid); }
+.sp-banner-roll{ display:flex; gap:18px; flex:none; }
+.sp-banner-roll div{ text-align:right; }
+.sp-banner-roll b{ display:block; font:800 20px/1 var(--mono); letter-spacing:-.02em; color:var(--ink); }
+.sp-banner-roll em{ font:600 9.5px/1.3 var(--mono); font-style:normal; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-faint); }
+@media(max-width:760px){ .sp-banner-roll{ display:none; } }
+
+/* ---- controls bar (window selector + only-issues toggle + group chips) ---- */
+.sp-controls{
+  display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+  margin:16px 0 14px; padding:11px 2px;
+  border-bottom:1px solid var(--rule-soft);
+}
+.sp-controls .lbl{ font:600 10px/1.4 var(--mono); letter-spacing:.1em; text-transform:uppercase; color:var(--ink-faint); }
+.sp-winsel{ display:inline-flex; border:1px solid var(--rule); border-radius:8px; overflow:hidden; }
+.sp-winsel button{
+  border:0; background:var(--bg); cursor:pointer;
+  font:600 11px/1 var(--mono); letter-spacing:.03em; color:var(--ink-soft);
+  padding:6px 11px; border-right:1px solid var(--rule-soft); transition:background .12s,color .12s;
+}
+.sp-winsel button:last-child{ border-right:0; }
+.sp-winsel button:hover{ background:var(--navy-bg); color:var(--navy-deep); }
+.sp-winsel button.on{ background:var(--navy); color:#fff; }
+.sp-toggle{
+  display:inline-flex; align-items:center; gap:8px; cursor:pointer;
+  font:600 11px/1 var(--sans); color:var(--ink-soft); user-select:none;
+  padding:5px 10px; border:1px solid var(--rule); border-radius:8px; background:var(--bg);
+  transition:background .12s,color .12s,border-color .12s;
+}
+.sp-toggle:hover{ border-color:var(--navy-line); color:var(--ink-mid); }
+.sp-toggle .sw{ width:30px; height:16px; border-radius:9px; background:var(--rule); position:relative; transition:background .15s; flex:none; }
+.sp-toggle .sw::after{ content:""; position:absolute; top:2px; left:2px; width:12px; height:12px; border-radius:50%; background:#fff; box-shadow:0 1px 2px rgba(0,0,0,.2); transition:left .15s; }
+.sp-toggle.on{ color:var(--navy-deep); border-color:var(--navy-line); background:var(--navy-bg); }
+.sp-toggle.on .sw{ background:var(--navy); }
+.sp-toggle.on .sw::after{ left:16px; }
+.sp-ctl-sp{ flex:1 1 auto; }
+.sp-groupchips{ display:inline-flex; gap:6px; flex-wrap:wrap; }
+.sp-gchip{
+  display:inline-flex; align-items:center; gap:6px; cursor:pointer;
+  font:600 10.5px/1 var(--mono); letter-spacing:.03em; color:var(--ink-soft);
+  border:1px solid var(--rule); background:var(--bg); border-radius:6px; padding:5px 9px;
+  transition:background .12s,color .12s,border-color .12s;
+}
+.sp-gchip:hover{ border-color:var(--navy-line); color:var(--navy-deep); }
+.sp-gchip.on{ background:var(--navy-bg); color:var(--navy-deep); border-color:var(--navy-line); }
+.sp-gchip .n{ font-weight:700; color:var(--ink-faint); }
+.sp-gchip.on .n{ color:var(--navy-deep); }
+
+/* ============================================================
+   4. COMPONENT GROUPS — each a panel; rows = dot + name + day-bars + uptime%
+   ============================================================ */
+.sp-group{
+  background:var(--bg); border:1px solid var(--rule); border-radius:12px;
+  box-shadow:var(--shadow); margin-bottom:16px; overflow:hidden;
+}
+.sp-group.is-hidden{ display:none; }
+.sp-group-hd{
+  display:flex; align-items:center; gap:9px;
+  padding:11px 16px; border-bottom:1px solid var(--rule-soft); background:var(--bg-subtle);
+}
+.sp-group-hd h3{ margin:0; font:700 12.5px/1.1 var(--sans); color:var(--ink); }
+.sp-group-hd .icon{ width:15px; height:15px; color:var(--navy); }
+.sp-group-hd .grp-meta{ margin-left:auto; font:600 10px/1.4 var(--mono); letter-spacing:.08em; text-transform:uppercase; color:var(--ink-faint); }
+
+/* one component row */
+.sp-comp{
+  display:grid; grid-template-columns:206px 1fr 96px; align-items:center; gap:16px;
+  padding:13px 16px; border-bottom:1px solid var(--rule-soft);
+}
+.sp-comp:last-child{ border-bottom:0; }
+.sp-comp.is-hidden{ display:none; }
+.sp-comp-name{ display:flex; align-items:center; gap:9px; min-width:0; }
+.sp-comp-name .nm{ font:600 13px/1.3 var(--sans); color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.sp-comp-name .nm small{ display:block; font:600 10.5px/1.3 var(--mono); color:var(--ink-faint); margin-top:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+/* ---- the uptime-history day-bar strip (signature) ---- */
+.sp-uptime{ position:relative; }
+.sp-daybars{ display:flex; align-items:stretch; gap:2px; height:34px; }
+.sp-daybar{
+  flex:1 1 0; min-width:0; border-radius:3px; height:100%;
+  background:var(--ok); cursor:default; transition:filter .1s, transform .1s;
+}
+.sp-daybar.ok{ background:var(--ok); }
+.sp-daybar.hold{ background:var(--hold); }
+.sp-daybar.risk{ background:var(--risk); }
+.sp-daybar:hover{ filter:brightness(1.12); transform:scaleY(1.08); }
+.sp-uptime-foot{
+  display:flex; justify-content:space-between; margin-top:6px;
+  font:600 9.5px/1 var(--mono); letter-spacing:.04em; color:var(--ink-faint);
+}
+.sp-uptime-pct{ text-align:right; }
+.sp-uptime-pct b{ display:block; font:800 16px/1 var(--mono); letter-spacing:-.02em; color:var(--ink); font-feature-settings:"tnum" 1; }
+.sp-uptime-pct.is-hold b{ color:var(--hold); } .sp-uptime-pct.is-risk b{ color:var(--risk); }
+.sp-uptime-pct em{ font:600 9px/1.3 var(--mono); font-style:normal; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-faint); }
+
+@media(max-width:720px){
+  .sp-comp{ grid-template-columns:1fr; gap:9px; }
+  .sp-uptime-pct{ text-align:left; }
+}
+
+/* ============================================================
+   5. PAST INCIDENTS feed — grouped by date; expandable update timeline
+   ============================================================ */
+.sp-section-hd{
+  display:flex; align-items:center; gap:9px; margin:26px 2px 12px;
+}
+.sp-section-hd .icon{ width:17px; height:17px; color:var(--navy-deep); }
+.sp-section-hd h2{ margin:0; font:800 16px/1.2 var(--sans); letter-spacing:-.01em; color:var(--ink); }
+.sp-section-hd .cnt{ margin-left:auto; font:600 10px/1.4 var(--mono); letter-spacing:.1em; text-transform:uppercase; color:var(--ink-faint); }
+
+.sp-daygroup{ margin-bottom:18px; }
+.sp-dayhead{
+  font:700 10.5px/1.4 var(--mono); letter-spacing:.1em; text-transform:uppercase; color:var(--ink-soft);
+  padding:0 2px 8px; border-bottom:1px solid var(--rule-soft); margin-bottom:12px;
+  display:flex; align-items:center; gap:8px;
+}
+.sp-dayhead .icon{ width:13px; height:13px; color:var(--ink-faint); }
+
+.sp-incident{
+  border:1px solid var(--rule); border-radius:12px; background:var(--bg);
+  box-shadow:var(--shadow); margin-bottom:12px; overflow:hidden;
+}
+.sp-incident.sev-major{ border-color:var(--risk-line); }
+.sp-incident.sev-partial{ border-color:var(--risk-line); }
+.sp-incident.sev-degraded{ border-color:var(--hold-line); }
+.sp-incident-hd{
+  display:flex; align-items:flex-start; gap:11px; padding:13px 15px; cursor:pointer; user-select:none;
+}
+.sp-incident-main{ min-width:0; flex:1; }
+.sp-incident-tags{ display:flex; align-items:center; gap:7px; flex-wrap:wrap; margin-bottom:6px; }
+.sp-sev{
+  font:700 9px/1 var(--mono); letter-spacing:.08em; text-transform:uppercase;
+  padding:3px 8px; border-radius:5px; border:1px solid var(--rule); color:var(--ink-soft); background:var(--bg);
+}
+.sp-sev.sev-major,.sp-sev.sev-partial{ color:var(--risk); background:var(--risk-bg); border-color:var(--risk-line); }
+.sp-sev.sev-degraded{ color:var(--hold); background:var(--hold-bg); border-color:var(--hold-line); }
+.sp-sev.sev-resolved{ color:var(--ok); background:var(--ok-bg); border-color:var(--ok-line); }
+.sp-comp-chip{
+  display:inline-flex; align-items:center; gap:5px;
+  font:600 10px/1 var(--mono); letter-spacing:.02em; color:var(--navy-deep);
+  background:var(--navy-bg); border:1px solid var(--navy-line); border-radius:5px; padding:3px 7px;
+}
+.sp-incident-title{ font:600 13.5px/1.5 var(--sans); color:var(--ink); }
+.sp-incident-when{ font:600 10.5px/1.3 var(--mono); color:var(--ink-faint); margin-top:3px; font-feature-settings:"tnum" 1; }
+.sp-caret{ flex:none; color:var(--ink-faint); margin-top:2px; transition:transform .15s ease; }
+.sp-caret .icon{ width:16px; height:16px; }
+.sp-incident[data-open="true"] .sp-caret{ transform:rotate(90deg); }
+
+/* expandable update timeline */
+.sp-updates{ border-top:1px solid var(--rule-soft); background:var(--bg-subtle); padding:14px 15px 6px; list-style:none; margin:0; }
+.sp-incident[data-open="false"] .sp-updates{ display:none; }
+.sp-update{ position:relative; display:grid; grid-template-columns:92px 1fr; gap:34px; padding:0 0 14px 0; }
+.sp-update::before{ content:""; position:absolute; left:109px; top:14px; bottom:-2px; width:2px; background:var(--rule); }
+.sp-update:last-child{ padding-bottom:6px; }
+.sp-update:last-child::before{ display:none; }
+.sp-update-when{ text-align:right; padding-top:1px; }
+.sp-update-when .t{ font:700 12px/1.2 var(--mono); color:var(--ink); font-feature-settings:"tnum" 1; }
+.sp-update-when .d{ font:600 9.5px/1.3 var(--mono); color:var(--ink-faint); margin-top:2px; }
+.sp-update-node{
+  position:absolute; left:109px; top:1px; transform:translateX(-50%);
+  width:13px; height:13px; border-radius:50%; background:var(--bg);
+  border:2.5px solid var(--navy); z-index:2; box-shadow:0 0 0 3px var(--bg-subtle);
+}
+.sp-update[data-status="investigating"] .sp-update-node{ border-color:var(--risk); }
+.sp-update[data-status="identified"] .sp-update-node{ border-color:var(--hold); }
+.sp-update[data-status="monitoring"] .sp-update-node{ border-color:var(--navy); }
+.sp-update[data-status="resolved"] .sp-update-node{ border-color:var(--ok); background:var(--ok); }
+.sp-update-body{ min-width:0; }
+.sp-update-status{
+  font:700 9px/1 var(--mono); letter-spacing:.08em; text-transform:uppercase;
+  color:var(--navy-deep); margin-bottom:4px; display:inline-block;
+}
+.sp-update[data-status="investigating"] .sp-update-status{ color:var(--risk); }
+.sp-update[data-status="identified"] .sp-update-status{ color:var(--hold); }
+.sp-update[data-status="resolved"] .sp-update-status{ color:var(--ok); }
+.sp-update-text{ font:600 12.5px/1.6 var(--sans); color:var(--ink-mid); }
+
+/* empty state when "only issues" hides every component / no incidents */
+.sp-empty{
+  display:none; border:1px dashed var(--rule); background:var(--bg-subtle); border-radius:12px;
+  padding:22px 20px; text-align:center; color:var(--ink-soft); font:700 12.5px/1.5 var(--sans);
+  align-items:center; justify-content:center; gap:9px; margin-bottom:16px;
+}
+.sp-empty .icon{ width:18px; height:18px; color:var(--ok); }
+.sp-empty.show{ display:flex; }
+
+/* ============================================================
+   6. SCHEDULED MAINTENANCE
+   ============================================================ */
+.sp-maint{
+  border:1px solid var(--navy-line); border-radius:12px; background:var(--bg);
+  box-shadow:var(--shadow); margin-bottom:12px; overflow:hidden;
+}
+.sp-maint-hd{ display:flex; align-items:flex-start; gap:11px; padding:13px 15px; }
+.sp-maint-ico{
+  width:30px; height:30px; border-radius:9px; flex:none; display:grid; place-items:center;
+  background:var(--navy-bg); border:1px solid var(--navy-line); color:var(--navy-deep);
+}
+.sp-maint-ico .icon{ width:17px; height:17px; }
+.sp-maint-main{ min-width:0; flex:1; }
+.sp-maint-tags{ display:flex; align-items:center; gap:7px; flex-wrap:wrap; margin-bottom:5px; }
+.sp-maint-title{ font:700 13.5px/1.4 var(--sans); color:var(--ink); }
+.sp-maint-when{
+  display:inline-flex; align-items:center; gap:5px;
+  font:700 10px/1 var(--mono); letter-spacing:.04em; color:var(--navy-deep);
+  background:var(--navy-bg); border:1px solid var(--navy-line); border-radius:5px; padding:3px 8px;
+  font-feature-settings:"tnum" 1;
+}
+.sp-maint-body{ padding:0 15px 14px 56px; font:600 12.5px/1.6 var(--sans); color:var(--ink-mid); }
+@media(max-width:720px){ .sp-maint-body{ padding-left:15px; } }
+
+/* ============================================================
+   7. FOOTER (shared dark band)
+   ============================================================ */
+.sp-foot{
+  background:var(--bg-deep); color:#cfd3db; border-radius:12px;
+  display:flex; align-items:center; gap:14px; padding:15px 20px; margin-top:22px;
+  font:600 10.5px/1.4 var(--mono); letter-spacing:.05em; text-transform:uppercase;
+  flex-wrap:wrap;
+}
+.sp-foot .wm{ display:inline-flex; align-items:center; gap:8px; color:#fff; font:800 12px/1 var(--sans); letter-spacing:-.01em; text-transform:none; }
+.sp-foot .wm i{ width:16px; height:16px; border-radius:4px; background:var(--navy); display:inline-block; }
+.sp-foot .sp{ flex:1 1 auto; }
+.sp-foot .legend{ display:inline-flex; align-items:center; gap:12px; text-transform:none; letter-spacing:0; font:600 10px/1 var(--mono); }
+.sp-foot .legend span{ display:inline-flex; align-items:center; gap:5px; color:#a7adba; }
+.sp-foot .legend i{ width:9px; height:9px; border-radius:2px; }
+
+/* ---- floating tooltip (day-bar hover → exact values) ---- */
+.sp-tip{
+  position:fixed; z-index:60; pointer-events:none;
+  background:#000; color:#fff; border-radius:8px; padding:8px 10px;
+  font:600 11px/1.45 var(--sans); white-space:nowrap; box-shadow:0 4px 14px rgba(0,0,0,.3);
+  opacity:0; transition:opacity .1s; transform:translate(-50%,-100%);
+}
+.sp-tip.show{ opacity:1; }
+.sp-tip .h{ font:700 10px/1.3 var(--mono); letter-spacing:.06em; text-transform:uppercase; color:#cfd3db; margin-bottom:4px; }
+.sp-tip .r{ display:flex; align-items:center; gap:6px; }
+.sp-tip .r i{ width:8px; height:8px; border-radius:2px; flex:none; }
+.sp-tip .r b{ font:700 11.5px/1 var(--mono); }
+
+/* ---- print: static, complete snapshot; hide controls ---- */
+@media print{
+  body{ background:#fff; }
+  .sp-page{ max-width:none; }
+  .rc-theme, .sp-controls, .sp-tip, .sp-caret{ display:none !important; }
+  .sp-group, .sp-incident, .sp-maint, .sp-banner{ box-shadow:none; break-inside:avoid; }
+  .sp-incident-hd, .sp-maint-hd{ cursor:default; }
+  .sp-updates{ display:block !important; }
+  .sp-comp.is-hidden, .sp-group.is-hidden{ display:grid !important; }
+  .sp-group.is-hidden{ display:block !important; }
+  .sp-foot{ background:#fff; color:#000; border:1px solid #000; }
+  .sp-foot .wm{ color:#000; } .sp-foot .wm i{ background:#000; }
+  .sp-foot .legend span{ color:#333; }
+}
+</style>
+</head>
+<body>
+
+<noscript>
+  <div class="noscript-note">
+    This status page renders from embedded data and requires JavaScript for its live controls
+    (uptime-window selector, only-issues filter, day-bar tooltips, incident expand). The complete
+    status snapshot — components, uptime history, incidents, and maintenance — is present in the page
+    source under <code>#report-data</code>.
+  </div>
+</noscript>
+
+<!-- the body is built by render() from #report-data -->
+<main class="sp-page" id="sp-root"></main>
+
+<!-- floating day-bar tooltip (single shared instance) -->
+<div class="sp-tip" id="sp-tip" role="status" aria-live="polite"></div>
+
+<!-- ============ ICON DEFS (house SVG set, inlined; 24×24, stroke=currentColor) ============ -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <!-- shield-check (operational) -->
+    <g id="i-shield-check"><path d="M12 3.25 19 5.75v5.45c0 4.4-3 7.6-7 8.8-4-1.2-7-4.4-7-8.8V5.75Z"/><path d="M9 12l2.2 2.2L15.2 9.6"/></g>
+    <!-- warning-triangle (degraded / partial) -->
+    <g id="i-warn"><path d="M12 4.5 21 19.5H3Z"/><path d="M12 10v4"/><circle cx="12" cy="16.6" r=".7" fill="currentColor" stroke="none"/></g>
+    <!-- warning-octagon (major outage) -->
+    <g id="i-octagon"><path d="M8.5 3.75h7L20.25 8.5v7L15.5 20.25h-7L3.75 15.5v-7Z"/><path d="M12 8.25V13"/><circle cx="12" cy="16.4" r=".7" fill="currentColor" stroke="none"/></g>
+    <!-- clock (as-of) -->
+    <g id="i-clock"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></g>
+    <!-- history (past incidents) -->
+    <g id="i-history"><path d="M4.5 12a7.5 7.5 0 1 0 2.2-5.3"/><path d="M4.5 6.5V10H8"/><path d="M12 8.5V12l2.5 1.5"/></g>
+    <!-- calendar-event (maintenance) -->
+    <g id="i-calendar"><rect x="4" y="5.5" width="16" height="14" rx="2.5"/><path d="M4 9.5h16M8.5 3.5v4M15.5 3.5v4"/><rect x="7.5" y="12.5" width="3" height="3" rx="1" fill="currentColor" stroke="none"/></g>
+    <!-- wrench (maintenance item) -->
+    <g id="i-wrench"><path d="M14.5 6.5a3.5 3.5 0 0 1-4.6 4.3L5 15.7 8.3 19l4.9-4.9a3.5 3.5 0 0 1 4.3-4.6l-2.4 2.4-2-2Z"/></g>
+    <!-- chevron-right (caret) -->
+    <g id="i-chevron"><path d="M9.5 5.5 16 12l-6.5 6.5"/></g>
+    <!-- api / endpoint -->
+    <g id="i-api"><rect x="4.5" y="6" width="15" height="12" rx="2.5"/><path d="M8.5 10 6.5 12l2 2M15.5 10l2 2-2 2M12.8 9.4l-1.6 5.2"/></g>
+    <!-- lock (auth) -->
+    <g id="i-lock"><rect x="5.5" y="10.5" width="13" height="9" rx="2.5"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/><circle cx="12" cy="14.8" r="1.1" fill="currentColor" stroke="none"/></g>
+    <!-- transfer-arrows (payments) -->
+    <g id="i-payments"><path d="M5 9h12l-2.5-2.5M19 15H7l2.5 2.5"/></g>
+    <!-- bell (notifications) -->
+    <g id="i-bell"><path d="M6.5 16.5V11a5.5 5.5 0 0 1 11 0v5.5l1.5 2H5Z"/><path d="M10 19.5a2 2 0 0 0 4 0"/></g>
+    <!-- queue / batch -->
+    <g id="i-batch"><rect x="4.5" y="5" width="15" height="4.2" rx="1.6"/><rect x="4.5" y="11" width="15" height="4.2" rx="1.6"/><path d="M7 17.5h10"/></g>
+    <!-- database -->
+    <g id="i-database"><path d="M5 6c0-1.4 3.1-2.5 7-2.5S19 4.6 19 6v12c0 1.4-3.1 2.5-7 2.5S5 19.4 5 18Z"/><path d="M5 6c0 1.4 3.1 2.5 7 2.5S19 7.4 19 6M5 12c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5"/></g>
+    <!-- server (group fallback) -->
+    <g id="i-server"><rect x="4.5" y="5" width="15" height="6" rx="2"/><rect x="4.5" y="13" width="15" height="6" rx="2"/><rect x="7" y="7.4" width="2.4" height="1.2" rx=".6" fill="currentColor" stroke="none"/><rect x="7" y="15.4" width="2.4" height="1.2" rx=".6" fill="currentColor" stroke="none"/></g>
+    <!-- node-network (edge group) -->
+    <g id="i-network"><circle cx="12" cy="6" r="2"/><circle cx="6" cy="17" r="2"/><circle cx="18" cy="17" r="2"/><path d="M12 8v3M11 12l-3.5 3.2M13 12l3.5 3.2"/></g>
+  </defs>
+</svg>
+
+<!-- ============ RENDER + INTERACTIONS + THEME (single block, from #report-data) ============ -->
+<script>
+(function () {
+  "use strict";
+
+  var DATA;
+  try { DATA = JSON.parse(document.getElementById("report-data").textContent); }
+  catch (e) {
+    document.getElementById("sp-root").innerHTML =
+      '<p style="padding:24px;font:600 13px var(--sans);color:var(--risk)">Could not parse #report-data: ' + e.message + '</p>';
+    return;
+  }
+
+  var root = document.getElementById("sp-root");
+  var tip = document.getElementById("sp-tip");
+
+  /* ---- helpers ---- */
+  function esc(s){ return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+  function el(tag, cls, html){ var e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; }
+  function ico(id, cls){ return '<svg class="icon ' + (cls||"") + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><use href="#' + id + '"/></svg>'; }
+  function pad(n){ return (n < 10 ? "0" : "") + n; }
+  function parse(ts){ var d = new Date(ts); return isNaN(d.getTime()) ? null : d; }
+
+  var MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  var DOW = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+  function fmtDate(d){ return MON[d.getMonth()] + " " + d.getDate() + ", " + d.getFullYear(); }
+  function fmtDateShort(d){ return MON[d.getMonth()] + " " + d.getDate(); }
+  function fmtClock(d){ return pad(d.getHours()) + ":" + pad(d.getMinutes()); }
+  function fmtDayLabel(iso){ var d = parse(iso + "T00:00:00"); return d ? (DOW[d.getDay()] + ", " + fmtDate(d)) : esc(iso); }
+
+  /* ---- semantic ordering: which state is "worse" ---- */
+  var SEVRANK = { ok:0, hold:1, risk:2 };
+  function worse(a, b){ return (SEVRANK[a]||0) >= (SEVRANK[b]||0) ? a : b; }
+
+  /* ---- banner label/colour DERIVED from the worst CURRENT (latest-day) component state ---- */
+  var BANNER = {
+    ok:   { cls:"",        label:"All Systems Operational", icon:"i-shield-check", note:"All monitored components are operating normally." },
+    hold: { cls:"is-hold", label:"Degraded Performance",    icon:"i-warn",        note:"One or more components are degraded. See affected services below." },
+    risk: { cls:"is-risk", label:"Service Disruption",      icon:"i-octagon",     note:"One or more components are experiencing an outage. We are working to restore service." }
+  };
+  /* component-state label for tooltip/aria */
+  var STLABEL = { ok:"Operational", hold:"Degraded", risk:"Outage" };
+
+  /* incident severity → label + class (status when resolved overrides to ok-styled badge) */
+  var SEVLBL = { major:"Major Outage", partial:"Partial Outage", degraded:"Degraded", minor:"Minor" };
+  /* update status → display label */
+  var UPDLBL = { investigating:"Investigating", identified:"Identified", monitoring:"Monitoring", resolved:"Resolved" };
+
+  /* group icon by id (falls back to server) */
+  var GROUPICON = { edge:"i-network", core:"i-server", data:"i-database" };
+  /* component icon by id */
+  var COMPICON = { api:"i-api", auth:"i-lock", payments:"i-payments", notifications:"i-bell", batch:"i-batch", db:"i-database" };
+
+  /* ============================================================
+     DETERMINISTIC SAMPLE-HISTORY GENERATOR
+     The JSON uses "__GEN__" for each component's days[] so the sample
+     stays compact and readable. We synthesise a realistic, fixed (seeded)
+     90-day history here so the page is fully data-driven and reproducible,
+     and so it agrees with the incident feed. In a real instance, days[]
+     is supplied verbatim per the schema (date, uptime, state, incidents).
+     ============================================================ */
+  var WINDOWS = (DATA.windows && DATA.windows.length ? DATA.windows.slice() : [90, 60, 30]);
+  var MAXWIN = Math.max.apply(null, WINDOWS);
+  var asOf = parse(DATA.asOf) || parse(DATA.meta && DATA.meta.date) || new Date();
+
+  /* seeded PRNG (mulberry32) for reproducible per-component variation */
+  function seeded(seed){ var t = seed >>> 0; return function(){ t += 0x6D2B79F5; var r = Math.imul(t ^ (t >>> 15), 1 | t); r ^= r + Math.imul(r ^ (r >>> 7), 61 | r); return ((r ^ (r >>> 14)) >>> 0) / 4294967296; }; }
+  function hashStr(s){ var h = 2166136261; for (var i = 0; i < s.length; i++){ h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
+
+  /* dateKey N days before asOf */
+  function dayBefore(base, n){ var d = new Date(base.getFullYear(), base.getMonth(), base.getDate()); d.setDate(d.getDate() - n); return d; }
+  function keyOf(d){ return d.getFullYear() + "-" + pad(d.getMonth()+1) + "-" + pad(d.getDate()); }
+
+  /* map incident severity → worst day-state it implies */
+  function incidentStateOf(sev){ return (sev === "major" || sev === "partial") ? "risk" : "hold"; }
+
+  /* pre-index incidents by (component,dateKey) so generated history aligns with the feed */
+  var incByCompDay = {};
+  (DATA.incidents || []).forEach(function (inc) {
+    var st = incidentStateOf(inc.severity);
+    (inc.components || []).forEach(function (cid) {
+      incByCompDay[cid + "|" + inc.date] = { state: st, title: inc.title };
+    });
+  });
+
+  function genDays(comp){
+    var rnd = seeded(hashStr(comp.id) ^ 0x9e3779b9);
+    var out = [];
+    for (var i = MAXWIN - 1; i >= 0; i--){
+      var d = dayBefore(asOf, i);
+      var k = keyOf(d);
+      var state = "ok", uptime = 100, incidents = 0;
+      var forced = incByCompDay[comp.id + "|" + k];
+      if (forced){
+        state = forced.state;
+        incidents = 1;
+        uptime = (state === "risk") ? +(96 + rnd() * 2.4).toFixed(2) : +(99.0 + rnd() * 0.7).toFixed(2);
+      } else {
+        var r = rnd();
+        if (r > 0.965){ state = "hold"; incidents = 0; uptime = +(99.3 + rnd() * 0.6).toFixed(2); }
+        else if (r > 0.992){ state = "risk"; incidents = 1; uptime = +(97.5 + rnd() * 1.8).toFixed(2); }
+        else { state = "ok"; uptime = +(99.95 + rnd() * 0.05).toFixed(2); if (uptime > 100) uptime = 100; }
+      }
+      out.push({ date: k, uptime: uptime, state: state, incidents: incidents });
+    }
+    return out;
+  }
+
+  /* resolve each component's days[] (use supplied array, else generate) */
+  var COMPONENTS = (DATA.components || []).map(function (c) {
+    var days = (Array.isArray(c.days)) ? c.days.slice() : genDays(c);
+    /* ensure ascending by date and capped at MAXWIN */
+    days = days.slice(-MAXWIN);
+    return { id: c.id, groupId: c.groupId, name: c.name, description: c.description || "", days: days };
+  });
+
+  /* ---- period uptime % over the last `win` days (DERIVED, never hard-coded) ---- */
+  function periodUptime(days, win){
+    var slice = days.slice(-win);
+    if (!slice.length) return { pct: 100, state: "ok", incidents: 0 };
+    var sum = 0, worstState = "ok", inc = 0;
+    slice.forEach(function (dy) { sum += (typeof dy.uptime === "number" ? dy.uptime : 100); worstState = worse(worstState, dy.state || "ok"); inc += (dy.incidents || 0); });
+    return { pct: sum / slice.length, state: worstState, incidents: inc };
+  }
+  function fmtPct(p){ return (p >= 99.995 ? "100" : p.toFixed(p >= 99.9 ? 3 : 2)); }
+
+  /* ---- current (latest-day) state per component → overall banner ---- */
+  function currentState(days){ return days.length ? (days[days.length-1].state || "ok") : "ok"; }
+  function overallState(){
+    var s = "ok";
+    COMPONENTS.forEach(function (c) { s = worse(s, currentState(c.days)); });
+    return s;
+  }
+
+  /* ---- view state ---- */
+  var GROUPS = DATA.groups || [];
+  var STATE = {
+    window: (WINDOWS.indexOf(90) >= 0 ? 90 : WINDOWS[0]),
+    onlyIssues: false,
+    group: "all"   /* "all" or a group id */
+  };
+
+  /* ============================================================
+     RENDER
+     ============================================================ */
+  function render(){
+    var m = DATA.meta || {};
+    document.documentElement.dataset.theme = m.theme || "cyan";
+    document.title = (m.project || "{{PROJECT}}") + " Status — " + (m.title || "Platform Status") + " · " + (m.org || "{{ORG}}");
+
+    root.innerHTML = "";
+    root.appendChild(buildMast(m));
+    root.appendChild(buildBanner());
+    root.appendChild(buildControls());
+
+    var comps = el("div", null, "");
+    comps.id = "sp-components";
+    GROUPS.forEach(function (g) { comps.appendChild(buildGroup(g)); });
+    /* empty state (only-issues hides everything) */
+    var empty = el("div", "sp-empty");
+    empty.id = "sp-empty";
+    empty.innerHTML = ico("i-shield-check") + '<span>Every component was fully operational across this window — nothing to show with “Only issues” on.</span>';
+    comps.appendChild(empty);
+    root.appendChild(comps);
+
+    root.appendChild(buildIncidents());
+    root.appendChild(buildMaintenance());
+    root.appendChild(buildFooter(m));
+
+    applyWindow();
+    applyFilters();
+    wireThemeSwitch();
+  }
+
+  /* ---- masthead ---- */
+  function buildMast(m){
+    var mark = (m.project || m.org || "S").replace(/[^A-Za-z0-9]/g, "").charAt(0) || "S";
+    var asOfStr = asOf ? (fmtDate(asOf) + " · " + fmtClock(asOf)) : (m.date || "");
+    var head = el("div", "sp-mast");
+    head.innerHTML =
+      '<div class="sp-brand">' +
+        '<div class="sp-mark">' + esc(mark) + '</div>' +
+        '<div><h1>' + esc(m.title || "Platform Status") + '</h1>' +
+          '<div class="sub">' + esc(m.org || "{{ORG}}") + ' · ' + esc(m.project || "{{PROJECT}}") + ' · ' + esc((m.reportType || "Service Status")) + '</div></div>' +
+      '</div>' +
+      '<div class="sp-mast-sp"></div>' +
+      '<span class="sp-asof">' + ico("i-clock") + 'As of <b>' + esc(asOfStr) + '</b></span>' +
+      themeDropdown();
+    return head;
+  }
+
+  function themeDropdown(){
+    return '<label class="rc-theme" title="Brand colour">' +
+      '<span class="rc-theme-sw" aria-hidden="true"></span>' +
+      '<select class="rc-theme-sel" aria-label="Brand theme">' +
+        '<option value="blue">Blue</option>' +
+        '<option value="purple">Purple</option>' +
+        '<option value="indigo">Indigo</option>' +
+        '<option value="teal">Teal</option>' +
+        '<option value="cyan">Cyan</option>' +
+        '<option value="green">Green</option>' +
+        '<option value="plum">Plum</option>' +
+        '<option value="slate">Slate</option>' +
+        '<option value="black">Black</option>' +
+      '</select></label>';
+  }
+
+  /* ---- overall status banner (label + colour DERIVED) ---- */
+  function buildBanner(){
+    var st = overallState();
+    var b = BANNER[st] || BANNER.ok;
+    var total = COMPONENTS.length;
+    var okCount = COMPONENTS.filter(function (c) { return currentState(c.days) === "ok"; }).length;
+    var issueCount = total - okCount;
+    var wrap = el("section", "sp-banner " + b.cls);
+    wrap.id = "sp-banner";
+    wrap.setAttribute("aria-live", "polite");
+    wrap.innerHTML =
+      '<div class="sp-banner-ico">' + ico(b.icon) + '</div>' +
+      '<div class="sp-banner-txt"><h2>' + esc(b.label) + '</h2><p>' + esc(b.note) + '</p></div>' +
+      '<div class="sp-banner-roll">' +
+        '<div><b class="tnum">' + okCount + '/' + total + '</b><em>Operational</em></div>' +
+        '<div><b class="tnum"' + (issueCount ? ' style="color:var(--' + (st === 'risk' ? 'risk' : 'hold') + ')"' : '') + '>' + issueCount + '</b><em>With issues</em></div>' +
+      '</div>';
+    return wrap;
+  }
+
+  /* ---- controls bar (window selector + only-issues toggle + group chips) ---- */
+  function buildControls(){
+    var bar = el("div", "sp-controls");
+    var winHTML = WINDOWS.map(function (w) {
+      return '<button data-win="' + w + '"' + (w === STATE.window ? ' class="on"' : '') + '>' + w + ' days</button>';
+    }).join("");
+    var groupCounts = {};
+    COMPONENTS.forEach(function (c) { groupCounts[c.groupId] = (groupCounts[c.groupId] || 0) + 1; });
+    var chips = '<button class="sp-gchip on" data-group="all">All <span class="n tnum">' + COMPONENTS.length + '</span></button>' +
+      GROUPS.map(function (g) {
+        return '<button class="sp-gchip" data-group="' + esc(g.id) + '">' + esc(g.name) + ' <span class="n tnum">' + (groupCounts[g.id] || 0) + '</span></button>';
+      }).join("");
+    bar.innerHTML =
+      '<span class="lbl">Uptime window</span>' +
+      '<div class="sp-winsel" role="group" aria-label="Uptime window">' + winHTML + '</div>' +
+      '<button class="sp-toggle" id="sp-only" type="button" aria-pressed="false" title="Hide components that were fully operational across the window">' +
+        '<span class="sw" aria-hidden="true"></span>Only issues</button>' +
+      '<span class="sp-ctl-sp"></span>' +
+      '<div class="sp-groupchips" role="group" aria-label="Component groups">' + chips + '</div>';
+    return bar;
+  }
+
+  /* ---- one component group panel ---- */
+  function buildGroup(g){
+    var sec = el("section", "sp-group");
+    sec.dataset.group = g.id;
+    var members = COMPONENTS.filter(function (c) { return c.groupId === g.id; });
+    var rows = members.map(buildComp).join("");
+    sec.innerHTML =
+      '<div class="sp-group-hd">' + ico(GROUPICON[g.id] || "i-server") + '<h3>' + esc(g.name) + '</h3>' +
+        '<span class="grp-meta">' + members.length + ' component' + (members.length === 1 ? '' : 's') + '</span></div>' +
+      rows;
+    return sec;
+  }
+
+  /* ---- one component row (rendered for the MAX window; sliced live by applyWindow) ---- */
+  function buildComp(c){
+    /* render all MAXWIN day-bars; applyWindow() hides the leading ones per selected window */
+    var bars = c.days.map(function (dy, i) {
+      var cls = dy.state || "ok";
+      return '<span class="sp-daybar ' + cls + '" data-i="' + i + '" data-date="' + esc(dy.date) + '" ' +
+        'data-uptime="' + (typeof dy.uptime === "number" ? dy.uptime : 100) + '" data-inc="' + (dy.incidents || 0) + '" ' +
+        'data-state="' + esc(cls) + '"></span>';
+    }).join("");
+    return '<div class="sp-comp" data-comp="' + esc(c.id) + '" data-group="' + esc(c.groupId) + '">' +
+      '<div class="sp-comp-name">' + ico(COMPICON[c.id] || "i-server") +
+        '<span class="nm">' + esc(c.name) + (c.description ? '<small>' + esc(c.description) + '</small>' : '') + '</span></div>' +
+      '<div class="sp-uptime">' +
+        '<div class="sp-daybars" data-comp="' + esc(c.id) + '">' + bars + '</div>' +
+        '<div class="sp-uptime-foot"><span class="sp-foot-old"></span><span>Today</span></div>' +
+      '</div>' +
+      '<div class="sp-uptime-pct" data-comp="' + esc(c.id) + '"><b class="tnum">—</b><em>uptime</em></div>' +
+    '</div>';
+  }
+
+  /* ---- past incidents feed (grouped by date) ---- */
+  function buildIncidents(){
+    var sec = el("section", null, "");
+    var incs = (DATA.incidents || []).slice();
+    /* group by date, newest first */
+    incs.sort(function (a, b) { return (b.date || "").localeCompare(a.date || ""); });
+    var byDate = {};
+    var order = [];
+    incs.forEach(function (inc) { if (!byDate[inc.date]) { byDate[inc.date] = []; order.push(inc.date); } byDate[inc.date].push(inc); });
+
+    var groupsHTML = order.map(function (dk) {
+      var cards = byDate[dk].map(buildIncidentCard).join("");
+      return '<div class="sp-daygroup"><div class="sp-dayhead">' + ico("i-history") + esc(fmtDayLabel(dk)) + '</div>' + cards + '</div>';
+    }).join("");
+
+    sec.innerHTML =
+      '<div class="sp-section-hd">' + ico("i-history") + '<h2>Past Incidents</h2>' +
+        '<span class="cnt">' + incs.length + ' in this window</span></div>' +
+      (incs.length ? groupsHTML : '<div class="sp-empty show">' + ico("i-shield-check") + '<span>No incidents reported in this window.</span></div>');
+    return sec;
+  }
+
+  function buildIncidentCard(inc){
+    var sevcls = "sev-" + (inc.severity || "degraded");
+    var resolved = (inc.status === "resolved");
+    var sevText = resolved ? "Resolved" : (SEVLBL[inc.severity] || "Incident");
+    var sevBadgeCls = resolved ? "sev-resolved" : sevcls;
+
+    var compChips = (inc.components || []).map(function (cid) {
+      var c = COMPONENTS.filter(function (x) { return x.id === cid; })[0];
+      var nm = c ? c.name : cid;
+      return '<span class="sp-comp-chip">' + ico(COMPICON[cid] || "i-server") + esc(nm) + '</span>';
+    }).join("");
+
+    var updates = (inc.updates || []).slice().sort(function (a, b) {
+      return (parse(b.time) || 0) - (parse(a.time) || 0);   /* newest first within the card */
+    });
+    var updHTML = updates.map(function (u) {
+      var d = parse(u.time);
+      return '<li class="sp-update" data-status="' + esc(u.status || "") + '">' +
+        '<div class="sp-update-when"><div class="t">' + (d ? fmtClock(d) : "—") + '</div>' +
+          '<div class="d">' + (d ? fmtDateShort(d) : "") + '</div></div>' +
+        '<span class="sp-update-node" aria-hidden="true"></span>' +
+        '<div class="sp-update-body"><span class="sp-update-status">' + esc(UPDLBL[u.status] || u.status || "") + '</span>' +
+          '<div class="sp-update-text">' + esc(u.body || "") + '</div></div>' +
+      '</li>';
+    }).join("");
+
+    /* timestamp span for the header: first → last update */
+    var first = updates.length ? parse(updates[updates.length - 1].time) : null;
+    var last = updates.length ? parse(updates[0].time) : null;
+    var whenStr = first ? (fmtClock(first) + (last && +last !== +first ? " → " + fmtClock(last) : "") + " · " + (updates.length) + " update" + (updates.length === 1 ? "" : "s")) : "";
+
+    return '<article class="sp-incident ' + sevcls + '" data-open="false">' +
+      '<div class="sp-incident-hd" role="button" tabindex="0" aria-expanded="false">' +
+        '<div class="sp-incident-main">' +
+          '<div class="sp-incident-tags">' +
+            '<span class="sp-sev ' + sevBadgeCls + '">' + esc(sevText) + '</span>' + compChips +
+          '</div>' +
+          '<div class="sp-incident-title">' + esc(inc.title || "") + '</div>' +
+          '<div class="sp-incident-when">' + esc(whenStr) + '</div>' +
+        '</div>' +
+        '<span class="sp-caret">' + ico("i-chevron") + '</span>' +
+      '</div>' +
+      '<ul class="sp-updates">' + updHTML + '</ul>' +
+    '</article>';
+  }
+
+  /* ---- scheduled maintenance ---- */
+  function buildMaintenance(){
+    var sec = el("section", null, "");
+    var maint = (DATA.maintenance || []).slice();
+    var cards = maint.map(function (mn) {
+      var parts = String(mn.window || "").split("/");
+      var s = parse(parts[0]), e = parse(parts[1]);
+      var whenStr = s ? (fmtDate(s) + " · " + fmtClock(s) + (e ? "–" + (sameDay(s, e) ? fmtClock(e) : fmtDateShort(e) + " " + fmtClock(e)) : "")) : esc(mn.window || "");
+      var compChips = (mn.components || []).map(function (cid) {
+        var c = COMPONENTS.filter(function (x) { return x.id === cid; })[0];
+        return '<span class="sp-comp-chip">' + ico(COMPICON[cid] || "i-server") + esc(c ? c.name : cid) + '</span>';
+      }).join("");
+      return '<article class="sp-maint">' +
+        '<div class="sp-maint-hd">' +
+          '<div class="sp-maint-ico">' + ico("i-wrench") + '</div>' +
+          '<div class="sp-maint-main">' +
+            '<div class="sp-maint-tags"><span class="sp-maint-when">' + ico("i-calendar") + esc(whenStr) + '</span>' + compChips + '</div>' +
+            '<div class="sp-maint-title">' + esc(mn.title || "") + '</div>' +
+          '</div>' +
+        '</div>' +
+        '<div class="sp-maint-body">' + esc(mn.body || "") + '</div>' +
+      '</article>';
+    }).join("");
+    sec.innerHTML =
+      '<div class="sp-section-hd">' + ico("i-calendar") + '<h2>Scheduled Maintenance</h2>' +
+        '<span class="cnt">' + maint.length + ' planned</span></div>' +
+      (maint.length ? cards : '<div class="sp-empty show">' + ico("i-calendar") + '<span>No maintenance is currently scheduled.</span></div>');
+    return sec;
+  }
+  function sameDay(a, b){ return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate(); }
+
+  /* ---- footer ---- */
+  function buildFooter(m){
+    var f = el("footer", "sp-foot");
+    f.innerHTML =
+      '<span class="wm"><i></i>' + esc(m.org || "{{ORG}}") + '</span>' +
+      '<span class="legend">' +
+        '<span><i style="background:var(--ok)"></i>Operational</span>' +
+        '<span><i style="background:var(--hold)"></i>Degraded</span>' +
+        '<span><i style="background:var(--risk)"></i>Outage</span>' +
+      '</span>' +
+      '<span class="sp"></span>' +
+      '<span>' + esc(m.project || "{{PROJECT}}") + ' STATUS</span>' +
+      '<span>GENERATED ' + esc(m.date || "") + '</span>' +
+      '<span>' + esc(m.author || "{{AUTHOR}}") + '</span>';
+    return f;
+  }
+
+  /* ============================================================
+     INTERACTIONS — all driven from the data
+     ============================================================ */
+
+  /* WINDOW SELECTOR → slice every day-bar strip + recompute period uptime % */
+  function applyWindow(){
+    var win = STATE.window;
+    COMPONENTS.forEach(function (c) {
+      var total = c.days.length;
+      var startIdx = Math.max(0, total - win);
+      /* show only the last `win` bars */
+      var strip = root.querySelector('.sp-daybars[data-comp="' + cssEsc(c.id) + '"]');
+      if (strip){
+        strip.querySelectorAll(".sp-daybar").forEach(function (bar) {
+          var i = +bar.dataset.i;
+          bar.style.display = (i >= startIdx) ? "" : "none";
+        });
+        /* oldest label in the foot */
+        var oldEl = strip.parentNode.querySelector(".sp-foot-old");
+        if (oldEl){
+          var oldDay = c.days[startIdx];
+          oldEl.textContent = oldDay ? (win + " days ago") : "";
+        }
+      }
+      /* period uptime % (derived) */
+      var pu = periodUptime(c.days, win);
+      var pctEl = root.querySelector('.sp-uptime-pct[data-comp="' + cssEsc(c.id) + '"]');
+      if (pctEl){
+        var b = pctEl.querySelector("b");
+        b.textContent = fmtPct(pu.pct) + "%";
+        pctEl.classList.toggle("is-hold", pu.state === "hold");
+        pctEl.classList.toggle("is-risk", pu.state === "risk");
+      }
+    });
+    /* update window buttons */
+    root.querySelectorAll(".sp-winsel button").forEach(function (btn) {
+      btn.classList.toggle("on", +btn.dataset.win === win);
+    });
+    /* re-apply only-issues since "fully operational across window" depends on the window */
+    applyFilters();
+  }
+
+  /* ONLY-ISSUES + GROUP filter → hide components / empty groups */
+  function applyFilters(){
+    var win = STATE.window;
+    var anyVisible = 0;
+    COMPONENTS.forEach(function (c) {
+      var row = root.querySelector('.sp-comp[data-comp="' + cssEsc(c.id) + '"]');
+      if (!row) return;
+      var pu = periodUptime(c.days, win);
+      var groupOK = (STATE.group === "all" || c.groupId === STATE.group);
+      var issueOK = (!STATE.onlyIssues || pu.state !== "ok" || pu.incidents > 0);
+      var visible = groupOK && issueOK;
+      row.classList.toggle("is-hidden", !visible);
+      if (visible) anyVisible++;
+    });
+    /* hide a group panel whose every row is hidden */
+    GROUPS.forEach(function (g) {
+      var sec = root.querySelector('.sp-group[data-group="' + cssEsc(g.id) + '"]');
+      if (!sec) return;
+      var shown = sec.querySelectorAll('.sp-comp:not(.is-hidden)').length;
+      sec.classList.toggle("is-hidden", shown === 0);
+    });
+    var empty = document.getElementById("sp-empty");
+    if (empty) empty.classList.toggle("show", anyVisible === 0);
+  }
+
+  function cssEsc(s){ return String(s).replace(/["\\\]\[]/g, "\\$&"); }
+
+  function wireInteractions(){
+    /* WINDOW SELECTOR */
+    root.addEventListener("click", function (e) {
+      var wb = e.target.closest(".sp-winsel button"); if (!wb) return;
+      STATE.window = +wb.dataset.win;
+      applyWindow();
+    });
+
+    /* ONLY-ISSUES toggle */
+    var only = document.getElementById("sp-only");
+    if (only) only.addEventListener("click", function () {
+      STATE.onlyIssues = !STATE.onlyIssues;
+      only.classList.toggle("on", STATE.onlyIssues);
+      only.setAttribute("aria-pressed", STATE.onlyIssues ? "true" : "false");
+      applyFilters();
+    });
+
+    /* GROUP filter chips */
+    root.addEventListener("click", function (e) {
+      var ch = e.target.closest(".sp-gchip"); if (!ch) return;
+      root.querySelectorAll(".sp-gchip").forEach(function (x) { x.classList.remove("on"); });
+      ch.classList.add("on");
+      STATE.group = ch.dataset.group;
+      applyFilters();
+    });
+
+    /* INCIDENT expand / collapse */
+    root.addEventListener("click", function (e) {
+      var hd = e.target.closest(".sp-incident-hd"); if (!hd) return;
+      var card = hd.closest(".sp-incident");
+      var open = card.dataset.open === "true";
+      card.dataset.open = open ? "false" : "true";
+      hd.setAttribute("aria-expanded", String(!open));
+    });
+    root.addEventListener("keydown", function (e) {
+      var hd = e.target.closest(".sp-incident-hd");
+      if (hd && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); hd.click(); }
+    });
+
+    /* DAY-BAR tooltip (exact date + uptime % + incidents) */
+    wireDaybarTooltips();
+  }
+
+  function wireDaybarTooltips(){
+    function show(html, x, y){ tip.innerHTML = html; tip.style.left = x + "px"; tip.style.top = (y - 8) + "px"; tip.classList.add("show"); }
+    function hide(){ tip.classList.remove("show"); }
+
+    root.addEventListener("mousemove", function (e) {
+      var bar = e.target.closest(".sp-daybar");
+      if (!bar) { hide(); return; }
+      var r = bar.getBoundingClientRect();
+      var dateKey = bar.dataset.date;
+      var d = parse(dateKey + "T00:00:00");
+      var state = bar.dataset.state || "ok";
+      var up = parseFloat(bar.dataset.uptime);
+      var inc = +bar.dataset.inc;
+      var dotCol = state === "risk" ? "var(--risk)" : state === "hold" ? "var(--hold)" : "var(--ok)";
+      var html = '<div class="h">' + esc(d ? fmtDate(d) : dateKey) + '</div>' +
+        '<div class="r"><i style="background:' + dotCol + '"></i>' + esc(STLABEL[state] || state) + '</div>' +
+        '<div class="r">Uptime <b>' + (isFinite(up) ? fmtPct(up) + "%" : "—") + '</b></div>' +
+        '<div class="r">Incidents <b>' + inc + '</b></div>';
+      show(html, r.left + r.width / 2, r.top);
+    });
+    root.addEventListener("mouseleave", hide);
+    /* keep tooltip from sticking when leaving the components region via scroll */
+    window.addEventListener("scroll", hide, { passive: true });
+  }
+
+  /* ---- canonical dropdown theme switcher (per _DATA_DRIVEN §3) ---- */
+  function wireThemeSwitch(){
+    var rcSel = document.querySelector(".rc-theme-sel");
+    if (rcSel) {
+      rcSel.value = document.documentElement.dataset.theme || "cyan";
+      rcSel.addEventListener("change", function () { document.documentElement.dataset.theme = rcSel.value; });
+    }
+  }
+
+  /* ---- boot ---- */
+  function boot(){ render(); wireInteractions(); }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
+  else boot();
+})();
+</script>
+</body>
+</html>

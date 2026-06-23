@@ -1,0 +1,1167 @@
+<!doctype html>
+<html lang="en" data-theme="indigo">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1440">
+<title>{{PROJECT}} — Treemap (Hierarchical Area Map)</title>
+
+<!-- ============================================================
+     DATA-DRIVEN: the ONLY content source. render() builds the
+     whole <body> from this JSON; it is a valid instance of
+     designs/schemas/treemap.schema.json. The squarified layout
+     is computed in JS from leaf 'value' (area) and 'color'
+     (tint); internal-node values roll up as the sum of children.
+     ============================================================ -->
+<script type="application/json" id="report-data">
+{
+  "meta": {
+    "org": "{{ORG}}",
+    "project": "{{PROJECT}}",
+    "reportType": "Cloud Cost Allocation",
+    "title": "Cloud Spend — Hierarchical Cost Map",
+    "subtitle": "FY2026 H1 · 4 levels · sized by monthly spend",
+    "date": "2026-06-22",
+    "author": "{{AUTHOR}}",
+    "theme": "indigo"
+  },
+  "sizeMetric": { "label": "Monthly spend", "unit": "$", "unitPosition": "prefix" },
+  "colorMetric": {
+    "label": "MoM change",
+    "unit": "%",
+    "type": "diverging",
+    "thresholds": { "min": -25, "mid": 0, "max": 40, "goodHigh": false }
+  },
+  "root": {
+    "id": "root",
+    "label": "All cloud spend",
+    "note": "Consolidated FY2026 H1 monthly run-rate across 3 platforms",
+    "children": [
+      {
+        "id": "platform",
+        "label": "Core Platform",
+        "color": 9.4,
+        "note": "Shared banking platform services",
+        "children": [
+          {
+            "id": "compute",
+            "label": "Compute",
+            "color": 14.2,
+            "note": "Managed instance groups + serverless",
+            "children": [
+              { "id": "mig", "label": "Instance groups", "value": 184000, "color": 11.0, "note": "Regional MIGs · core posting tier" },
+              { "id": "serverless", "label": "Serverless / Run", "value": 96000, "color": 38.5, "note": "Event-driven Cloud Run services" },
+              { "id": "batch", "label": "Batch compute", "value": 42000, "color": -8.0, "note": "Nightly settlement & recon jobs" }
+            ]
+          },
+          {
+            "id": "data",
+            "label": "Data & Analytics",
+            "color": 6.1,
+            "note": "Warehouse, streaming & ML",
+            "children": [
+              { "id": "warehouse", "label": "Warehouse", "value": 128000, "color": 4.2, "note": "Columnar marts & BI extracts" },
+              { "id": "streaming", "label": "Event streaming", "value": 71000, "color": 19.6, "note": "Kafka topics & connectors" },
+              { "id": "ml", "label": "ML pipelines", "value": 38000, "color": 27.0, "note": "Fraud & propensity models" }
+            ]
+          },
+          {
+            "id": "storage",
+            "label": "Storage",
+            "color": -3.4,
+            "note": "Object, block & archive",
+            "children": [
+              { "id": "object", "label": "Object storage", "value": 64000, "color": -6.0, "note": "Statements & document vault" },
+              { "id": "block", "label": "Block volumes", "value": 41000, "color": 2.1, "note": "Attached PD-SSD" },
+              { "id": "backup", "label": "Backup & archive", "value": 23000, "color": -12.0, "note": "Coldline retention 7y" }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "channels",
+        "label": "Digital Channels",
+        "color": 18.0,
+        "note": "Mobile, web & open-banking estate",
+        "children": [
+          {
+            "id": "edge",
+            "label": "Edge & CDN",
+            "color": 22.4,
+            "note": "CDN, WAF & gateway",
+            "children": [
+              { "id": "cdn", "label": "CDN egress", "value": 88000, "color": 31.0, "note": "Asset & API egress" },
+              { "id": "waf", "label": "WAF / gateway", "value": 34000, "color": 9.0, "note": "Managed rules & rate limits" }
+            ]
+          },
+          {
+            "id": "api",
+            "label": "API tier",
+            "color": 12.7,
+            "note": "Gateway, auth & notifications",
+            "children": [
+              { "id": "gw", "label": "API gateway", "value": 52000, "color": 8.5, "note": "North-south request mesh" },
+              { "id": "auth", "label": "Auth service", "value": 29000, "color": 15.0, "note": "OIDC / token introspection" },
+              { "id": "notif", "label": "Notifications", "value": 18000, "color": 44.0, "note": "Push / SMS fan-out" }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "observability",
+        "label": "Observability & Ops",
+        "color": -9.0,
+        "note": "Telemetry, logging, on-call tooling",
+        "children": [
+          { "id": "logs", "label": "Log pipeline", "value": 73000, "color": -14.0, "note": "Ingest + retention buckets" },
+          { "id": "metrics", "label": "Metrics & APM", "value": 46000, "color": -4.0, "note": "Time-series + traces sampling" },
+          { "id": "trace", "label": "Tracing", "value": 21000, "color": 6.0, "note": "Distributed trace store" }
+        ]
+      },
+      {
+        "id": "network",
+        "label": "Network & Interconnect",
+        "color": 3.2,
+        "note": "Interconnect, egress & peering",
+        "children": [
+          { "id": "interconnect", "label": "Interconnect", "value": 57000, "color": 1.0, "note": "Dedicated DC links" },
+          { "id": "egress", "label": "Inter-region egress", "value": 39000, "color": 12.0, "note": "Cross-region replication" },
+          { "id": "vpn", "label": "VPN / peering", "value": 14000, "color": -2.0, "note": "Partner & admin tunnels" }
+        ]
+      }
+    ]
+  }
+}
+</script>
+
+<style>
+/* ============================================================
+   TREEMAP — hierarchical AREA map (nested rounded rects)
+   Inherits the family DNA from designs/_FOUNDATION.md +
+   the data-driven/interactive contract from _DATA_DRIVEN.md.
+   Default theme: Indigo (:root ships Purple; Indigo overrides).
+   Self-contained. Content is rendered from #report-data below.
+   ============================================================ */
+
+/* ---- 1. tokens (Purple default in :root; data-theme swaps 7) ---- */
+:root{
+  /* surfaces */
+  --bg:#fff; --bg-band:#f6f6f8; --bg-subtle:#fafafb; --bg-deep:#15131a;
+  --rule:#dcdce2; --rule-soft:#ebebef;
+  /* ink */
+  --ink:#11131a; --ink-mid:#33363f; --ink-soft:#5a5e68; --ink-faint:#868b95;
+  /* brand accent (Purple default) */
+  --navy:#a100ff; --navy-deep:#7a00c2; --navy-bg:#f3e8ff; --navy-line:#d9bef5;
+  /* cleared / approved — deeper low-chroma shade of the SAME hue as the accent */
+  --ok:#5a2f8a; --ok-bg:#efe8f5; --ok-line:#d0b5e0;
+  /* semantic states — CONSTANT across all themes */
+  --risk:#b3261e; --risk-bg:#fbeceb; --risk-line:#edc7c4;
+  --hold:#8a6d00; --hold-bg:#fbf3da; --hold-line:#e7d8a4;
+  /* type stacks */
+  --mono:ui-monospace,"JetBrains Mono","SFMono-Regular",Menlo,Consolas,monospace;
+  --sans:-apple-system,"Segoe UI",system-ui,Roboto,"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic UI","Apple SD Gothic Neo","Malgun Gothic","PingFang SC","Microsoft YaHei","Noto Sans CJK JP","Noto Sans CJK KR","Noto Sans CJK SC","Noto Sans JP","Noto Sans KR","Noto Sans SC","Noto Sans",sans-serif;
+  /* shell geometry */
+  --rail:336px;
+  --shadow:0 1px 2px rgba(17,19,26,.045);
+  --shadow-rail:0 1px 3px rgba(17,19,26,.05);
+}
+/* alternate theme swaps (all 9 per _FOUNDATION §1 / _DATA_DRIVEN §3 — Black mandatory) */
+html[data-theme="blue"]{   --navy:#0b5fd4; --navy-deep:#0842a0; --navy-bg:#e8f1fc; --navy-line:#bcd6f5; --ok:#1a4f9c; --ok-bg:#e9f0fa; --ok-line:#b7cdea; }
+html[data-theme="purple"]{ --navy:#a100ff; --navy-deep:#7a00c2; --navy-bg:#f3e8ff; --navy-line:#d9bef5; --ok:#5a2f8a; --ok-bg:#efe8f5; --ok-line:#d0b5e0; }
+html[data-theme="indigo"]{ --navy:#4338ca; --navy-deep:#312c92; --navy-bg:#ebebfb; --navy-line:#c7c3f0; --ok:#3730a3; --ok-bg:#ebeaf7; --ok-line:#c5c2ea; }
+html[data-theme="teal"]{   --navy:#0e7c86; --navy-deep:#095861; --navy-bg:#e0f3f4; --navy-line:#a9dade; --ok:#0f5d54; --ok-bg:#e3f3ef; --ok-line:#b3ddd4; }
+html[data-theme="cyan"]{   --navy:#0891b2; --navy-deep:#0e6f88; --navy-bg:#e2f4f9; --navy-line:#abdde9; --ok:#0e6b7a; --ok-bg:#e4f3f4; --ok-line:#b0dde2; }
+html[data-theme="green"]{  --navy:#1f7a44; --navy-deep:#155730; --navy-bg:#e6f4ea; --navy-line:#b3dcc1; --ok:#2f6b3c; --ok-bg:#e9f3ea; --ok-line:#bedcc4; }
+html[data-theme="plum"]{   --navy:#a21d6e; --navy-deep:#7c1450; --navy-bg:#fbe8f2; --navy-line:#e8b9d4; --ok:#6d2356; --ok-bg:#f6e8f0; --ok-line:#e3bcd5; }
+html[data-theme="slate"]{  --navy:#3f4f63; --navy-deep:#29384b; --navy-bg:#eef1f5; --navy-line:#c2ccd8; --ok:#34495e; --ok-bg:#eef1f5; --ok-line:#c2ccd8; }
+html[data-theme="black"]{  --navy:#000000; --navy-deep:#000000; --navy-bg:#f1f1f3; --navy-line:#d6d6db; --ok:#3f3f46; --ok-bg:#f1f1f3; --ok-line:#cfcfd6; }
+
+*{ box-sizing:border-box; }
+html,body{ margin:0; height:100%; }
+body{
+  font:13px/1.6 var(--sans); color:var(--ink); background:var(--bg-band);
+  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+}
+h1,h2,h3,h4,p{ margin:0; }
+.tnum{ font-feature-settings:"tnum" 1; font-variant-numeric:tabular-nums; }
+.mono{ font-family:var(--mono); }
+.muted{ color:var(--ink-faint); }
+
+/* icon sizing (house SVGs, currentColor) */
+.icon{ width:1.15em; height:1.15em; display:inline-block; vertical-align:-.18em; color:inherit; }
+.icon-lg{ width:18px; height:18px; }
+
+/* ---- shared primitives ---- */
+.st-badge{
+  display:inline-flex; align-items:center; gap:6px; font:600 10.5px/1 var(--mono);
+  letter-spacing:.04em; text-transform:uppercase; padding:4px 8px 4px 7px;
+  border:1px solid var(--rule); border-radius:6px; background:var(--bg); white-space:nowrap;
+}
+.st-badge::before{ content:""; width:7px; height:7px; border-radius:50%; background:var(--ink-faint); }
+.st-ok{ color:var(--ok); border-color:var(--ok-line); background:var(--ok-bg); }
+.st-ok::before{ background:var(--ok); }
+.st-risk{ color:var(--risk); border-color:var(--risk-line); background:var(--risk-bg); }
+.st-risk::before{ background:var(--risk); }
+.st-hold{ color:var(--hold); border-color:var(--hold-line); background:var(--hold-bg); }
+.st-hold::before{ background:var(--hold); }
+.mini-dot{ display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--ink-faint); flex:none; }
+.mini-dot.is-ok{ background:var(--ok); } .mini-dot.is-risk{ background:var(--risk); } .mini-dot.is-hold{ background:var(--hold); }
+.chip{
+  display:inline-flex; align-items:center; gap:5px; font:500 11px/1 var(--mono); letter-spacing:.02em;
+  color:var(--navy-deep); background:var(--navy-bg); border:1px solid var(--navy-line);
+  border-radius:6px; padding:4px 7px; white-space:nowrap;
+}
+.mlabel{ font:600 10px/1.4 var(--mono); letter-spacing:.1em; text-transform:uppercase; color:var(--ink-faint); }
+
+/* canonical theme switcher (.rc-theme) — copied verbatim from the contract */
+.rc-theme{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--rule);border-radius:7px;
+          padding:3px 4px 3px 7px;background:var(--bg);}
+.rc-theme-sw{width:12px;height:12px;border-radius:50%;background:var(--navy);box-shadow:0 0 0 1px var(--rule);flex:none;}
+.rc-theme-sel{border:0;background:none;font:600 11px/1 var(--mono);color:var(--ink-mid);cursor:pointer;outline:none;padding:2px;}
+@media print{.rc-theme{display:none;}}
+
+/* JS-off notice */
+.noscript{ max-width:1180px; margin:18px auto 0; padding:13px 18px; background:var(--hold-bg);
+  border:1px solid var(--hold-line); border-radius:10px; color:var(--hold); font-weight:600; }
+.noscript code{ font:600 11.5px/1 var(--mono); }
+
+/* ============================================================
+   2. TREEMAP SHELL  (the distinct silhouette: toolbar + map + rail)
+   ============================================================ */
+.tm-shell{ display:flex; flex-direction:column; min-height:100vh; }
+
+/* ---- toolbar: breadcrumb trail + controls (slim, sticky) ---- */
+.tm-bar{
+  position:sticky; top:0; z-index:20;
+  display:flex; align-items:center; gap:16px; flex-wrap:wrap;
+  padding:10px 22px; background:var(--bg); border-bottom:1px solid var(--rule);
+  box-shadow:var(--shadow-rail);
+}
+.tm-brand{ display:flex; align-items:center; gap:11px; min-width:0; }
+.tm-brand .markmini{ color:var(--navy); display:inline-flex; flex:none; }
+.tm-brand .markmini svg{ width:26px; height:26px; }
+.tm-titles{ min-width:0; }
+.tm-eyebrow{ font:600 9.5px/1 var(--mono); letter-spacing:.14em; text-transform:uppercase; color:var(--ink-faint); }
+.tm-title{ font:800 15.5px/1.2 var(--sans); letter-spacing:-.01em; color:var(--ink); white-space:nowrap; }
+.tm-title b{ color:var(--navy-deep); }
+.tm-sub{ font:500 11px/1 var(--mono); letter-spacing:.03em; color:var(--ink-soft); margin-top:2px; }
+
+/* ---- breadcrumb trail (the signature locator) ---- */
+.tm-crumbs{ display:flex; align-items:center; flex-wrap:wrap; gap:2px; min-width:0; }
+.tm-crumb{
+  display:inline-flex; align-items:center; gap:5px; cursor:pointer;
+  font:600 11.5px/1 var(--sans); color:var(--navy-deep);
+  background:var(--navy-bg); border:1px solid var(--navy-line); border-radius:6px;
+  padding:5px 9px; transition:background .12s, color .12s;
+}
+.tm-crumb:hover{ background:var(--navy); color:#fff; }
+.tm-crumb:hover .icon{ color:#fff; }
+.tm-crumb .icon{ width:13px; height:13px; color:var(--navy); }
+.tm-crumb.is-current{ cursor:default; color:var(--ink); background:var(--bg); border-color:var(--rule); }
+.tm-crumb.is-current:hover{ background:var(--bg); color:var(--ink); }
+.tm-crumb-sep{ color:var(--ink-faint); font:600 13px/1 var(--mono); padding:0 1px; user-select:none; }
+
+.tm-spacer{ flex:1 1 auto; }
+
+/* ---- control cluster (colour-by select + depth slider + theme) ---- */
+.tm-controls{ display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
+.tm-ctl{ display:inline-flex; align-items:center; gap:8px; }
+.tm-ctl > .mlabel{ white-space:nowrap; }
+.tm-select{
+  display:inline-flex; align-items:center; gap:6px;
+  border:1px solid var(--rule); border-radius:7px; padding:3px 6px 3px 9px; background:var(--bg);
+}
+.tm-select .icon{ width:14px; height:14px; color:var(--navy); }
+.tm-select select{
+  border:0; background:none; font:600 11.5px/1 var(--sans); color:var(--ink-mid);
+  cursor:pointer; outline:none; padding:3px 2px;
+}
+/* depth slider */
+.tm-depth{ display:inline-flex; align-items:center; gap:9px; }
+.tm-range{ -webkit-appearance:none; appearance:none; width:108px; height:4px; border-radius:3px;
+  background:var(--rule); outline:none; cursor:pointer; }
+.tm-range::-webkit-slider-thumb{ -webkit-appearance:none; appearance:none; width:15px; height:15px;
+  border-radius:50%; background:var(--navy); border:2px solid var(--bg); box-shadow:0 0 0 1px var(--navy-line); cursor:pointer; }
+.tm-range::-moz-range-thumb{ width:15px; height:15px; border:2px solid var(--bg); border-radius:50%;
+  background:var(--navy); box-shadow:0 0 0 1px var(--navy-line); cursor:pointer; }
+.tm-depth-val{ font:700 12px/1 var(--mono); color:var(--ink); min-width:74px; }
+.tm-depth-val b{ color:var(--navy-deep); }
+
+/* ============================================================
+   3. STAGE  (map + right rail)
+   ============================================================ */
+.tm-stage{
+  flex:1 1 auto;
+  display:grid; grid-template-columns:1fr var(--rail); gap:18px;
+  padding:18px 22px 22px; min-width:0; align-items:start;
+}
+
+/* ---- the squarified MAP canvas ---- */
+.tm-mapwrap{
+  background:var(--bg); border:1px solid var(--rule); border-radius:12px;
+  box-shadow:var(--shadow); padding:12px; min-width:0;
+}
+.tm-maphead{ display:flex; align-items:center; gap:9px; padding:2px 4px 11px; }
+.tm-maphead .icon{ color:var(--navy); width:15px; height:15px; }
+.tm-maphead .h{ font:700 12.5px/1.1 var(--sans); color:var(--ink); }
+.tm-maphead .total{ margin-left:auto; font:700 12px/1 var(--mono); color:var(--ink); }
+.tm-maphead .total span{ color:var(--ink-faint); font-weight:600; }
+.tm-map{
+  position:relative; width:100%;
+  aspect-ratio:16 / 9; min-height:440px;
+  background:var(--bg-subtle); border:1px solid var(--rule-soft); border-radius:10px;
+  overflow:hidden;
+}
+
+/* ---- a tile (rounded rect, positioned from computed {x,y,w,h}) ---- */
+.tm-tile{
+  position:absolute; border-radius:9px; overflow:hidden;
+  border:1px solid rgba(17,19,26,.06);
+  transition:inset .28s cubic-bezier(.4,.1,.2,1), opacity .2s, box-shadow .12s, transform .12s;
+  cursor:zoom-in; will-change:inset;
+}
+.tm-tile:focus-visible{ outline:2px solid var(--navy); outline-offset:1px; }
+.tm-leaf:hover{ z-index:8; box-shadow:0 4px 16px rgba(17,19,26,.16); }
+.tm-leaf.is-cursor{ box-shadow:0 0 0 2px var(--navy), 0 4px 16px rgba(17,19,26,.16); z-index:9; }
+.tm-tile-body{ position:absolute; inset:0; padding:8px 9px; display:flex; flex-direction:column; gap:2px; }
+.tm-tile-label{ font:700 12.5px/1.2 var(--sans); letter-spacing:-.01em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.tm-tile-val{ font:700 12px/1.1 var(--mono); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.tm-tile-share{ font:600 10px/1.1 var(--mono); letter-spacing:.02em; opacity:.78; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.tm-tile-cm{ margin-top:auto; font:600 10px/1.1 var(--mono); letter-spacing:.02em; opacity:.92; display:inline-flex; align-items:center; gap:4px; max-width:100%; overflow:hidden; white-space:nowrap; }
+/* small tiles hide text progressively (set by JS) */
+.tm-tile.sz-xs .tm-tile-val, .tm-tile.sz-xs .tm-tile-share, .tm-tile.sz-xs .tm-tile-cm{ display:none; }
+.tm-tile.sz-xs .tm-tile-label{ font-size:11px; }
+.tm-tile.sz-tiny .tm-tile-body{ display:none; }
+
+/* PARENT tile: header strip + inset that holds nested children */
+.tm-parent{ cursor:zoom-in; background:var(--bg); }
+.tm-parent > .tm-tile-head{
+  position:absolute; left:0; right:0; top:0; height:22px; z-index:2;
+  display:flex; align-items:center; gap:6px; padding:0 9px;
+  font:700 11px/1 var(--sans); letter-spacing:-.01em;
+  border-bottom:1px solid rgba(17,19,26,.08);
+}
+.tm-parent > .tm-tile-head .ph-val{ margin-left:auto; font:600 10px/1 var(--mono); opacity:.85; }
+.tm-parent > .tm-tile-head .ph-dot{ width:7px; height:7px; border-radius:2px; flex:none; }
+.tm-parent.sz-tiny > .tm-tile-head{ display:none; }
+.tm-nest{ position:absolute; left:0; right:0; bottom:0; }   /* nested children area (top set inline) */
+.tm-parent:hover{ box-shadow:0 4px 16px rgba(17,19,26,.13); z-index:7; }
+
+/* ---- RIGHT RAIL: focus summary · legend · ranked children ---- */
+.tm-rail{ display:flex; flex-direction:column; gap:14px; position:sticky; top:74px; }
+.tm-card{
+  background:var(--bg); border:1px solid var(--rule); border-radius:12px;
+  box-shadow:var(--shadow); padding:14px 15px;
+}
+.tm-focus .fc-eyebrow{ display:flex; align-items:center; gap:7px; margin-bottom:7px; }
+.tm-focus .fc-eyebrow .icon{ color:var(--navy); width:14px; height:14px; }
+.tm-focus .fc-name{ font:800 17px/1.18 var(--sans); letter-spacing:-.01em; color:var(--ink); }
+.tm-focus .fc-note{ font:500 11.5px/1.45 var(--sans); color:var(--ink-soft); margin-top:4px; }
+.tm-focus .fc-stats{ display:grid; grid-template-columns:1fr 1fr; gap:1px; margin-top:12px;
+  background:var(--rule-soft); border:1px solid var(--rule-soft); border-radius:9px; overflow:hidden; }
+.tm-focus .fc-stat{ background:var(--bg); padding:9px 11px; }
+.tm-focus .fc-stat .mlabel{ margin-bottom:4px; }
+.tm-focus .fc-stat b{ font:800 18px/1 var(--mono); letter-spacing:-.02em; color:var(--ink); }
+.tm-focus .fc-stat b small{ font-size:12px; color:var(--ink-faint); font-weight:700; }
+.tm-focus .fc-cm{ margin-top:11px; display:flex; align-items:center; gap:8px; }
+
+/* colour-scale legend */
+.tm-legend .mlabel{ margin-bottom:8px; }
+.tm-ramp{ height:12px; border-radius:5px; border:1px solid var(--rule); }
+.tm-ramp-ticks{ display:flex; justify-content:space-between; margin-top:5px;
+  font:600 9.5px/1 var(--mono); color:var(--ink-faint); }
+.tm-cats{ display:flex; flex-direction:column; gap:7px; }
+.tm-cat{ display:flex; align-items:center; gap:8px; font:600 11.5px/1 var(--sans); color:var(--ink-mid); }
+.tm-cat i{ width:13px; height:13px; border-radius:4px; flex:none; border:1px solid rgba(17,19,26,.1); }
+
+/* ranked child list */
+.tm-childlist .mlabel{ margin-bottom:4px; }
+.tm-childrow{
+  display:grid; grid-template-columns:13px 1fr auto; align-items:center; gap:9px;
+  width:100%; text-align:left; cursor:pointer;
+  padding:8px 4px; border:0; border-bottom:1px solid var(--rule-soft); background:none;
+  transition:background .12s;
+}
+.tm-childrow:last-child{ border-bottom:0; }
+.tm-childrow:hover, .tm-childrow.is-cursor{ background:var(--bg-subtle); }
+.tm-childrow.is-cursor{ box-shadow:inset 2px 0 0 var(--navy); }
+.tm-swatch{ width:13px; height:13px; border-radius:4px; flex:none; border:1px solid rgba(17,19,26,.12); }
+.tm-cr-main{ min-width:0; }
+.tm-cr-name{ font:600 12px/1.25 var(--sans); color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.tm-cr-bar{ height:5px; border-radius:3px; background:var(--bg-band); border:1px solid var(--rule-soft); overflow:hidden; margin-top:4px; }
+.tm-cr-bar i{ display:block; height:100%; border-radius:3px; background:var(--navy); }
+.tm-cr-fig{ text-align:right; white-space:nowrap; }
+.tm-cr-fig b{ display:block; font:700 12px/1.1 var(--mono); color:var(--ink); }
+.tm-cr-fig em{ font:600 9.5px/1 var(--mono); font-style:normal; letter-spacing:.04em; color:var(--ink-faint); }
+.tm-cr-name .leafmark{ color:var(--ink-faint); font:600 9px/1 var(--mono); letter-spacing:.08em; margin-left:5px; }
+
+/* ---- shared floating tooltip (exact value + share + colour metric) ---- */
+.tm-tip{
+  position:fixed; z-index:60; pointer-events:none;
+  background:#000; color:#fff; border-radius:8px; padding:8px 10px;
+  font:600 11px/1.45 var(--sans); white-space:nowrap; box-shadow:0 6px 20px rgba(0,0,0,.32);
+  opacity:0; transition:opacity .1s; transform:translate(-50%,-100%);
+}
+.tm-tip.show{ opacity:1; }
+.tm-tip .tt-h{ font:700 11.5px/1.2 var(--sans); color:#fff; margin-bottom:4px; }
+.tm-tip .tt-row{ display:flex; align-items:center; justify-content:space-between; gap:14px; }
+.tm-tip .tt-row span{ font:600 10px/1.3 var(--mono); letter-spacing:.05em; text-transform:uppercase; color:#cfd3db; }
+.tm-tip .tt-row b{ font:700 11.5px/1 var(--mono); color:#fff; }
+.tm-tip .tt-row b.pos{ color:#ff9b94; } .tm-tip .tt-row b.neg{ color:#9fe8c4; }
+.tm-tip .tt-path{ margin-top:5px; padding-top:5px; border-top:1px solid rgba(255,255,255,.16);
+  font:600 9.5px/1.3 var(--mono); letter-spacing:.04em; color:#aeb3bd; }
+
+/* ---- footer strip ---- */
+.tm-foot{
+  margin-top:auto; background:var(--bg-deep); color:#cfd3db;
+  display:flex; align-items:center; gap:14px; padding:13px 22px;
+  font:600 10.5px/1.4 var(--mono); letter-spacing:.05em; text-transform:uppercase;
+}
+.tm-foot .wm{ display:inline-flex; align-items:center; gap:8px; color:#fff; font:800 12px/1 var(--sans); letter-spacing:-.01em; text-transform:none; }
+.tm-foot .wm i{ width:16px; height:16px; border-radius:4px; background:var(--navy); display:inline-block; }
+.tm-foot .sp{ flex:1 1 auto; }
+
+/* ---- print: static, complete snapshot of the current view; hide controls ---- */
+@media print{
+  body{ background:#fff; }
+  .tm-bar{ position:static; box-shadow:none; }
+  .tm-controls, .tm-spacer{ display:none !important; }
+  .tm-stage{ grid-template-columns:1fr; }
+  .tm-rail{ position:static; }
+  .tm-mapwrap, .tm-card{ box-shadow:none; break-inside:avoid; }
+  .tm-tile{ transition:none; cursor:default; }
+  .tm-tip{ display:none !important; }
+  .tm-foot{ background:#fff; color:#000; border-top:2px solid #000; }
+  .tm-foot .wm{ color:#000; } .tm-foot .wm i{ background:#000; }
+}
+</style>
+</head>
+<body>
+
+<noscript>
+  <div class="noscript">
+    This treemap renders from embedded data and requires JavaScript for its interactive layout
+    (zoom-by-tile, breadcrumb ascend, colour-by metric, depth slider, hover tooltips). The complete
+    source data — every node, value, and colour reading — is in the <code>#report-data</code> block above.
+  </div>
+</noscript>
+
+<div class="tm-shell" id="shell"><!-- built by render() --></div>
+
+<!-- single shared floating tooltip -->
+<div class="tm-tip" id="tm-tip" role="status" aria-live="polite"></div>
+
+<script>
+/* ============================================================
+   TREEMAP RENDERER + INTERACTIONS  (vanilla JS, no libraries)
+   - render()          : #report-data JSON  →  shell DOM (shell built once)
+   - squarify(...)      : real SQUARIFIED layout (aspect-ratio-minimising rows)
+   - layoutNode(...)    : recursive packing of a focus node to the chosen depth
+   - paint()            : (re)draw map + rail for current focus / colour / depth
+   - wireInteractions() : tile zoom · breadcrumb · colour-by · depth · hover tip
+   - wireThemeSwitch()  : canonical 9-preset .rc-theme dropdown (_DATA_DRIVEN §3)
+   Reading requires JS (data-driven, per _DATA_DRIVEN §1); a <noscript>
+   notice + the raw JSON are provided above. Print = static snapshot.
+   ============================================================ */
+(function(){
+  "use strict";
+
+  var DATA;
+  try { DATA = JSON.parse(document.getElementById('report-data').textContent); }
+  catch(e){ document.getElementById('shell').innerHTML =
+    '<p style="padding:24px;font:600 13px var(--sans);color:var(--risk)">Could not parse #report-data: '+e.message+'</p>'; return; }
+
+  var root   = document.documentElement;
+  var shell  = document.getElementById('shell');
+  var tipEl  = document.getElementById('tm-tip');
+
+  /* ---- helpers ---- */
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+  function clamp(v,a,b){ return v<a?a:v>b?b:v; }
+
+  /* size-metric formatting (e.g. $184,000 → $184k) */
+  var SM = DATA.sizeMetric || { label:'Value', unit:'' };
+  var unitPos = SM.unitPosition || (/^[^\w\s]/.test(SM.unit||'') ? 'prefix' : 'suffix');
+  function fmtAbbrev(v){
+    var n = Math.abs(v), s;
+    if(n>=1e9) s=(v/1e9).toFixed(2).replace(/\.?0+$/,'')+'B';
+    else if(n>=1e6) s=(v/1e6).toFixed(2).replace(/\.?0+$/,'')+'M';
+    else if(n>=1e3) s=(v/1e3).toFixed(1).replace(/\.0$/,'')+'k';
+    else s=String(Math.round(v));
+    return s;
+  }
+  function fmtFull(v){ return Math.round(v).toLocaleString('en-US'); }
+  function withUnit(str){ return unitPos==='prefix' ? (SM.unit||'')+str : str+(SM.unit||''); }
+  function sizeAbbrev(v){ return withUnit(fmtAbbrev(v)); }
+  function sizeFull(v){ return withUnit(fmtFull(v)); }
+
+  /* ---- roll up internal-node values = sum of children (per schema) ---- */
+  function rollup(node){
+    if(node.children && node.children.length){
+      var s=0;
+      for(var i=0;i<node.children.length;i++) s += rollup(node.children[i]);
+      if(node.value==null) node.value = s;
+      return node.value;
+    }
+    return node.value || 0;
+  }
+  rollup(DATA.root);
+  var GRAND = DATA.root.value || 1;
+
+  /* ---- index nodes + parent pointers (for breadcrumb path) ---- */
+  var BYID = {};
+  (function index(node, parent){
+    node._parent = parent || null;
+    BYID[node.id] = node;
+    if(node.children) node.children.forEach(function(c){ index(c, node); });
+  })(DATA.root, null);
+  function pathTo(node){ var p=[]; var n=node; while(n){ p.unshift(n); n=n._parent; } return p; }
+
+  /* ============================================================
+     COLOUR — diverging / sequential / category, mixed from tokens
+     so tiles re-theme. Returns {bg, ink, dotState} for a node.
+     ============================================================ */
+  var CM = DATA.colorMetric || { label:'Category', type:'category' };
+  /* read live theme tokens so mixes follow the active brand accent */
+  function tok(name){ return getComputedStyle(root).getPropertyValue(name).trim(); }
+  function hexToRgb(h){
+    h=h.replace('#',''); if(h.length===3) h=h.split('').map(function(c){return c+c;}).join('');
+    return [parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)];
+  }
+  function mix(a,b,t){ var A=hexToRgb(a),B=hexToRgb(b);
+    return 'rgb('+Math.round(A[0]+(B[0]-A[0])*t)+','+Math.round(A[1]+(B[1]-A[1])*t)+','+Math.round(A[2]+(B[2]-A[2])*t)+')'; }
+  function lum(rgbStr){ var m=rgbStr.match(/\d+/g)||[0,0,0];
+    return (0.299*m[0]+0.587*m[1]+0.114*m[2])/255; }
+  function inkOn(bg){ return lum(bg) < 0.58 ? '#fff' : 'var(--ink)'; }
+
+  /* category id → palette role (from colorMetric.scale) */
+  var CATROLE = {}; var CATLABEL = {};
+  (CM.scale||[]).forEach(function(c){ CATROLE[c.id]=c.role||'accent'; CATLABEL[c.id]=c.label||c.id; });
+  function roleHex(role){
+    switch(role){ case 'ok': return tok('--ok'); case 'risk': return tok('--risk');
+      case 'hold': return tok('--hold'); case 'accent-soft': return tok('--navy-line');
+      case 'neutral': return tok('--ink-faint'); default: return tok('--navy'); }
+  }
+
+  /* the currently-selected colour mode: 'metric' | 'size' | 'category' */
+  function tileColor(node, modeOverride){
+    var mode = modeOverride || STATE.colorMode;
+    var WHITE='#ffffff';
+    if(mode==='category'){
+      var role = CATROLE[node._catId] || 'neutral';
+      var base = roleHex(role);
+      // a soft wash of the category hue
+      return { bg: mix(base, WHITE, 0.80), ink:'var(--ink)', edge: mix(base, WHITE, 0.45), raw: CATLABEL[node._catId]||'—' };
+    }
+    if(mode==='size'){
+      // sequential ramp on the brand accent by share of grand total
+      var share = (node.value||0)/GRAND;
+      var t = clamp(Math.pow(share,0.45)*1.15, 0.06, 0.92);
+      var bg = mix(WHITE, tok('--navy'), t);
+      return { bg: bg, ink: inkOn(bg), edge: mix(WHITE, tok('--navy'), Math.min(t+0.15,1)), raw: '' };
+    }
+    /* diverging / sequential on the colour-metric value */
+    var th = CM.thresholds || { min:-1, mid:0, max:1, goodHigh:true };
+    var v = (typeof node.color==='number') ? node.color : null;
+    if(v==null){ var n=tok('--bg-band'); return { bg:n, ink:'var(--ink)', edge:tok('--rule'), raw:'—' }; }
+    var goodHigh = th.goodHigh!==false;
+    if(CM.type==='diverging'){
+      var mid = (th.mid==null?0:th.mid);
+      var goodHex = tok('--ok'), badHex = tok('--risk');
+      if(v>=mid){
+        var span=(th.max-mid)||1, t2=clamp((v-mid)/span,0,1);
+        var hue = goodHigh ? goodHex : badHex;
+        var bgD = mix(WHITE, hue, 0.16 + t2*0.62);
+        return { bg:bgD, ink:inkOn(bgD), edge:mix(WHITE,hue,0.4+t2*0.5), raw:fmtCM(v) };
+      } else {
+        var span2=(mid-th.min)||1, t3=clamp((mid-v)/span2,0,1);
+        var hue2 = goodHigh ? badHex : goodHex;
+        var bgD2 = mix(WHITE, hue2, 0.16 + t3*0.62);
+        return { bg:bgD2, ink:inkOn(bgD2), edge:mix(WHITE,hue2,0.4+t3*0.5), raw:fmtCM(v) };
+      }
+    }
+    // sequential
+    var span3=(th.max-th.min)||1, t4=clamp((v-th.min)/span3,0,1);
+    if(!goodHigh) t4=1-t4;
+    var bgS = mix(WHITE, tok('--navy'), 0.08+t4*0.8);
+    return { bg:bgS, ink:inkOn(bgS), edge:mix(WHITE,tok('--navy'),Math.min(t4+0.15,1)), raw:fmtCM(v) };
+  }
+  function fmtCM(v){
+    if(typeof v!=='number') return String(v);
+    var s=(v>0?'+':'')+ (Math.round(v*10)/10);
+    return s + (CM.unit||'');
+  }
+  function cmState(node){
+    /* map a colour-metric reading to ok/risk/hold for the rail chip + dot */
+    if(STATE.colorMode==='category'){ return 'neutral'; }
+    if(STATE.colorMode==='size'){ return 'neutral'; }
+    var v=node.color; if(typeof v!=='number') return 'neutral';
+    var th=CM.thresholds||{mid:0,goodHigh:true}; var mid=th.mid==null?0:th.mid; var goodHigh=th.goodHigh!==false;
+    var above = v>=mid;
+    var good = goodHigh ? above : !above;
+    if(Math.abs(v-mid) < ((th.max-th.min)||1)*0.06) return 'hold';
+    return good ? 'ok' : 'risk';
+  }
+
+  /* assign a category id to every node when the scale exists (fallback by top-branch) */
+  (function assignCats(){
+    if(!(CM.scale && CM.scale.length)) return;
+    var ids = CM.scale.map(function(c){ return c.id; });
+    function walk(node, inherited){
+      var cat = (typeof node.color==='string' && CATROLE[node.color]!=null) ? node.color : inherited;
+      node._catId = cat || ids[0];
+      if(node.children) node.children.forEach(function(c){ walk(c, node._catId); });
+    }
+    (DATA.root.children||[]).forEach(function(c,i){ walk(c, ids[i % ids.length]); });
+    DATA.root._catId = ids[0];
+  })();
+
+  /* ============================================================
+     SQUARIFIED TREEMAP LAYOUT  (Bruls, Huizing & van Wijk)
+     Lays children into a rectangle, choosing rows that minimise
+     the worst tile aspect ratio. Returns each child a rect in the
+     same units as the container {x,y,w,h}.
+     ============================================================ */
+  function worst(rowAreas, len, rowSum){
+    // aspect ratio of the worst tile in this row if laid along side length `len`
+    var rmax=-Infinity, rmin=Infinity;
+    for(var i=0;i<rowAreas.length;i++){ var a=rowAreas[i]; if(a>rmax)rmax=a; if(a<rmin)rmin=a; }
+    var s2 = rowSum*rowSum, l2 = len*len;
+    return Math.max( (l2*rmax)/s2, s2/(l2*rmin) );
+  }
+  /* areas: [{node, area}] scaled so sum(area)=rect.w*rect.h */
+  function squarify(children, rect){
+    var out=[];
+    var items = children.map(function(c){ return { node:c, value:Math.max(c.value||0,0) }; });
+    var totalVal = items.reduce(function(s,it){ return s+it.value; },0) || 1;
+    var totalArea = rect.w*rect.h;
+    items.forEach(function(it){ it.area = it.value/totalVal*totalArea; });
+    // keep stable: largest first improves squariness
+    items.sort(function(a,b){ return b.area-a.area; });
+
+    var x=rect.x, y=rect.y, w=rect.w, h=rect.h;
+    var i=0;
+    while(i<items.length){
+      var shortSide = Math.min(w,h);
+      var row=[]; var rowAreas=[]; var rowSum=0;
+      var bestWorst = Infinity;
+      // grow the row while it improves (lowers) the worst aspect ratio
+      var j=i;
+      while(j<items.length){
+        var trialAreas = rowAreas.concat([items[j].area]);
+        var trialSum = rowSum + items[j].area;
+        var wv = worst(trialAreas, shortSide, trialSum);
+        if(row.length===0 || wv <= bestWorst){
+          rowAreas = trialAreas; rowSum = trialSum; row.push(items[j]); bestWorst = wv; j++;
+        } else break;
+      }
+      // lay the chosen row along the short side; advance along the long side
+      var rowThickness = rowSum / (shortSide || 1);
+      if(w >= h){
+        // row is a vertical column of width rowThickness at x
+        var cy=y;
+        for(var a=0;a<row.length;a++){
+          var th = row[a].area/(rowThickness||1);
+          out.push({ node:row[a].node, x:x, y:cy, w:rowThickness, h:th });
+          cy += th;
+        }
+        x += rowThickness; w -= rowThickness;
+      } else {
+        // row is a horizontal band of height rowThickness at y
+        var cx=x;
+        for(var b=0;b<row.length;b++){
+          var tw = row[b].area/(rowThickness||1);
+          out.push({ node:row[b].node, x:cx, y:y, w:tw, h:rowThickness });
+          cx += tw;
+        }
+        y += rowThickness; h -= rowThickness;
+      }
+      i = j;
+    }
+    return out;
+  }
+
+  /* squarify the focus node's DIRECT children into the map box (percent coords),
+     marking each as a parent-view tile when deeper levels are requested. Nested
+     levels are packed in px-space by placeNested() once the tiles are sized (the
+     inset box height isn't known until layout). Returns a list of top-level tiles. */
+  function layoutNode(focus, levels){
+    if(!focus.children || !focus.children.length) return [];
+    var rects = squarify(focus.children, { x:0, y:0, w:100, h:100 });
+    return rects.map(function(r){
+      var child=r.node;
+      var goDeeper = !!(child.children && child.children.length) && levels > 1;
+      return { node:child, parent:focus, depth:1, x:r.x, y:r.y, w:r.w, h:r.h, isParentView:goDeeper };
+    });
+  }
+
+  /* ============================================================
+     STATE + the map pixel height (for gutter / text-fit decisions)
+     ============================================================ */
+  var STATE = { focusId:'root', colorMode:'metric', depth:2, maxDepth:1 };
+  var MAPW=0, MAPH=0;
+
+  function computeMaxDepth(node){
+    var m=0; (function w(n,d){ if(n.children&&n.children.length){ m=Math.max(m,d); n.children.forEach(function(c){ w(c,d+1); }); } })(node,0);
+    return m;
+  }
+  STATE.maxDepth = computeMaxDepth(DATA.root);
+  STATE.depth = Math.min(2, STATE.maxDepth);
+
+  /* ============================================================
+     RENDER — build the shell ONCE; paint() fills the dynamic parts
+     ============================================================ */
+  var ICON = {
+    treemap:'<rect x="3.5" y="3.5" width="17" height="17" rx="2.5"/><path d="M3.5 11h9M12.5 3.5V20.5M3.5 16h9M12.5 11h8"/>',
+    chevR:'<path d="M9.5 5.5 16 12l-6.5 6.5"/>',
+    home:'<path d="M4.5 11 12 4.5 19.5 11"/><path d="M6.5 9.5V19h11V9.5"/><rect x="10.4" y="13.5" width="3.2" height="5.5" rx="0.8"/>',
+    palette:'<path d="M12 3.5a8.5 8.5 0 1 0 0 17c1.3 0 2-1 2-2 0-1.4-1.3-1.6-1.3-2.7 0-.8.7-1.3 1.6-1.3H16a4.5 4.5 0 0 0 4.5-4.5C20.5 6.4 16.7 3.5 12 3.5Z"/><rect x="6.7" y="9.2" width="2.4" height="2.4" rx="1.2" fill="currentColor" stroke="none"/><rect x="11" y="6.8" width="2.4" height="2.4" rx="1.2" fill="currentColor" stroke="none"/><rect x="15.2" y="9.2" width="2.4" height="2.4" rx="1.2" fill="currentColor" stroke="none"/>',
+    layers:'<path d="M12 4 3.5 8.5 12 13l8.5-4.5L12 4Z"/><path d="M3.5 13 12 17.5 20.5 13"/>',
+    grid:'<rect x="4" y="4" width="16" height="16" rx="2.5"/><path d="M4 12h16M12 4v16"/>',
+    focus:'<rect x="4.5" y="4.5" width="15" height="15" rx="2.5"/><rect x="9.4" y="9.4" width="5.2" height="5.2" rx="1.4" fill="currentColor" stroke="none"/>',
+    rank:'<path d="M5 6.5h10M5 12h13M5 17.5h7"/><rect x="17.6" y="4.9" width="3.2" height="3.2" rx="1.2" fill="currentColor" stroke="none"/>'
+  };
+  function svg(name, cls){ return '<svg class="'+(cls||'icon')+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" '
+    + 'stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">'+(ICON[name]||'')+'</svg>'; }
+
+  function colorByOptions(){
+    var opts = [];
+    opts.push('<option value="metric">'+esc(CM.label||'Colour metric')+'</option>');
+    opts.push('<option value="size">'+esc(SM.label||'Size')+' (sequential)</option>');
+    if(CM.scale && CM.scale.length) opts.push('<option value="category">Category</option>');
+    return opts.join('');
+  }
+
+  function render(){
+    var m = DATA.meta || {};
+    root.dataset.theme = m.theme || 'indigo';
+
+    var themeSwitcher = '<label class="rc-theme" title="Brand colour">'
+      + '<span class="rc-theme-sw" aria-hidden="true"></span>'
+      + '<select class="rc-theme-sel" aria-label="Brand theme">'
+      + '<option value="blue">Blue</option>'
+      + '<option value="purple">Purple</option>'
+      + '<option value="indigo">Indigo</option>'
+      + '<option value="teal">Teal</option>'
+      + '<option value="cyan">Cyan</option>'
+      + '<option value="green">Green</option>'
+      + '<option value="plum">Plum</option>'
+      + '<option value="slate">Slate</option>'
+      + '<option value="black">Black</option>'
+      + '</select></label>';
+
+    shell.innerHTML = ''
+    + '<header class="tm-bar">'
+    +   '<div class="tm-brand">'
+    +     '<span class="markmini">'+svg('treemap','icon-lg')+'</span>'
+    +     '<div class="tm-titles">'
+    +       '<div class="tm-eyebrow">'+esc(m.org||'{{ORG}}')+' · '+esc((m.reportType||'').toUpperCase())+'</div>'
+    +       '<div class="tm-title">'+esc(m.project||'{{PROJECT}}')+' · <b>'+esc(m.title||'Treemap')+'</b></div>'
+    +       (m.subtitle?'<div class="tm-sub">'+esc(m.subtitle)+'</div>':'')
+    +     '</div>'
+    +   '</div>'
+    +   '<nav class="tm-crumbs" id="crumbs" aria-label="Breadcrumb"></nav>'
+    +   '<div class="tm-spacer"></div>'
+    +   '<div class="tm-controls">'
+    +     '<div class="tm-ctl">'
+    +       '<span class="mlabel">Colour by</span>'
+    +       '<span class="tm-select">'+svg('palette')+'<select id="colorby" aria-label="Colour by metric">'+colorByOptions()+'</select></span>'
+    +     '</div>'
+    +     '<div class="tm-ctl tm-depth">'
+    +       '<span class="mlabel">Depth</span>'
+    +       '<input type="range" class="tm-range" id="depth" min="1" max="'+Math.max(STATE.maxDepth,1)+'" step="1" value="'+STATE.depth+'" aria-label="Nested depth levels">'
+    +       '<span class="tm-depth-val" id="depthval"></span>'
+    +     '</div>'
+    +     themeSwitcher
+    +   '</div>'
+    + '</header>'
+
+    + '<div class="tm-stage">'
+    +   '<section class="tm-mapwrap" aria-label="Treemap">'
+    +     '<div class="tm-maphead">'+svg('grid')+'<span class="h" id="maphead-h"></span><span class="total" id="maphead-total"></span></div>'
+    +     '<div class="tm-map" id="map" role="group" aria-label="Area treemap of children"></div>'
+    +   '</section>'
+    +   '<aside class="tm-rail" aria-label="Focus summary">'
+    +     '<div class="tm-card tm-focus" id="focuscard"></div>'
+    +     '<div class="tm-card tm-legend" id="legendcard"></div>'
+    +     '<div class="tm-card tm-childlist" id="childcard"></div>'
+    +   '</aside>'
+    + '</div>'
+
+    + '<footer class="tm-foot">'
+    +   '<span class="wm"><i></i>'+esc(m.org||'{{ORG}}')+'</span>'
+    +   '<span class="sp"></span>'
+    +   '<span>'+esc(m.project||'{{PROJECT}}')+' · '+esc((m.reportType||'').toUpperCase())+'</span>'
+    +   '<span>SIZED BY '+esc((SM.label||'').toUpperCase())+' · TINT '+esc((CM.label||'').toUpperCase())+'</span>'
+    +   '<span>GENERATED '+esc(m.date||'')+'</span>'
+    +   '<span>'+esc(m.author||'{{AUTHOR}}')+'</span>'
+    + '</footer>';
+
+    // sync controls
+    document.getElementById('colorby').value = STATE.colorMode;
+    paint();
+  }
+
+  /* ---- breadcrumb trail for the current focus path ---- */
+  function paintCrumbs(){
+    var path = pathTo(BYID[STATE.focusId]);
+    var el = document.getElementById('crumbs');
+    el.innerHTML = path.map(function(n,i){
+      var isCur = i===path.length-1;
+      var sep = i>0 ? '<span class="tm-crumb-sep" aria-hidden="true">›</span>' : '';
+      var ico = i===0 ? svg('home') : '';
+      return sep + '<button class="tm-crumb'+(isCur?' is-current':'')+'" data-id="'+esc(n.id)+'"'
+        + (isCur?' aria-current="true"':'')+'>'+ico+esc(n.label)+'</button>';
+    }).join('');
+  }
+
+  /* ============================================================
+     PAINT — (re)compute layout & redraw map + rail for the state
+     ============================================================ */
+  function paint(){
+    var focus = BYID[STATE.focusId] || DATA.root;
+    paintCrumbs();
+    paintMap(focus);
+    paintRail(focus);
+    var dv=document.getElementById('depthval');
+    if(dv) dv.innerHTML = '<b>'+STATE.depth+'</b> / '+Math.max(STATE.maxDepth,1)+' level'+(STATE.depth>1?'s':'');
+    var mh=document.getElementById('maphead-h'); if(mh) mh.textContent = focus.label;
+    var mt=document.getElementById('maphead-total');
+    if(mt) mt.innerHTML = sizeFull(focus.value||0)+' <span>· '+(focus.children?focus.children.length:0)+' parts</span>';
+  }
+
+  /* Decide how much text a leaf tile can show, from its REAL rendered px box
+     (gutter already subtracted by the caller). Thresholds match the body's
+     line budget: full body = label+value+share+colour-metric (~4 lines, needs
+     ~70px tall); sz-xs = label only (needs ~32px); sz-tiny = blank (tooltip). */
+  function fitClass(wPx,hPx){
+    var area=wPx*hPx;
+    if(wPx<46 || hPx<32) return 'sz-tiny';
+    if(area<5200 || hPx<70) return 'sz-xs';
+    return '';
+  }
+
+  function paintMap(focus){
+    var map = document.getElementById('map');
+    var rect = map.getBoundingClientRect();
+    MAPW = rect.width || 800; MAPH = rect.height || 450;
+
+    var tiles = layoutNode(focus, STATE.depth);
+    // px gutter between sibling tiles, expressed back into the % space differently per axis
+    var GX = 2.4 / MAPW * 100, GY = 2.4 / MAPH * 100;
+    var HEADPCT_PX = 22; // header strip height in px for parent tiles
+
+    var html = tiles.map(function(t){
+      /* use the REAL rendered box (gutter subtracted) for text-fit decisions */
+      var wPx = Math.max(t.w-GX,0)/100*MAPW, hPx = Math.max(t.h-GY,0)/100*MAPH;
+      var col = tileColor(t.node);
+      var share = (t.node.value||0)/((t.parent.value)||1)*100;
+      var common = 'left:'+(t.x+GX/2).toFixed(3)+'%;top:'+(t.y+GY/2).toFixed(3)+'%;'
+                 + 'width:'+Math.max(t.w-GX,0).toFixed(3)+'%;height:'+Math.max(t.h-GY,0).toFixed(3)+'%;';
+      var ds = 'data-id="'+esc(t.node.id)+'" data-depth="'+t.depth+'"';
+      var leafTip = ' tabindex="0" role="button" aria-label="'+esc(t.node.label)+' '+esc(sizeFull(t.node.value||0))+', '+share.toFixed(0)+'% of parent. Click to zoom."';
+
+      if(t.isParentView){
+        // parent: header strip (tinted) + nested children fill the rest
+        var hpct = HEADPCT_PX/hPx*100;
+        var nestTop = Math.min(hpct, 40);
+        var headBg = col.bg, headInk = inkOn(headBg);
+        var szp = (wPx<60||hPx<46)?'sz-tiny':'';
+        return '<div class="tm-tile tm-parent '+szp+'" '+ds+leafTip+' style="'+common
+          + 'background:var(--bg);border-color:'+col.edge+';">'
+          + '<div class="tm-tile-head" style="background:'+headBg+';color:'+headInk+';border-color:'+col.edge+';">'
+          +   '<span class="ph-dot" style="background:'+col.edge+';"></span>'
+          +   '<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+esc(t.node.label)+'</span>'
+          +   '<span class="ph-val">'+esc(sizeAbbrev(t.node.value||0))+'</span>'
+          + '</div>'
+          + '<div class="tm-nest" style="top:'+nestTop.toFixed(2)+'%;"></div>'
+          + '</div>';
+      }
+      // leaf (or a parent shown at the deepest rendered level → render as a solid value tile)
+      var sz = fitClass(wPx,hPx);
+      var cmRaw = col.raw;
+      var st = cmState(t.node);
+      var arrow = (typeof t.node.color==='number') ? (t.node.color>=0?'▲':'▼') : '';
+      return '<div class="tm-tile tm-leaf '+sz+'" '+ds+leafTip+' style="'+common
+        + 'background:'+col.bg+';color:'+col.ink+';border-color:'+col.edge+';">'
+        + '<div class="tm-tile-body">'
+        +   '<div class="tm-tile-label">'+esc(t.node.label)+'</div>'
+        +   '<div class="tm-tile-val tnum">'+esc(sizeAbbrev(t.node.value||0))+'</div>'
+        +   '<div class="tm-tile-share tnum">'+share.toFixed(1)+'% of parent</div>'
+        +   (cmRaw && cmRaw!=='—' ? '<div class="tm-tile-cm tnum">'+esc(arrow)+' '+esc(cmRaw)+'</div>' : '')
+        + '</div>'
+        + '</div>';
+    }).join('');
+
+    map.innerHTML = html;
+
+    // place nested children into each parent's .tm-nest after the parents exist,
+    // recursing one rendering pass per parent box (squarify within the inset).
+    placeNested(map, focus, STATE.depth);
+  }
+
+  /* fill .tm-nest insets: for every parent tile, lay its children inside the inset box */
+  function placeNested(mapEl, focus, levels){
+    var parents = mapEl.querySelectorAll('.tm-parent');
+    parents.forEach(function(pEl){
+      var node = BYID[pEl.getAttribute('data-id')];
+      var nest = pEl.querySelector('.tm-nest');
+      if(!node || !nest || !(node.children&&node.children.length)) return;
+      var depth = parseInt(pEl.getAttribute('data-depth'),10) || 1;
+      var nb = nest.getBoundingClientRect();
+      var nW = nb.width, nH = nb.height;
+      if(nW<8 || nH<8) return;
+      var rects = squarify(node.children, { x:0, y:0, w:100, h:100 });
+      var GX = 2.0/nW*100, GY = 2.0/nH*100;
+      nest.innerHTML = rects.map(function(r){
+        var child=r.node;
+        /* real rendered box (gutter subtracted) drives the text-fit class */
+        var wPx=Math.max(r.w-GX,0)/100*nW, hPx=Math.max(r.h-GY,0)/100*nH;
+        var col=tileColor(child);
+        var share=(child.value||0)/((node.value)||1)*100;
+        var hasKids=!!(child.children&&child.children.length);
+        var goDeeper = hasKids && depth < levels;
+        var common='position:absolute;left:'+(r.x+GX/2).toFixed(3)+'%;top:'+(r.y+GY/2).toFixed(3)+'%;'
+                 + 'width:'+Math.max(r.w-GX,0).toFixed(3)+'%;height:'+Math.max(r.h-GY,0).toFixed(3)+'%;';
+        var ds='data-id="'+esc(child.id)+'" data-depth="'+(depth+1)+'"';
+        var leafTip=' tabindex="0" role="button" aria-label="'+esc(child.label)+' '+esc(sizeFull(child.value||0))+', '+share.toFixed(0)+'% of parent. Click to zoom."';
+        if(goDeeper){
+          var hpct=Math.min(20/hPx*100,40), headInk=inkOn(col.bg), szp=(wPx<54||hPx<40)?'sz-tiny':'';
+          return '<div class="tm-tile tm-parent '+szp+'" '+ds+leafTip+' style="'+common
+            + 'background:var(--bg);border-color:'+col.edge+';border-radius:7px;">'
+            + '<div class="tm-tile-head" style="background:'+col.bg+';color:'+headInk+';border-color:'+col.edge+';height:18px;font-size:10px;">'
+            +   '<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+esc(child.label)+'</span>'
+            +   '<span class="ph-val">'+esc(sizeAbbrev(child.value||0))+'</span>'
+            + '</div>'
+            + '<div class="tm-nest" style="top:'+hpct.toFixed(2)+'%;"></div>'
+            + '</div>';
+        }
+        var sz=fitClass(wPx,hPx);
+        var arrow=(typeof child.color==='number')?(child.color>=0?'▲':'▼'):'';
+        return '<div class="tm-tile tm-leaf '+sz+'" '+ds+leafTip+' style="'+common
+          + 'background:'+col.bg+';color:'+col.ink+';border-color:'+col.edge+';border-radius:7px;">'
+          + '<div class="tm-tile-body">'
+          +   '<div class="tm-tile-label">'+esc(child.label)+'</div>'
+          +   '<div class="tm-tile-val tnum">'+esc(sizeAbbrev(child.value||0))+'</div>'
+          +   '<div class="tm-tile-share tnum">'+share.toFixed(1)+'%</div>'
+          +   (col.raw&&col.raw!=='—'?'<div class="tm-tile-cm tnum">'+esc(arrow)+' '+esc(col.raw)+'</div>':'')
+          + '</div></div>';
+      }).join('');
+      // recurse for deeper levels
+      placeNested(nest, node, levels);
+    });
+  }
+
+  /* ---- right rail: focus summary + legend + ranked children ---- */
+  function paintRail(focus){
+    var fc=document.getElementById('focuscard');
+    var shareOfTotal=(focus.value||0)/GRAND*100;
+    var cmShow = (STATE.colorMode==='metric' && typeof focus.color==='number');
+    var st = cmState(focus);
+    var stLabel = st==='ok'?'Favourable':st==='risk'?'Watch':st==='hold'?'Flat':'—';
+    fc.innerHTML = ''
+      + '<div class="fc-eyebrow mlabel">'+svg('focus')+'Focused node</div>'
+      + '<div class="fc-name">'+esc(focus.label)+'</div>'
+      + (focus.note?'<div class="fc-note">'+esc(focus.note)+'</div>':'')
+      + '<div class="fc-stats">'
+      +   '<div class="fc-stat"><div class="mlabel">'+esc(SM.label||'Value')+'</div><b class="tnum">'+esc(sizeAbbrev(focus.value||0))+'</b></div>'
+      +   '<div class="fc-stat"><div class="mlabel">Share of total</div><b class="tnum">'+shareOfTotal.toFixed(1)+'<small>%</small></b></div>'
+      + '</div>'
+      + (cmShow
+          ? '<div class="fc-cm"><span class="mlabel">'+esc(CM.label)+'</span>'
+            + '<span class="st-badge st-'+(st==='neutral'?'':st)+'">'+esc(fmtCM(focus.color))+' · '+esc(stLabel)+'</span></div>'
+          : '');
+
+    // legend (re-renders per colour mode)
+    paintLegend();
+
+    // ranked children
+    var cc=document.getElementById('childcard');
+    if(!focus.children || !focus.children.length){
+      cc.innerHTML='<div class="mlabel">Children</div><p class="muted" style="font:600 12px/1.5 var(--sans);margin-top:6px;">Leaf node — no breakdown. Use the breadcrumb to ascend.</p>';
+      return;
+    }
+    var kids=focus.children.slice().sort(function(a,b){ return (b.value||0)-(a.value||0); });
+    var maxV=kids[0].value||1;
+    cc.innerHTML='<div class="mlabel">Ranked children · click to zoom</div>'
+      + kids.map(function(c){
+          var col=tileColor(c);
+          var share=(c.value||0)/((focus.value)||1)*100;
+          var isLeaf=!(c.children&&c.children.length);
+          return '<button class="tm-childrow" data-id="'+esc(c.id)+'">'
+            + '<span class="tm-swatch" style="background:'+col.bg+';border-color:'+col.edge+';"></span>'
+            + '<span class="tm-cr-main"><span class="tm-cr-name">'+esc(c.label)+(isLeaf?'<span class="leafmark">LEAF</span>':'')+'</span>'
+            +   '<span class="tm-cr-bar"><i style="width:'+((c.value||0)/maxV*100).toFixed(1)+'%;background:'+col.edge+';"></i></span></span>'
+            + '<span class="tm-cr-fig"><b class="tnum">'+esc(sizeAbbrev(c.value||0))+'</b><em>'+share.toFixed(1)+'%</em></span>'
+            + '</button>';
+        }).join('');
+  }
+
+  function paintLegend(){
+    var lc=document.getElementById('legendcard');
+    if(STATE.colorMode==='category' && CM.scale && CM.scale.length){
+      lc.innerHTML='<div class="mlabel">Legend · category</div><div class="tm-cats">'
+        + CM.scale.map(function(c){
+            var hex=roleHex(c.role||'accent'); var sw=mix(hex,'#ffffff',0.55);
+            return '<div class="tm-cat"><i style="background:'+mix(hex,'#ffffff',0.78)+';border-color:'+sw+';"></i>'+esc(c.label)+'</div>';
+          }).join('')
+        + '</div>';
+      return;
+    }
+    if(STATE.colorMode==='size'){
+      var lo=mix('#ffffff',tok('--navy'),0.1), hi=tok('--navy');
+      lc.innerHTML='<div class="mlabel">Legend · '+esc(SM.label||'size')+'</div>'
+        + '<div class="tm-ramp" style="background:linear-gradient(90deg,'+lo+','+hi+');"></div>'
+        + '<div class="tm-ramp-ticks"><span>small share</span><span>large share</span></div>';
+      return;
+    }
+    // diverging / sequential on colour metric
+    var th=CM.thresholds||{min:-1,mid:0,max:1,goodHigh:true};
+    var goodHigh=th.goodHigh!==false;
+    var good=tok('--ok'), bad=tok('--risk');
+    var grad;
+    if(CM.type==='diverging'){
+      var loHue=goodHigh?good:bad, hiHue=goodHigh?bad:good;
+      grad='linear-gradient(90deg,'+mix('#ffffff',loHue,0.7)+','+mix('#ffffff',loHue,0.16)+' 42%,#ffffff 50%,'+mix('#ffffff',hiHue,0.16)+' 58%,'+mix('#ffffff',hiHue,0.7)+')';
+      lc.innerHTML='<div class="mlabel">Legend · '+esc(CM.label||'metric')+'</div>'
+        + '<div class="tm-ramp" style="background:'+grad+';"></div>'
+        + '<div class="tm-ramp-ticks"><span>'+fmtCM(th.min)+'</span><span>'+fmtCM(th.mid==null?0:th.mid)+'</span><span>'+fmtCM(th.max)+'</span></div>';
+    } else {
+      var a=mix('#ffffff',tok('--navy'),0.08), b=mix('#ffffff',tok('--navy'),0.88);
+      grad='linear-gradient(90deg,'+ (goodHigh?a:b) +','+ (goodHigh?b:a) +')';
+      lc.innerHTML='<div class="mlabel">Legend · '+esc(CM.label||'metric')+'</div>'
+        + '<div class="tm-ramp" style="background:'+grad+';"></div>'
+        + '<div class="tm-ramp-ticks"><span>'+fmtCM(th.min)+'</span><span>'+fmtCM(th.max)+'</span></div>';
+    }
+  }
+
+  /* ============================================================
+     INTERACTIONS
+     ============================================================ */
+  function zoomTo(id){
+    var node=BYID[id]; if(!node) return;
+    // zoom into a node only if it has children; a leaf just flashes its tooltip
+    if(node.children && node.children.length){
+      STATE.focusId=id;
+      paint();
+    }
+  }
+
+  function wireInteractions(){
+    // tile click → zoom (delegate; works for nested tiles too)
+    var map=document.getElementById('map');
+    map.addEventListener('click', function(e){
+      var t=e.target.closest('.tm-tile'); if(!t) return;
+      var id=t.getAttribute('data-id'); var node=BYID[id];
+      if(node && node.children && node.children.length){ zoomTo(id); }
+      else { flashLeaf(t); }
+    });
+    map.addEventListener('keydown', function(e){
+      if(e.key!=='Enter' && e.key!==' ') return;
+      var t=e.target.closest('.tm-tile'); if(!t) return; e.preventDefault();
+      var id=t.getAttribute('data-id'); var node=BYID[id];
+      if(node && node.children && node.children.length) zoomTo(id);
+    });
+
+    // hover tooltip (exact value + share of parent + colour-metric value)
+    map.addEventListener('mousemove', function(e){
+      var t=e.target.closest('.tm-tile'); if(!t){ hideTip(); return; }
+      var node=BYID[t.getAttribute('data-id')]; if(!node) return;
+      showTip(node, e.clientX, e.clientY);
+      highlightRail(node.id);
+    });
+    map.addEventListener('mouseleave', function(){ hideTip(); clearRailHighlight(); });
+
+    // breadcrumb ascend (delegate)
+    document.getElementById('crumbs').addEventListener('click', function(e){
+      var c=e.target.closest('.tm-crumb'); if(!c || c.classList.contains('is-current')) return;
+      STATE.focusId=c.getAttribute('data-id'); paint();
+    });
+
+    // colour-by select
+    document.getElementById('colorby').addEventListener('change', function(e){
+      STATE.colorMode=e.target.value; paint();
+    });
+
+    // depth slider (re-render 1..N nested levels)
+    var depth=document.getElementById('depth');
+    depth.addEventListener('input', function(e){
+      STATE.depth=parseInt(e.target.value,10)||1; paint();
+    });
+
+    // ranked child rows → zoom
+    document.getElementById('childcard').addEventListener('click', function(e){
+      var r=e.target.closest('.tm-childrow'); if(!r) return;
+      zoomTo(r.getAttribute('data-id'));
+    });
+
+    // recompute pixel-driven layout on resize
+    var rAF;
+    window.addEventListener('resize', function(){
+      if(rAF) return; rAF=requestAnimationFrame(function(){ rAF=null; paint(); });
+    });
+  }
+
+  function flashLeaf(tileEl){
+    tileEl.classList.add('is-cursor');
+    setTimeout(function(){ tileEl.classList.remove('is-cursor'); }, 700);
+  }
+
+  function showTip(node, x, y){
+    var share=(node.value||0)/((node._parent&&node._parent.value)||GRAND)*100;
+    var path=pathTo(node).map(function(n){ return n.label; }).join(' › ');
+    var cmHTML='';
+    if(STATE.colorMode!=='size' && (typeof node.color==='number' || (STATE.colorMode==='category'&&node._catId))){
+      if(STATE.colorMode==='category'){
+        cmHTML='<div class="tt-row"><span>'+esc(CM.label||'Category')+'</span><b>'+esc(CATLABEL[node._catId]||node._catId||'—')+'</b></div>';
+      } else if(typeof node.color==='number'){
+        var st=cmState(node);
+        var cls=st==='risk'?'pos':st==='ok'?'neg':'';
+        cmHTML='<div class="tt-row"><span>'+esc(CM.label||'Metric')+'</span><b class="'+cls+'">'+esc(fmtCM(node.color))+'</b></div>';
+      }
+    }
+    tipEl.innerHTML=''
+      + '<div class="tt-h">'+esc(node.label)+'</div>'
+      + '<div class="tt-row"><span>'+esc(SM.label||'Value')+'</span><b>'+esc(sizeFull(node.value||0))+'</b></div>'
+      + '<div class="tt-row"><span>Share of parent</span><b>'+share.toFixed(1)+'%</b></div>'
+      + cmHTML
+      + '<div class="tt-path">'+esc(path)+'</div>';
+    tipEl.style.left=x+'px';
+    tipEl.style.top=(y-14)+'px';
+    tipEl.classList.add('show');
+  }
+  function hideTip(){ tipEl.classList.remove('show'); }
+
+  function highlightRail(id){
+    clearRailHighlight();
+    var r=document.querySelector('.tm-childrow[data-id="'+cssEsc(id)+'"]');
+    if(r) r.classList.add('is-cursor');
+  }
+  function clearRailHighlight(){
+    var c=document.querySelector('.tm-childrow.is-cursor'); if(c) c.classList.remove('is-cursor');
+  }
+  function cssEsc(s){ return String(s).replace(/[^a-zA-Z0-9_-]/g, function(ch){ return '\\'+ch; }); }
+
+  /* ---- canonical theme switcher (_DATA_DRIVEN §3) ---- */
+  function wireThemeSwitch(){
+    var rcSel=shell.querySelector('.rc-theme-sel');
+    if(rcSel){
+      rcSel.value=root.dataset.theme || 'indigo';
+      rcSel.addEventListener('change', function(){
+        root.dataset.theme=rcSel.value;
+        // tints are mixed from live theme tokens → repaint so they follow the new accent
+        paint();
+      });
+    }
+  }
+
+  /* ---- boot ---- */
+  document.addEventListener('DOMContentLoaded', function(){
+    render();
+    wireInteractions();
+    wireThemeSwitch();
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,2564 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="slate">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>{{REPORT_TYPE}} — Third-Party Risk &amp; Control Register · {{PROJECT}}</title>
+<style>
+/* ============================================================
+   DATA-REGISTER / MATRIX  ·  enterprise data-grid application
+   Default theme: Slate.  Self-contained: system fonts + inline SVG, no external requests.
+   ============================================================ */
+:root{
+  /* surfaces */
+  --bg:#fff; --bg-band:#f6f6f8; --bg-subtle:#fafafb; --bg-deep:#15131a;
+  --rule:#dcdce2; --rule-soft:#ebebef;
+  /* ink */
+  --ink:#11131a; --ink-mid:#33363f; --ink-soft:#5a5e68; --ink-faint:#868b95;
+  /* brand accent — overridden per theme below */
+  --navy:#a100ff; --navy-deep:#7a00c2; --navy-bg:#f3e8ff; --navy-line:#d9bef5;
+  --ok:#5a2f8a; --ok-bg:#efe8f5; --ok-line:#d0b5e0;
+  /* semantic states — CONSTANT across themes */
+  --risk:#b3261e; --risk-bg:#fbeceb; --risk-line:#edc7c4;
+  --hold:#8a6d00; --hold-bg:#fbf3da; --hold-line:#e7d8a4;
+  /* type stacks */
+  --mono:ui-monospace,"JetBrains Mono","SFMono-Regular",Menlo,Consolas,monospace;
+  --sans:-apple-system,"Segoe UI",system-ui,Roboto,"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic UI","Apple SD Gothic Neo","Malgun Gothic","PingFang SC","Microsoft YaHei","Noto Sans CJK JP","Noto Sans CJK KR","Noto Sans CJK SC","Noto Sans JP","Noto Sans KR","Noto Sans SC","Noto Sans",sans-serif;
+}
+/* ---- theme swaps (only the 7 accent values change) ---- */
+html[data-theme="slate"]{ --navy:#3f4f63; --navy-deep:#29384b; --navy-bg:#eef1f5; --navy-line:#c2ccd8; --ok:#34495e; --ok-bg:#eef1f5; --ok-line:#c2ccd8; }
+html[data-theme="blue"]{ --navy:#0b5fd4; --navy-deep:#0842a0; --navy-bg:#e8f1fc; --navy-line:#bcd6f5; --ok:#1a4f9c; --ok-bg:#e9f0fa; --ok-line:#b7cdea; }
+html[data-theme="purple"]{ --navy:#a100ff; --navy-deep:#7a00c2; --navy-bg:#f3e8ff; --navy-line:#d9bef5; --ok:#5a2f8a; --ok-bg:#efe8f5; --ok-line:#d0b5e0; }
+html[data-theme="indigo"]{ --navy:#4338ca; --navy-deep:#312c92; --navy-bg:#ebebfb; --navy-line:#c7c3f0; --ok:#3730a3; --ok-bg:#ebeaf7; --ok-line:#c5c2ea; }
+html[data-theme="teal"]{ --navy:#0e7c86; --navy-deep:#095861; --navy-bg:#e0f3f4; --navy-line:#a9dade; --ok:#0f5d54; --ok-bg:#e3f3ef; --ok-line:#b3ddd4; }
+html[data-theme="cyan"]{ --navy:#0891b2; --navy-deep:#0e6f88; --navy-bg:#e2f4f9; --navy-line:#abdde9; --ok:#0e6b7a; --ok-bg:#e4f3f4; --ok-line:#b0dde2; }
+html[data-theme="green"]{ --navy:#1f7a44; --navy-deep:#155730; --navy-bg:#e6f4ea; --navy-line:#b3dcc1; --ok:#2f6b3c; --ok-bg:#e9f3ea; --ok-line:#bedcc4; }
+html[data-theme="plum"]{ --navy:#a21d6e; --navy-deep:#7c1450; --navy-bg:#fbe8f2; --navy-line:#e8b9d4; --ok:#6d2356; --ok-bg:#f6e8f0; --ok-line:#e3bcd5; }
+html[data-theme="black"]{ --navy:#000000; --navy-deep:#000; --navy-bg:#f1f1f3; --navy-line:#d6d6db; --ok:#3f3f46; --ok-bg:#f1f1f3; --ok-line:#cfcfd6; }
+
+*{ box-sizing:border-box; }
+html,body{ height:100%; }
+body{
+  margin:0; font:13px/1.55 var(--sans); color:var(--ink); background:var(--bg-band);
+  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+}
+.icon{ width:1.15em; height:1.15em; display:inline-block; vertical-align:-.18em; color:inherit; flex:none; }
+.icon-sm{ width:14px; height:14px; }
+
+/* ============================================================ APP SHELL */
+.register{
+  width:100vw; height:100vh; display:flex; flex-direction:column;
+  background:var(--bg); overflow:hidden;
+}
+
+/* ---- slim app bar ---- */
+.register-bar{
+  position:sticky; top:0; z-index:40; flex:none;
+  display:flex; align-items:center; gap:18px;
+  height:46px; padding:0 18px;
+  background:var(--bg); border-bottom:1px solid var(--rule);
+  box-shadow:0 1px 3px rgba(17,19,26,.05);
+}
+.wordmark{ display:flex; align-items:center; gap:9px; font-weight:800; font-size:13px; letter-spacing:-.01em; color:var(--ink); white-space:nowrap; }
+.wordmark .mark{ width:18px; height:18px; border-radius:5px; background:var(--navy); color:#fff; display:grid; place-items:center; }
+.wordmark .mark .icon{ width:12px; height:12px; }
+.wordmark .sep{ color:var(--rule); font-weight:400; }
+.wordmark .proj{ color:var(--ink-soft); font-weight:600; }
+.bar-title{
+  display:flex; align-items:baseline; gap:9px; min-width:0;
+}
+.bar-title .eyebrow{ font:600 9.5px/1 var(--mono); letter-spacing:.14em; text-transform:uppercase; color:var(--ink-faint); }
+.bar-title .name{ font-weight:800; font-size:13.5px; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.bar-spacer{ flex:1; }
+.bar-meta{ display:flex; align-items:center; gap:14px; }
+.bar-meta .m{ font:600 10px/1 var(--mono); letter-spacing:.05em; color:var(--ink-faint); text-transform:uppercase; }
+.bar-meta .m b{ color:var(--ink-mid); }
+.result-count{
+  display:inline-flex; align-items:center; gap:6px;
+  font:700 11px/1 var(--mono); color:var(--navy-deep); background:var(--navy-bg);
+  border:1px solid var(--navy-line); border-radius:6px; padding:5px 9px; white-space:nowrap;
+}
+.result-count .icon{ color:var(--navy); }
+.result-count b{ font-feature-settings:"tnum" 1; }
+
+.rc-theme{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--rule);border-radius:7px;padding:3px 4px 3px 7px;background:var(--bg);}
+.rc-theme-sw{width:12px;height:12px;border-radius:50%;background:var(--navy);box-shadow:0 0 0 1px var(--rule);flex:none;}
+.rc-theme-sel{border:0;background:none;font:600 11px/1 var(--mono);color:var(--ink-mid);cursor:pointer;outline:none;padding:2px;}
+@media print{.rc-theme{display:none;}}
+
+/* ============================================================ TOOLBAR */
+.toolbar{
+  position:sticky; top:46px; z-index:38; flex:none;
+  display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+  padding:9px 18px; background:var(--bg-band); border-bottom:1px solid var(--rule);
+}
+.tool-group{ display:flex; align-items:center; gap:7px; }
+.tool-group + .tool-group{ padding-left:11px; border-left:1px solid var(--rule); }
+.tool-label{ font:600 9.5px/1 var(--mono); letter-spacing:.12em; text-transform:uppercase; color:var(--ink-faint); }
+
+/* search */
+.search{ position:relative; display:flex; align-items:center; }
+.search .icon{ position:absolute; left:9px; color:var(--ink-faint); pointer-events:none; }
+.search input{
+  font:13px/1 var(--sans); color:var(--ink); background:var(--bg);
+  border:1px solid var(--rule); border-radius:7px; padding:7px 9px 7px 30px; width:248px;
+}
+.search input::placeholder{ color:var(--ink-faint); font-family:var(--mono); font-size:11.5px; }
+.search input:focus{ outline:none; border-color:var(--navy); box-shadow:0 0 0 3px var(--navy-bg); }
+
+/* status filter chips */
+.filter-chip{
+  display:inline-flex; align-items:center; gap:6px; cursor:pointer;
+  font:600 11.5px/1 var(--sans); color:var(--ink-mid);
+  background:var(--bg); border:1px solid var(--rule); border-radius:6px; padding:6px 10px;
+}
+.filter-chip .dot{ width:7px; height:7px; border-radius:50%; background:var(--ink-faint); }
+.filter-chip .ct{ font:700 10px/1 var(--mono); color:var(--ink-faint); font-feature-settings:"tnum" 1; }
+.filter-chip[data-status="ok"]   .dot{ background:var(--ok); }
+.filter-chip[data-status="risk"] .dot{ background:var(--risk); }
+.filter-chip[data-status="hold"] .dot{ background:var(--hold); }
+.filter-chip[aria-pressed="true"]{ background:var(--navy); border-color:var(--navy-deep); color:#fff; }
+.filter-chip[aria-pressed="true"] .dot,
+.filter-chip[aria-pressed="true"] .ct{ background:#fff; color:#fff; }
+.filter-chip[aria-pressed="true"] .ct{ background:transparent; opacity:.85; }
+
+/* column-toggle popover + generic tool button */
+.tbtn{
+  display:inline-flex; align-items:center; gap:6px; cursor:pointer;
+  font:600 11.5px/1 var(--sans); color:var(--ink-mid);
+  background:var(--bg); border:1px solid var(--rule); border-radius:7px; padding:7px 10px;
+}
+.tbtn:hover{ border-color:var(--navy-line); }
+.tbtn .icon{ color:var(--ink-soft); }
+.col-toggle{ position:relative; }
+.col-toggle > summary{ list-style:none; }
+.col-toggle > summary::-webkit-details-marker{ display:none; }
+.col-toggle[open] > summary .tbtn{ border-color:var(--navy); box-shadow:0 0 0 3px var(--navy-bg); }
+.col-pop{
+  position:absolute; top:calc(100% + 6px); right:0; z-index:50; width:198px;
+  background:var(--bg); border:1px solid var(--rule); border-radius:10px;
+  box-shadow:0 8px 24px rgba(17,19,26,.12); padding:8px;
+}
+.col-pop .ph{ font:600 9.5px/1 var(--mono); letter-spacing:.12em; text-transform:uppercase; color:var(--ink-faint); padding:4px 6px 7px; }
+.col-pop label{ display:flex; align-items:center; gap:8px; padding:5px 6px; border-radius:6px; font-size:12px; color:var(--ink-mid); cursor:pointer; }
+.col-pop label:hover{ background:var(--bg-subtle); }
+.col-pop input{ accent-color:var(--navy); }
+
+/* sort control select */
+.sort-ctl{ display:inline-flex; align-items:center; gap:6px; }
+.sort-ctl select{
+  font:600 11.5px/1 var(--sans); color:var(--ink-mid); background:var(--bg);
+  border:1px solid var(--rule); border-radius:7px; padding:7px 26px 7px 9px; cursor:pointer;
+  appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235a5e68' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M7 10l5 5 5-5'/%3E%3C/svg%3E");
+  background-repeat:no-repeat; background-position:right 7px center; background-size:14px;
+}
+.sort-ctl select:focus{ outline:none; border-color:var(--navy); box-shadow:0 0 0 3px var(--navy-bg); }
+
+/* ============================================================ BODY (facet rail + grid) */
+.register-body{ flex:1; display:flex; min-height:0; }
+
+/* ---- left facet rail ---- */
+.facet{
+  flex:none; width:216px; overflow-y:auto; padding:14px 14px 26px;
+  background:var(--bg-subtle); border-right:1px solid var(--rule);
+}
+.facet-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+.facet-head .ttl{ display:flex; align-items:center; gap:7px; font:700 11px/1 var(--mono); letter-spacing:.1em; text-transform:uppercase; color:var(--ink-mid); }
+.facet-head .ttl .icon{ color:var(--navy); }
+.facet-clear{ font:600 10px/1 var(--mono); letter-spacing:.04em; color:var(--navy-deep); background:none; border:0; cursor:pointer; text-transform:uppercase; }
+.facet-clear:hover{ text-decoration:underline; }
+.facet-group{ margin-bottom:16px; }
+.facet-group > h4{ margin:0 0 7px; font:600 9.5px/1 var(--mono); letter-spacing:.12em; text-transform:uppercase; color:var(--ink-faint); }
+.facet-opt{ display:flex; align-items:center; gap:8px; padding:4px 4px; border-radius:6px; cursor:pointer; font-size:12px; color:var(--ink-mid); }
+.facet-opt:hover{ background:var(--bg); }
+.facet-opt input{ accent-color:var(--navy); }
+.facet-opt .lab{ flex:1; }
+.facet-opt .ct{ font:600 10px/1 var(--mono); color:var(--ink-faint); font-feature-settings:"tnum" 1; }
+
+/* ---- grid ---- */
+.grid-wrap{ flex:1; overflow:auto; min-width:0; }
+.grid-table{
+  width:100%; border-collapse:separate; border-spacing:0;
+  font-size:12.5px; color:var(--ink-mid);
+}
+.grid-table thead th{
+  position:sticky; top:0; z-index:20;
+  background:var(--bg); text-align:left; vertical-align:bottom;
+  font:600 10px/1.2 var(--mono); letter-spacing:.07em; text-transform:uppercase; color:var(--ink-faint);
+  padding:11px 12px 9px; white-space:nowrap;
+  border-bottom:2px solid var(--ink);
+  box-shadow:0 1px 0 rgba(17,19,26,.04);
+}
+.grid-table thead th.sortable{ cursor:pointer; user-select:none; }
+.grid-table thead th.sortable:hover{ color:var(--ink-mid); }
+.grid-table thead th.num{ text-align:right; }
+.grid-table thead th .th-in{ display:inline-flex; align-items:center; gap:5px; }
+.grid-table thead th.num .th-in{ flex-direction:row-reverse; }
+.sort-caret{ width:11px; height:11px; opacity:0; color:var(--navy); transition:transform .12s; }
+th[aria-sort="ascending"]  .sort-caret{ opacity:1; transform:rotate(180deg); }
+th[aria-sort="descending"] .sort-caret{ opacity:1; }
+th[aria-sort] { color:var(--ink); }
+
+.grid-table tbody td{
+  padding:8px 12px; border-bottom:1px solid var(--rule-soft); vertical-align:top;
+}
+/* zebra is applied as a CLASS by apply() (not inline style) so the :hover rule below
+   keeps winning after every filter / sort re-render */
+.grid-row.zebra{ background:var(--bg-subtle); }
+.grid-row.zebra + .row-detail{ background:var(--bg-subtle); }
+.grid-row:hover, .grid-row:hover + .row-detail,
+.grid-row.zebra:hover, .grid-row.zebra:hover + .row-detail{ background:var(--navy-bg); }
+.grid-row:hover td{ color:var(--ink); }
+.grid-row .id{ font:600 11.5px/1.3 var(--mono); color:var(--navy-deep); white-space:nowrap; font-feature-settings:"tnum" 1; }
+.grid-row .title{ color:var(--ink); font-weight:600; }
+.grid-row .sub{ display:block; margin-top:2px; color:var(--ink-faint); font-size:11px; }
+.grid-row .num{ text-align:right; font-family:var(--mono); font-feature-settings:"tnum" 1; white-space:nowrap; }
+.grid-row .owner{ white-space:nowrap; }
+.grid-row .date{ font-family:var(--mono); font-feature-settings:"tnum" 1; white-space:nowrap; color:var(--ink-soft); }
+
+/* tiny category tag */
+.tag{ display:inline-block; font:600 10.5px/1 var(--mono); letter-spacing:.02em; color:var(--ink-soft);
+  background:var(--bg-band); border:1px solid var(--rule); border-radius:5px; padding:4px 7px; white-space:nowrap; }
+
+/* score cell with mini bar */
+.score{ display:inline-flex; align-items:center; gap:7px; justify-content:flex-end; }
+.score .val{ font:700 12px/1 var(--mono); font-feature-settings:"tnum" 1; }
+.score .meter{ width:34px; height:5px; border-radius:3px; background:var(--rule-soft); overflow:hidden; }
+.score .meter i{ display:block; height:100%; border-radius:3px; background:var(--navy); }
+.score.s-risk .val{ color:var(--risk); } .score.s-risk .meter i{ background:var(--risk); }
+.score.s-hold .val{ color:var(--hold); } .score.s-hold .meter i{ background:var(--hold); }
+.score.s-ok   .val{ color:var(--ok);   } .score.s-ok   .meter i{ background:var(--ok); }
+
+/* ---- shared primitive: status badge ---- */
+.st-badge{
+  display:inline-flex; align-items:center; gap:6px; white-space:nowrap;
+  font:600 11px/1 var(--sans); border:1px solid; border-radius:6px; padding:4px 8px;
+}
+.st-badge::before{ content:""; width:7px; height:7px; border-radius:50%; flex:none; }
+.st-ok   { color:var(--ok);   background:var(--ok-bg);   border-color:var(--ok-line); }
+.st-ok::before{ background:var(--ok); }
+.st-risk { color:var(--risk); background:var(--risk-bg); border-color:var(--risk-line); }
+.st-risk::before{ background:var(--risk); }
+.st-hold { color:var(--hold); background:var(--hold-bg); border-color:var(--hold-line); }
+.st-hold::before{ background:var(--hold); }
+
+/* ---- disclosure toggle (first cell) ---- */
+.disclosure{ width:30px; padding-left:14px !important; padding-right:0 !important; }
+.disclosure summary{ list-style:none; cursor:pointer; display:inline-grid; place-items:center; width:20px; height:20px; border-radius:5px; color:var(--ink-soft); }
+.disclosure summary::-webkit-details-marker{ display:none; }
+.disclosure summary:hover{ background:var(--bg-band); color:var(--navy); }
+.disclosure summary .icon{ transition:transform .14s; }
+details[open] .disclosure summary .icon{ transform:rotate(90deg); color:var(--navy); }
+
+/* ---- the row-detail drawer ---- */
+.row-detail > td{ padding:0 12px 0 0; border-bottom:1px solid var(--rule-soft); }
+.row-detail .drawer{ display:none; }
+/* Reveal the drawer purely from the native <details open> state of the row in front of it
+   (no JS class needed) so the detail is readable with JS OFF; the .open class is kept as an
+   OR for the JS-enhanced path. */
+.grid-row:has(details.disc[open]) + .row-detail .drawer,
+.row-detail.open .drawer{ display:block; }
+.drawer{
+  margin:2px 14px 14px 44px; padding:14px 16px;
+  background:var(--bg-subtle); border:1px solid var(--rule); border-radius:11px;
+}
+.drawer-head{ display:flex; align-items:center; gap:8px; margin-bottom:11px; }
+.drawer-head .icon{ color:var(--navy); }
+.drawer-head .dt{ font-weight:800; font-size:13px; color:var(--ink); }
+.drawer-head .did{ font:600 10.5px/1 var(--mono); color:var(--navy-deep); background:var(--navy-bg); border:1px solid var(--navy-line); border-radius:5px; padding:3px 7px; }
+.drawer-grid{ display:grid; grid-template-columns:1.4fr 1fr; gap:14px; }
+.drawer-note{ margin:0; color:var(--ink-mid); font-size:12.5px; line-height:1.6; }
+.drawer-note + .drawer-note{ margin-top:8px; }
+.drawer-note .lead{ font:600 9.5px/1 var(--mono); letter-spacing:.1em; text-transform:uppercase; color:var(--ink-faint); display:block; margin-bottom:4px; }
+
+/* key/value grid primitive */
+.kv{ display:grid; grid-template-columns:repeat(2,1fr); gap:0; border:1px solid var(--rule); border-radius:10px; overflow:hidden; }
+.kv .cell{ padding:8px 11px; border-bottom:1px solid var(--rule-soft); }
+.kv .cell:nth-child(odd){ border-right:1px solid var(--rule-soft); }
+.kv .cell:nth-last-child(-n+2){ border-bottom:0; }
+.kv .k{ font:600 9px/1 var(--mono); letter-spacing:.1em; text-transform:uppercase; color:var(--ink-faint); display:block; margin-bottom:3px; }
+.kv .v{ font:600 12px/1.3 var(--mono); color:var(--ink); font-feature-settings:"tnum" 1; }
+
+/* reference chips */
+.refs{ display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
+.ref-chip{
+  display:inline-flex; align-items:center; gap:5px; text-decoration:none;
+  font:600 10.5px/1 var(--mono); color:var(--navy-deep); background:var(--navy-bg);
+  border:1px solid var(--navy-line); border-radius:5px; padding:4px 8px; cursor:pointer;
+}
+.ref-chip .icon{ color:var(--navy); width:12px; height:12px; }
+.ref-chip:hover{ background:var(--navy); border-color:var(--navy-deep); color:#fff; }
+.ref-chip:hover .icon{ color:#fff; }
+
+/* empty state (when filters match nothing) */
+.empty{ display:none; padding:48px 24px; text-align:center; color:var(--ink-faint); }
+.empty .icon{ width:26px; height:26px; color:var(--rule); }
+.empty p{ margin:10px 0 0; font:600 12.5px/1.5 var(--sans); }
+.empty .mono{ font-family:var(--mono); color:var(--ink-soft); }
+
+/* ============================================================ status bar (spreadsheet footer) */
+.statusbar{
+  flex:none; display:flex; align-items:center; gap:16px;
+  height:30px; padding:0 18px; background:var(--bg-deep); color:#cdd0d8;
+  font:600 10px/1 var(--mono); letter-spacing:.06em; text-transform:uppercase;
+}
+.statusbar .icon{ color:#9aa0ad; }
+.statusbar b{ color:#fff; font-feature-settings:"tnum" 1; }
+.statusbar .sb-spacer{ flex:1; }
+.statusbar .wm{ display:inline-flex; align-items:center; gap:6px; color:#9aa0ad; }
+.statusbar .wm .sq{ width:9px; height:9px; border-radius:2px; background:var(--navy); }
+
+/* ============================================================ no-JS notice */
+.noscript-note{
+  margin:0; padding:12px 18px; background:var(--hold-bg); color:var(--hold);
+  border-bottom:1px solid var(--hold-line); font:600 12.5px/1.5 var(--sans);
+}
+
+/* ============================================================ print */
+@media print{
+  html,body{ height:auto; background:#fff; }
+  .register{ height:auto; width:auto; overflow:visible; display:block; }
+  .register-bar{ position:static; box-shadow:none; }
+  .toolbar, .facet, .disclosure summary, .col-toggle{ display:none !important; }
+  .register-body{ display:block; }
+  .grid-wrap{ overflow:visible; }
+  .grid-table thead th{ position:static; box-shadow:none; }
+  .row-detail .drawer{ display:block !important; }    /* expand all detail on paper */
+  .statusbar{ background:#fff; color:#000; border-top:1px solid var(--rule); }
+  .statusbar .wm .sq{ background:#000; }
+  @page{ margin:14mm; }
+}
+</style>
+</head>
+
+<body>
+<main class="register" id="register">
+
+  <!-- ============ APP BAR ============ -->
+  <header class="register-bar">
+    <span class="wordmark">
+      <span class="mark"><svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 9.5 12 4.75 20.5 9.5"/><path d="M4.5 9.5H19.5"/><path d="M6.5 11V17.5M10 11V17.5M14 11V17.5M17.5 11V17.5"/><path d="M5 17.5H19"/><path d="M3.75 20.25H20.25"/></svg></span>
+      <span id="wmOrg">{{ORG}}</span> <span class="sep">/</span> <span class="proj" id="wmProj">{{PROJECT}}</span>
+    </span>
+    <span class="bar-title">
+      <span class="eyebrow" id="barEyebrow">{{REPORT_TYPE}}</span>
+      <span class="name" id="barName">Third-Party Risk &amp; Control Register</span>
+    </span>
+    <span class="bar-spacer"></span>
+    <span class="bar-meta">
+      <span class="m" id="barRev">Rev <b>—</b></span>
+      <span class="m" id="barOwner">Owner <b>—</b></span>
+      <span class="result-count" id="resultCount">
+        <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4.5" width="17" height="15" rx="2"/><path d="M3.5 9.5H20.5M9 9.5V19.5"/></svg>
+        <b id="rcShown">0</b>&nbsp;/&nbsp;<b id="rcTotal">0</b>&nbsp;rows
+      </span>
+    </span>
+    <label class="rc-theme" title="Brand colour">
+      <span class="rc-theme-sw" aria-hidden="true"></span>
+      <select class="rc-theme-sel" aria-label="Brand theme">
+        <option value="blue">Blue</option>
+        <option value="purple">Purple</option>
+        <option value="indigo">Indigo</option>
+        <option value="teal">Teal</option>
+        <option value="cyan">Cyan</option>
+        <option value="green">Green</option>
+        <option value="plum">Plum</option>
+        <option value="slate">Slate</option>
+        <option value="black">Black</option>
+      </select>
+    </label>
+  </header>
+
+  <!-- no-JS notice: the grid is rendered from #report-data, which requires JS.
+       Row detail still reads with JS off via the native <details> drawers once rendered. -->
+  <noscript>
+    <p class="noscript-note">This interactive register renders its rows, filters and detail drawers from embedded data using JavaScript. Enable JavaScript to search, sort, filter and expand records.</p>
+  </noscript>
+
+  <!-- ============ TOOLBAR ============ -->
+  <div class="toolbar">
+    <div class="tool-group">
+      <span class="search">
+        <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg>
+        <input type="text" id="search" placeholder="Search ID, vendor, control, owner…" aria-label="Search register">
+      </span>
+    </div>
+
+    <div class="tool-group" id="statusChips">
+      <span class="tool-label">Status</span>
+      <!-- status chips injected by render() from the rows -->
+    </div>
+
+    <div class="tool-group">
+      <span class="sort-ctl">
+        <span class="tool-label">Sort</span>
+        <select id="sortSelect" aria-label="Sort rows">
+          <!-- options injected by render() from columns -->
+        </select>
+      </span>
+    </div>
+
+    <div class="tool-group" style="margin-left:auto">
+      <details class="col-toggle" id="colToggle">
+        <summary>
+          <span class="tbtn">
+            <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4.5" width="17" height="15" rx="2"/><path d="M9 4.5V19.5M14.5 4.5V19.5"/></svg>
+            Columns
+          </span>
+        </summary>
+        <div class="col-pop" id="colPop">
+          <div class="ph">Show columns</div>
+          <!-- column checkboxes injected by render() from columns -->
+        </div>
+      </details>
+    </div>
+  </div>
+
+  <!-- ============ BODY: facet rail + grid ============ -->
+  <div class="register-body">
+
+    <!-- left facet rail -->
+    <aside class="facet" id="facet">
+      <div class="facet-head">
+        <span class="ttl"><svg class="icon icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5h16M7 12h10M10 18.5h4"/></svg>Filters</span>
+        <button class="facet-clear" id="facetClear" type="button">Clear all</button>
+      </div>
+      <div id="facetGroups">
+        <!-- facet groups injected by render() from facets[] -->
+      </div>
+    </aside>
+
+    <!-- the grid -->
+    <div class="grid-wrap">
+      <table class="grid-table" id="grid">
+        <thead>
+          <tr id="gridHead">
+            <!-- header cells injected by render(): leading disclosure col + one th per column -->
+          </tr>
+        </thead>
+        <tbody id="gridBody">
+          <!-- rows injected by render() from the #report-data rows[] -->
+        </tbody>
+      </table>
+
+      <div class="empty" id="emptyState">
+        <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg>
+        <p>No records match the current filters.<br><span class="mono">Clear the search box or reset the filter chips.</span></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ STATUS BAR ============ -->
+  <footer class="statusbar">
+    <svg class="icon icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4.5" width="17" height="15" rx="2"/><path d="M3.5 9.5H20.5M9 9.5V19.5"/></svg>
+    <span><b id="sbShown">0</b> of <b id="sbTotal">0</b> records</span>
+    <span id="sbFilter">No filter</span>
+    <span>Scale: likelihood × impact (1–5)</span>
+    <span class="sb-spacer"></span>
+    <span id="sbSource">Source · register</span>
+    <span class="wm"><span class="sq"></span><span id="sbOrg">{{ORG}}</span></span>
+  </footer>
+</main>
+
+<!-- ============================================================
+     THE ONLY CONTENT SOURCE — a valid instance of
+     designs/schemas/data-register.schema.json. render() reads this
+     island on DOMContentLoaded and builds the entire grid, facets,
+     toolbar chips, sort options and detail drawers from it.
+     ============================================================ -->
+<script type="application/json" id="report-data">
+{
+  "meta": {
+    "org": "{{ORG}}",
+    "project": "{{PROJECT}}",
+    "reportType": "{{REPORT_TYPE}}",
+    "title": "Third-Party Risk & Control Register",
+    "subtitle": "Q2 2026 assessment — 24 vendor relationships",
+    "date": "{{DATE}}",
+    "author": "2nd-Line Risk",
+    "theme": "slate"
+  },
+  "columns": [
+    {
+      "key": "id",
+      "label": "Ref",
+      "type": "text",
+      "sortable": true,
+      "width": "90px"
+    },
+    {
+      "key": "status",
+      "label": "Status",
+      "type": "status",
+      "sortable": true,
+      "width": "150px"
+    },
+    {
+      "key": "ctrl",
+      "label": "Vendor & control",
+      "type": "text",
+      "sortable": true,
+      "width": "260px"
+    },
+    {
+      "key": "dom",
+      "label": "Domain",
+      "type": "text",
+      "sortable": true,
+      "width": "150px"
+    },
+    {
+      "key": "lhd",
+      "label": "Lhd",
+      "type": "num",
+      "sortable": true,
+      "width": "60px"
+    },
+    {
+      "key": "imp",
+      "label": "Imp",
+      "type": "num",
+      "sortable": true,
+      "width": "60px"
+    },
+    {
+      "key": "score",
+      "label": "Score",
+      "type": "num",
+      "sortable": true,
+      "width": "110px"
+    },
+    {
+      "key": "owner",
+      "label": "Owner",
+      "type": "text",
+      "sortable": true,
+      "width": "110px"
+    },
+    {
+      "key": "rev",
+      "label": "Review",
+      "type": "date",
+      "sortable": true,
+      "width": "110px"
+    }
+  ],
+  "facets": [
+    {
+      "key": "dom",
+      "label": "Domain",
+      "options": [
+        {
+          "value": "Cloud",
+          "label": "Cloud / IaaS"
+        },
+        {
+          "value": "Data",
+          "label": "Data / Analytics"
+        },
+        {
+          "value": "Payments",
+          "label": "Payments"
+        },
+        {
+          "value": "Identity",
+          "label": "Identity / Access"
+        },
+        {
+          "value": "Comms",
+          "label": "Comms / Messaging"
+        },
+        {
+          "value": "BizApp",
+          "label": "Business apps"
+        }
+      ]
+    },
+    {
+      "key": "tier",
+      "label": "Criticality tier",
+      "options": [
+        {
+          "value": "Tier 1",
+          "label": "Tier 1 — Critical"
+        },
+        {
+          "value": "Tier 2",
+          "label": "Tier 2 — Important"
+        },
+        {
+          "value": "Tier 3",
+          "label": "Tier 3 — Standard"
+        }
+      ]
+    },
+    {
+      "key": "owner",
+      "label": "Control owner",
+      "options": [
+        {
+          "value": "A. Reyes"
+        },
+        {
+          "value": "M. Tan"
+        },
+        {
+          "value": "K. Owusu"
+        },
+        {
+          "value": "J. Becker"
+        },
+        {
+          "value": "Unassigned"
+        }
+      ]
+    }
+  ],
+  "rows": [
+    {
+      "id": "VR-001",
+      "status": "risk",
+      "vendor": "Northwind Cloud",
+      "ctrl": "Data residency & encryption attestation",
+      "dom": "Cloud",
+      "domL": "Cloud / IaaS",
+      "tier": "Tier 1",
+      "lhd": 4,
+      "imp": 5,
+      "score": 20,
+      "owner": "A. Reyes",
+      "rev": "2026-07-03",
+      "detail": {
+        "heading": "Northwind Cloud — Data residency & encryption attestation",
+        "notes": [
+          {
+            "lead": "Finding",
+            "text": "Encryption-at-rest attestation lapsed at the sub-processor used for backup storage; the residency clause is not yet reflected in the renewed order form."
+          },
+          {
+            "lead": "Required action",
+            "text": "Obtain refreshed sub-processor attestation and execute the residency addendum before the prod failover test."
+          }
+        ],
+        "kv": [
+          {
+            "k": "Service",
+            "v": "Primary IaaS hosting (prod region eu-c-1)"
+          },
+          {
+            "k": "Criticality",
+            "v": "Tier 1"
+          },
+          {
+            "k": "Attestation",
+            "v": "SOC 2 Type II — exception noted"
+          },
+          {
+            "k": "Contract",
+            "v": "MSA-2241"
+          },
+          {
+            "k": "Annual spend",
+            "v": "$1.84M / yr"
+          },
+          {
+            "k": "Next review",
+            "v": "2026-07-03"
+          }
+        ],
+        "refs": [
+          {
+            "label": "MSA-2241",
+            "icon": "legal-governance"
+          },
+          {
+            "label": "RA-CLD-07",
+            "icon": "legal-governance"
+          },
+          {
+            "label": "NW-SOC2",
+            "icon": "status"
+          }
+        ]
+      }
+    },
+    {
+      "id": "VR-002",
+      "status": "risk",
+      "vendor": "Helios Pay",
+      "ctrl": "PCI-DSS scope & tokenisation boundary",
+      "dom": "Payments",
+      "domL": "Payments",
+      "tier": "Tier 1",
+      "lhd": 4,
+      "imp": 5,
+      "score": 20,
+      "owner": "M. Tan",
+      "rev": "2026-06-28",
+      "detail": {
+        "heading": "Helios Pay — PCI-DSS scope & tokenisation boundary",
+        "notes": [
+          {
+            "lead": "Finding",
+            "text": "Tokenisation boundary diagram is out of date after the gateway migration; CDE scope cannot be confirmed for the new settlement path."
+          },
+          {
+            "lead": "Required action",
+            "text": "Re-baseline the CDE data-flow and request an interim AOC covering the migrated settlement endpoint."
+          }
+        ],
+        "kv": [
+          {
+            "k": "Service",
+            "v": "Card acquiring & tokenisation gateway"
+          },
+          {
+            "k": "Criticality",
+            "v": "Tier 1"
+          },
+          {
+            "k": "Attestation",
+            "v": "PCI-DSS AOC — under re-validation"
+          },
+          {
+            "k": "Contract",
+            "v": "MSA-2188"
+          },
+          {
+            "k": "Annual spend",
+            "v": "$2.10M / yr"
+          },
+          {
+            "k": "Next review",
+            "v": "2026-06-28"
+          }
+        ],
+        "refs": [
+          {
+            "label": "AOC-2026",
+            "icon": "legal-governance"
+          },
+          {
+            "label": "RA-PAY-02",
+            "icon": "legal-governance"
+          },
+          {
+            "label": "PCI-SCOPE",
+            "icon": "status"
+          }
+        ]
+      }
+    },
+    {
+      "id": "VR-003",
+      "status": "hold",
+      "vendor": "Meridian Analytics",
+      "ctrl": "Sub-processor disclosure & DPA",
+      "dom": "Data",
+      "domL": "Data / Analytics",
+      "tier": "Tier 2",
+      "lhd": 3,
+      "imp": 4,
+      "score": 12,
+      "owner": "K. Owusu",
+      "rev": "2026-08-12",
+      "detail": {
+        "heading": "Meridian Analytics — Sub-processor disclosure & DPA",
+        "notes": [
+          {
+            "lead": "Finding",
+            "text": "New ML sub-processor added without 30-day notice; DPA Schedule 3 not yet countersigned."
+          },
+          {
+            "lead": "Required action",
+            "text": "Countersign updated DPA schedule and confirm the sub-processor inherits equivalent controls."
+          }
+        ],
+        "kv": [
+          {
+            "k": "Service",
+            "v": "Customer analytics & segmentation"
+          },
+          {
+            "k": "Criticality",
+            "v": "Tier 2"
+          },
+          {
+            "k": "Attestation",
+            "v": "ISO 27001 — valid"
+          },
+          {
+            "k": "Contract",
+            "v": "MSA-2305"
+          },
+          {
+            "k": "Annual spend",
+            "v": "$640K / yr"
+          },
+          {
+            "k": "Next review",
+            "v": "2026-08-12"
+          }
+        ],
+        "refs": [
+          {
+            "label": "DPA-2305",
+            "icon": "legal-governance"
+          },
+          {
+            "label": "RA-DAT-11",
+            "icon": "legal-governance"
+          }
+        ]
+      }
+    },
+    {
+      "id": "VR-004",
+      "status": "ok",
+      "vendor": "Atlas Identity",
+      "ctrl": "SSO / SCIM provisioning review",
+      "dom": "Identity",
+      "domL": "Identity / Access",
+      "tier": "Tier 1",
+      "lhd": 2,
+      "imp": 4,
+      "score": 8,
+      "owner": "J. Becker",
+      "rev": "2026-09-30",
+      "detail": {
+        "heading": "Atlas Identity — SSO / SCIM provisioning review",
+        "notes": [
+          {
+            "lead": "Finding",
+            "text": "Quarterly access recertification completed; no orphaned admin entitlements detected."
+          },
+          {
+            "lead": "Required action",
+            "text": "No action — residual risk formally accepted by 2nd-Line Risk for the period."
+          }
+        ],
+        "kv": [
+          {
+            "k": "Service",
+            "v": "Workforce SSO & directory sync"
+          },
+          {
+            "k": "Criticality",
+            "v": "Tier 1"
+          },
+          {
+            "k": "Attestation",
+            "v": "SOC 2 Type II — clean"
+          },
+          {
+            "k": "Contract",
+            "v": "MSA-2099"
+          },
+          {
+            "k": "Annual spend",
+            "v": "$410K / yr"
+          },
+          {
+            "k": "Next review",
+            "v": "2026-09-30"
+          }
+        ],
+        "refs": [
+          {
+            "label": "RECERT-Q2",
+            "icon": "legal-governance"
+          },
+          {
+            "label": "RA-IDN-04",
+            "icon": "legal-governance"
+          },
+          {
+            "label": "ATLAS-SOC2",
+            "icon": "status"
+          }
+        ]
+      }
+    },
+    {
+      "id": "VR-005",
+      "status": "hold",
+      "vendor": "Cobalt Messaging",
+      "ctrl": "Message retention & lawful intercept",
+      "dom": "Comms",
+      "domL": "Comms / Messaging",
+      "tier": "Tier 2",
+      "lhd": 3,
+      "imp": 3,
+      "score": 9,
+      "owner": "A. Reyes",
+      "rev": "2026-07-19",
+      "detail": {
+        "heading": "Cobalt Messaging — Message retention & lawful intercept",
+        "notes": [
+          {
+            "lead": "Finding",
+            "text": "Retention window exceeds the agreed 90 days in one delivery region; deletion job under remediation."
+          },
+          {
+            "lead": "Required action",
+            "text": "Vendor to deploy regional retention policy and provide deletion evidence by next review."
+          }
+        ],
+        "kv": [
+          {
+            "k": "Service",
+            "v": "Transactional SMS / push delivery"
+          },
+          {
+            "k": "Criticality",
+            "v": "Tier 2"
+          },
+          {
+            "k": "Attestation",
+            "v": "ISO 27001 — valid"
+          },
+          {
+            "k": "Contract",
+            "v": "MSA-2270"
+          },
+          {
+            "k": "Annual spend",
+            "v": "$220K / yr"
+          },
+          {
+            "k": "Next review",
+            "v": "2026-07-19"
+          }
+        ],
+        "refs": [
+          {
+            "label": "RET-POL-3",
+            "icon": "legal-governance"
+          },
+          {
+            "label": "RA-COM-06",
+            "icon": "legal-governance"
+          }
+        ]
+      }
+    },
+    {
+      "id": "VR-006",
+      "status": "risk",
+      "vendor": "Quanta Datawarehouse",
+      "ctrl": "Backup integrity & restore SLA",
+      "dom": "Data",
+      "domL": "Data / Analytics",
+      "tier": "Tier 1",
+      "lhd": 5,
+      "imp": 4,
+      "score": 20,
+      "owner": "Unassigned",
+      "rev": "2026-06-24",
+      "detail": {
+        "heading": "Quanta Datawarehouse — Backup integrity & restore SLA",
+        "notes": [
+          {
+            "lead": "Finding",
+            "text": "Last two quarterly restore tests were not evidenced; control owner seat is vacant after re-org."
+          },
+          {
+            "lead": "Required action",
+            "text": "Assign a control owner and schedule a witnessed restore test within 10 business days."
+          }
+        ],
+        "kv": [
+          {
+            "k": "Service",
+            "v": "Managed analytics warehouse"
+          },
+          {
+            "k": "Criticality",
+            "v": "Tier 1"
+          },
+          {
+            "k": "Attestation",
+            "v": "SOC 2 Type II — qualified"
+          },
+          {
+            "k": "Contract",
+            "v": "MSA-2312"
+          },
+          {
+            "k": "Annual spend",
+            "v": "$980K / yr"
+          },
+          {
+            "k": "Next review",
+            "v": "2026-06-24"
+          }
+        ],
+        "refs": [
+          {
+            "label": "DR-TEST-Q1",
+            "icon": "legal-governance"
+          },
+          {
+            "label": "RA-DAT-13",
+            "icon": "legal-governance"
+          }
+        ]
+      }
+    },
+    {
+      "id": "VR-007",
+      "status": "ok",
+      "vendor": "Vellum Docs",
+      "ctrl": "E-signature audit trail",
+      "dom": "BizApp",
+      "domL": "Business apps",
+      "tier": "Tier 3",
+      "lhd": 2,
+      "imp": 2,
+      "score": 4,
+      "owner": "M. Tan",
+      "rev": "2026-11-04",
+      "detail": {
+        "heading": "Vellum Docs — E-signature audit trail",
+        "notes": [
+          {
+            "lead": "Finding",
+            "text": "Tamper-evident audit trail validated; export format meets evidentiary requirements."
+          },
+          {
+            "lead": "Required action",
+            "text": "No action — accepted; revisit at annual review."
+          }
+        ],
+        "kv": [
+          {
+            "k": "Service",
+            "v": "Contract e-signature & storage"
+          },
+          {
+            "k": "Criticality",
+            "v": "Tier 3"
+          },
+          {
+            "k": "Attestation",
+            "v": "SOC 2 Type II — clean"
+          },
+          {
+            "k": "Contract",
+            "v": "MSA-1980"
+          },
+          {
+            "k": "Annual spend",
+            "v": "$74K / yr"
+          },
+          {
+            "k": "Next review",
+            "v": "2026-11-04"
+          }
+        ],
+        "refs": [
+          {
+            "label": "SIG-TRAIL",
+            "icon": "legal-governance"
+          },
+          {
+            "label": "RA-BIZ-02",
+            "icon": "legal-governance"
+          }
+        ]
+      }
+    },
+    {
+      "id": "VR-008",
+      "status": "hold",
+      "vendor": "Northwind Cloud",
+      "ctrl": "Egress firewall & VPC peering review",
+      "dom": "Cloud",
+      "domL": "Cloud / IaaS",
+      "tier": "Tier 1",
+      "lhd": 3,
+      "imp": 5,
+      "score": 15,
+      "owner": "K. Owusu",
+      "rev": "2026-07-08",
+      "detail": {
+        "heading": "Northwind Cloud — Egress firewall & VPC peering review",
+        "notes": [
+          {
+            "lead": "Finding",
+            "text": "Two broad egress rules remain from the migration window and were not tightened on schedule."
+          },
+          {
+            "lead": "Required action",
+            "text": "Replace 0.0.0.0/0 egress with destination allow-list; confirm via config export."
+          }
+        ],
+        "kv": [
+          {
+            "k": "Service",
+            "v": "Network edge for prod IaaS"
+          },
+          {
+            "k": "Criticality",
+            "v": "Tier 1"
+          },
+          {
+            "k": "Attestation",
+            "v": "SOC 2 Type II — exception noted"
+          },
+          {
+            "k": "Contract",
+            "v": "MSA-2241"
+          },
+          {
+            "k": "Annual spend",
+            "v": "incl. above"
+          },
+          {
+            "k": "Next review",
+            "v": "2026-07-08"
+          }
+        ],
+        "refs": [
+          {
+            "label": "FW-REVIEW",
+            "icon": "legal-governance"
+          },
+          {
+            "label": "RA-CLD-09",
+            "icon": "legal-governance"
+          }
+        ]
+      }
+    },
+    {
+      "id": "VR-009",
+      "status": "ok",
+      "vendor": "Helios Pay",
+      "ctrl": "Chargeback reconciliation accuracy",
+      "dom": "Payments",
+      "domL": "Payments",
+      "tier": "Tier 2",
+      "lhd": 2,
+      "imp": 3,
+      "score": 6,
+      "owner": "J. Becker",
+      "rev": "2026-10-15",
+      "detail": {
+        "heading": "Helios Pay — Chargeback reconciliation accuracy",
+        "notes": [
+          {
+            "lead": "Finding",
+            "text": "Daily reconciliation variance within tolerance for the last 6 cycles."
+          },
+          {
+            "lead": "Required action",
+            "text": "No action — accepted with continued monitoring."
+          }
+        ],
+        "kv": [
+          {
+            "k": "Service",
+            "v": "Dispute & chargeback processing"
+          },
+          {
+            "k": "Criticality",
+            "v": "Tier 2"
+          },
+          {
+            "k": "Attestation",
+            "v": "PCI-DSS AOC — valid"
+          },
+          {
+            "k": "Contract",
+            "v": "MSA-2188"
+          },
+          {
+            "k": "Annual spend",
+            "v": "incl. above"
+          },
+          {
+            "k": "Next review",
+            "v": "2026-10-15"
+          }
+        ],
+        "refs": [
+          {
+            "label": "RECON-LOG",
+            "icon": "legal-governance"
+          },
+          {
+            "label": "RA-PAY-05",
+            "icon": "legal-governance"
+          }
+        ]
+      }
+    },
+    {
+      "id": "VR-010",
+      "status": "risk",
+      "vendor": "Sable Storage",
+      "ctrl": "Data deletion on offboarding",
+      "dom": "Cloud",
+      "domL": "Cloud / IaaS",
+      "tier": "Tier 2",
+      "lhd": 4,
+      "imp": 4,
+      "score": 16,
+      "owner": "A. Reyes",
+      "rev": "2026-06-26",
+      "detail": {
+        "heading": "Sable Storage — Data deletion on offboarding",
+        "notes": [
+          {
+            "lead": "Finding",
+            "text": "Certificate of destruction not received for a decommissioned bucket holding PII archives."
+          },
+          {
+            "lead": "Required action",
+            "text": "Escalate to vendor security; require signed destruction certificate before sign-off."
+          }
+        ],
+        "kv": [
+          {
+            "k": "Service",
+            "v": "Object storage (archive tier)"
+          },
+          {
+            "k": "Criticality",
+            "v": "Tier 2"
+          },
+          {
+            "k": "Attestation",
+            "v": "ISO 27001 — valid"
+          },
+          {
+            "k": "Contract",
+            "v": "MSA-2350"
+          },
+          {
+            "k": "Annual spend",
+            "v": "$130K / yr"
+          },
+          {
+            "k": "Next review",
+            "v": "2026-06-26"
+          }
+        ],
+        "refs": [
+          {
+            "label": "COD-REQ",
+            "icon": "legal-governance"
+          },
+          {
+            "label": "RA-CLD-14",
+            "icon": "legal-governance"
+          }
+        ]
+      }
+    },
+    {
+      "id": "VR-011",
+      "status": "hold",
+      "vendor": "Meridian Analytics",
+      "ctrl": "Model bias & fairness assessment",
+      "dom": "Data",
+      "domL": "Data / Analytics",
+      "tier": "Tier 2",
+      "lhd": 3,
+      "imp": 3,
+      "score": 9,
+      "owner": "K. Owusu",
+      "rev": "2026-08-01",
+      "detail": {
+        "heading": "Meridian Analytics — Model bias & fairness assessment",
+        "notes": [
+          {
+            "lead": "Finding",
+            "text": "Fairness metrics provided for 3 of 5 production models; two pending vendor delivery."
+          },
+          {
+            "lead": "Required action",
+            "text": "Obtain remaining model cards and fairness metrics; log into model inventory."
+          }
+        ],
+        "kv": [
+          {
+            "k": "Service",
+            "v": "Propensity scoring models"
+          },
+          {
+            "k": "Criticality",
+            "v": "Tier 2"
+          },
+          {
+            "k": "Attestation",
+            "v": "ISO 27001 — valid"
+          },
+          {
+            "k": "Contract",
+            "v": "MSA-2305"
+          },
+          {
+            "k": "Annual spend",
+            "v": "incl. above"
+          },
+          {
+            "k": "Next review",
+            "v": "2026-08-01"
+          }
+        ],
+        "refs": [
+          {
+            "label": "MODEL-CARD",
+            "icon": "legal-governance"
+          },
+          {
+            "label": "RA-DAT-18",
+            "icon": "legal-governance"
+          }
+        ]
+      }
+    },
+    {
+      "id": "VR-012",
+      "status": "ok",
+      "vendor": "Atlas Identity",
+      "ctrl": "MFA enforcement coverage",
+      "dom": "Identity",
+      "domL": "Identity / Access",
+      "tier": "Tier 1",
+      "lhd": 1,
+      "imp": 4,
+      "score": 4,
+      "owner": "J. Becker",
+      "rev": "2026-12-02",
+      "detail": {
+        "heading": "Atlas Identity — MFA enforcement coverage",
+        "notes": [
+          {
+            "lead": "Finding",
+            "text": "MFA enforced for 100% of privileged accounts; hardware-key rollout complete."
+          },
+          {
+            "lead": "Required action",
+            "text": "No action — accepted; strong control posture."
+          }
+        ],
+        "kv": [
+          {
+            "k": "Service",
+            "v": "Phishing-resistant MFA"
+          },
+          {
+            "k": "Criticality",
+            "v": "Tier 1"
+          },
+          {
+            "k": "Attestation",
+            "v": "SOC 2 Type II — clean"
+          },
+          {
+            "k": "Contract",
+            "v": "MSA-2099"
+          },
+          {
+            "k": "Annual spend",
+            "v": "incl. above"
+          },
+          {
+            "k": "Next review",
+            "v": "2026-12-02"
+          }
+        ],
+        "refs": [
+          {
+            "label": "MFA-COV",
+            "icon": "legal-governance"
+          },
+          {
+            "label": "RA-IDN-09",
+            "icon": "legal-governance"
+          }
+        ]
+      }
+    },
+    {
+      "id": "VR-013",
+      "status": "risk",
+      "vendor": "Pinnacle ERP",
+      "ctrl": "Privileged access logging",
+      "dom": "BizApp",
+      "domL": "Business apps",
+      "tier": "Tier 1",
+      "lhd": 4,
+      "imp": 4,
+      "score": 16,
+      "owner": "M. Tan",
+      "rev": "2026-06-30",
+      "detail": {
+        "heading": "Pinnacle ERP — Privileged access logging",
+        "notes": [
+          {
+            "lead": "Finding",
+            "text": "Privileged session logging gaps identified during the SOC 1 — admin actions not fully captured."
+          },
+          {
+            "lead": "Required action",
+            "text": "Require logging remediation plan with milestones; bridge with compensating monitoring."
+          }
+        ],
+        "kv": [
+          {
+            "k": "Service",
+            "v": "Core finance ERP (hosted)"
+          },
+          {
+            "k": "Criticality",
+            "v": "Tier 1"
+          },
+          {
+            "k": "Attestation",
+            "v": "SOC 1 Type II — qualified"
+          },
+          {
+            "k": "Contract",
+            "v": "MSA-2120"
+          },
+          {
+            "k": "Annual spend",
+            "v": "$1.20M / yr"
+          },
+          {
+            "k": "Next review",
+            "v": "2026-06-30"
+          }
+        ],
+        "refs": [
+          {
+            "label": "SOC1-QUAL",
+            "icon": "legal-governance"
+          },
+          {
+            "label": "RA-BIZ-07",
+            "icon": "legal-governance"
+          }
+        ]
+      }
+    },
+    {
+      "id": "VR-014",
+      "status": "hold",
+      "vendor": "Cobalt Messaging",
+      "ctrl": "Sender authentication (DMARC)",
+      "dom": "Comms",
+      "domL": "Comms / Messaging",
+      "tier": "Tier 3",
+      "lhd": 2,
+      "imp": 3,
+      "score": 6,
+      "owner": "A. Reyes",
+      "rev": "2026-09-09",
+      "detail": {
+        "heading": "Cobalt Messaging — Sender authentication (DMARC)",
+        "notes": [
+          {
+            "lead": "Finding",
+            "text": "DMARC policy at p=none; not yet moved to enforcement for the notification domain."
+          },
+          {
+            "lead": "Required action",
+            "text": "Progress DMARC to quarantine then reject after alignment monitoring."
+          }
+        ],
+        "kv": [
+          {
+            "k": "Service",
+            "v": "Outbound notification email"
+          },
+          {
+            "k": "Criticality",
+            "v": "Tier 3"
+          },
+          {
+            "k": "Attestation",
+            "v": "ISO 27001 — valid"
+          },
+          {
+            "k": "Contract",
+            "v": "MSA-2270"
+          },
+          {
+            "k": "Annual spend",
+            "v": "incl. above"
+          },
+          {
+            "k": "Next review",
+            "v": "2026-09-09"
+          }
+        ],
+        "refs": [
+          {
+            "label": "DMARC-REP",
+            "icon": "legal-governance"
+          },
+          {
+            "label": "RA-COM-11",
+            "icon": "legal-governance"
+          }
+        ]
+      }
+    },
+    {
+      "id": "VR-015",
+      "status": "ok",
+      "vendor": "Larch Support",
+      "ctrl": "Remote-access session controls",
+      "dom": "BizApp",
+      "domL": "Business apps",
+      "tier": "Tier 2",
+      "lhd": 2,
+      "imp": 3,
+      "score": 6,
+      "owner": "K. Owusu",
+      "rev": "2026-10-28",
+      "detail": {
+        "heading": "Larch Support — Remote-access session controls",
+        "notes": [
+          {
+            "lead": "Finding",
+            "text": "Jump-host with session recording in place; access is JIT-approved and time-boxed."
+          },
+          {
+            "lead": "Required action",
+            "text": "No action — accepted; control operating effectively."
+          }
+        ],
+        "kv": [
+          {
+            "k": "Service",
+            "v": "3rd-line application support"
+          },
+          {
+            "k": "Criticality",
+            "v": "Tier 2"
+          },
+          {
+            "k": "Attestation",
+            "v": "SOC 2 Type II — clean"
+          },
+          {
+            "k": "Contract",
+            "v": "MSA-2210"
+          },
+          {
+            "k": "Annual spend",
+            "v": "$95K / yr"
+          },
+          {
+            "k": "Next review",
+            "v": "2026-10-28"
+          }
+        ],
+        "refs": [
+          {
+            "label": "JIT-LOG",
+            "icon": "legal-governance"
+          },
+          {
+            "label": "RA-BIZ-12",
+            "icon": "legal-governance"
+          }
+        ]
+      }
+    },
+    {
+      "id": "VR-016",
+      "status": "risk",
+      "vendor": "Quanta Datawarehouse",
+      "ctrl": "Cross-border transfer mechanism",
+      "dom": "Data",
+      "domL": "Data / Analytics",
+      "tier": "Tier 1",
+      "lhd": 4,
+      "imp": 5,
+      "score": 20,
+      "owner": "Unassigned",
+      "rev": "2026-06-25",
+      "detail": {
+        "heading": "Quanta Datawarehouse — Cross-border transfer mechanism",
+        "notes": [
+          {
+            "lead": "Finding",
+            "text": "Transfer relies on lapsed SCCs; updated module not yet executed for the new replica region."
+          },
+          {
+            "lead": "Required action",
+            "text": "Execute current SCC module and complete transfer impact assessment."
+          }
+        ],
+        "kv": [
+          {
+            "k": "Service",
+            "v": "Managed analytics warehouse"
+          },
+          {
+            "k": "Criticality",
+            "v": "Tier 1"
+          },
+          {
+            "k": "Attestation",
+            "v": "SOC 2 Type II — qualified"
+          },
+          {
+            "k": "Contract",
+            "v": "MSA-2312"
+          },
+          {
+            "k": "Annual spend",
+            "v": "incl. above"
+          },
+          {
+            "k": "Next review",
+            "v": "2026-06-25"
+          }
+        ],
+        "refs": [
+          {
+            "label": "SCC-2021",
+            "icon": "legal-governance"
+          },
+          {
+            "label": "RA-DAT-21",
+            "icon": "legal-governance"
+          }
+        ]
+      }
+    },
+    {
+      "id": "VR-017",
+      "status": "ok",
+      "vendor": "Helios Pay",
+      "ctrl": "Settlement timeliness SLA",
+      "dom": "Payments",
+      "domL": "Payments",
+      "tier": "Tier 2",
+      "lhd": 1,
+      "imp": 3,
+      "score": 3,
+      "owner": "M. Tan",
+      "rev": "2026-11-18",
+      "detail": {
+        "heading": "Helios Pay — Settlement timeliness SLA",
+        "notes": [
+          {
+            "lead": "Finding",
+            "text": "Settlement met the T+1 SLA in 100% of cycles this period."
+          },
+          {
+            "lead": "Required action",
+            "text": "No action — accepted."
+          }
+        ],
+        "kv": [
+          {
+            "k": "Service",
+            "v": "Funds settlement"
+          },
+          {
+            "k": "Criticality",
+            "v": "Tier 2"
+          },
+          {
+            "k": "Attestation",
+            "v": "PCI-DSS AOC — valid"
+          },
+          {
+            "k": "Contract",
+            "v": "MSA-2188"
+          },
+          {
+            "k": "Annual spend",
+            "v": "incl. above"
+          },
+          {
+            "k": "Next review",
+            "v": "2026-11-18"
+          }
+        ],
+        "refs": [
+          {
+            "label": "SLA-SETTLE",
+            "icon": "legal-governance"
+          },
+          {
+            "label": "RA-PAY-08",
+            "icon": "legal-governance"
+          }
+        ]
+      }
+    },
+    {
+      "id": "VR-018",
+      "status": "hold",
+      "vendor": "Orchid HR",
+      "ctrl": "Background-check evidence retention",
+      "dom": "BizApp",
+      "domL": "Business apps",
+      "tier": "Tier 3",
+      "lhd": 2,
+      "imp": 2,
+      "score": 4,
+      "owner": "J. Becker",
+      "rev": "2026-08-22",
+      "detail": {
+        "heading": "Orchid HR — Background-check evidence retention",
+        "notes": [
+          {
+            "lead": "Finding",
+            "text": "Evidence retention slightly exceeds policy; purge automation pending."
+          },
+          {
+            "lead": "Required action",
+            "text": "Enable retention purge and confirm with sample audit."
+          }
+        ],
+        "kv": [
+          {
+            "k": "Service",
+            "v": "HR & onboarding platform"
+          },
+          {
+            "k": "Criticality",
+            "v": "Tier 3"
+          },
+          {
+            "k": "Attestation",
+            "v": "ISO 27001 — valid"
+          },
+          {
+            "k": "Contract",
+            "v": "MSA-2260"
+          },
+          {
+            "k": "Annual spend",
+            "v": "$58K / yr"
+          },
+          {
+            "k": "Next review",
+            "v": "2026-08-22"
+          }
+        ],
+        "refs": [
+          {
+            "label": "RET-HR",
+            "icon": "legal-governance"
+          },
+          {
+            "label": "RA-BIZ-15",
+            "icon": "legal-governance"
+          }
+        ]
+      }
+    },
+    {
+      "id": "VR-019",
+      "status": "risk",
+      "vendor": "Sable Storage",
+      "ctrl": "Immutable backup (ransomware)",
+      "dom": "Cloud",
+      "domL": "Cloud / IaaS",
+      "tier": "Tier 1",
+      "lhd": 4,
+      "imp": 5,
+      "score": 20,
+      "owner": "A. Reyes",
+      "rev": "2026-06-27",
+      "detail": {
+        "heading": "Sable Storage — Immutable backup (ransomware)",
+        "notes": [
+          {
+            "lead": "Finding",
+            "text": "Object-lock / immutability not enabled on the primary archive bucket; single point of compromise."
+          },
+          {
+            "lead": "Required action",
+            "text": "Enable object-lock in compliance mode and validate with an immutability test."
+          }
+        ],
+        "kv": [
+          {
+            "k": "Service",
+            "v": "Object storage (archive tier)"
+          },
+          {
+            "k": "Criticality",
+            "v": "Tier 1"
+          },
+          {
+            "k": "Attestation",
+            "v": "ISO 27001 — valid"
+          },
+          {
+            "k": "Contract",
+            "v": "MSA-2350"
+          },
+          {
+            "k": "Annual spend",
+            "v": "incl. above"
+          },
+          {
+            "k": "Next review",
+            "v": "2026-06-27"
+          }
+        ],
+        "refs": [
+          {
+            "label": "OBJ-LOCK",
+            "icon": "legal-governance"
+          },
+          {
+            "label": "RA-CLD-19",
+            "icon": "legal-governance"
+          }
+        ]
+      }
+    },
+    {
+      "id": "VR-020",
+      "status": "ok",
+      "vendor": "Vellum Docs",
+      "ctrl": "Data export & portability",
+      "dom": "BizApp",
+      "domL": "Business apps",
+      "tier": "Tier 3",
+      "lhd": 1,
+      "imp": 2,
+      "score": 2,
+      "owner": "M. Tan",
+      "rev": "2026-12-09",
+      "detail": {
+        "heading": "Vellum Docs — Data export & portability",
+        "notes": [
+          {
+            "lead": "Finding",
+            "text": "Full export validated; portability format documented in exit plan."
+          },
+          {
+            "lead": "Required action",
+            "text": "No action — accepted."
+          }
+        ],
+        "kv": [
+          {
+            "k": "Service",
+            "v": "Contract storage"
+          },
+          {
+            "k": "Criticality",
+            "v": "Tier 3"
+          },
+          {
+            "k": "Attestation",
+            "v": "SOC 2 Type II — clean"
+          },
+          {
+            "k": "Contract",
+            "v": "MSA-1980"
+          },
+          {
+            "k": "Annual spend",
+            "v": "incl. above"
+          },
+          {
+            "k": "Next review",
+            "v": "2026-12-09"
+          }
+        ],
+        "refs": [
+          {
+            "label": "EXIT-PLAN",
+            "icon": "legal-governance"
+          },
+          {
+            "label": "RA-BIZ-18",
+            "icon": "legal-governance"
+          }
+        ]
+      }
+    },
+    {
+      "id": "VR-021",
+      "status": "hold",
+      "vendor": "Atlas Identity",
+      "ctrl": "Joiner-mover-leaver latency",
+      "dom": "Identity",
+      "domL": "Identity / Access",
+      "tier": "Tier 1",
+      "lhd": 3,
+      "imp": 4,
+      "score": 12,
+      "owner": "K. Owusu",
+      "rev": "2026-07-31",
+      "detail": {
+        "heading": "Atlas Identity — Joiner-mover-leaver latency",
+        "notes": [
+          {
+            "lead": "Finding",
+            "text": "Leaver de-provisioning exceeded the 24h target in 4% of cases due to a connector backlog."
+          },
+          {
+            "lead": "Required action",
+            "text": "Tune connector throughput and add alerting on de-provision latency."
+          }
+        ],
+        "kv": [
+          {
+            "k": "Service",
+            "v": "Lifecycle provisioning"
+          },
+          {
+            "k": "Criticality",
+            "v": "Tier 1"
+          },
+          {
+            "k": "Attestation",
+            "v": "SOC 2 Type II — clean"
+          },
+          {
+            "k": "Contract",
+            "v": "MSA-2099"
+          },
+          {
+            "k": "Annual spend",
+            "v": "incl. above"
+          },
+          {
+            "k": "Next review",
+            "v": "2026-07-31"
+          }
+        ],
+        "refs": [
+          {
+            "label": "JML-METRIC",
+            "icon": "legal-governance"
+          },
+          {
+            "label": "RA-IDN-12",
+            "icon": "legal-governance"
+          }
+        ]
+      }
+    },
+    {
+      "id": "VR-022",
+      "status": "ok",
+      "vendor": "Larch Support",
+      "ctrl": "Confidentiality & NDA coverage",
+      "dom": "BizApp",
+      "domL": "Business apps",
+      "tier": "Tier 2",
+      "lhd": 1,
+      "imp": 2,
+      "score": 2,
+      "owner": "J. Becker",
+      "rev": "2026-11-26",
+      "detail": {
+        "heading": "Larch Support — Confidentiality & NDA coverage",
+        "notes": [
+          {
+            "lead": "Finding",
+            "text": "All assigned support staff hold current NDAs and confidentiality training."
+          },
+          {
+            "lead": "Required action",
+            "text": "No action — accepted."
+          }
+        ],
+        "kv": [
+          {
+            "k": "Service",
+            "v": "3rd-line support"
+          },
+          {
+            "k": "Criticality",
+            "v": "Tier 2"
+          },
+          {
+            "k": "Attestation",
+            "v": "SOC 2 Type II — clean"
+          },
+          {
+            "k": "Contract",
+            "v": "MSA-2210"
+          },
+          {
+            "k": "Annual spend",
+            "v": "incl. above"
+          },
+          {
+            "k": "Next review",
+            "v": "2026-11-26"
+          }
+        ],
+        "refs": [
+          {
+            "label": "NDA-LOG",
+            "icon": "legal-governance"
+          },
+          {
+            "label": "RA-BIZ-21",
+            "icon": "legal-governance"
+          }
+        ]
+      }
+    },
+    {
+      "id": "VR-023",
+      "status": "risk",
+      "vendor": "Pinnacle ERP",
+      "ctrl": "Change management segregation of duties",
+      "dom": "BizApp",
+      "domL": "Business apps",
+      "tier": "Tier 1",
+      "lhd": 4,
+      "imp": 4,
+      "score": 16,
+      "owner": "M. Tan",
+      "rev": "2026-06-29",
+      "detail": {
+        "heading": "Pinnacle ERP — Change management segregation of duties",
+        "notes": [
+          {
+            "lead": "Finding",
+            "text": "Same operator able to both develop and deploy to production in two observed changes — SoD breach."
+          },
+          {
+            "lead": "Required action",
+            "text": "Enforce deployer/developer separation in the pipeline; back-test recent changes."
+          }
+        ],
+        "kv": [
+          {
+            "k": "Service",
+            "v": "Core finance ERP"
+          },
+          {
+            "k": "Criticality",
+            "v": "Tier 1"
+          },
+          {
+            "k": "Attestation",
+            "v": "SOC 1 Type II — qualified"
+          },
+          {
+            "k": "Contract",
+            "v": "MSA-2120"
+          },
+          {
+            "k": "Annual spend",
+            "v": "incl. above"
+          },
+          {
+            "k": "Next review",
+            "v": "2026-06-29"
+          }
+        ],
+        "refs": [
+          {
+            "label": "SOD-REVIEW",
+            "icon": "legal-governance"
+          },
+          {
+            "label": "RA-BIZ-24",
+            "icon": "legal-governance"
+          }
+        ]
+      }
+    },
+    {
+      "id": "VR-024",
+      "status": "hold",
+      "vendor": "Cobalt Messaging",
+      "ctrl": "Incident notification SLA",
+      "dom": "Comms",
+      "domL": "Comms / Messaging",
+      "tier": "Tier 2",
+      "lhd": 3,
+      "imp": 3,
+      "score": 9,
+      "owner": "Unassigned",
+      "rev": "2026-08-05",
+      "detail": {
+        "heading": "Cobalt Messaging — Incident notification SLA",
+        "notes": [
+          {
+            "lead": "Finding",
+            "text": "Contract requires 24h breach notice; last tabletop showed a 41h notification path. Owner vacant."
+          },
+          {
+            "lead": "Required action",
+            "text": "Assign owner; agree a 24h notification runbook and re-test via tabletop."
+          }
+        ],
+        "kv": [
+          {
+            "k": "Service",
+            "v": "Transactional messaging"
+          },
+          {
+            "k": "Criticality",
+            "v": "Tier 2"
+          },
+          {
+            "k": "Attestation",
+            "v": "ISO 27001 — valid"
+          },
+          {
+            "k": "Contract",
+            "v": "MSA-2270"
+          },
+          {
+            "k": "Annual spend",
+            "v": "incl. above"
+          },
+          {
+            "k": "Next review",
+            "v": "2026-08-05"
+          }
+        ],
+        "refs": [
+          {
+            "label": "NOTIF-SLA",
+            "icon": "legal-governance"
+          },
+          {
+            "label": "RA-COM-16",
+            "icon": "legal-governance"
+          }
+        ]
+      }
+    }
+  ]
+}
+</script>
+
+<script>
+/* ============================================================
+   Data-grid behaviour — single inline script, no libraries.
+   ALL content is read from #report-data (JSON) and rendered to the
+   DOM by render() on DOMContentLoaded. The detail drawers use native
+   <details>, so once rendered the detail is readable with JS off and
+   prints as a complete static snapshot.
+   ============================================================ */
+(function(){
+  "use strict";
+
+  /* ---- read the single content source ---- */
+  const MODEL = JSON.parse(document.getElementById('report-data').textContent);
+  const META = MODEL.meta, COLS = MODEL.columns, ROWS = MODEL.rows, FACETS = MODEL.facets || [];
+
+  /* status vocabulary (chip + badge labels) */
+  const ST = {
+    risk: {cls:"st-risk", label:"At risk"},
+    hold: {cls:"st-hold", label:"In remediation"},
+    ok:   {cls:"st-ok",   label:"Accepted"}
+  };
+
+  /* ---- inline SVG icons for drawer / ref chips, keyed by schema icon category ---- */
+  const IC = {
+    'legal-governance':'<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 3.5H13l4.5 4.5V20a.5.5 0 0 1-.5.5H6.5a.5.5 0 0 1-.5-.5V4a.5.5 0 0 1 .5-.5Z"/><path d="M13 3.5V7.5a.5.5 0 0 0 .5.5H17.5"/><path d="M9 12.5H15M9 15.5H15M9 18H12.5"/></svg>',
+    'status':'<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.25 19 5.75v5.45c0 4.4-3 7.6-7 8.8-4-1.2-7-4.4-7-8.8V5.75Z"/><path d="M9 12l2.2 2.2L15.2 9.6"/></svg>',
+    'data':'<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="6" rx="7" ry="2.6"/><path d="M5 6v12c0 1.4 3.1 2.6 7 2.6s7-1.2 7-2.6V6"/><path d="M5 12c0 1.4 3.1 2.6 7 2.6s7-1.2 7-2.6"/></svg>',
+    'nav':'<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14a3.5 3.5 0 0 0 5 0l3-3a3.5 3.5 0 0 0-5-5l-1 1"/><path d="M14 10a3.5 3.5 0 0 0-5 0l-3 3a3.5 3.5 0 0 0 5 5l1-1"/></svg>'
+  };
+  const DOC_ICON = IC['legal-governance'];
+  const CHEV = '<svg class="icon icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 5.5 16 12l-6.5 6.5"/></svg>';
+  const CARET = '<svg class="sort-caret" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M7 14l5-5 5 5"/></svg>';
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+  /* ---- DOM handles ---- */
+  const head      = document.getElementById('gridHead');
+  const body      = document.getElementById('gridBody');
+  const chipWrap  = document.getElementById('statusChips');
+  const sortSel   = document.getElementById('sortSelect');
+  const colPop    = document.getElementById('colPop');
+  const facetWrap = document.getElementById('facetGroups');
+
+  /* ---- helpers ---- */
+  function scoreClass(s){ return s >= 16 ? 's-risk' : (s >= 9 ? 's-hold' : 's-ok'); }
+  const colByKey = k => COLS.find(c => c.key === k);
+  const labelFor = (facetKey, value) => {
+    const f = FACETS.find(x => x.key === facetKey);
+    const o = f && f.options.find(o => o.value === value);
+    return (o && o.label) || value;
+  };
+  // domain long-label: prefer row.domL, else the facet display label
+  const domLabel = r => r.domL || labelFor('dom', r.dom);
+
+  /* one row's search blob (id, vendor, control, owner, domain label, tier, service) */
+  function searchBlob(r){
+    return [r.id, r.vendor, r.ctrl, r.owner, domLabel(r), r.tier, (r.detail && r.detail.kv && r.detail.kv.length ? r.detail.kv[0].v : '')]
+      .filter(Boolean).join(' ').toLowerCase();
+  }
+
+  /* render a single grid cell for a given column + row */
+  function cellHTML(col, r){
+    const v = r[col.key];
+    if(col.key === 'status'){
+      const st = ST[r.status] || {cls:'', label:r.status};
+      return `<td data-c="${esc(col.key)}"><span class="st-badge ${st.cls}">${esc(st.label)}</span></td>`;
+    }
+    if(col.key === 'id'){
+      return `<td data-c="${esc(col.key)}"><span class="id">${esc(r.id)}</span></td>`;
+    }
+    if(col.key === 'ctrl'){
+      // vendor as title, control text as sub-line (preserves the two-line cell)
+      return `<td data-c="${esc(col.key)}"><span class="title">${esc(r.vendor)}</span><span class="sub">${esc(r.ctrl)}</span></td>`;
+    }
+    if(col.key === 'dom'){
+      return `<td data-c="${esc(col.key)}"><span class="tag">${esc(domLabel(r))}</span></td>`;
+    }
+    if(col.key === 'score'){
+      const score = +v;
+      const sc = scoreClass(score);
+      return `<td class="num" data-c="${esc(col.key)}"><span class="score ${sc}"><span class="meter"><i style="width:${Math.round(score/25*100)}%"></i></span><span class="val">${esc(score)}</span></span></td>`;
+    }
+    if(col.type === 'num'){
+      return `<td class="num" data-c="${esc(col.key)}">${esc(v)}</td>`;
+    }
+    if(col.type === 'date'){
+      return `<td class="date" data-c="${esc(col.key)}">${esc(v)}</td>`;
+    }
+    if(col.key === 'owner'){
+      return `<td class="owner" data-c="${esc(col.key)}">${esc(v)}</td>`;
+    }
+    return `<td data-c="${esc(col.key)}">${esc(v)}</td>`;
+  }
+
+  /* sortable / search value for a column on a row */
+  function sortVal(key, r){
+    const col = colByKey(key);
+    const v = r[key];
+    if(col && col.key === 'status') return (ST[r.status] || {label:r.status}).label;
+    if(col && col.key === 'ctrl')   return r.vendor;            // vendor drives the "Vendor & control" sort
+    if(col && col.key === 'dom')    return domLabel(r);
+    return v;
+  }
+
+  /* ---- render the table header from columns ---- */
+  function renderHead(){
+    let h = '<th class="disclosure" aria-hidden="true"></th>';
+    COLS.forEach(col => {
+      const numCls = col.type === 'num' ? ' num' : '';
+      const sortable = col.sortable !== false;
+      const cls = 'class="' + (sortable ? 'sortable' : '') + numCls + '"';
+      h += `<th ${cls} data-col="${esc(col.key)}" data-type="${esc(col.type)}"`
+        + (col.width ? ` style="min-width:${esc(col.width)}"` : '') + '>'
+        + `<span class="th-in">${esc(col.label)}${sortable ? CARET : ''}</span></th>`;
+    });
+    head.innerHTML = h;
+  }
+
+  /* ---- render one record (grid row + detail drawer) ---- */
+  function rowHTML(r){
+    const cells = COLS.map(col => cellHTML(col, r)).join('');
+    const d = r.detail || {};
+    const refChips = (d.refs || []).map(ref => {
+      const ic = IC[ref.icon] || DOC_ICON;
+      const tag = ref.href ? 'a' : 'a';
+      return `<${tag} class="ref-chip" href="${ref.href ? esc(ref.href) : '#'}" onclick="${ref.href ? '' : 'return false'}">${ic}${esc(ref.label)}</${tag}>`;
+    }).join('');
+    const notes = (d.notes || []).map(n =>
+      `<p class="drawer-note"><span class="lead">${esc(n.lead)}</span>${esc(n.text)}</p>`).join('');
+    const kv = (d.kv || []).map(c =>
+      `<div class="cell"><span class="k">${esc(c.k)}</span><span class="v">${esc(c.v)}</span></div>`).join('');
+    const heading = d.heading || (r.vendor ? (r.vendor + ' — ' + r.ctrl) : r.id);
+    const colspan = COLS.length + 1;
+    return `
+    <tr class="grid-row" data-status="${esc(r.status)}" data-dom="${esc(r.dom)}" data-tier="${esc(r.tier)}" data-owner="${esc(r.owner)}"
+        data-id="${esc(r.id)}" data-search="${esc(searchBlob(r))}">
+      <td class="disclosure"><details class="disc"><summary aria-label="Toggle detail">${CHEV}</summary></details></td>
+      ${cells}
+    </tr>
+    <tr class="row-detail" data-status="${esc(r.status)}" data-dom="${esc(r.dom)}" data-tier="${esc(r.tier)}" data-owner="${esc(r.owner)}">
+      <td colspan="${colspan}">
+        <div class="drawer">
+          <div class="drawer-head">${DOC_ICON.replace('class="icon"','class="icon icon-lg"')}<span class="dt">${esc(heading)}</span><span class="did">${esc(r.id)}</span></div>
+          <div class="drawer-grid">
+            <div>
+              ${notes}
+              <div class="refs">${refChips}</div>
+            </div>
+            <div class="kv">
+              ${kv}
+            </div>
+          </div>
+        </div>
+      </td>
+    </tr>`;
+  }
+
+  /* ---- render status chips from the rows (counts derived live) ---- */
+  function renderStatusChips(){
+    const counts = {ok:0, risk:0, hold:0};
+    ROWS.forEach(r => { if(counts[r.status] != null) counts[r.status]++; });
+    const order = [
+      {k:'all',  label:'All',   ct:ROWS.length},
+      {k:'risk', label:ST.risk.label, ct:counts.risk},
+      {k:'hold', label:ST.hold.label, ct:counts.hold},
+      {k:'ok',   label:ST.ok.label,   ct:counts.ok}
+    ];
+    chipWrap.innerHTML = '<span class="tool-label">Status</span>' + order.map(o =>
+      `<button class="filter-chip" data-status="${o.k}" aria-pressed="${o.k === 'all' ? 'true' : 'false'}" type="button"><span class="dot"></span>${esc(o.label)} <span class="ct">${o.ct}</span></button>`
+    ).join('');
+  }
+
+  /* ---- render sort options from sortable columns ---- */
+  function renderSortOptions(){
+    const opts = [];
+    COLS.forEach(col => {
+      if(col.sortable === false) return;
+      if(col.type === 'num'){
+        opts.push({v:col.key+':desc', t:col.label+' (high→low)'});
+        opts.push({v:col.key+':asc',  t:col.label+' (low→high)'});
+      } else if(col.type === 'date'){
+        opts.push({v:col.key+':asc',  t:col.label+' (soonest)'});
+      } else if(col.key === 'id'){
+        opts.push({v:col.key+':asc',  t:col.label+' (A→Z)'});
+      } else if(col.key !== 'status'){
+        opts.push({v:col.key+':asc',  t:col.label+' (A→Z)'});
+      }
+    });
+    sortSel.innerHTML = opts.map(o => `<option value="${esc(o.v)}">${esc(o.t)}</option>`).join('');
+  }
+
+  /* ---- render column-toggle checkboxes (skip the always-on key columns) ---- */
+  const ALWAYS_ON = new Set(['id','status','ctrl']);
+  function renderColToggle(){
+    colPop.innerHTML = '<div class="ph">Show columns</div>' + COLS.filter(c => !ALWAYS_ON.has(c.key)).map(col =>
+      `<label><input type="checkbox" data-col="${esc(col.key)}" ${col.hidden ? '' : 'checked'}> ${esc(col.label)}</label>`
+    ).join('');
+  }
+
+  /* ---- render facet rail from facets[] (option counts derived from rows) ---- */
+  function renderFacets(){
+    facetWrap.innerHTML = FACETS.map(f => {
+      const opts = f.options.map(o => {
+        const ct = ROWS.filter(r => r[f.key] === o.value).length;
+        return `<label class="facet-opt"><input type="checkbox" value="${esc(o.value)}"><span class="lab">${esc(o.label || o.value)}</span><span class="ct">${ct}</span></label>`;
+      }).join('');
+      return `<div class="facet-group" data-facet="${esc(f.key)}"><h4>${esc(f.label)}</h4>${opts}</div>`;
+    }).join('');
+  }
+
+  /* ---- meta / chrome from META ---- */
+  function renderMeta(){
+    document.getElementById('wmOrg').textContent  = META.org || '{{ORG}}';
+    document.getElementById('wmProj').textContent = META.project || '{{PROJECT}}';
+    document.getElementById('sbOrg').textContent  = META.org || '{{ORG}}';
+    document.getElementById('barEyebrow').textContent = META.reportType || '';
+    document.getElementById('barName').textContent    = META.title || '';
+    document.title = (META.reportType ? META.reportType + ' — ' : '') + (META.title || 'Register') + (META.project ? ' · ' + META.project : '');
+    const revTxt = META.date ? ('Rev ' + String(META.date).slice(0,7).replace('-','.')) : '';
+    document.getElementById('barRev').innerHTML = revTxt ? ('Rev <b>' + esc(String(META.date).slice(0,7).replace('-','.')) + '</b>') : '';
+    document.getElementById('barOwner').innerHTML = META.author ? ('Owner <b>' + esc(META.author) + '</b>') : '';
+    document.getElementById('sbSource').textContent = 'Source · ' + (META.reportType || 'register') + (META.date ? ' · generated ' + META.date : '');
+    // initial theme
+    const theme = META.theme || 'slate';
+    document.documentElement.setAttribute('data-theme', theme);
+  }
+
+  /* ---- full render of the table body ---- */
+  function render(){
+    renderMeta();
+    renderHead();
+    renderStatusChips();
+    renderSortOptions();
+    renderColToggle();
+    renderFacets();
+    body.innerHTML = ROWS.map(rowHTML).join('');
+    wireDrawers();
+    wireStatusChips();
+    wireFacets();
+    wireColToggle();
+    wireSortHeaders();
+    rcTotalSet();
+  }
+
+  /* drawer toggle (JS path mirrors <details>; CSS class shows the panel) */
+  function wireDrawers(){
+    body.querySelectorAll('tr.grid-row').forEach(row => {
+      const det = row.querySelector('details.disc');
+      const drawer = row.nextElementSibling; // .row-detail
+      det.addEventListener('toggle', () => { drawer.classList.toggle('open', det.open); });
+    });
+  }
+
+  /* ---- live state ---- */
+  let q = "";
+  let statusFilter = "all";
+  const facetSel = {};                 // { facetKey: Set(values) }
+  FACETS.forEach(f => { facetSel[f.key] = new Set(); });
+
+  const rowsEls = () => Array.from(body.querySelectorAll('tr.grid-row'));
+  const detailOf = row => row.nextElementSibling;
+
+  function passes(row){
+    if(statusFilter !== "all" && row.dataset.status !== statusFilter) return false;
+    if(q && !row.dataset.search.includes(q)) return false;
+    for(const f of FACETS){
+      const sel = facetSel[f.key];
+      if(sel.size){
+        const val = row.dataset[f.key] != null ? row.dataset[f.key] : '';
+        if(!sel.has(val)) return false;
+      }
+    }
+    return true;
+  }
+
+  function rcTotalSet(){
+    document.getElementById('rcTotal').textContent = ROWS.length;
+    document.getElementById('sbTotal').textContent = ROWS.length;
+  }
+
+  function apply(){
+    let shown = 0;
+    rowsEls().forEach(row => {
+      const ok = passes(row);
+      row.style.display = ok ? "" : "none";
+      detailOf(row).style.display = ok ? "" : "none";
+      if(ok) shown++;
+    });
+    // re-stripe visible rows via a CLASS (not inline style) so the :hover rule still wins
+    let vis = 0;
+    rowsEls().forEach(row => {
+      if(row.style.display === "none"){ row.classList.remove('zebra'); return; }
+      row.classList.toggle('zebra', vis % 2 === 1);
+      vis++;
+    });
+    document.getElementById('rcShown').textContent = shown;
+    document.getElementById('sbShown').textContent = shown;
+    document.getElementById('emptyState').style.display = shown ? "none" : "block";
+    // filter summary
+    const bits = [];
+    if(statusFilter !== "all" && ST[statusFilter]) bits.push(ST[statusFilter].label);
+    FACETS.forEach(f => { if(facetSel[f.key].size) bits.push(facetSel[f.key].size + " " + f.key); });
+    if(q) bits.push('“' + q + '”');
+    document.getElementById('sbFilter').textContent = bits.length ? ("Filter · " + bits.join(" · ")) : "No filter";
+  }
+
+  /* ---- search ---- */
+  document.getElementById('search').addEventListener('input', e => {
+    q = e.target.value.trim().toLowerCase(); apply();
+  });
+
+  /* ---- status chips ---- */
+  function wireStatusChips(){
+    chipWrap.querySelectorAll('.filter-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        statusFilter = chip.dataset.status;
+        chipWrap.querySelectorAll('.filter-chip').forEach(c => c.setAttribute('aria-pressed', String(c === chip)));
+        apply();
+      });
+    });
+  }
+
+  /* ---- facets ---- */
+  function wireFacets(){
+    FACETS.forEach(f => {
+      facetWrap.querySelectorAll(`.facet-group[data-facet="${f.key}"] input`).forEach(inp => {
+        inp.addEventListener('change', () => {
+          inp.checked ? facetSel[f.key].add(inp.value) : facetSel[f.key].delete(inp.value);
+          apply();
+        });
+      });
+    });
+  }
+  document.getElementById('facetClear').addEventListener('click', () => {
+    FACETS.forEach(f => facetSel[f.key].clear());
+    facetWrap.querySelectorAll('input').forEach(i => i.checked = false);
+    apply();
+  });
+
+  /* ---- column toggle ---- */
+  function wireColToggle(){
+    colPop.querySelectorAll('input').forEach(inp => {
+      // apply initial hidden state
+      const k = inp.dataset.col, vis = inp.checked;
+      if(!vis) toggleCol(k, false);
+      inp.addEventListener('change', () => toggleCol(inp.dataset.col, inp.checked));
+    });
+  }
+  function toggleCol(key, vis){
+    document.querySelectorAll(`#grid thead th[data-col="${key}"]`).forEach(th => th.style.display = vis ? "" : "none");
+    document.querySelectorAll(`#grid tbody td[data-c="${key}"]`).forEach(td => td.style.display = vis ? "" : "none");
+  }
+
+  /* ---- sorting (shared by header click + sort select), keyed by column key ---- */
+  let sortKey = null, sortDir = "desc";
+  const cmp = (a, b, type) => {
+    if(type === "num"){ return parseFloat(a) - parseFloat(b); }
+    if(type === "date"){ return a < b ? -1 : a > b ? 1 : 0; }
+    return String(a).localeCompare(String(b), undefined, {numeric:true});
+  };
+  // index rows[] by id for fast lookup during sort
+  const ROW_BY_ID = {};
+  ROWS.forEach(r => { ROW_BY_ID[r.id] = r; });
+
+  function sortBy(key, dir){
+    sortKey = key; sortDir = dir;
+    const col = colByKey(key);
+    const type = col ? col.type : "text";
+    const pairs = rowsEls().map(row => ({
+      row, detail: detailOf(row), key: sortVal(key, ROW_BY_ID[row.dataset.id])
+    }));
+    pairs.sort((p1, p2) => { const r = cmp(p1.key, p2.key, type); return dir === "asc" ? r : -r; });
+    pairs.forEach(p => { body.appendChild(p.row); body.appendChild(p.detail); });
+    // header aria-sort indicators
+    document.querySelectorAll('#grid thead th[data-col]').forEach(th => th.removeAttribute('aria-sort'));
+    const th = document.querySelector(`#grid thead th[data-col="${key}"]`);
+    if(th) th.setAttribute('aria-sort', dir === "asc" ? "ascending" : "descending");
+    apply(); // re-stripe + counts
+  }
+
+  function wireSortHeaders(){
+    document.querySelectorAll('#grid thead th.sortable').forEach(th => {
+      th.addEventListener('click', () => {
+        const key = th.dataset.col;
+        const dir = (sortKey === key && sortDir === "asc") ? "desc" : "asc";
+        sortBy(key, dir);
+        sortSel.value = key + ":" + dir;
+      });
+    });
+  }
+  sortSel.addEventListener('change', e => {
+    const [k, d] = e.target.value.split(':'); sortBy(k, d);
+  });
+
+  /* ---- theme dropdown (live recolour) ---- */
+  var rcSel = document.querySelector('.rc-theme-sel');
+  if (rcSel) {
+    rcSel.value = document.documentElement.dataset.theme || 'blue';
+    rcSel.addEventListener('change', () => { document.documentElement.dataset.theme = rcSel.value; });
+  }
+
+  /* ---- init: render from #report-data, then default sort ---- */
+  function init(){
+    render();
+    // default sort: risk score high→low if a 'score' column exists, else first sortable column
+    const scoreCol = COLS.find(c => c.key === 'score');
+    if(scoreCol){ sortBy('score', 'desc'); sortSel.value = 'score:desc'; }
+    else {
+      const first = COLS.find(c => c.sortable !== false);
+      if(first){ sortBy(first.key, 'asc'); sortSel.value = first.key + ':asc'; }
+      else apply();
+    }
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
+</script>
+</body>
+</html>

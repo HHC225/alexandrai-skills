@@ -1,0 +1,214 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://genesis.local/html_report_design/schemas/kanban-board.schema.json",
+  "title": "Kanban board report",
+  "description": "Data contract for the kanban-board format: a work-surface board with fixed-width stage lanes, compact cards, WIP limits, optional swimlane grouping, and tri-state status semantics. Lanes run left-to-right as delivery stages (Backlog → Done); cards are the items flowing through them. Renders to a self-contained, themeable, interactive HTML board. The sample's #report-data is a valid instance of this schema.",
+  "type": "object",
+  "required": ["meta", "lanes", "cards"],
+  "additionalProperties": false,
+  "properties": {
+    "meta": {
+      "type": "object",
+      "description": "Shared report chrome (org / project / title / theme). Brand-neutral: keep {{ORG}} / {{PROJECT}} / {{AUTHOR}} placeholders unless real values are supplied.",
+      "required": ["org", "project", "reportType", "title", "date", "theme"],
+      "additionalProperties": false,
+      "properties": {
+        "org": { "type": "string", "description": "Organisation name or {{ORG}} placeholder.", "default": "{{ORG}}" },
+        "project": { "type": "string", "description": "Project / programme name or {{PROJECT}} placeholder.", "default": "{{PROJECT}}" },
+        "reportType": { "type": "string", "description": "Eyebrow label shown in the board bar (e.g. 'Sprint 24' or {{REPORT_TYPE}})." },
+        "title": { "type": "string", "description": "Board name shown in the board bar, e.g. 'Delivery & Defect Board'." },
+        "subtitle": { "type": "string", "description": "Optional sub-label shown below the board name, e.g. the sprint or date range." },
+        "date": { "type": "string", "description": "ISO date the board was generated (YYYY-MM-DD).", "format": "date" },
+        "author": { "type": "string", "description": "Author / team or {{AUTHOR}} placeholder.", "default": "{{AUTHOR}}" },
+        "theme": {
+          "type": "string",
+          "description": "Initial brand theme; applied as <html data-theme>. The in-board switcher can change it live. Default for this format is 'teal'.",
+          "enum": ["blue", "purple", "indigo", "teal", "cyan", "green", "plum", "slate"],
+          "default": "teal"
+        }
+      }
+    },
+    "lanes": {
+      "type": "array",
+      "description": "The ordered delivery stages, rendered as fixed-width columns left to right. 3–6 lanes is the comfortable range; the board scrolls horizontally beyond that.",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "required": ["id", "name"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "description": "Stable unique lane key used on each card's `lane` field. e.g. 'backlog', 'in-progress', 'done'." },
+          "name": { "type": "string", "description": "Lane display name shown in the sticky lane header, e.g. 'In progress'." },
+          "wipLimit": { "type": "integer", "description": "Optional WIP cap. When the card count in this lane reaches or exceeds wipLimit the WIP indicator turns 'risk'. Omit to disable WIP display for this lane.", "minimum": 1 },
+          "isDone": { "type": "boolean", "description": "If true, this is the terminal 'Done' lane — rendered with subtle de-emphasis (.lane--done). At most one lane should set this.", "default": false }
+        }
+      }
+    },
+    "swimlanes": {
+      "type": "array",
+      "description": "Optional horizontal grouping bands. When present, the board repeats the full lane set once per swimlane. Useful for splitting Mobile vs Core-banking work on the same board. Omit for a flat board.",
+      "items": {
+        "type": "object",
+        "required": ["id", "name"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "description": "Stable unique swimlane key used on each card's `swimlane` field." },
+          "name": { "type": "string", "description": "Swimlane display label, e.g. 'Mobile app' or 'Core banking'." }
+        }
+      }
+    },
+    "cards": {
+      "type": "array",
+      "description": "All work items on the board, each placed in one lane (and optionally one swimlane). Render order within a lane is the order they appear here.",
+      "items": {
+        "type": "object",
+        "required": ["id", "title", "lane", "status"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "description": "Displayed card ID (shown in the .kc-id chip), e.g. 'DEF-2241' or 'GEN-1160'. Must be unique." },
+          "title": { "type": "string", "description": "Card title shown as the main text, max ~2 lines. e.g. 'Fix rounding on FX conversion preview'." },
+          "lane": { "type": "string", "description": "ID of the lane this card belongs to. Must match one of the `lanes[].id` values." },
+          "swimlane": { "type": "string", "description": "Optional ID of the swimlane group this card belongs to. Must match one of the `swimlanes[].id` values when swimlanes are defined." },
+          "status": {
+            "type": "string",
+            "description": "Card semantic state. 'ok' = on track / in progress (brand/ok edge); 'risk' = blocked or overdue (bordeaux edge); 'hold' = watch / aging / WIP-at-limit (amber edge).",
+            "enum": ["ok", "risk", "hold"]
+          },
+          "cardType": { "type": "string", "description": "Optional type label shown in the .kcard-tag pill, e.g. 'Story', 'Defect', 'Chore'. No constraint on values." },
+          "assignee": { "type": "string", "description": "Optional assignee display name used to render the .avatar initials disc, e.g. 'Aisha Rahman'." },
+          "tags": {
+            "type": "array",
+            "description": "Optional list of label tag strings shown as .mchip pills, e.g. ['ledger', 'payments-api'].",
+            "items": { "type": "string" }
+          },
+          "due": { "type": "string", "description": "Optional due date (ISO YYYY-MM-DD or a short display label like 'Jun 25'). Rendered as a clock .mchip; a past date flips the chip to 'hold'/'risk' tone.", "format": "date" },
+          "points": { "type": "integer", "description": "Optional story-point estimate shown as a .mchip pts chip, e.g. 5.", "minimum": 0 },
+          "blocked": { "type": "boolean", "description": "If true, this card is flagged blocked: risk-coloured left edge + a visible .block-flag reason row. Should match status:'risk'.", "default": false },
+          "blockReason": { "type": "string", "description": "Short reason text shown in the .block-flag row when blocked=true, e.g. 'Waiting for security sign-off'." },
+          "prRef": { "type": "string", "description": "Optional pull-request or code reference shown as a .mchip, e.g. 'PR #884'." }
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "meta": {
+        "org": "{{ORG}}",
+        "project": "{{PROJECT}}",
+        "reportType": "Sprint 24",
+        "title": "Delivery & Defect Board",
+        "subtitle": "Sprint 24 — 2026-06-09 to 2026-06-22",
+        "date": "2026-06-22",
+        "author": "{{AUTHOR}}",
+        "theme": "teal"
+      },
+      "lanes": [
+        { "id": "backlog",     "name": "Backlog",      "wipLimit": null },
+        { "id": "in-progress", "name": "In progress",  "wipLimit": 5 },
+        { "id": "review",      "name": "Review",       "wipLimit": 4 },
+        { "id": "blocked",     "name": "Blocked",      "wipLimit": null },
+        { "id": "done",        "name": "Done",         "isDone": true }
+      ],
+      "swimlanes": [
+        { "id": "mobile",  "name": "Mobile app" },
+        { "id": "core",    "name": "Core banking" }
+      ],
+      "cards": [
+        {
+          "id": "GEN-1165",
+          "title": "Push-notification opt-in prompt on first open",
+          "lane": "backlog",
+          "swimlane": "mobile",
+          "status": "ok",
+          "cardType": "Story",
+          "assignee": "Bianca Ortiz",
+          "tags": ["notifications"],
+          "points": 3
+        },
+        {
+          "id": "DEF-2241",
+          "title": "Passcode entry loops after three failed attempts on Android 14",
+          "lane": "in-progress",
+          "swimlane": "mobile",
+          "status": "ok",
+          "cardType": "Defect",
+          "assignee": "Diego Salas",
+          "tags": ["login"],
+          "due": "2026-06-25",
+          "points": 5
+        },
+        {
+          "id": "GEN-1160",
+          "title": "Empty-state illustration for zero-transaction months",
+          "lane": "review",
+          "swimlane": "mobile",
+          "status": "ok",
+          "cardType": "Story",
+          "assignee": "Bianca Ortiz",
+          "tags": ["design"],
+          "points": 1,
+          "prRef": "PR #884"
+        },
+        {
+          "id": "DEF-2238",
+          "title": "Biometric fallback unavailable after iOS background wipe",
+          "lane": "blocked",
+          "swimlane": "mobile",
+          "status": "risk",
+          "cardType": "Defect",
+          "assignee": "Aisha Rahman",
+          "tags": ["login", "ios"],
+          "due": "2026-06-20",
+          "points": 8,
+          "blocked": true,
+          "blockReason": "Waiting for iOS SDK clarification from vendor"
+        },
+        {
+          "id": "DEF-2205",
+          "title": "Fix logout not clearing cached biometric token",
+          "lane": "done",
+          "swimlane": "mobile",
+          "status": "ok",
+          "cardType": "Defect",
+          "assignee": "Aisha Rahman",
+          "tags": ["login"],
+          "points": 3
+        },
+        {
+          "id": "CORE-503",
+          "title": "Idempotency key validation on payment initiation endpoint",
+          "lane": "in-progress",
+          "swimlane": "core",
+          "status": "ok",
+          "cardType": "Story",
+          "assignee": "Chen Wei",
+          "tags": ["payments-api"],
+          "points": 5
+        },
+        {
+          "id": "DEF-2224",
+          "title": "Reconciliation report misses reversed authorisations",
+          "lane": "review",
+          "swimlane": "core",
+          "status": "ok",
+          "cardType": "Defect",
+          "assignee": "Diego Salas",
+          "tags": ["ledger"],
+          "due": "2026-06-25",
+          "prRef": "PR #877"
+        },
+        {
+          "id": "DEF-2188",
+          "title": "Prevent negative available-balance display during pending holds",
+          "lane": "done",
+          "swimlane": "core",
+          "status": "ok",
+          "cardType": "Defect",
+          "assignee": "Chen Wei",
+          "tags": ["ledger"],
+          "points": 3
+        }
+      ]
+    }
+  ]
+}

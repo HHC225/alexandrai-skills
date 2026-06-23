@@ -1,0 +1,185 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://genesis.design/schemas/runbook-checklist.schema.json",
+  "title": "Runbook / Checklist (SOP)",
+  "description": "Data contract for the runbook-checklist format: an operational, action-oriented standard-operating-procedure rendered as numbered sections of checkable steps with optional commands, expected-results, rollback notes and critical callouts, plus a sticky progress rail and an always-visible rollback plan. The #report-data instance in runbook_checklist_sample.html is the canonical example. Default theme: cyan.",
+  "type": "object",
+  "required": ["meta", "prerequisites", "sections"],
+  "additionalProperties": false,
+  "properties": {
+    "meta": {
+      "type": "object",
+      "description": "Shared report identity block (see _DATA_DRIVEN.md). Brand-neutral: keep {{ORG}}/{{PROJECT}}/{{AUTHOR}} placeholders unless real values are supplied.",
+      "required": ["org", "project", "reportType", "title", "date", "author", "theme"],
+      "additionalProperties": false,
+      "properties": {
+        "org": { "type": "string", "description": "Organisation wordmark shown in header + footer. Placeholder: {{ORG}}.", "default": "{{ORG}}" },
+        "project": { "type": "string", "description": "Project / system this procedure applies to. Placeholder: {{PROJECT}}.", "default": "{{PROJECT}}" },
+        "reportType": { "type": "string", "description": "Artefact type label, e.g. 'Runbook' or 'Operational SOP'.", "examples": ["Runbook · Incident Mitigation", "Release Cutover SOP"] },
+        "title": { "type": "string", "description": "Procedure title — the operational objective, stated as a goal.", "examples": ["Mitigate payment-orchestrator duplicate-disbursement incident"] },
+        "subtitle": { "type": "string", "description": "Optional one-line context shown under the title (the trigger / scope)." },
+        "date": { "type": "string", "format": "date", "description": "Issue / last-reviewed date (YYYY-MM-DD).", "examples": ["2026-06-22"] },
+        "author": { "type": "string", "description": "Procedure owner / author. Placeholder: {{AUTHOR}}.", "default": "{{AUTHOR}}" },
+        "theme": {
+          "type": "string",
+          "description": "Initial brand theme; set on <html data-theme>. Live-switchable via .rc-theme. Default cyan for this format.",
+          "enum": ["blue", "purple", "indigo", "teal", "cyan", "green", "plum", "slate"],
+          "default": "cyan"
+        }
+      }
+    },
+    "severity": {
+      "type": "string",
+      "description": "Incident / change severity. Drives the header severity pill colour: sev1/sev2 -> risk (bordeaux), sev3 -> hold (amber), info -> ok.",
+      "enum": ["sev1", "sev2", "sev3", "info"]
+    },
+    "estDuration": {
+      "type": "string",
+      "description": "Human-readable estimated duration for the whole procedure, shown in the header.",
+      "examples": ["~45 min", "30-60 min"]
+    },
+    "owners": {
+      "type": "array",
+      "description": "People / roles accountable for executing the runbook; rendered as mono owner-chips in the header.",
+      "items": {
+        "type": "object",
+        "required": ["role", "name"],
+        "additionalProperties": false,
+        "properties": {
+          "role": { "type": "string", "description": "Role on the procedure.", "examples": ["Incident Commander", "On-call SRE", "DBA"] },
+          "name": { "type": "string", "description": "Person or rota name (placeholder allowed).", "examples": ["{{AUTHOR}}", "Payments on-call"] }
+        }
+      }
+    },
+    "prerequisites": {
+      "type": "array",
+      "description": "The 'before you begin' gate: preconditions, access, and tools required before step 1. Each item is a plain string or an object with an optional note.",
+      "minItems": 1,
+      "items": {
+        "oneOf": [
+          { "type": "string", "description": "A single prerequisite line." },
+          {
+            "type": "object",
+            "required": ["text"],
+            "additionalProperties": false,
+            "properties": {
+              "text": { "type": "string", "description": "The prerequisite." },
+              "note": { "type": "string", "description": "Optional clarifying note (e.g. where to get access)." }
+            }
+          }
+        ]
+      }
+    },
+    "sections": {
+      "type": "array",
+      "description": "Ordered, numbered phases of the procedure. Each section is a collapsible group of checkable steps with a live done/total counter. Recommended 3-4 sections.",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "title", "steps"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "description": "Stable slug used for the rail jump-link anchor and progress tracking.", "examples": ["detect", "stabilise", "verify"] },
+          "title": { "type": "string", "description": "Section / phase title (imperative).", "examples": ["Detect & confirm", "Stabilise the path", "Verify & close out"] },
+          "steps": {
+            "type": "array",
+            "description": "The checkable steps in this section, in execution order.",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "required": ["id", "text"],
+              "additionalProperties": false,
+              "properties": {
+                "id": { "type": "string", "description": "Stable unique step id (used as the key in the in-memory done-set and for the checkbox).", "examples": ["1.1", "detect-01"] },
+                "text": { "type": "string", "description": "The step instruction — imperative, atomic, one action.", "examples": ["Drain node web-07 from the load balancer and confirm zero in-flight requests."] },
+                "command": { "type": "string", "description": "Optional command(s) to run for this step; rendered in a dark mono block with a copy button. May contain newlines for multi-line commands." },
+                "expected": { "type": "string", "description": "Optional expected-result line ('you should see ...'); rendered in an ok-toned line with a check-circle icon." },
+                "rollback": { "type": "string", "description": "Optional 'if this fails, do ...' note for this step; rendered in a hold-toned inset." },
+                "critical": { "type": "boolean", "description": "If true, marks the step as destructive / no-undo; rendered with a risk-toned critical callout. Pair with a rollback note where possible.", "default": false }
+              }
+            }
+          }
+        }
+      }
+    },
+    "rollbackPlan": {
+      "type": "object",
+      "description": "The overall rollback / abort procedure, shown in an always-visible card in the sticky rail so the operator can bail out at any point.",
+      "additionalProperties": false,
+      "required": ["steps"],
+      "properties": {
+        "summary": { "type": "string", "description": "One-line statement of when to invoke rollback." },
+        "steps": {
+          "type": "array",
+          "description": "Ordered rollback steps.",
+          "minItems": 1,
+          "items": { "type": "string" }
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "meta": {
+        "org": "{{ORG}}",
+        "project": "{{PROJECT}}",
+        "reportType": "Runbook · Incident Mitigation",
+        "title": "Mitigate duplicate-disbursement incident on the settlement path",
+        "subtitle": "SEV2 — duplicate payments clearing under partial-failure retry. Stabilise, stop the bleed, verify, close.",
+        "date": "2026-06-22",
+        "author": "{{AUTHOR}}",
+        "theme": "cyan"
+      },
+      "severity": "sev2",
+      "estDuration": "~45 min",
+      "owners": [
+        { "role": "Incident Commander", "name": "{{AUTHOR}}" },
+        { "role": "On-call SRE", "name": "Payments on-call" },
+        { "role": "DBA", "name": "Data Platform on-call" }
+      ],
+      "prerequisites": [
+        "PagerDuty incident opened and bridge call active.",
+        { "text": "Production kubectl + lbctl access to the payments cluster.", "note": "Request via break-glass if you lack standing access." },
+        "Read access to the settlement warehouse for the dedup query.",
+        "Change ticket reference to hand off to the post-incident review."
+      ],
+      "sections": [
+        {
+          "id": "detect",
+          "title": "Detect & confirm",
+          "steps": [
+            { "id": "1.1", "text": "Confirm the duplicate-disbursement alert is firing and not a false positive.", "command": "alertctl show OR-CTL-118-dup --window 1h", "expected": "At least one firing alert with non-zero `dup_count` in the last hour." },
+            { "id": "1.2", "text": "Run the dedup query to count confirmed duplicate ledger pairs in the live window.", "command": "psql -h warehouse -c \\\n  \"SELECT count(*) FROM dup_breaks WHERE created_at > now()-interval '6h';\"", "expected": "A concrete count of affected request ids; record it in the incident channel." }
+          ]
+        },
+        {
+          "id": "stabilise",
+          "title": "Stabilise the path",
+          "steps": [
+            { "id": "2.1", "text": "Raise the client retry budget temporarily to shrink the post-commit gap window.", "command": "kubectl -n payments set env deploy/settle-orchestrator RETRY_BUDGET_MS=15000", "expected": "Rollout completes; `RETRY_BUDGET_MS=15000` on all pods.", "rollback": "Restore with RETRY_BUDGET_MS=5000 if latency SLO breaches." },
+            { "id": "2.2", "text": "Enable the same-day duplicate reconciliation alert to cut detection lag to under one hour.", "command": "alertctl enable dup-sameday --severity sev2" },
+            { "id": "2.3", "text": "Place a unique index on (account_id, request_id) to block any further duplicate persist at the DB.", "command": "psql -h ledger-primary -c \\\n  \"CREATE UNIQUE INDEX CONCURRENTLY ux_ledger_req ON ledger_entries(account_id, request_id);\"", "expected": "Index builds without error (no existing duplicates block it).", "critical": true, "rollback": "If the build fails on existing duplicates, reverse those rows first (see rollback plan), then retry." }
+          ]
+        },
+        {
+          "id": "verify",
+          "title": "Verify & close out",
+          "steps": [
+            { "id": "3.1", "text": "Re-run the dedup query and confirm no new duplicate pairs since stabilisation.", "command": "psql -h warehouse -c \\\n  \"SELECT count(*) FROM dup_breaks WHERE created_at > now()-interval '30m';\"", "expected": "Count is `0` for the post-mitigation window." },
+            { "id": "3.2", "text": "Reverse the confirmed duplicate disbursements and notify reconciliation.", "rollback": "Reversals are themselves logged; do not re-run the reversal job twice for the same id." },
+            { "id": "3.3", "text": "Hand off to the post-incident review and link the change ticket; lower severity once stable for 30 min." }
+          ]
+        }
+      ],
+      "rollbackPlan": {
+        "summary": "If stabilisation makes things worse (latency SLO breach or failed index build), back out in this order.",
+        "steps": [
+          "Restore RETRY_BUDGET_MS=5000 on settle-orchestrator.",
+          "Drop the unique index: DROP INDEX CONCURRENTLY ux_ledger_req.",
+          "Disable the same-day reconciliation alert.",
+          "Announce rollback on the bridge and keep the incident open at SEV2."
+        ]
+      }
+    }
+  ]
+}

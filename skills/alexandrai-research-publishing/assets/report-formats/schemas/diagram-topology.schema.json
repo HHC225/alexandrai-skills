@@ -1,0 +1,206 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://genesis.design/schemas/diagram-topology.schema.json",
+  "title": "Diagram / Topology Canvas",
+  "description": "Data contract for the topology-canvas format: a full-bleed pannable/zoomable spatial map of a system or data flow. Nodes are positioned by (x,y) on a canvas and joined by directed, labelled edges. The sample's #report-data is a valid instance of this schema and is the canonical example. Render: positioned HTML node cards over an inline SVG edge layer inside a transformable world; toolbar (zoom in/out/reset/fullscreen), layer panel, type legend/filter, and a side info panel for the selected node.",
+  "type": "object",
+  "required": ["meta", "layers", "nodeTypes", "nodes", "edges"],
+  "additionalProperties": false,
+  "properties": {
+    "meta": {
+      "type": "object",
+      "description": "Shared chrome block carried by every format in the family. Brand-neutral: keep {{ORG}}/{{PROJECT}}/{{AUTHOR}} placeholders unless real values are supplied. 'theme' picks the initial brand palette (one of the 8 presets).",
+      "required": ["org", "project", "reportType", "title", "date", "theme"],
+      "additionalProperties": false,
+      "properties": {
+        "org": { "type": "string", "description": "Organisation wordmark shown in the bar/footer. Placeholder: {{ORG}}.", "default": "{{ORG}}" },
+        "project": { "type": "string", "description": "Project / system name shown in the title. Placeholder: {{PROJECT}}.", "default": "{{PROJECT}}" },
+        "reportType": { "type": "string", "description": "Eyebrow label, e.g. 'System Topology', 'Data-flow Map', 'Dependency Graph'." },
+        "title": { "type": "string", "description": "Map title shown in the top app bar." },
+        "subtitle": { "type": "string", "description": "Optional one-line standfirst / scope note." },
+        "date": { "type": "string", "description": "As-of date stamp (ISO 'YYYY-MM-DD' preferred). Placeholder: {{DATE}}." },
+        "author": { "type": "string", "description": "Author / team, shown in the print footer. Placeholder: {{AUTHOR}}.", "default": "{{AUTHOR}}" },
+        "theme": {
+          "type": "string",
+          "description": "Initial brand theme; sets <html data-theme>. Default for this format is 'purple'.",
+          "enum": ["blue", "purple", "indigo", "teal", "cyan", "green", "plum", "slate"],
+          "default": "purple"
+        },
+        "canvas": {
+          "type": "object",
+          "description": "Optional logical canvas size in px for the transformable world. If node x/y are normalized 0..100 they are mapped onto this box; if x/y are already px they are used directly. Defaults to 1600×1000.",
+          "additionalProperties": false,
+          "properties": {
+            "w": { "type": "number", "description": "Canvas width in px.", "default": 1600, "minimum": 1 },
+            "h": { "type": "number", "description": "Canvas height in px.", "default": 1000, "minimum": 1 },
+            "coords": { "type": "string", "description": "How node x/y are expressed: 'norm' = 0..100 percent of the canvas, 'px' = absolute pixels.", "enum": ["norm", "px"], "default": "norm" }
+          }
+        }
+      }
+    },
+    "layers": {
+      "type": "array",
+      "description": "The bands / tiers of the system (e.g. Edge, Services, Data). Each is independently toggleable; hiding a layer removes its nodes and any edge touching them. Order is render/legend order.",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["key", "label"],
+        "additionalProperties": false,
+        "properties": {
+          "key": { "type": "string", "description": "Stable id referenced by node.layer." },
+          "label": { "type": "string", "description": "Human label shown in the layer toggle." }
+        }
+      }
+    },
+    "nodeTypes": {
+      "type": "array",
+      "description": "The kinds of node in the topology (e.g. gateway, service, datastore, queue, external). Each drives a legend chip, the node icon, and a type-filter chip.",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["key", "label"],
+        "additionalProperties": false,
+        "properties": {
+          "key": { "type": "string", "description": "Stable id referenced by node.type." },
+          "label": { "type": "string", "description": "Human label shown in the legend / type filter." },
+          "icon": { "type": "string", "description": "Optional house-icon key for this type (e.g. 'gateway','microservice','database','queue','cache','load-balancer','source-external'). Falls back to a generic node glyph.", "default": "microservice" },
+          "shape": { "type": "string", "description": "Optional swatch shape hint for the legend ('rounded' | 'square' | 'pill' | 'cylinder').", "enum": ["rounded", "square", "pill", "cylinder"], "default": "rounded" }
+        }
+      }
+    },
+    "nodes": {
+      "type": "array",
+      "description": "The positioned nodes of the map. Each node card is placed at (x,y) on the canvas, icon-keyed to its type and dot-coloured by its status. ~10-16 nodes is the sweet spot for one screen.",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "label", "type", "x", "y"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "description": "Unique node id; referenced by edges.from / edges.to and the neighbour list." },
+          "label": { "type": "string", "description": "Node display name." },
+          "type": { "type": "string", "description": "Node kind; must match a nodeTypes[].key." },
+          "layer": { "type": "string", "description": "Optional band; must match a layers[].key. Used by the layer toggle." },
+          "x": { "type": "number", "description": "Horizontal position on the canvas (0..100 if meta.canvas.coords='norm', else px)." },
+          "y": { "type": "number", "description": "Vertical position on the canvas (0..100 if normalized, else px)." },
+          "status": { "type": "string", "description": "Health/state, colours the node's status dot and info badge. 'neutral' is the uncoloured default.", "enum": ["ok", "risk", "hold", "neutral"], "default": "neutral" },
+          "meta": {
+            "type": "object",
+            "description": "Free key/value facts about the node, rendered as a key/value grid in the info panel (e.g. tech, owner, SLO, region, version). Keys are shown as tracked mono micro-labels.",
+            "additionalProperties": { "type": ["string", "number", "boolean"] }
+          }
+        }
+      }
+    },
+    "edges": {
+      "type": "array",
+      "description": "Directed links between nodes (from -> to). 'kind' styles the line and arrowhead; 'label' is the mid-path tooltip pill (call name, protocol, topic, etc.).",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["from", "to"],
+        "additionalProperties": false,
+        "properties": {
+          "from": { "type": "string", "description": "Source node id (must match a nodes[].id)." },
+          "to": { "type": "string", "description": "Target node id (must match a nodes[].id)." },
+          "label": { "type": "string", "description": "Optional edge caption shown on hover / when its endpoints are focused." },
+          "kind": { "type": "string", "description": "Edge semantics → line style: 'sync' solid arrow, 'async' dashed arrow, 'data' thick line, 'dep' dotted dependency.", "enum": ["sync", "async", "data", "dep"], "default": "sync" }
+        }
+      }
+    },
+    "legend": {
+      "type": "object",
+      "description": "Optional override of the status and edge-kind legend captions.",
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "type": "object",
+          "description": "Captions for the status dots.",
+          "additionalProperties": false,
+          "properties": {
+            "ok": { "type": "string", "default": "Healthy" },
+            "risk": { "type": "string", "default": "At risk" },
+            "hold": { "type": "string", "default": "Watch" },
+            "neutral": { "type": "string", "default": "Informational" }
+          }
+        },
+        "kinds": {
+          "type": "object",
+          "description": "Captions for the edge kinds.",
+          "additionalProperties": false,
+          "properties": {
+            "sync": { "type": "string", "default": "Sync call" },
+            "async": { "type": "string", "default": "Async / event" },
+            "data": { "type": "string", "default": "Data flow" },
+            "dep": { "type": "string", "default": "Dependency" }
+          }
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "meta": {
+        "org": "{{ORG}}",
+        "project": "{{PROJECT}}",
+        "reportType": "System Topology",
+        "title": "Payments Platform — Service & Data-flow Topology",
+        "subtitle": "Request path, event streams and datastores across the edge, service and data tiers",
+        "date": "2026-06-22",
+        "author": "{{AUTHOR}}",
+        "theme": "purple",
+        "canvas": { "w": 1640, "h": 1000, "coords": "norm" }
+      },
+      "layers": [
+        { "key": "edge", "label": "Edge & Channel" },
+        { "key": "svc", "label": "Services" },
+        { "key": "data", "label": "Data & Streaming" }
+      ],
+      "nodeTypes": [
+        { "key": "gateway", "label": "Gateway / LB", "icon": "gateway", "shape": "rounded" },
+        { "key": "service", "label": "Service", "icon": "microservice", "shape": "rounded" },
+        { "key": "datastore", "label": "Datastore", "icon": "database", "shape": "cylinder" },
+        { "key": "queue", "label": "Topic / Queue", "icon": "queue", "shape": "pill" },
+        { "key": "cache", "label": "Cache", "icon": "cache", "shape": "rounded" },
+        { "key": "external", "label": "External", "icon": "source-external", "shape": "square" }
+      ],
+      "nodes": [
+        { "id": "cdn", "label": "Edge CDN / WAF", "type": "gateway", "layer": "edge", "x": 9, "y": 16, "status": "ok", "meta": { "tier": "edge", "provider": "Fastly", "tls": "1.3" } },
+        { "id": "apigw", "label": "API Gateway", "type": "gateway", "layer": "edge", "x": 27, "y": 30, "status": "ok", "meta": { "tier": "edge", "rps": "4.2k", "owner": "platform" } },
+        { "id": "auth", "label": "Auth / OIDC", "type": "service", "layer": "svc", "x": 27, "y": 64, "status": "hold", "meta": { "owner": "identity", "slo": "99.95%", "note": "token TTL under review" } },
+        { "id": "orders", "label": "Orders API", "type": "service", "layer": "svc", "x": 47, "y": 20, "status": "ok", "meta": { "owner": "checkout", "lang": "Kotlin", "slo": "99.9%" } },
+        { "id": "payments", "label": "Payments Engine", "type": "service", "layer": "svc", "x": 47, "y": 50, "status": "risk", "meta": { "owner": "payments", "lang": "Java", "slo": "99.99%", "note": "p99 latency breach 06-21" } },
+        { "id": "ledger", "label": "Ledger Service", "type": "service", "layer": "svc", "x": 47, "y": 80, "status": "ok", "meta": { "owner": "core-banking", "consistency": "strong" } },
+        { "id": "notif", "label": "Notification Svc", "type": "service", "layer": "svc", "x": 67, "y": 66, "status": "ok", "meta": { "owner": "engagement", "channels": "push, email, sms" } },
+        { "id": "fraud", "label": "Fraud Scoring", "type": "service", "layer": "svc", "x": 67, "y": 36, "status": "hold", "meta": { "owner": "risk", "model": "v7", "note": "shadow-mode rollout" } },
+        { "id": "ordersdb", "label": "Orders DB", "type": "datastore", "layer": "data", "x": 64, "y": 8, "status": "ok", "meta": { "engine": "PostgreSQL 16", "ha": "multi-AZ" } },
+        { "id": "ledgerdb", "label": "Ledger DB", "type": "datastore", "layer": "data", "x": 64, "y": 92, "status": "ok", "meta": { "engine": "Spanner", "region": "asia-northeast1" } },
+        { "id": "cache", "label": "Session Cache", "type": "cache", "layer": "data", "x": 12, "y": 50, "status": "ok", "meta": { "engine": "Redis", "evict": "LRU" } },
+        { "id": "events", "label": "payments.events", "type": "queue", "layer": "data", "x": 85, "y": 50, "status": "ok", "meta": { "broker": "Kafka", "partitions": "24", "retention": "7d" } },
+        { "id": "psp", "label": "Card PSP", "type": "external", "layer": "data", "x": 85, "y": 24, "status": "hold", "meta": { "vendor": "Adyen", "sla": "99.9%", "note": "rate-limited" } },
+        { "id": "analytics", "label": "Analytics Sink", "type": "datastore", "layer": "data", "x": 85, "y": 78, "status": "neutral", "meta": { "engine": "BigQuery", "load": "streaming" } }
+      ],
+      "edges": [
+        { "from": "cdn", "to": "apigw", "kind": "sync", "label": "HTTPS" },
+        { "from": "apigw", "to": "auth", "kind": "sync", "label": "verify token" },
+        { "from": "apigw", "to": "orders", "kind": "sync", "label": "REST" },
+        { "from": "auth", "to": "cache", "kind": "data", "label": "session" },
+        { "from": "orders", "to": "ordersdb", "kind": "data", "label": "read/write" },
+        { "from": "orders", "to": "payments", "kind": "sync", "label": "authorize" },
+        { "from": "payments", "to": "fraud", "kind": "sync", "label": "score" },
+        { "from": "payments", "to": "psp", "kind": "sync", "label": "capture" },
+        { "from": "payments", "to": "ledger", "kind": "sync", "label": "post entry" },
+        { "from": "ledger", "to": "ledgerdb", "kind": "data", "label": "commit" },
+        { "from": "payments", "to": "events", "kind": "async", "label": "PaymentCaptured" },
+        { "from": "events", "to": "notif", "kind": "async", "label": "subscribe" },
+        { "from": "events", "to": "analytics", "kind": "async", "label": "sink" },
+        { "from": "fraud", "to": "events", "kind": "async", "label": "FraudFlagged" },
+        { "from": "notif", "to": "psp", "kind": "dep", "label": "delivery webhook" }
+      ],
+      "legend": {
+        "status": { "ok": "Healthy", "risk": "At risk", "hold": "Watch", "neutral": "Informational" },
+        "kinds": { "sync": "Sync call", "async": "Async event", "data": "Data flow", "dep": "Dependency" }
+      }
+    }
+  ]
+}

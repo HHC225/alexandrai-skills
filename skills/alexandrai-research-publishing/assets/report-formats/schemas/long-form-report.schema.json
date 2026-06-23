@@ -1,0 +1,388 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://genesis.local/html_report_design/schemas/long-form-report.schema.json",
+  "title": "Long-form report",
+  "description": "Data contract for the long-form report format: the canonical document format for audits, assessments, postmortems, due-diligence write-ups, security reviews, and root-cause analyses. Renders as a self-contained interactive HTML with a sticky top bar, compact hero, 3-column body (208px TOC | 1fr | 244px rail), stacked rounded section panels, a dark split-diff exhibit, and a collapsible appendix reference-index. The sample's #report-data is a valid instance of this schema.",
+  "type": "object",
+  "required": ["meta", "hero", "tocSections", "sections", "railFacts", "references"],
+  "additionalProperties": false,
+  "properties": {
+    "meta": {
+      "type": "object",
+      "description": "Shared report chrome (org / project / title / theme). Brand-neutral: keep {{ORG}} / {{PROJECT}} / {{AUTHOR}} placeholders unless real values are supplied.",
+      "required": ["org", "project", "reportType", "title", "date", "theme"],
+      "additionalProperties": false,
+      "properties": {
+        "org": { "type": "string", "description": "Organisation name or {{ORG}} placeholder.", "default": "{{ORG}}" },
+        "project": { "type": "string", "description": "Project / programme name or {{PROJECT}} placeholder.", "default": "{{PROJECT}}" },
+        "reportType": { "type": "string", "description": "Eyebrow label shown in the top bar and footer, e.g. 'Operational Resilience Assessment' or {{REPORT_TYPE}}." },
+        "title": { "type": "string", "description": "Main report title shown in the hero, e.g. 'Operational Resilience & Controls Assessment'." },
+        "subtitle": { "type": "string", "description": "Optional one-line standfirst shown in the hero-meta strip." },
+        "date": { "type": "string", "description": "ISO date the report was produced (YYYY-MM-DD).", "format": "date" },
+        "author": { "type": "string", "description": "Author / owning team or {{AUTHOR}} placeholder.", "default": "{{AUTHOR}}" },
+        "theme": {
+          "type": "string",
+          "description": "Initial brand theme; applied as <html data-theme>. The in-report switcher can change it live. Default for this format is 'purple'.",
+          "enum": ["blue", "purple", "indigo", "teal", "cyan", "green", "plum", "slate"],
+          "default": "purple"
+        }
+      }
+    },
+    "hero": {
+      "type": "object",
+      "description": "The compact hero below the top bar — eyebrow, title, verdict badges, standfirst, and optional meta strip.",
+      "required": ["eyebrow", "title", "standfirst"],
+      "additionalProperties": false,
+      "properties": {
+        "eyebrow": { "type": "string", "description": "Tracked-uppercase mono eyebrow label above the title, e.g. 'Root Cause Analysis'." },
+        "title": { "type": "string", "description": "Hero title (may differ from meta.title for line-break control). ≤72 characters." },
+        "standfirst": { "type": "string", "description": "2–3 sentence thesis/executive summary shown as hero-sum. States the conclusion first." },
+        "badges": {
+          "type": "array",
+          "description": "Status/verdict/category pills shown below the title in the hero.",
+          "items": {
+            "type": "object",
+            "required": ["label"],
+            "additionalProperties": false,
+            "properties": {
+              "label": { "type": "string", "description": "Badge text." },
+              "variant": {
+                "type": "string",
+                "description": "Visual variant: 'verdict' (risk colour), 'cat' (accent colour), 'sev' (hold/amber colour), or 'default' (neutral).",
+                "enum": ["verdict", "cat", "sev", "default"],
+                "default": "default"
+              }
+            }
+          }
+        },
+        "metaItems": {
+          "type": "array",
+          "description": "Optional key/value pairs shown in the hero-meta strip (thin row at the bottom of the hero). e.g. [{key:'Report ID', value:'OPS-RES-2026-Q2-047'}].",
+          "items": {
+            "type": "object",
+            "required": ["key", "value"],
+            "additionalProperties": false,
+            "properties": {
+              "key": { "type": "string", "description": "Label shown in small uppercase mono." },
+              "value": { "type": "string", "description": "Value shown in normal weight." }
+            }
+          }
+        }
+      }
+    },
+    "tocSections": {
+      "type": "array",
+      "description": "Ordered list of section entries for the left-rail TOC scroll-spy index. Each entry maps to a section rendered in the main column. Supplement and Appendix entries are listed last.",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "num", "title"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "description": "Anchor id that matches the corresponding section's id attribute, e.g. 'context'." },
+          "num": { "type": "string", "description": "Section number shown in mono in the TOC, e.g. '00' or 'App.' or 'Supp.'." },
+          "title": { "type": "string", "description": "Section title shown next to the number in the TOC link." }
+        }
+      }
+    },
+    "sections": {
+      "type": "array",
+      "description": "Ordered array of section panels rendered in the main article column. Each section becomes a .sec rounded panel with a banded header.",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "num", "title", "blocks"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "description": "HTML id attribute for the section, used by TOC scroll-spy and anchor links, e.g. 'context'." },
+          "num": { "type": "string", "description": "Section number chip text, e.g. 'Section 00', 'Supp.', 'App.'." },
+          "title": { "type": "string", "description": "Section heading shown in the banded header H2." },
+          "folded": { "type": "boolean", "description": "If true, the section ships as a collapsible <details> (used for Supplement and Appendix). Defaults to false.", "default": false },
+          "iconCategory": {
+            "type": "string",
+            "description": "Icon shown in the section header band, drawn from the house SVG set.",
+            "enum": ["document", "status", "editorial", "source", "code", "data"]
+          },
+          "blocks": {
+            "type": "array",
+            "description": "Content blocks inside the section, rendered in order. Each block has a 'kind' that controls how it is rendered.",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "required": ["kind"],
+              "additionalProperties": true,
+              "properties": {
+                "kind": {
+                  "type": "string",
+                  "description": "Block type: 'prose' = a paragraph or paragraphs; 'kv-grid' = 4-column key/value grid; 'phen-rows' = phenomenon/labelled-fact rows; 'cause-chain' = numbered vertical stepper; 'fix-card' = finding/fix card with optional diff; 'findings-accordion' = collapsible finding rows; 'data-table' = 2px-rule data table; 'risk-list' = id'd risk list.",
+                  "enum": ["prose", "kv-grid", "phen-rows", "cause-chain", "fix-card", "findings-accordion", "data-table", "risk-list"]
+                },
+                "text": { "type": "string", "description": "For kind='prose': the paragraph HTML/text content." },
+                "items": { "type": "array", "description": "For list-type blocks: the rows or entries." }
+              }
+            }
+          }
+        }
+      }
+    },
+    "railFacts": {
+      "type": "array",
+      "description": "Metadata cards shown in the sticky right rail. Each card has a header and a list of key/value fact rows.",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["label", "facts"],
+        "additionalProperties": false,
+        "properties": {
+          "label": { "type": "string", "description": "Card header label shown in the banded rail-card-hd strip, e.g. 'Report metadata'." },
+          "facts": {
+            "type": "array",
+            "description": "Key/value rows inside the rail card.",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "required": ["key", "value"],
+              "additionalProperties": false,
+              "properties": {
+                "key": { "type": "string", "description": "Fact label shown in dt." },
+                "value": { "type": "string", "description": "Fact value shown in dd. May include a status token name prefixed with 'st:' (e.g. 'st:risk:Non-conformant') to render as a .st-badge." }
+              }
+            }
+          }
+        }
+      }
+    },
+    "findings": {
+      "type": "array",
+      "description": "Optional array of detailed findings for the findings-accordion section. Each entry maps to a collapsible <details> finding row.",
+      "items": {
+        "type": "object",
+        "required": ["id", "type", "title", "confidence", "body"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "description": "Evidence ID, e.g. 'EV-DOC-001'. Shown in the mono fi-code chip." },
+          "type": { "type": "string", "description": "Finding type label shown in the fi-type chip, e.g. 'Control', 'Data', 'Telemetry'." },
+          "title": { "type": "string", "description": "One-line finding title shown in the collapsible summary row." },
+          "confidence": {
+            "type": "string",
+            "description": "Confidence level rendered as a .st-badge.",
+            "enum": ["ok", "hold", "risk"]
+          },
+          "confidenceLabel": { "type": "string", "description": "Text for the confidence badge, e.g. 'Confidence · High'." },
+          "body": { "type": "string", "description": "Prose explanation shown in the expanded find-body, in plain text or light HTML." },
+          "evidence": { "type": "string", "description": "Optional verbatim code/log excerpt shown in a mono evi-body-card block." }
+        }
+      }
+    },
+    "references": {
+      "type": "array",
+      "description": "Evidence ledger entries for the collapsible Appendix section. Every EV-* id referenced in the body should have a row here.",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "type", "where", "brief"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "description": "Stable evidence ID, e.g. 'EV-DOC-001'. Used as the HTML anchor id (id='ev-EV-DOC-001')." },
+          "type": { "type": "string", "description": "Evidence type shown in the Type column, e.g. 'Control', 'Source', 'Data', 'Telemetry'." },
+          "where": { "type": "string", "description": "Source locator shown in the Locator column (mono), e.g. 'catalogue://controls/OR-CTL-118'." },
+          "brief": { "type": "string", "description": "One-sentence précis of the evidence shown in the Précis column." },
+          "linkKind": {
+            "type": "string",
+            "description": "Optional link-badge type for the external-source icon. Maps to .evi-link-icon--<kind>.",
+            "enum": ["repo", "doc", "log", "monitor", "data"]
+          }
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "meta": {
+        "org": "{{ORG}}",
+        "project": "{{PROJECT}}",
+        "reportType": "{{REPORT_TYPE}}",
+        "title": "Operational Resilience & Controls Assessment",
+        "subtitle": "Settlement orchestrator idempotency review — Q2 2026",
+        "date": "2026-06-22",
+        "author": "{{AUTHOR}}",
+        "theme": "purple"
+      },
+      "hero": {
+        "eyebrow": "Root Cause Analysis",
+        "title": "Idempotency gap in the settlement orchestrator — duplicate disbursements under retry",
+        "standfirst": "A post-commit / pre-persist gap in the settlement orchestrator's idempotency key write allowed retried requests to execute a second mutation when downstream latency exceeded the client retry window. Four confirmed duplicate disbursements were produced over the review period; all were detected by reconciliation and reversed. The primary fix closes the gap by writing the key atomically inside the commit transaction.",
+        "badges": [
+          { "label": "Non-conformant", "variant": "verdict" },
+          { "label": "OR-CTL-118", "variant": "cat" },
+          { "label": "Severity · High", "variant": "sev" }
+        ],
+        "metaItems": [
+          { "key": "Report ID", "value": "OPS-RES-2026-Q2-047" },
+          { "key": "Review window", "value": "2026-04-01 → 2026-06-15" },
+          { "key": "Scope", "value": "settle-orchestrator · ledger-writer" }
+        ]
+      },
+      "tocSections": [
+        { "id": "context",  "num": "00", "title": "Engagement context" },
+        { "id": "summary",  "num": "01", "title": "Summary of findings" },
+        { "id": "remediation", "num": "02", "title": "Analysis & remediation" },
+        { "id": "findings", "num": "03", "title": "Detailed findings" },
+        { "id": "metrics",  "num": "04", "title": "Key metrics" },
+        { "id": "risks",    "num": "05", "title": "Residual risk" },
+        { "id": "lateral",  "num": "Supp.", "title": "Lateral exposure" },
+        { "id": "appendix", "num": "App.", "title": "Evidence index" }
+      ],
+      "sections": [
+        {
+          "id": "context",
+          "num": "Section 00",
+          "title": "Engagement context",
+          "iconCategory": "document",
+          "blocks": [
+            {
+              "kind": "kv-grid",
+              "items": [
+                { "key": "Owner", "value": "{{AUTHOR}}" },
+                { "key": "Period", "value": "2026-04-01 → 2026-06-15" },
+                { "key": "Scope", "value": "settle-orchestrator · ledger-writer" },
+                { "key": "Classification", "value": "Confidential — Internal" }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "summary",
+          "num": "Section 01",
+          "title": "Summary of findings",
+          "iconCategory": "status",
+          "blocks": [
+            {
+              "kind": "phen-rows",
+              "items": [
+                { "label": "Root cause", "value": "Post-commit key write (non-atomic) opens duplicate window" },
+                { "label": "Impact", "value": "4 confirmed duplicate disbursements over 11 weeks" },
+                { "label": "Control gap", "value": "OR-CTL-118 atomicity clause not satisfied" }
+              ]
+            },
+            {
+              "kind": "cause-chain",
+              "items": [
+                { "num": "1", "headline": "Idempotency key written after commit", "detail": "The orchestrator calls ledger.Commit() then separately idem.Put() — two operations with no shared transaction.", "evref": "EV-SRC-001" },
+                { "num": "2", "headline": "Partial-failure window exposed", "detail": "If the process restarts or the client retries before Put() completes, the dedup lookup returns MISS.", "evref": "EV-LOG-001" },
+                { "num": "3", "headline": "Retry processes as new request", "detail": "The retried request passes the dedup check, commits a second mutation, and returns HTTP 200.", "evref": "EV-DAT-001" }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "metrics",
+          "num": "Section 04",
+          "title": "Key metrics — exposure and detection",
+          "iconCategory": "data",
+          "blocks": [
+            {
+              "kind": "data-table",
+              "items": [
+                { "service": "settle-orchestrator", "control": "OR-CTL-118", "events": 4, "disposition": "Atomic key write (primary fix)", "status": "risk:Open" },
+                { "service": "ledger-writer",       "control": "OR-CTL-118", "events": 0, "disposition": "Unique index (defence in depth)",    "status": "hold:Recommended" },
+                { "service": "refund-service",      "control": "OR-CTL-118", "events": 0, "disposition": "Already atomic — conformant",        "status": "ok:Cleared" }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "risks",
+          "num": "Section 05",
+          "title": "Residual risk & open items",
+          "iconCategory": "status",
+          "blocks": [
+            {
+              "kind": "risk-list",
+              "items": [
+                { "id": "R-001", "text": "Duplicate window remains open until the primary fix ships. Interim mitigation: reconciliation alert on same-day duplicate request_id." },
+                { "id": "R-002", "text": "Unique-index hardening requires a clean backfill; run the dedup report at full history before migrating." },
+                { "id": "R-003", "text": "Transfer orchestrator shares the post-commit key-write pattern — must be remediated together." }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "lateral",
+          "num": "Supp.",
+          "title": "Lateral exposure — same pattern, other paths",
+          "folded": true,
+          "iconCategory": "code",
+          "blocks": [
+            {
+              "kind": "data-table",
+              "items": [
+                { "id": "LC-001", "location": "transfer-orchestrator · regular_transfer_orchestrator.go:L121", "verdict": "risk:Same pattern", "rationale": "Identical commit-then-key shape." },
+                { "id": "LC-002", "location": "payout-batch · batch_finalizer.go:L88",                          "verdict": "hold:Needs review",  "rationale": "Framework semantics unclear." },
+                { "id": "LC-003", "location": "refund-service · refund_handler.go:L64",                         "verdict": "ok:Conformant",      "rationale": "Already atomic — reference impl." }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "appendix",
+          "num": "App.",
+          "title": "Appendix — evidence index",
+          "folded": true,
+          "iconCategory": "document",
+          "blocks": []
+        }
+      ],
+      "railFacts": [
+        {
+          "label": "Report metadata",
+          "facts": [
+            { "key": "Report ID",       "value": "OPS-RES-2026-Q2-047" },
+            { "key": "Type",            "value": "{{REPORT_TYPE}}" },
+            { "key": "Owner",           "value": "{{AUTHOR}}" },
+            { "key": "Window",          "value": "2026-04-01 → 2026-06-15" },
+            { "key": "Scope",           "value": "settle-orchestrator · ledger-writer" },
+            { "key": "Classification",  "value": "Confidential — Internal" },
+            { "key": "Status",          "value": "st:risk:Non-conformant" }
+          ]
+        },
+        {
+          "label": "Remediation",
+          "facts": [
+            { "key": "Primary fix", "value": "st:risk:Open" },
+            { "key": "Hardening",   "value": "st:hold:Recommended" },
+            { "key": "Lateral",     "value": "1 same · 1 review" }
+          ]
+        }
+      ],
+      "findings": [
+        {
+          "id": "EV-DOC-001",
+          "type": "Control",
+          "title": "OR-CTL-118 mandates exactly-once for externally-visible mutations, with the idempotency key written atomically with the mutation",
+          "confidence": "ok",
+          "confidenceLabel": "Confidence · High",
+          "body": "The control catalogue defines OR-CTL-118 as a closed requirement: every externally-visible state mutation must be exactly-once under client retry, and the deduplication key must be written within the same transaction boundary as the mutation it guards.",
+          "evidence": "OR-CTL-118  Exactly-once for externally-visible mutations\n  Mechanism : A deduplication key MUST be persisted within the SAME transaction boundary as the mutation."
+        },
+        {
+          "id": "EV-DAT-001",
+          "type": "Data",
+          "title": "Reconciliation found 4 ledger pairs sharing one request id — confirmed duplicate disbursements",
+          "confidence": "hold",
+          "confidenceLabel": "Confidence · Medium",
+          "body": "A dedup query over the review window returned four cases where two ledger_entries rows carry the same (account_id, request_id) with non-overlapping ids and timestamps 0.4–4.8s apart.",
+          "evidence": "SELECT account_id, request_id, count(*), max(ts)-min(ts) AS gap\nFROM ledger_entries\nWHERE created_at >= '2026-04-01' GROUP BY 1,2 HAVING count(*) > 1;\n -- 4 rows returned"
+        }
+      ],
+      "references": [
+        { "id": "EV-DOC-001", "type": "Control",   "where": "catalogue://controls/OR-CTL-118",                                    "brief": "OR-CTL-118: exactly-once for externally-visible mutations; key written atomically.",                     "linkKind": "doc" },
+        { "id": "EV-SRC-001", "type": "Source",    "where": "repo://svc-settle@4.12.3:internal/settle/settle_orchestrator.go#L142", "brief": "handleDisbursement: ledger.Commit() then separate idem.Put() — non-atomic key write.",                    "linkKind": "repo" },
+        { "id": "EV-SRC-002", "type": "Source",    "where": "repo://svc-settle@4.12.3:internal/idem/store.go#L30",                 "brief": "Idempotency store uses a distinct connection; Put and Commit cannot share a transaction.",              "linkKind": "repo" },
+        { "id": "EV-DAT-001", "type": "Data",      "where": "query://warehouse/dedup_breaks@2026-06-15",                          "brief": "Four ledger pairs share one request id; all four reconciled as breaks and reversed.",                   "linkKind": "data" },
+        { "id": "EV-LOG-001", "type": "Telemetry", "where": "monitor://traces/settle@2026-05-22T12:04:11Z",                       "brief": "Trace of the reproduced case: first commit, client retry +0.41s, dedup miss, second commit.",          "linkKind": "monitor" },
+        { "id": "EV-LOG-002", "type": "Telemetry", "where": "log://settle-orchestrator@2026-05-22T12:04:11Z:req=7c…e1",           "brief": "Orchestrator log showing dedup MISS on the retry and the second commit ok status=200.",                 "linkKind": "log" }
+      ]
+    }
+  ]
+}

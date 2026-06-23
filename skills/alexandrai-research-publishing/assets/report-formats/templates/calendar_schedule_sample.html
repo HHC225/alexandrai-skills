@@ -1,0 +1,863 @@
+<!doctype html>
+<html lang="en" data-theme="green">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1440">
+<title>{{PROJECT}} — Release &amp; Test Calendar</title>
+<style>
+/* ============================================================================
+   CALENDAR / SCHEDULE — self-contained, data-driven, interactive, PC-wide.
+   Family DNA per _FOUNDATION.md; data-driven + themeable per _DATA_DRIVEN.md.
+   Content lives ONLY in #report-data; render() builds the DOM from it.
+   Default theme: GREEN (in :root). 8 [data-theme] swaps below. .rc-theme switches live.
+   ============================================================================ */
+:root{
+  /* surfaces */
+  --bg:#fff; --bg-band:#f6f6f8; --bg-subtle:#fafafb; --bg-deep:#15131a;
+  --rule:#dcdce2; --rule-soft:#ebebef;
+  /* ink */
+  --ink:#11131a; --ink-mid:#33363f; --ink-soft:#5a5e68; --ink-faint:#868b95;
+  /* brand accent — GREEN default */
+  --navy:#1f7a44; --navy-deep:#155730; --navy-bg:#e6f4ea; --navy-line:#b3dcc1;
+  /* cleared / approved */
+  --ok:#2f6b3c; --ok-bg:#e9f3ea; --ok-line:#bedcc4;
+  /* semantic states — CONSTANT across all themes */
+  --risk:#b3261e; --risk-bg:#fbeceb; --risk-line:#edc7c4;
+  --hold:#8a6d00; --hold-bg:#fbf3da; --hold-line:#e7d8a4;
+  /* type stacks */
+  --mono:ui-monospace,"JetBrains Mono","SFMono-Regular",Menlo,Consolas,monospace;
+  --sans:-apple-system,"Segoe UI",system-ui,Roboto,"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic UI","Apple SD Gothic Neo","Malgun Gothic","PingFang SC","Microsoft YaHei","Noto Sans CJK JP","Noto Sans CJK KR","Noto Sans CJK SC","Noto Sans JP","Noto Sans KR","Noto Sans SC","Noto Sans",sans-serif;
+  /* event-type accents (neutral-distinct, used when a type tone is accentN) */
+  --acc1:#1f7a44; --acc1-bg:#e6f4ea; --acc1-line:#b3dcc1;
+  --acc2:#0b5fd4; --acc2-bg:#e8f1fc; --acc2-line:#bcd6f5;
+  --acc3:#a21d6e; --acc3-bg:#fbe8f2; --acc3-line:#e8b9d4;
+  --acc4:#0e7c86; --acc4-bg:#e0f3f4; --acc4-line:#a9dade;
+  /* shadows */
+  --sh-card:0 1px 2px rgba(17,19,26,.045);
+  --sh-pop:0 8px 28px rgba(17,19,26,.16),0 1px 3px rgba(17,19,26,.08);
+  --sh-rail:0 1px 3px rgba(17,19,26,.05);
+}
+html[data-theme="blue"]  {--navy:#0b5fd4;--navy-deep:#0842a0;--navy-bg:#e8f1fc;--navy-line:#bcd6f5;--ok:#1a4f9c;--ok-bg:#e9f0fa;--ok-line:#b7cdea;}
+html[data-theme="purple"]{--navy:#a100ff;--navy-deep:#7a00c2;--navy-bg:#f3e8ff;--navy-line:#d9bef5;--ok:#5a2f8a;--ok-bg:#efe8f5;--ok-line:#d0b5e0;}
+html[data-theme="indigo"]{--navy:#4338ca;--navy-deep:#312c92;--navy-bg:#ebebfb;--navy-line:#c7c3f0;--ok:#3730a3;--ok-bg:#ebeaf7;--ok-line:#c5c2ea;}
+html[data-theme="teal"]  {--navy:#0e7c86;--navy-deep:#095861;--navy-bg:#e0f3f4;--navy-line:#a9dade;--ok:#0f5d54;--ok-bg:#e3f3ef;--ok-line:#b3ddd4;}
+html[data-theme="cyan"]  {--navy:#0891b2;--navy-deep:#0e6f88;--navy-bg:#e2f4f9;--navy-line:#abdde9;--ok:#0e6b7a;--ok-bg:#e4f3f4;--ok-line:#b0dde2;}
+html[data-theme="green"] {--navy:#1f7a44;--navy-deep:#155730;--navy-bg:#e6f4ea;--navy-line:#b3dcc1;--ok:#2f6b3c;--ok-bg:#e9f3ea;--ok-line:#bedcc4;}
+html[data-theme="plum"]  {--navy:#a21d6e;--navy-deep:#7c1450;--navy-bg:#fbe8f2;--navy-line:#e8b9d4;--ok:#6d2356;--ok-bg:#f6e8f0;--ok-line:#e3bcd5;}
+html[data-theme="slate"] {--navy:#3f4f63;--navy-deep:#29384b;--navy-bg:#eef1f5;--navy-line:#c2ccd8;--ok:#34495e;--ok-bg:#eef1f5;--ok-line:#c2ccd8;}
+html[data-theme="black"] {--navy:#000000;--navy-deep:#000;--navy-bg:#f1f1f3;--navy-line:#d6d6db;--ok:#3f3f46;--ok-bg:#f1f1f3;--ok-line:#cfcfd6;}
+
+*{box-sizing:border-box;}
+html,body{height:100%;}
+body{
+  margin:0; background:var(--bg-band); color:var(--ink);
+  font:13px/1.55 var(--sans);
+  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+  display:flex; flex-direction:column; min-height:100%;
+}
+.icon{width:1.15em;height:1.15em;display:inline-block;vertical-align:-.18em;color:inherit;flex:0 0 auto;}
+.icon-sm{width:13px;height:13px;}
+.wrap{flex:1 1 auto;width:100%;max-width:1640px;margin:0 auto;padding:18px 28px 26px;}
+
+/* ---- TOOLBAR (command strip — NOT a hero) ------------------------------- */
+.cal-toolbar{
+  position:sticky; top:0; z-index:40;
+  display:flex; align-items:center; gap:16px; flex-wrap:wrap;
+  padding:11px 14px; margin-bottom:14px;
+  background:var(--bg-band);
+  border:1px solid var(--rule); border-radius:12px;
+  box-shadow:var(--sh-rail);
+}
+.cal-brand{display:flex;align-items:center;gap:10px;min-width:0;margin-right:2px;}
+.cal-mark{
+  width:30px;height:30px;border-radius:8px;flex:0 0 auto;
+  background:var(--navy); color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.14);
+}
+.cal-mark .icon{width:18px;height:18px;}
+.cal-brand .bt{font-size:14px;font-weight:800;letter-spacing:-.01em;line-height:1.1;color:var(--ink);}
+.cal-brand .bs{font:9.5px/1.3 var(--mono);letter-spacing:.07em;text-transform:uppercase;color:var(--ink-faint);margin-top:1px;}
+
+.cal-nav{display:flex;align-items:center;gap:8px;}
+.cal-step{
+  width:30px;height:30px;display:flex;align-items:center;justify-content:center;
+  background:var(--bg);border:1px solid var(--rule);border-radius:8px;color:var(--ink-mid);
+  cursor:pointer;transition:border-color .12s,color .12s,background .12s;
+}
+.cal-step:hover{border-color:var(--navy-line);color:var(--navy-deep);background:var(--navy-bg);}
+.cal-step .icon{width:16px;height:16px;}
+.cal-label{font-size:16.5px;font-weight:800;letter-spacing:-.01em;color:var(--ink);min-width:158px;text-align:center;font-feature-settings:"tnum" 1;}
+.cal-today{
+  font:10.5px/1 var(--mono);font-weight:600;letter-spacing:.05em;text-transform:uppercase;
+  color:var(--navy-deep);background:var(--navy-bg);border:1px solid var(--navy-line);border-radius:7px;
+  padding:7px 11px;cursor:pointer;transition:background .12s,border-color .12s;
+  display:inline-flex;align-items:center;gap:5px;
+}
+.cal-today:hover{background:var(--navy);border-color:var(--navy);color:#fff;}
+
+.cal-views{display:flex;background:var(--bg);border:1px solid var(--rule);border-radius:8px;padding:2px;gap:2px;}
+.cal-view{
+  font:11px/1 var(--mono);font-weight:600;letter-spacing:.04em;text-transform:uppercase;
+  color:var(--ink-soft);background:transparent;border:0;border-radius:6px;padding:6px 11px;cursor:pointer;
+  display:inline-flex;align-items:center;gap:5px;transition:background .12s,color .12s;
+}
+.cal-view:hover{color:var(--navy-deep);}
+.cal-view.is-on{background:var(--navy);color:#fff;}
+
+.cal-legend{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-left:auto;}
+.legend-lbl{font:9.5px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);margin-right:2px;}
+.legend-chip{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:11.5px;font-weight:600;color:var(--ink-mid);
+  background:var(--bg);border:1px solid var(--rule);border-radius:7px;
+  padding:5px 9px;cursor:pointer;line-height:1;white-space:nowrap;
+  transition:opacity .12s,border-color .12s,background .12s;
+}
+.legend-chip:hover{border-color:var(--ink-soft);}
+.legend-chip .sw{width:11px;height:11px;border-radius:4px;flex:0 0 auto;background:var(--lc,var(--navy));}
+.legend-chip .ct{font:9.5px/1 var(--mono);font-feature-settings:"tnum" 1;color:var(--ink-faint);}
+.legend-chip.is-off{opacity:.4;background:var(--bg-subtle);}
+.legend-chip.is-off .sw{background:var(--ink-faint)!important;}
+
+/* theme switcher (canonical dropdown per _DATA_DRIVEN.md §3) */
+.rc-theme{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--rule);border-radius:7px;
+          padding:3px 4px 3px 7px;background:var(--bg);}
+.rc-theme-sw{width:12px;height:12px;border-radius:50%;background:var(--navy);box-shadow:0 0 0 1px var(--rule);flex:none;}
+.rc-theme-sel{border:0;background:none;font:600 11px/1 var(--mono);color:var(--ink-mid);cursor:pointer;outline:none;padding:2px;}
+
+/* ---- CALENDAR SHELL ----------------------------------------------------- */
+.cal{
+  background:var(--bg);border:1px solid var(--rule);border-radius:14px;
+  box-shadow:var(--sh-card);overflow:hidden;
+}
+.cal-weekhead{display:grid;grid-template-columns:repeat(7,1fr);border-bottom:2px solid var(--navy);}
+.cal-weekhead.has-rail{grid-template-columns:var(--rail-w,176px) repeat(7,1fr);}
+.cal-weekhead .wh{
+  padding:9px 12px;font:10px/1 var(--mono);font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink-soft);border-left:1px solid var(--rule-soft);
+}
+.cal-weekhead .wh:first-child{border-left:0;}
+.cal-weekhead .wh.is-weekend{color:var(--ink-faint);}
+.cal-weekhead .wh.rail-corner{color:var(--ink-faint);background:var(--bg-band);}
+.cal-weekhead .wh .wd{color:var(--ink-faint);font-size:9px;margin-left:5px;}
+
+/* ---- MONTH / WEEK GRID -------------------------------------------------- */
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);}
+.cal-grid[data-view="month"]{grid-auto-rows:minmax(118px,auto);}
+.cal-grid[data-view="week"]{grid-auto-rows:minmax(420px,1fr);}
+
+.cal-cell{
+  position:relative;min-width:0;
+  padding:6px 7px 8px;
+  border-left:1px solid var(--rule-soft);border-top:1px solid var(--rule-soft);
+  display:flex;flex-direction:column;gap:4px;
+}
+/* first column / first row have no extra inner rule */
+.cal-grid[data-view="month"] .cal-cell:nth-child(7n+1),
+.cal-grid[data-view="week"] .cal-cell:first-child{border-left:0;}
+.cal-grid .cal-cell.row-first{border-top:0;}
+.cal-cell.is-out{background:var(--bg-subtle);}
+.cal-cell.is-weekend{background:linear-gradient(0deg,var(--bg-band),var(--bg-band));}
+.cal-cell.is-weekend.is-out{background:var(--bg-subtle);}
+.cal-date{
+  display:inline-flex;align-items:center;justify-content:center;
+  align-self:flex-start;min-width:23px;height:23px;padding:0 6px;
+  font:11.5px/1 var(--mono);font-weight:600;font-feature-settings:"tnum" 1;color:var(--ink-mid);
+  border-radius:7px;
+}
+.cal-cell.is-out .cal-date{color:var(--ink-faint);font-weight:500;}
+.cal-cell.is-today .cal-date{background:var(--navy);color:#fff;font-weight:700;box-shadow:0 0 0 3px var(--navy-bg);}
+.cal-cell.is-today{box-shadow:inset 0 0 0 2px var(--navy-line);}
+.cal-cell:focus{outline:0;}
+.cal-cell:focus-visible{outline:0;box-shadow:inset 0 0 0 2px var(--navy);z-index:3;}
+.cal-cell.is-today:focus-visible{box-shadow:inset 0 0 0 2px var(--navy),inset 0 0 0 4px var(--navy-bg);}
+.cal-date .dow{font-size:9px;color:inherit;opacity:.7;margin-left:4px;font-weight:500;text-transform:uppercase;}
+
+.evstack{display:flex;flex-direction:column;gap:3px;min-width:0;}
+
+/* ---- EVENT CHIP --------------------------------------------------------- */
+.evchip{
+  position:relative;display:flex;align-items:center;gap:6px;min-width:0;
+  padding:3px 8px 3px 9px;
+  background:var(--c-bg,var(--navy-bg));
+  border:1px solid var(--c-line,var(--navy-line));
+  border-left:4px solid var(--c,var(--navy));
+  border-radius:6px;cursor:pointer;text-align:left;width:100%;
+  transition:filter .12s,transform .12s,box-shadow .12s;
+  font:inherit;color:var(--ink-mid);
+}
+.evchip:hover{filter:brightness(.985);transform:translateX(1px);box-shadow:var(--sh-card);}
+.evchip:focus-visible{outline:2px solid var(--navy);outline-offset:1px;}
+.evchip .e-dot{width:7px;height:7px;border-radius:50%;flex:0 0 auto;background:var(--c,var(--navy));}
+.evchip.st-ok .e-dot{background:var(--ok);} .evchip.st-risk .e-dot{background:var(--risk);} .evchip.st-hold .e-dot{background:var(--hold);}
+.evchip .e-time{font:9.5px/1 var(--mono);font-weight:600;font-feature-settings:"tnum" 1;color:var(--c-deep,var(--navy-deep));flex:0 0 auto;}
+.evchip .e-title{font-size:11.5px;font-weight:600;line-height:1.3;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.evchip.st-risk{border-left-color:var(--risk);}
+.evchip.st-risk .e-title{color:#7d1a14;}
+/* multi-day spans: clipped edges */
+.evchip.is-startclip{border-top-left-radius:0;border-bottom-left-radius:0;border-left-width:1px;margin-left:-1px;}
+.evchip.is-endclip{border-top-right-radius:0;border-bottom-right-radius:0;}
+.evchip.is-cont .e-title::before{content:"\2039\2009";color:var(--ink-faint);font-weight:700;}
+/* milestone / point variant (single-day diamond) */
+.evchip.is-point{padding-left:8px;}
+.evchip.is-point .e-dia{width:9px;height:9px;flex:0 0 auto;background:var(--c,var(--navy));transform:rotate(45deg);border-radius:2px;}
+.evchip.is-point.st-risk .e-dia{background:var(--risk);} .evchip.is-point.st-hold .e-dia{background:var(--hold);} .evchip.is-point.st-ok .e-dia{background:var(--ok);}
+
+.evmore{
+  align-self:flex-start;margin-top:1px;
+  font:9.5px/1 var(--mono);font-weight:600;color:var(--ink-soft);
+  background:var(--bg-band);border:1px solid var(--rule-soft);border-radius:5px;
+  padding:3px 6px;cursor:pointer;
+}
+.evmore:hover{border-color:var(--navy-line);color:var(--navy-deep);}
+
+.evchip.is-hidden,.evrow.is-hidden{display:none!important;}
+
+/* ---- RESOURCE VIEW (lane rows × 7 date cols) ---------------------------- */
+.cal-grid--res{display:grid;grid-template-columns:var(--rail-w,176px) repeat(7,1fr);grid-auto-rows:minmax(78px,auto);}
+.res-rail{
+  position:sticky;left:0;z-index:1;
+  padding:10px 12px;background:var(--bg-band);
+  border-top:1px solid var(--rule-soft);border-right:2px solid var(--navy);
+  display:flex;flex-direction:column;justify-content:center;gap:2px;
+}
+.res-rail.row-first{border-top:0;}
+.res-rail .rl-name{font-size:12px;font-weight:800;letter-spacing:.02em;color:var(--ink);display:flex;align-items:center;gap:7px;}
+.res-rail .rl-dot{width:9px;height:9px;border-radius:3px;background:var(--navy);flex:0 0 auto;}
+.res-rail .rl-meta{font:9.5px/1.3 var(--mono);letter-spacing:.05em;text-transform:uppercase;color:var(--ink-faint);}
+.res-cell{
+  position:relative;padding:6px;display:flex;flex-direction:column;gap:3px;
+  border-left:1px solid var(--rule-soft);border-top:1px solid var(--rule-soft);min-width:0;
+}
+.res-cell.row-first{border-top:0;}
+.res-cell.is-today{box-shadow:inset 0 0 0 2px var(--navy-line);}
+.res-cell.is-weekend{background:var(--bg-band);}
+
+/* ---- EMPTY STATE -------------------------------------------------------- */
+.cal-empty{
+  display:none;flex-direction:column;align-items:center;justify-content:center;gap:9px;
+  padding:64px 24px;color:var(--ink-soft);text-align:center;
+}
+.cal-empty.is-on{display:flex;}
+.cal-empty .ce-mark{
+  width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;
+  background:var(--navy-bg);border:1px solid var(--navy-line);color:var(--navy-deep);
+}
+.cal-empty .ce-mark .icon{width:26px;height:26px;}
+.cal-empty .ce-t{font-size:14px;font-weight:700;color:var(--ink);}
+.cal-empty .ce-h{font-size:12px;color:var(--ink-faint);max-width:340px;}
+
+/* ---- DETAIL POPOVER ----------------------------------------------------- */
+.cal-pop{
+  position:absolute;z-index:60;display:none;
+  width:288px;max-width:calc(100vw - 32px);
+  background:var(--bg);border:1px solid var(--rule);border-radius:12px;
+  box-shadow:var(--sh-pop);overflow:hidden;
+}
+.cal-pop.is-on{display:block;}
+.pop-band{height:5px;background:var(--c,var(--navy));}
+.pop-in{padding:12px 13px 13px;}
+.pop-top{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap;}
+.pop-type{
+  display:inline-flex;align-items:center;gap:5px;
+  font:9.5px/1 var(--mono);font-weight:700;letter-spacing:.05em;text-transform:uppercase;
+  color:var(--c-deep,var(--navy-deep));background:var(--c-bg,var(--navy-bg));
+  border:1px solid var(--c-line,var(--navy-line));border-radius:6px;padding:4px 7px;
+}
+.pop-type .sw{width:8px;height:8px;border-radius:3px;background:var(--c,var(--navy));}
+.st-badge{
+  display:inline-flex;align-items:center;gap:5px;
+  font:9.5px/1 var(--mono);font-weight:700;letter-spacing:.05em;text-transform:uppercase;
+  border-radius:6px;padding:4px 7px;
+}
+.st-badge::before{content:"";width:7px;height:7px;border-radius:50%;flex:0 0 auto;}
+.st-ok{color:var(--ok);background:var(--ok-bg);border:1px solid var(--ok-line);}
+.st-ok::before{background:var(--ok);}
+.st-risk{color:var(--risk);background:var(--risk-bg);border:1px solid var(--risk-line);}
+.st-risk::before{background:var(--risk);}
+.st-hold{color:var(--hold);background:var(--hold-bg);border:1px solid var(--hold-line);}
+.st-hold::before{background:var(--hold);}
+.pop-close{
+  margin-left:auto;width:24px;height:24px;display:flex;align-items:center;justify-content:center;
+  background:transparent;border:1px solid var(--rule);border-radius:6px;color:var(--ink-faint);cursor:pointer;
+}
+.pop-close:hover{border-color:var(--ink-soft);color:var(--ink-mid);}
+.pop-title{font-size:14px;font-weight:750;line-height:1.35;color:var(--ink);margin:0 0 10px;letter-spacing:-.005em;}
+/* key/value grid primitive */
+.pop-kv{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--rule-soft);border:1px solid var(--rule-soft);border-radius:9px;overflow:hidden;}
+.pop-kv .kv{background:var(--bg);padding:7px 9px;}
+.pop-kv .kv.span2{grid-column:1 / 3;}
+.pop-kv .k{font:8.5px/1.3 var(--mono);letter-spacing:.09em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:2px;}
+.pop-kv .v{font:11px/1.4 var(--mono);color:var(--ink-mid);font-feature-settings:"tnum" 1;}
+.pop-note{margin-top:9px;font-size:12px;line-height:1.5;color:var(--ink-mid);}
+.pop-id{display:inline-block;margin-top:9px;font:9.5px/1 var(--mono);font-weight:600;color:var(--navy-deep);background:var(--navy-bg);border:1px solid var(--navy-line);border-radius:5px;padding:3px 6px;}
+
+/* ---- FOOTER ------------------------------------------------------------- */
+.cal-foot{
+  background:var(--bg-deep);color:#cfcdd6;
+  padding:11px 28px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+  font:10px/1.4 var(--mono);letter-spacing:.06em;text-transform:uppercase;
+}
+.cal-foot .fw{display:flex;align-items:center;gap:8px;color:#fff;font-weight:700;letter-spacing:.02em;text-transform:none;font-size:12px;}
+.cal-foot .fw i{width:13px;height:13px;border-radius:3px;background:var(--navy);display:inline-block;}
+.cal-foot .fmeta{margin-left:auto;display:flex;gap:18px;color:#9b98a6;flex-wrap:wrap;}
+
+.noscript{margin:20px 28px;padding:14px 16px;background:var(--hold-bg);border:1px solid var(--hold-line);border-radius:10px;color:#6b5500;font-size:12.5px;}
+
+/* ---- PRINT (static snapshot of current month) --------------------------- */
+@media print{
+  body{background:#fff;}
+  .wrap{max-width:none;padding:8px 10px;}
+  .cal-toolbar{position:static;box-shadow:none;}
+  .cal-nav,.cal-views,.cal-today,.rc-theme{display:none!important;}
+  .cal-legend{margin-left:0;}
+  .legend-chip{cursor:default;}
+  .cal{box-shadow:none;}
+  .cal-grid[data-view="month"]{grid-auto-rows:minmax(96px,auto);}
+  .cal-cell{break-inside:avoid;}
+  .evchip{box-shadow:none;}
+  .evmore{display:none;}            /* expanded: show all chips in print */
+  .cal-pop{display:none!important;}
+  .cal-foot{background:#fff;color:#555;border-top:1px solid var(--rule);}
+  .cal-foot .fw{color:#111;}
+}
+</style>
+</head>
+<body>
+
+<!-- ============ DATA — the ONLY content source (valid schema instance) ============ -->
+<script type="application/json" id="report-data">
+{
+  "meta": {
+    "org": "{{ORG}}",
+    "project": "{{PROJECT}}",
+    "reportType": "Release & test calendar",
+    "title": "Release & Test Calendar",
+    "subtitle": "Release 3.1 hardening window",
+    "date": "2026-06-22",
+    "today": "2026-07-14",
+    "author": "{{AUTHOR}}",
+    "weekStart": 1,
+    "theme": "green"
+  },
+  "view": "month",
+  "periodStart": "2026-07-01",
+  "eventTypes": [
+    { "key": "release", "label": "Release",       "tone": "brand"   },
+    { "key": "test",    "label": "Test window",    "tone": "accent2" },
+    { "key": "freeze",  "label": "Code freeze",    "tone": "hold"    },
+    { "key": "review",  "label": "Review / gate",  "tone": "accent3" }
+  ],
+  "resources": [
+    { "key": "env-dev", "label": "Dev env",     "meta": "CI" },
+    { "key": "env-stg", "label": "Staging env", "meta": "Pre-prod" },
+    { "key": "env-prd", "label": "Production",  "meta": "Live" }
+  ],
+  "events": [
+    { "id": "EV-01", "title": "Sprint 31 planning",          "start": "2026-07-01", "type": "review",  "status": "ok",   "allDay": false, "time": "10:00", "kind": "milestone", "resource": "env-dev", "owner": "A. Rahman",    "note": "Scope freeze for the 3.1 hardening sprint; capacity confirmed." },
+    { "id": "EV-02", "title": "Build 3.1.0-rc1 cut",         "start": "2026-07-02", "type": "release", "status": "ok",   "allDay": false, "time": "18:30", "resource": "env-dev", "owner": "Build bot",    "note": "First release candidate to CI; promoted to dev automatically." },
+    { "id": "EV-03", "title": "Smoke test rc1",              "start": "2026-07-03", "type": "test",    "status": "ok",   "resource": "env-dev", "owner": "QA team",      "note": "Critical-path smoke suite on dev before staging promotion." },
+    { "id": "EV-04", "title": "Promote rc1 to staging",      "start": "2026-07-06", "type": "release", "status": "ok",   "allDay": false, "time": "09:00", "resource": "env-stg", "owner": "Release eng",  "note": "rc1 deployed to pre-prod for the regression window." },
+    { "id": "EV-05", "title": "Regression test window",      "start": "2026-07-06", "end": "2026-07-10", "type": "test", "status": "ok",  "resource": "env-stg", "owner": "QA team",      "note": "Full mobile + core-banking regression pass on staging." },
+    { "id": "EV-06", "title": "Perf & load run",             "start": "2026-07-08", "type": "test",    "status": "hold", "allDay": false, "time": "20:00", "resource": "env-stg", "owner": "NFR team",     "note": "Off-peak load profile; blocked pending a synthetic-data refresh." },
+    { "id": "EV-07", "title": "Defect triage review",        "start": "2026-07-09", "type": "review",  "status": "ok",   "allDay": false, "time": "15:00", "kind": "milestone", "resource": "env-stg", "owner": "Release board","note": "Burn-down of regression findings; classify P1/P2." },
+    { "id": "EV-08", "title": "Security sign-off",           "start": "2026-07-10", "type": "review",  "status": "ok",   "resource": "env-stg", "owner": "Sec team",     "note": "Pen-test summary accepted; no open criticals." },
+    { "id": "EV-09", "title": "Code freeze",                 "start": "2026-07-13", "end": "2026-07-17", "type": "freeze","status": "hold", "resource": "env-stg", "owner": "Release eng",  "note": "Fix-only branch; no new feature merges accepted." },
+    { "id": "EV-10", "title": "Go / no-go gate",             "start": "2026-07-14", "type": "review",  "status": "risk", "allDay": false, "time": "16:00", "kind": "milestone", "resource": "env-stg", "owner": "Release board","note": "Two P1 defects still open — release at risk; decision deferred to 15th." },
+    { "id": "EV-11", "title": "Hotfix rc2 cut",              "start": "2026-07-15", "type": "release", "status": "risk", "allDay": false, "time": "12:00", "resource": "env-dev", "owner": "Build bot",    "note": "Carries the two P1 fixes; expedited candidate." },
+    { "id": "EV-12", "title": "Re-test P1 fixes",            "start": "2026-07-16", "type": "test",    "status": "ok",   "resource": "env-stg", "owner": "QA team",      "note": "Targeted re-test of the two P1 areas on rc2." },
+    { "id": "EV-13", "title": "Final go / no-go",            "start": "2026-07-17", "type": "review",  "status": "ok",   "allDay": false, "time": "16:00", "kind": "milestone", "resource": "env-stg", "owner": "Release board","note": "P1s verified closed — GO confirmed for the 18th." },
+    { "id": "EV-14", "title": "Release 3.1 to production",   "start": "2026-07-18", "type": "release", "status": "ok",   "allDay": false, "time": "21:00", "resource": "env-prd", "owner": "On-call",      "note": "Phased rollout: 10% canary, then 100% after 30 min soak." },
+    { "id": "EV-15", "title": "Post-release watch",          "start": "2026-07-18", "end": "2026-07-20", "type": "review","status": "ok", "resource": "env-prd", "owner": "On-call",      "note": "Heightened monitoring window; rollback runbook on standby." },
+    { "id": "EV-16", "title": "Maintenance: DB patch",       "start": "2026-07-21", "type": "release", "status": "hold", "allDay": false, "time": "23:00", "resource": "env-prd", "owner": "DBA",          "note": "Scheduled minor-version DB patch; awaiting CAB approval." },
+    { "id": "EV-17", "title": "Retrospective",               "start": "2026-07-22", "type": "review",  "status": "ok",   "allDay": false, "time": "11:00", "kind": "milestone", "resource": "env-dev", "owner": "A. Rahman",    "note": "Release 3.1 retro; capture actions for 3.2." },
+    { "id": "EV-18", "title": "Sprint 32 planning",          "start": "2026-07-23", "type": "review",  "status": "ok",   "allDay": false, "time": "10:00", "kind": "milestone", "resource": "env-dev", "owner": "A. Rahman",    "note": "Kick off the next iteration." },
+    { "id": "EV-19", "title": "Exploratory test sweep",      "start": "2026-07-27", "end": "2026-07-29", "type": "test", "status": "ok",  "resource": "env-stg", "owner": "ITb team",     "note": "Monkey + exploratory pass on the 3.2 dev build." },
+    { "id": "EV-20", "title": "Build 3.2.0-rc1 cut",         "start": "2026-07-30", "type": "release", "status": "ok",   "allDay": false, "time": "18:30", "resource": "env-dev", "owner": "Build bot",    "note": "First 3.2 candidate; opens the next cycle." },
+    { "id": "EV-21", "title": "DR rehearsal",                "start": "2026-07-31", "type": "review",  "status": "hold", "allDay": false, "time": "14:00", "kind": "milestone", "resource": "env-prd", "owner": "Infra",        "note": "Quarterly failover rehearsal; pending change-window slot." }
+  ]
+}
+</script>
+
+<noscript>
+  <div class="noscript">This calendar renders its content from embedded data using JavaScript. Enable JavaScript to view the schedule grid, filters, and event details.</div>
+</noscript>
+
+<div class="wrap">
+  <header class="cal-toolbar" id="toolbar"><!-- built by render() --></header>
+
+  <section class="cal" id="cal" aria-label="calendar grid"><!-- built by render() --></section>
+</div>
+
+<div class="cal-pop" id="pop" role="dialog" aria-label="Event detail"></div>
+
+<footer class="cal-foot" id="foot"><!-- built by render() --></footer>
+
+<script>
+(function(){
+  "use strict";
+  var DATA;
+  try { DATA = JSON.parse(document.getElementById('report-data').textContent); }
+  catch(e){ console.error('report-data parse error', e); return; }
+
+  /* ---------- icons (inline, house spec: 24x24, currentColor, 1.75) ---------- */
+  var SVG = 'xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"';
+  var ICON = {
+    cal:   '<svg class="icon" '+SVG+'><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 9.5h17M8 3.5v3.5M16 3.5v3.5"/><rect x="6.6" y="12" width="2.4" height="2.4" rx="1" fill="currentColor" stroke="none"/><rect x="10.8" y="12" width="2.4" height="2.4" rx="1" fill="currentColor" stroke="none"/><rect x="15" y="12" width="2.4" height="2.4" rx="1" fill="currentColor" stroke="none"/></svg>',
+    prev:  '<svg class="icon" '+SVG+'><path d="M14.5 5.5 8 12l6.5 6.5"/></svg>',
+    next:  '<svg class="icon" '+SVG+'><path d="M9.5 5.5 16 12l-6.5 6.5"/></svg>',
+    today: '<svg class="icon icon-sm" '+SVG+'><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 9.5h17M8 3.5v3.5M16 3.5v3.5"/><path d="M8.5 14.5l2.2 2.2 4.3-4.6"/></svg>',
+    month: '<svg class="icon icon-sm" '+SVG+'><rect x="3.5" y="4.5" width="17" height="16" rx="2.5"/><path d="M3.5 9.5h17M9 9.5V20.5M15 9.5V20.5M3.5 15h17"/></svg>',
+    week:  '<svg class="icon icon-sm" '+SVG+'><rect x="3.5" y="6.5" width="17" height="11" rx="2.5"/><path d="M9 6.5V17.5M15 6.5V17.5"/></svg>',
+    res:   '<svg class="icon icon-sm" '+SVG+'><path d="M4 6.5h16M4 12h16M4 17.5h16"/><rect x="3" y="5" width="3" height="3" rx="1" fill="currentColor" stroke="none"/><rect x="3" y="10.5" width="3" height="3" rx="1" fill="currentColor" stroke="none"/><rect x="3" y="16" width="3" height="3" rx="1" fill="currentColor" stroke="none"/></svg>',
+    close: '<svg class="icon icon-sm" '+SVG+'><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg>',
+    clock: '<svg class="icon icon-sm" '+SVG+'><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 1.8"/></svg>',
+    empty: '<svg class="icon" '+SVG+'><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 9.5h17M8 3.5v3.5M16 3.5v3.5"/><path d="M9 14.5h6"/></svg>'
+  };
+
+  /* ---------- palette tones for event types ---------- */
+  var TONES = {
+    brand:   {c:'var(--navy)',  d:'var(--navy-deep)', bg:'var(--navy-bg)', line:'var(--navy-line)'},
+    ok:      {c:'var(--ok)',    d:'var(--ok)',        bg:'var(--ok-bg)',   line:'var(--ok-line)'},
+    risk:    {c:'var(--risk)',  d:'var(--risk)',      bg:'var(--risk-bg)', line:'var(--risk-line)'},
+    hold:    {c:'var(--hold)',  d:'var(--hold)',      bg:'var(--hold-bg)', line:'var(--hold-line)'},
+    accent1: {c:'var(--acc1)',  d:'var(--acc1)',      bg:'var(--acc1-bg)', line:'var(--acc1-line)'},
+    accent2: {c:'var(--acc2)',  d:'var(--acc2)',      bg:'var(--acc2-bg)', line:'var(--acc2-line)'},
+    accent3: {c:'var(--acc3)',  d:'var(--acc3)',      bg:'var(--acc3-bg)', line:'var(--acc3-line)'},
+    accent4: {c:'var(--acc4)',  d:'var(--acc4)',      bg:'var(--acc4-bg)', line:'var(--acc4-line)'}
+  };
+  var TONE_CYCLE = ['brand','accent2','accent3','accent4'];
+
+  /* ---------- date helpers (UTC-safe, no TZ drift) ---------- */
+  function parseD(s){ var p=s.split('-'); return new Date(Date.UTC(+p[0],+p[1]-1,+p[2])); }
+  function fmtISO(d){ return d.getUTCFullYear()+'-'+String(d.getUTCMonth()+1).padStart(2,'0')+'-'+String(d.getUTCDate()).padStart(2,'0'); }
+  function addDays(d,n){ var x=new Date(d.getTime()); x.setUTCDate(x.getUTCDate()+n); return x; }
+  function addMonths(d,n){ var x=new Date(d.getTime()); x.setUTCMonth(x.getUTCMonth()+n,1); return x; }
+  function startOfMonth(d){ return new Date(Date.UTC(d.getUTCFullYear(),d.getUTCMonth(),1)); }
+  function sameDay(a,b){ return a.getUTCFullYear()===b.getUTCFullYear()&&a.getUTCMonth()===b.getUTCMonth()&&a.getUTCDate()===b.getUTCDate(); }
+  function dayIndex(d,weekStart){ return (d.getUTCDay()-weekStart+7)%7; }      // 0..6 within the column order
+  var MON=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  var WD_FULL=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  var WD=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  function fmtLong(d){ return MON[d.getUTCMonth()]+' '+d.getUTCDate()+', '+d.getUTCFullYear(); }
+  function fmtShort(d){ return MON[d.getUTCMonth()].slice(0,3)+' '+d.getUTCDate(); }
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+
+  /* ---------- state ---------- */
+  var weekStart = (DATA.meta && DATA.meta.weekStart===0)?0:1;
+  var todayD = parseD((DATA.meta&&DATA.meta.today)||(DATA.meta&&DATA.meta.date)||fmtISO(new Date()));
+  var anchor = startOfMonth(parseD(DATA.periodStart));    // month view uses month start; week view uses contained week
+  var weekAnchorISO = DATA.periodStart;                   // for week/resource view: any date in the wanted week
+  var view = DATA.view || 'month';
+  var typeMeta = {};                                      // key -> {label, tone, idx}
+  (DATA.eventTypes||[]).forEach(function(t,i){
+    typeMeta[t.key]={ label:t.label, tone:t.tone||TONE_CYCLE[i%TONE_CYCLE.length], idx:i };
+  });
+  var typeOff = {};                                       // key -> true if filtered out
+  var events = (DATA.events||[]).map(function(e){
+    var sd=parseD(e.start), ed=e.end?parseD(e.end):sd;
+    if(ed<sd) ed=sd;
+    return { raw:e, sd:sd, ed:ed, multi:(e.end && !sameDay(sd,ed)) };
+  });
+
+  function toneVars(tk){
+    var t=TONES[(typeMeta[tk]&&typeMeta[tk].tone)||'brand']||TONES.brand;
+    return '--c:'+t.c+';--c-deep:'+t.d+';--c-bg:'+t.bg+';--c-line:'+t.line+';';
+  }
+  function activeEventsInRange(from,to){   // events overlapping [from,to], type not filtered
+    return events.filter(function(ev){
+      if(typeOff[ev.raw.type]) return false;
+      return ev.sd<=to && ev.ed>=from;
+    });
+  }
+
+  /* ---------- TOOLBAR ---------- */
+  function periodLabel(){
+    if(view==='month') return MON[anchor.getUTCMonth()]+' '+anchor.getUTCFullYear();
+    var ws=weekStartDate();
+    var we=addDays(ws,6);
+    var a=fmtShort(ws), b=(ws.getUTCMonth()===we.getUTCMonth())? we.getUTCDate(): fmtShort(we);
+    return a+' – '+b+', '+we.getUTCFullYear();
+  }
+  function weekStartDate(){ var d=parseD(weekAnchorISO); return addDays(d,-dayIndex(d,weekStart)); }
+
+  function renderToolbar(){
+    var tb=document.getElementById('toolbar');
+    var m=DATA.meta||{};
+    var legend=(DATA.eventTypes||[]).map(function(t){
+      var tn=TONES[typeMeta[t.key].tone]||TONES.brand;
+      var n=events.filter(function(ev){return ev.raw.type===t.key;}).length;
+      return '<button type="button" class="legend-chip'+(typeOff[t.key]?' is-off':'')+'" data-type="'+esc(t.key)+'" aria-pressed="'+(!typeOff[t.key])+'" style="--lc:'+tn.c+'">'
+        + '<span class="sw"></span>'+esc(t.label)+' <span class="ct">'+n+'</span></button>';
+    }).join('');
+    var views=[['month','Month',ICON.month],['week','Week',ICON.week]];
+    if((DATA.resources||[]).length) views.push(['resource','Resource',ICON.res]);
+    var viewBtns=views.map(function(v){
+      return '<button type="button" class="cal-view'+(view===v[0]?' is-on':'')+'" data-view="'+v[0]+'">'+v[2]+v[1]+'</button>';
+    }).join('');
+
+    tb.innerHTML =
+      '<div class="cal-brand"><span class="cal-mark" aria-hidden="true">'+ICON.cal+'</span>'
+        +'<div><div class="bt">'+esc(m.org)+' · '+esc(m.title||'Calendar')+'</div>'
+        +'<div class="bs">'+esc(m.subtitle||m.project||'')+'</div></div></div>'
+      +'<div class="cal-nav">'
+        +'<button class="cal-step" id="prev" type="button" aria-label="Previous period">'+ICON.prev+'</button>'
+        +'<span class="cal-label" id="label">'+esc(periodLabel())+'</span>'
+        +'<button class="cal-step" id="next" type="button" aria-label="Next period">'+ICON.next+'</button>'
+        +'<button class="cal-today" id="today" type="button">'+ICON.today+' Today</button>'
+      +'</div>'
+      +'<div class="cal-views" role="group" aria-label="View">'+viewBtns+'</div>'
+      +'<div class="cal-legend">'
+        +'<span class="legend-lbl">Type</span>'+legend
+        +themeDropdown()
+      +'</div>';
+  }
+  function themeDropdown(){
+    var cur=document.documentElement.dataset.theme||'green';
+    var opts=['blue','purple','indigo','teal','cyan','green','plum','slate','black'];
+    return '<label class="rc-theme" title="Brand colour">'
+      +'<span class="rc-theme-sw" aria-hidden="true"></span>'
+      +'<select class="rc-theme-sel" aria-label="Brand theme">'
+      +opts.map(function(v){ return '<option value="'+v+'"'+(v===cur?' selected':'')+'>'+v[0].toUpperCase()+v.slice(1)+'</option>'; }).join('')
+      +'</select></label>';
+  }
+
+  /* ---------- WEEKDAY HEAD ---------- */
+  function weekdayHead(withRail, dates){
+    var cells='';
+    if(withRail) cells+='<div class="wh rail-corner">'+(view==='resource'?'Resource':'')+'</div>';
+    for(var i=0;i<7;i++){
+      var dow=(weekStart+i)%7;
+      var wkd=(dow===0||dow===6);
+      var extra = (dates && dates[i]) ? '<span class="wd">'+dates[i].getUTCDate()+'</span>' : '';
+      cells+='<div class="wh'+(wkd?' is-weekend':'')+'">'+WD[dow].toUpperCase()+extra+'</div>';
+    }
+    return '<div class="cal-weekhead'+(withRail?' has-rail':'')+'">'+cells+'</div>';
+  }
+
+  /* ---------- chip html ---------- */
+  function chipHTML(ev, opts){
+    opts=opts||{};
+    var e=ev.raw;
+    var cls='evchip'+(e.status?(' st-'+e.status):'');
+    if(opts.span){ cls+=' evchip--span'; if(opts.startclip) cls+=' is-startclip'; if(opts.endclip) cls+=' is-endclip'; if(opts.cont) cls+=' is-cont'; }
+    var isDiamond = (!ev.multi && e.kind==='milestone');   // explicit gate/milestone field — not tone-coupled
+    if(isDiamond) cls+=' is-point';
+    var lead = isDiamond ? '<span class="e-dia"></span>'
+             : (e.status? '<span class="e-dot"></span>' : '<span class="e-dot" style="background:var(--c)"></span>');
+    var time = (e.allDay===false && e.time && !opts.cont) ? '<span class="e-time">'+esc(e.time)+'</span>' : '';
+    return '<button type="button" class="'+cls+'" style="'+toneVars(e.type)+'" data-ev="'+esc(e.id)+'" data-type="'+esc(e.type)+'">'
+      + lead + time + '<span class="e-title">'+esc(e.title)+'</span></button>';
+  }
+
+  /* ---------- MONTH / WEEK GRID ---------- */
+  function renderMonthLike(){
+    var cal=document.getElementById('cal');
+    var firstOfGrid, weeks;
+    if(view==='month'){
+      var som=startOfMonth(anchor);
+      var lead=dayIndex(som,weekStart);
+      firstOfGrid=addDays(som,-lead);
+      var nextM=addMonths(som,1);
+      var span=Math.round((nextM-firstOfGrid)/86400000);
+      weeks=Math.ceil(span/7);
+    } else {
+      firstOfGrid=weekStartDate(); weeks=1;
+    }
+    var gridFrom=firstOfGrid, gridTo=addDays(firstOfGrid,weeks*7-1);
+    var visible=activeEventsInRange(gridFrom,gridTo);
+
+    if(visible.length===0){ renderEmpty(); return; }
+
+    var html='<div class="cal-grid" role="grid" aria-label="Day grid — use arrow keys to move" data-view="'+view+'">';
+    for(var w=0; w<weeks; w++){
+      var wkStart=addDays(firstOfGrid,w*7);
+      var wkEnd=addDays(wkStart,6);
+      // multi-day spans for this week row (rendered as their own grid items spanning columns)
+      var spans=visible.filter(function(ev){ return ev.multi && ev.sd<=wkEnd && ev.ed>=wkStart; });
+      // build 7 cells
+      for(var c=0;c<7;c++){
+        var cd=addDays(wkStart,c);
+        var dow=cd.getUTCDay();
+        var out=(view==='month') && (cd.getUTCMonth()!==anchor.getUTCMonth());
+        var isToday=sameDay(cd,todayD);
+        var wknd=(dow===0||dow===6);
+        var cls='cal-cell'+(out?' is-out':'')+(isToday?' is-today':'')+(wknd?' is-weekend':'')+(w===0?' row-first':'');
+        // single-day events on this date
+        var singles=visible.filter(function(ev){ return !ev.multi && sameDay(ev.sd,cd); });
+        var inner='<span class="cal-date">'+cd.getUTCDate()+(view==='week'?'<span class="dow">'+WD[dow]+'</span>':'')+'</span>';
+        // reserve row for spans that pass through this cell (so singles don't overlap visually) — handled below as separate grid layer in month
+        inner+='<div class="evstack" data-cell="'+fmtISO(cd)+'">';
+        var cap = (view==='week')?99:3;
+        var shown=0, more=0;
+        singles.forEach(function(ev){
+          if(shown<cap){ inner+=chipHTML(ev); shown++; } else more++;
+        });
+        inner+='</div>';
+        if(more>0) inner+='<button type="button" class="evmore" data-more="'+fmtISO(cd)+'">+'+more+' more</button>';
+        html+='<div class="'+cls+'" role="gridcell" tabindex="-1" aria-label="'+esc(fmtLong(cd))+'" data-date="'+fmtISO(cd)+'">'+inner+'</div>';
+      }
+    }
+    html+='</div>';
+    cal.innerHTML = weekdayHead(false,null) + html;
+    // place multi-day spans as overlay rows inside the first matching cell of each week
+    placeSpans(visible, firstOfGrid, weeks);
+    document.getElementById('empty')&&document.getElementById('empty').classList.remove('is-on');
+    initRovingCell();
+  }
+
+  /* ---------- keyboard grid nav (arrow keys move day focus) ---------- */
+  // Roving tabindex: exactly one .cal-cell is tabbable; prefer today, else first cell.
+  function gridCells(){ return Array.prototype.slice.call(document.querySelectorAll('.cal-grid .cal-cell')); }
+  function initRovingCell(){
+    var cells=gridCells();
+    if(!cells.length) return;
+    var seed=cells.filter(function(c){return c.classList.contains('is-today');})[0]||cells[0];
+    cells.forEach(function(c){ c.tabIndex=(c===seed)?0:-1; });
+  }
+  function focusCell(cell){
+    if(!cell) return;
+    gridCells().forEach(function(c){ c.tabIndex=(c===cell)?0:-1; });
+    cell.focus();
+  }
+  function moveCellFocus(cur, dCol, dRow){
+    var cells=gridCells(); if(!cells.length) return;
+    var i=cells.indexOf(cur); if(i<0){ focusCell(cells[0]); return; }
+    var target=i + dCol + dRow*7;
+    if(target<0 || target>=cells.length) return;   // stay within the rendered grid
+    focusCell(cells[target]);
+  }
+
+  // Insert multi-day span chips into the evstack of their starting (or week-start) cell, spanning columns via absolute grid trick.
+  function placeSpans(visible, firstOfGrid, weeks){
+    var grid=document.querySelector('.cal-grid');
+    if(!grid) return;
+    for(var w=0; w<weeks; w++){
+      var wkStart=addDays(firstOfGrid,w*7);
+      var wkEnd=addDays(wkStart,6);
+      var spans=visible.filter(function(ev){ return ev.multi && ev.sd<=wkEnd && ev.ed>=wkStart; });
+      spans.sort(function(a,b){ return a.sd-b.sd || (b.ed-b.sd)-(a.ed-a.sd); });
+      spans.forEach(function(ev){
+        var segStart = ev.sd>wkStart? ev.sd : wkStart;
+        var segEnd   = ev.ed<wkEnd?   ev.ed : wkEnd;
+        var colA=dayIndex(segStart,weekStart), colB=dayIndex(segEnd,weekStart);
+        var startCellISO=fmtISO(segStart);
+        var stack=grid.querySelector('.evstack[data-cell="'+startCellISO+'"]');
+        if(!stack) return;
+        var startclip = ev.sd<wkStart;       // continued from previous week
+        var endclip   = ev.ed>wkEnd;         // continues into next week
+        var cont      = ev.sd<wkStart;
+        var span = colB-colA+1;
+        var chip=document.createElement('div');
+        chip.style.cssText='position:relative;width:calc('+span+'00% + '+(span-1)+'px);z-index:2;';
+        chip.innerHTML=chipHTML(ev,{span:true,startclip:startclip,endclip:endclip,cont:cont});
+        stack.insertBefore(chip, stack.firstChild);
+        // reserve the band in every crossed day cell so single-day chips drop BELOW the
+        // overflowing span instead of being painted over / clipped by it
+        var bandH=chip.firstChild?chip.firstChild.offsetHeight:0;
+        if(bandH>0){
+          for(var cc=colA+1; cc<=colB; cc++){
+            var cellISO=fmtISO(addDays(wkStart,cc));
+            var cs=grid.querySelector('.evstack[data-cell="'+cellISO+'"]');
+            if(!cs) continue;
+            var sp=document.createElement('div');
+            sp.setAttribute('aria-hidden','true');
+            sp.style.cssText='height:'+bandH+'px;flex:0 0 auto;pointer-events:none;';
+            cs.insertBefore(sp, cs.firstChild);
+          }
+        }
+      });
+    }
+  }
+
+  /* ---------- RESOURCE VIEW ---------- */
+  function renderResource(){
+    var cal=document.getElementById('cal');
+    var ws=weekStartDate();
+    var dates=[]; for(var i=0;i<7;i++) dates.push(addDays(ws,i));
+    var from=ws, to=addDays(ws,6);
+    var visible=activeEventsInRange(from,to);
+    if(visible.length===0){ renderEmpty(); return; }
+
+    var res=DATA.resources||[];
+    var html='<div class="cal-grid--res">';
+    res.forEach(function(r,ri){
+      html+='<div class="res-rail'+(ri===0?' row-first':'')+'">'
+        +'<span class="rl-name"><span class="rl-dot"></span>'+esc(r.label)+'</span>'
+        +(r.meta?'<span class="rl-meta">'+esc(r.meta)+'</span>':'')+'</div>';
+      for(var c=0;c<7;c++){
+        var cd=dates[c]; var dow=cd.getUTCDay(); var wknd=(dow===0||dow===6);
+        var isToday=sameDay(cd,todayD);
+        var cls='res-cell'+(ri===0?' row-first':'')+(isToday?' is-today':'')+(wknd?' is-weekend':'');
+        var inner='';
+        visible.filter(function(ev){
+          return (ev.raw.resource===r.key) && ev.sd<=cd && ev.ed>=cd;
+        }).forEach(function(ev){
+          var cont = !sameDay(ev.sd,cd) && ev.multi;
+          inner+=chipHTML(ev,{cont:cont});
+        });
+        html+='<div class="'+cls+'" data-date="'+fmtISO(cd)+'">'+inner+'</div>';
+      }
+    });
+    html+='</div>';
+    cal.innerHTML = weekdayHead(true,dates) + html;
+    document.getElementById('empty')&&document.getElementById('empty').classList.remove('is-on');
+  }
+
+  /* ---------- EMPTY ---------- */
+  function renderEmpty(){
+    var cal=document.getElementById('cal');
+    var anyOff=Object.keys(typeOff).some(function(k){return typeOff[k];});
+    var hint = anyOff ? 'No events of the selected type(s) in this period. Re-enable a legend chip or step to another period.'
+                      : 'Nothing is scheduled in this period. Use the arrows to move to another month or week.';
+    cal.innerHTML = weekdayHead(view==='resource',null)
+      + '<div class="cal-empty is-on" id="empty"><span class="ce-mark" aria-hidden="true">'+ICON.empty+'</span>'
+      + '<div class="ce-t">No events in '+esc(periodLabel())+'</div>'
+      + '<div class="ce-h">'+hint+'</div></div>';
+  }
+
+  /* ---------- FOOTER ---------- */
+  function renderFooter(){
+    var m=DATA.meta||{};
+    document.getElementById('foot').innerHTML =
+      '<span class="fw"><i></i>'+esc(m.org)+'</span>'
+      +'<span>'+esc(m.project)+' · '+esc(m.reportType||'')+'</span>'
+      +'<span class="fmeta">'
+        +'<span>'+(events.length)+' events</span>'
+        +'<span>Generated '+esc(m.date||'')+'</span>'
+        +'<span>'+esc(m.author||'')+'</span>'
+      +'</span>';
+  }
+
+  /* ---------- master render ---------- */
+  function render(){
+    renderToolbar();
+    if(view==='resource') renderResource();
+    else renderMonthLike();
+    var lbl=document.getElementById('label'); if(lbl) lbl.textContent=periodLabel();
+  }
+
+  /* ---------- POPOVER ---------- */
+  var pop=document.getElementById('pop');
+  function eventById(id){ for(var i=0;i<events.length;i++) if(events[i].raw.id===id) return events[i]; return null; }
+  function openPop(id, anchorEl){
+    var ev=eventById(id); if(!ev) return;
+    var e=ev.raw, tm=typeMeta[e.type]||{label:e.type};
+    var dateLine = ev.multi ? (fmtShort(ev.sd)+' – '+fmtShort(ev.ed)) : fmtLong(ev.sd);
+    var stBadge = e.status ? '<span class="st-badge st-'+e.status+'">'+(e.status==='ok'?'On track':e.status==='risk'?'At risk':'On hold')+'</span>' : '';
+    var res = (DATA.resources||[]).filter(function(r){return r.key===e.resource;})[0];
+    var kv='<div class="pop-kv">'
+      +'<div class="kv"><div class="k">Date</div><div class="v">'+esc(dateLine)+'</div></div>'
+      +'<div class="kv"><div class="k">Time</div><div class="v">'+esc(e.allDay===false&&e.time?e.time:'All day')+'</div></div>'
+      +(res?'<div class="kv"><div class="k">Resource</div><div class="v">'+esc(res.label)+'</div></div>':'')
+      +(e.owner?'<div class="kv'+(res?'':' span2')+'"><div class="k">Owner</div><div class="v">'+esc(e.owner)+'</div></div>':'')
+      +'</div>';
+    pop.innerHTML =
+      '<div class="pop-band"></div>'
+      +'<div class="pop-in" style="'+toneVars(e.type)+'">'
+        +'<div class="pop-top"><span class="pop-type"><span class="sw"></span>'+esc(tm.label)+'</span>'+stBadge
+        +'<button class="pop-close" id="popclose" type="button" aria-label="Close">'+ICON.close+'</button></div>'
+        +'<h3 class="pop-title">'+esc(e.title)+'</h3>'
+        +kv
+        +(e.note?'<p class="pop-note">'+esc(e.note)+'</p>':'')
+        +'<span class="pop-id">'+esc(e.id)+'</span>'
+      +'</div>';
+    pop.style.setProperty('--c', getComputedStyle(anchorEl).getPropertyValue('--c')||'var(--navy)');
+    pop.classList.add('is-on');
+    // position near the chip, kept in viewport
+    var r=anchorEl.getBoundingClientRect();
+    var pw=288, ph=pop.offsetHeight;
+    var left=window.scrollX + Math.min(r.left, window.innerWidth-pw-12);
+    var top=window.scrollY + r.bottom + 6;
+    if(r.bottom+ph+12 > window.innerHeight && r.top-ph-6>0) top=window.scrollY + r.top - ph - 6;
+    pop.style.left=Math.max(window.scrollX+8,left)+'px';
+    pop.style.top=top+'px';
+    document.getElementById('popclose').addEventListener('click', closePop);
+  }
+  function closePop(){ pop.classList.remove('is-on'); }
+
+  /* ---------- interactions ---------- */
+  document.addEventListener('click', function(e){
+    var t=e.target;
+    // nav
+    if(t.closest&&t.closest('#prev')){ step(-1); return; }
+    if(t.closest&&t.closest('#next')){ step(1); return; }
+    if(t.closest&&t.closest('#today')){ goToday(); return; }
+    // view toggle
+    var vb=t.closest&&t.closest('.cal-view');
+    if(vb){ view=vb.dataset.view; closePop(); render(); return; }
+    // legend filter
+    var lc=t.closest&&t.closest('.legend-chip');
+    if(lc){ var k=lc.dataset.type; typeOff[k]=!typeOff[k]; closePop(); render(); return; }
+    // overflow "+N more" → expand that cell
+    var mb=t.closest&&t.closest('.evmore');
+    if(mb){ expandCell(mb.dataset.more, mb); return; }
+    // event chip
+    var chip=t.closest&&t.closest('.evchip');
+    if(chip){ e.stopPropagation(); openPop(chip.dataset.ev, chip); return; }
+    // click-away closes popover
+    if(pop.classList.contains('is-on') && !(t.closest&&t.closest('#pop'))) closePop();
+  });
+  // theme dropdown (delegated — toolbar is rebuilt on every render)
+  document.addEventListener('change', function(e){
+    var sel=e.target.closest&&e.target.closest('.rc-theme-sel');
+    if(sel){ document.documentElement.dataset.theme=sel.value; }
+  });
+  document.addEventListener('keydown', function(e){
+    if(e.key==='Escape'){ closePop(); return; }
+    // PageUp/PageDown step the period from anywhere
+    if(e.key==='PageUp'){ e.preventDefault(); step(-1); return; }
+    if(e.key==='PageDown'){ e.preventDefault(); step(1); return; }
+    // grid navigation only when a day cell holds focus
+    var cell=document.activeElement;
+    if(!cell || !cell.classList || !cell.classList.contains('cal-cell')) return;
+    switch(e.key){
+      case 'ArrowRight': e.preventDefault(); moveCellFocus(cell,1,0); break;
+      case 'ArrowLeft':  e.preventDefault(); moveCellFocus(cell,-1,0); break;
+      case 'ArrowDown':  e.preventDefault(); moveCellFocus(cell,0,1); break;
+      case 'ArrowUp':    e.preventDefault(); moveCellFocus(cell,0,-1); break;
+      case 'Enter':
+      case ' ':{
+        var chip=cell.querySelector('.evchip');
+        if(chip){ e.preventDefault(); openPop(chip.dataset.ev, chip); }
+        break;
+      }
+    }
+  });
+  window.addEventListener('resize', closePop);
+
+  function step(dir){
+    closePop();
+    if(view==='month'){ anchor=addMonths(anchor,dir); weekAnchorISO=fmtISO(addDays(weekStartDate(), dir*7)); }
+    else { weekAnchorISO=fmtISO(addDays(weekStartDate(), dir*7)); anchor=startOfMonth(parseD(weekAnchorISO)); }
+    render();
+  }
+  function goToday(){
+    closePop();
+    anchor=startOfMonth(todayD);
+    weekAnchorISO=fmtISO(todayD);
+    render();
+  }
+  function expandCell(iso, btn){
+    // re-show all single-day chips for this date (remove cap)
+    var cell=document.querySelector('.cal-cell[data-date="'+iso+'"] .evstack');
+    if(!cell) return;
+    var cd=parseD(iso);
+    var singles=events.filter(function(ev){ return !typeOff[ev.raw.type] && !ev.multi && sameDay(ev.sd,cd); });
+    // keep any span chips already at top, rebuild singles
+    Array.prototype.slice.call(cell.querySelectorAll('.evchip:not(.evchip--span)')).forEach(function(n){
+      (n.parentNode.classList&&n.parentNode.classList.contains('evstack'))?n.remove():n.parentNode.remove();
+    });
+    singles.forEach(function(ev){ cell.insertAdjacentHTML('beforeend', chipHTML(ev)); });
+    btn.remove();
+  }
+
+  /* ---------- boot ---------- */
+  document.documentElement.dataset.theme = (DATA.meta&&DATA.meta.theme) || 'green';
+  render();
+  renderFooter();
+})();
+</script>
+</body>
+</html>

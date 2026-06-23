@@ -1,0 +1,304 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://genesis.local/html_report_design/schemas/portfolio.schema.json",
+  "title": "Portfolio / case-study showcase",
+  "description": "Data contract for the portfolio format: a client-facing showcase of delivered work, rendered as an editorial hero + responsive case-card gallery + client wordmark chips + capability band + dark contact footer. Default theme: Cyan. The gallery of case cards is the page's hero surface; every card must carry real measured outcomes. The sample's #report-data is a valid instance of this schema.",
+  "type": "object",
+  "required": ["meta", "hero", "cases"],
+  "additionalProperties": false,
+  "properties": {
+    "meta": {
+      "type": "object",
+      "description": "Shared report chrome (org / project / title / theme). Brand-neutral: keep {{ORG}} / {{PROJECT}} / {{AUTHOR}} placeholders unless real values are supplied.",
+      "required": ["org", "project", "reportType", "title", "date", "theme"],
+      "additionalProperties": false,
+      "properties": {
+        "org": { "type": "string", "description": "Organisation name or {{ORG}} placeholder. Shown in the slim brand bar wordmark.", "default": "{{ORG}}" },
+        "project": { "type": "string", "description": "Project / programme name or {{PROJECT}} placeholder.", "default": "{{PROJECT}}" },
+        "reportType": { "type": "string", "description": "Eyebrow label above the hero headline, e.g. 'Selected Work' or {{REPORT_TYPE}}." },
+        "title": { "type": "string", "description": "Page title used in <title>. Typically '{{ORG}} — Selected Work'." },
+        "subtitle": { "type": "string", "description": "Optional browser subtitle or standfirst override." },
+        "date": { "type": "string", "description": "ISO date the portfolio was produced (YYYY-MM-DD).", "format": "date" },
+        "author": { "type": "string", "description": "Author / delivery lead or {{AUTHOR}} placeholder.", "default": "{{AUTHOR}}" },
+        "theme": {
+          "type": "string",
+          "description": "Initial brand theme; applied as <html data-theme>. Default for this format is 'cyan'.",
+          "enum": ["blue", "purple", "indigo", "teal", "cyan", "green", "plum", "slate"],
+          "default": "cyan"
+        }
+      }
+    },
+    "hero": {
+      "type": "object",
+      "description": "Editorial hero section (.showcase). Contains the oversized display headline, a standfirst paragraph, and an aggregate outcomes strip (.lead-stats). This is the first thing the reader sees; it should be bold and number-led.",
+      "required": ["headline", "standfirst", "leadStats"],
+      "additionalProperties": false,
+      "properties": {
+        "eyebrow": { "type": "string", "description": "Optional tracked-mono label above the headline, e.g. 'Delivered. Measured. Owned.'" },
+        "headline": {
+          "type": "string",
+          "description": "Oversized display headline (38–56px / 800). One short sentence; one word may be wrapped in <em> for the accent colour. Renders as .display."
+        },
+        "standfirst": {
+          "type": "string",
+          "description": "One paragraph (≤3 sentences) below the headline. Sets the 'why' for the page. Renders as .standfirst."
+        },
+        "leadStats": {
+          "type": "array",
+          "description": "3–4 aggregate outcome figures displayed on the accent band below the standfirst (.lead-stats). These are portfolio-wide totals, not per-case numbers. Use tnum figures.",
+          "minItems": 2,
+          "maxItems": 4,
+          "items": {
+            "type": "object",
+            "required": ["value", "label"],
+            "additionalProperties": false,
+            "properties": {
+              "value": { "type": "string", "description": "The large tnum figure, e.g. '42', '¥18B', '>99%', '+8pp'." },
+              "unit": { "type": "string", "description": "Optional unit suffix appended in smaller type, e.g. '%', 'M', 'wks'." },
+              "label": { "type": "string", "description": "Tracked-mono label below the figure, e.g. 'engagements delivered', 'cost reduction'. Keep ≤5 words." }
+            }
+          }
+        }
+      }
+    },
+    "cases": {
+      "type": "array",
+      "description": "The case-card gallery (.gallery of .case-card). Every card must have real measured outcomes — no card without an outcome-row. The gallery is the focal point of the page. Cards render in array order. 4–9 cards is the comfortable range for a single-page scroll.",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "title", "role", "outcomes"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "description": "Stable slug used as the thumb index chip (e.g. 'case-01', 'proj-alpha')." },
+          "title": { "type": "string", "description": "Case / project title shown as .case-title (15–17px bold)." },
+          "sectorTag": { "type": "string", "description": "Mono pill tag shown above the title (ref · sector, e.g. '01 · Banking', '04 · InsurTech'). Renders as .case-tag." },
+          "role": { "type": "string", "description": "Role / sector / year line below the title in mono micro (e.g. 'Lead Architect · Core Banking · FY24–25'). Renders as .case-role." },
+          "description": { "type": "string", "description": "Optional 1–2 sentence summary of what was delivered. Keep concise; outcomes tell the real story. Renders as .case-desc." },
+          "thumbKind": {
+            "type": "string",
+            "description": "CSS-art thumbnail variant class. Each card in a deck should use a different variant to ensure every thumb is visually distinct. All thumbs are palette-only CSS/SVG — no raster images.",
+            "enum": ["rings", "bars", "grid", "arc", "iso", "wave", "mark"],
+            "default": "rings"
+          },
+          "outcomes": {
+            "type": "array",
+            "description": "Measured outcome cells (.outcome-row). Mandatory: every card must have at least one outcome. 2–3 outcomes per card is ideal. Use tnum figures with tone where appropriate.",
+            "minItems": 1,
+            "maxItems": 3,
+            "items": {
+              "type": "object",
+              "required": ["value", "label"],
+              "additionalProperties": false,
+              "properties": {
+                "value": { "type": "string", "description": "The tnum outcome figure, e.g. '−40%', '¥1.2B', '100%', '+18pp'. Use ok/risk/hold tone conventions honestly." },
+                "unit": { "type": "string", "description": "Optional unit suffix in small type, e.g. '%', 'M'." },
+                "label": { "type": "string", "description": "Short tracked-mono label below the figure (≤4 words), e.g. 'cost reduction', 'on-time filings'." },
+                "tone": {
+                  "type": "string",
+                  "description": "Outcome number colour tone: 'ok' for positive wins (green/teal), 'risk' for honest negatives, 'hold' for caution, or omit for neutral (ink colour).",
+                  "enum": ["ok", "risk", "hold"]
+                }
+              }
+            }
+          },
+          "tags": {
+            "type": "array",
+            "description": "Technology / method pill tags shown at the bottom of the card (.case-tags row). Rendered as mono micro pills. 2–5 tags is typical.",
+            "items": { "type": "string" }
+          },
+          "status": {
+            "type": "string",
+            "description": "Optional status flag applied to the card as a .st-badge. Maps to 'ok' (completed / reference-verified), 'hold' (in progress), or 'risk' (at risk).",
+            "enum": ["ok", "hold", "risk"]
+          }
+        }
+      }
+    },
+    "logos": {
+      "type": "array",
+      "description": "Client wordmark chips (.logo-chip row). Rendered as styled text in rounded pills — never raster logos or images. Each entry is a client identity expressed purely as typography.",
+      "items": {
+        "type": "object",
+        "required": ["name"],
+        "additionalProperties": false,
+        "properties": {
+          "name": { "type": "string", "description": "Client display name as it appears in the chip, e.g. 'ACME Financial', 'northwind bank', 'Vol·Tek'." },
+          "style": {
+            "type": "string",
+            "description": "Optional rendering hint for the chip typographic treatment: 'bold' (default, all-caps heavy), 'italic' (italic light), 'tracked' (wide tracking mono), 'mixed' (mixed weight accent).",
+            "enum": ["bold", "italic", "tracked", "mixed"],
+            "default": "bold"
+          }
+        }
+      }
+    },
+    "capabilities": {
+      "type": "array",
+      "description": "Capability band cells (.capability-band › .capability). 4–6 cells on a --bg-band strip, each with an icon, a title, and a one-line description.",
+      "minItems": 2,
+      "maxItems": 6,
+      "items": {
+        "type": "object",
+        "required": ["icon", "label"],
+        "additionalProperties": false,
+        "properties": {
+          "icon": { "type": "string", "description": "House icon key from the icons/ catalog. Recommended categories for portfolio: editorial, data, people, commerce." },
+          "label": { "type": "string", "description": "Capability title shown as .cap-title (bold, ~13px)." },
+          "description": { "type": "string", "description": "One supporting sentence shown as .cap-line (soft, ~11.5px)." }
+        }
+      }
+    },
+    "contact": {
+      "type": "object",
+      "description": "Dark contact / footer band (.contact-band). Closes the page with a CTA, contact meta, and the org wordmark. Brand-neutral by default.",
+      "additionalProperties": false,
+      "properties": {
+        "ctaEyebrow": { "type": "string", "description": "Small mono eyebrow above the CTA headline, e.g. 'Start a conversation'." },
+        "ctaHeadline": { "type": "string", "description": "CTA headline shown large in white (e.g. 'Have an outcome in mind? Let's scope it.')." },
+        "ctaBody": { "type": "string", "description": "One short paragraph supporting the CTA." },
+        "email": { "type": "string", "description": "Contact email address or {{EMAIL}} placeholder.", "format": "email" },
+        "documentLink": { "type": "string", "description": "Optional link label for a downloadable deck or capability document, e.g. '{{PROJECT}} capability deck'." },
+        "footerLine": { "type": "string", "description": "Footer copyright / provenance line (e.g. 'Selected Work · FY2024–FY2026 · Outcomes owner-verified · {{DATE}}')." }
+      }
+    }
+  },
+  "examples": [
+    {
+      "meta": {
+        "org": "{{ORG}}",
+        "project": "{{PROJECT}}",
+        "reportType": "Selected Work",
+        "title": "{{ORG}} — Selected Work",
+        "date": "2026-06-22",
+        "author": "{{AUTHOR}}",
+        "theme": "cyan"
+      },
+      "hero": {
+        "eyebrow": "Delivered. Measured. Owned.",
+        "headline": "We ship outcomes, not <em>slide decks</em>.",
+        "standfirst": "Seven engagements in two years across Tier-1 banking and insurance clients. Every number on this page is owner-verified and auditable. Bring the outcome you need to move — we will scope it, resource it, and deliver it.",
+        "leadStats": [
+          { "value": "7",    "label": "engagements delivered" },
+          { "value": "¥18B", "label": "client value unlocked" },
+          { "value": "−38%", "label": "average cost reduction" },
+          { "value": "100%", "label": "on-time go-lives" }
+        ]
+      },
+      "cases": [
+        {
+          "id": "case-01",
+          "title": "Core Banking Re-architecture (GEN2)",
+          "sectorTag": "01 · Banking",
+          "role": "Lead Architect · Tier-1 Bank · FY24–FY25",
+          "description": "Full re-platform of the core ledger from a mainframe monolith to a cloud-native microservice architecture, delivered to zero-incident cutover.",
+          "thumbKind": "rings",
+          "outcomes": [
+            { "value": "99.99", "unit": "%", "label": "post-cutover uptime", "tone": "ok" },
+            { "value": "−42%", "label": "infra cost / txn", "tone": "ok" },
+            { "value": "4.1×", "label": "throughput uplift", "tone": "ok" }
+          ],
+          "tags": ["Cloud-native", "Microservices", "ISO 20022", "Zero-downtime cutover"],
+          "status": "ok"
+        },
+        {
+          "id": "case-02",
+          "title": "Real-time Payments Data Platform",
+          "sectorTag": "02 · Banking",
+          "role": "Data Lead · Regional Bank · FY25",
+          "description": "Governed lakehouse and streaming analytics for real-time payments processing, replacing a batch-overnight pipeline.",
+          "thumbKind": "bars",
+          "outcomes": [
+            { "value": "<30", "unit": "ms", "label": "pipeline latency p99", "tone": "ok" },
+            { "value": "−55%", "label": "storage cost", "tone": "ok" },
+            { "value": "6",   "label": "self-serve squads enabled" }
+          ],
+          "tags": ["Lakehouse", "Streaming", "BigQuery", "Data lineage"]
+        },
+        {
+          "id": "case-03",
+          "title": "ML Fraud Detection at Scale",
+          "sectorTag": "03 · Banking",
+          "role": "ML Platform Lead · Digital Bank · FY25",
+          "description": "Feature store, real-time inference, and MLOps platform for the fraud detection model suite, with drift monitoring and champion/challenger rollout.",
+          "thumbKind": "arc",
+          "outcomes": [
+            { "value": "+18pp", "label": "fraud recall uplift", "tone": "ok" },
+            { "value": "−30%", "label": "false positive rate", "tone": "ok" },
+            { "value": "12×",  "label": "model update cadence" }
+          ],
+          "tags": ["Feature store", "Real-time inference", "MLOps", "Drift monitoring"]
+        },
+        {
+          "id": "case-04",
+          "title": "Insurance Claims Automation",
+          "sectorTag": "04 · InsurTech",
+          "role": "Delivery Lead · Tier-2 Insurer · FY24",
+          "description": "End-to-end claims triage and settlement automation using document AI and a rules engine, cutting manual touch from 74% of claims to 12%.",
+          "thumbKind": "grid",
+          "outcomes": [
+            { "value": "−62pp", "label": "manual touch rate", "tone": "ok" },
+            { "value": "2.1×",  "label": "settlement speed", "tone": "ok" },
+            { "value": "¥820M", "label": "annual opex saving", "tone": "ok" }
+          ],
+          "tags": ["Document AI", "Rules engine", "Process automation"],
+          "status": "ok"
+        },
+        {
+          "id": "case-05",
+          "title": "Regulatory Reporting Automation",
+          "sectorTag": "05 · RegTech",
+          "role": "Controls Architect · Regional Bank · FY24–FY25",
+          "description": "Twenty-two regulatory filings automated end-to-end with a reusable controls library and a full audit trail, retiring manual spreadsheets.",
+          "thumbKind": "iso",
+          "outcomes": [
+            { "value": "100%", "label": "on-time filings", "tone": "ok" },
+            { "value": "−70%", "label": "manual effort", "tone": "ok" },
+            { "value": "22",   "label": "filings automated" }
+          ],
+          "tags": ["Controls library", "Audit trail", "Automation"]
+        }
+      ],
+      "logos": [
+        { "name": "ACME Financial", "style": "bold" },
+        { "name": "northwind bank", "style": "italic" },
+        { "name": "Vol·Tek", "style": "tracked" },
+        { "name": "MERIDIAN", "style": "bold" },
+        { "name": "QuantCapital", "style": "mixed" },
+        { "name": "Solace Insurance", "style": "bold" },
+        { "name": "HELIX Pay", "style": "tracked" },
+        { "name": "Cedar&Vale", "style": "mixed" }
+      ],
+      "capabilities": [
+        {
+          "icon": "building",
+          "label": "Core platform delivery",
+          "description": "Tier-1 re-architecture, cutover and parallel-run — measured to zero-incident handover."
+        },
+        {
+          "icon": "bar-chart",
+          "label": "Data & analytics",
+          "description": "Governed lakehouse, lineage and self-serve analytics with cost held down."
+        },
+        {
+          "icon": "network",
+          "label": "ML & real-time systems",
+          "description": "Feature stores, streaming inference and MLOps with drift and rollout controls."
+        },
+        {
+          "icon": "shield-check",
+          "label": "Risk, controls & RegTech",
+          "description": "Automated filings, controls libraries and audit trails that pass review first time."
+        }
+      ],
+      "contact": {
+        "ctaEyebrow": "Start a conversation",
+        "ctaHeadline": "Have an outcome in mind? Let's scope it.",
+        "ctaBody": "Bring the number you need to move. We'll come back with a shaped engagement, the figures it should hit, and references you can call.",
+        "email": "studio@{{ORG}}.example",
+        "documentLink": "{{PROJECT}} capability deck",
+        "footerLine": "Selected Work · FY2024–FY2026 · Outcomes owner-verified · {{DATE}}"
+      }
+    }
+  ]
+}

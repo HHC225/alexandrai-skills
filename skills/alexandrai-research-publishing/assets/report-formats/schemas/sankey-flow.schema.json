@@ -1,0 +1,176 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://genesis.design/schemas/sankey-flow.schema.json",
+  "title": "Sankey Flow Diagram",
+  "description": "Data contract for the sankey-flow format: a quantitative, value-weighted flow diagram. Nodes are stacked in vertical columns (stages) laid out left-to-right; links are filled bezier ribbons whose width is proportional to a numeric value (flow-of-funds, request throughput across a pipeline, user-journey volume). It is NOT a free-form topology and NOT a process flowchart — every link carries a numeric VALUE and the ribbon width is proportional to that value. The layout (node x by column, node y by stacking incident flows, ribbon endpoints and bezier control points) is computed in JS from nodes[] + links[]. Node throughput = max(total inflow, total outflow). The sample's #report-data is a valid instance of this schema and is the canonical example. Render: a full-bleed app shell — top toolbar (title, flow-unit chip, min-flow threshold slider, node-group toggle chips, trace-path mode toggle, theme dropdown), a large inline-SVG Sankey, a right detail rail for the selected node (inflows/outflows with value + % of node total, plus total-in / total-out), and a bottom group legend.",
+  "type": "object",
+  "required": ["meta", "units", "groups", "nodes", "links"],
+  "additionalProperties": false,
+  "properties": {
+    "meta": {
+      "type": "object",
+      "description": "Shared chrome block carried by every format in the family. Brand-neutral: keep {{ORG}}/{{PROJECT}}/{{AUTHOR}} placeholders unless real values are supplied. 'theme' picks the initial brand palette (one of the 9 presets, Black included).",
+      "required": ["org", "project", "reportType", "title", "date", "theme"],
+      "additionalProperties": false,
+      "properties": {
+        "org": { "type": "string", "description": "Organisation wordmark shown in the toolbar / footer. Placeholder: {{ORG}}.", "default": "{{ORG}}" },
+        "project": { "type": "string", "description": "Project / system name shown in the title. Placeholder: {{PROJECT}}.", "default": "{{PROJECT}}" },
+        "reportType": { "type": "string", "description": "Eyebrow label, e.g. 'Flow of Funds', 'Throughput Map', 'Conversion Funnel'." },
+        "title": { "type": "string", "description": "Diagram title shown in the top toolbar." },
+        "subtitle": { "type": "string", "description": "Optional one-line standfirst / scope note." },
+        "date": { "type": "string", "description": "As-of date stamp (ISO 'YYYY-MM-DD' preferred). Placeholder: {{DATE}}.", "default": "{{DATE}}" },
+        "author": { "type": "string", "description": "Author / team, shown in the print footer. Placeholder: {{AUTHOR}}.", "default": "{{AUTHOR}}" },
+        "theme": {
+          "type": "string",
+          "description": "Initial brand theme; sets <html data-theme>. Default for this format is 'teal'. 'black' is the mandatory mono/ink preset.",
+          "enum": ["blue", "purple", "indigo", "teal", "cyan", "green", "plum", "slate", "black"],
+          "default": "teal"
+        }
+      }
+    },
+    "units": {
+      "type": "string",
+      "description": "The unit every link value is expressed in, shown as the toolbar flow-unit chip and appended to every value/tooltip (e.g. 'req/s', '¥M', 'sessions', 'TXN/min'). Values themselves are plain numbers; this string only labels them."
+    },
+    "valueFormat": {
+      "type": "object",
+      "description": "Optional display hints for formatting link values. The renderer still keeps the raw number for layout; this only affects what the reader sees.",
+      "additionalProperties": false,
+      "properties": {
+        "prefix": { "type": "string", "description": "String shown before the number (e.g. '¥', '$').", "default": "" },
+        "suffix": { "type": "string", "description": "String shown after the number (e.g. 'M', 'k', '/s'). If omitted, 'units' is used as the suffix.", "default": "" },
+        "decimals": { "type": "integer", "description": "Fixed decimal places for displayed values. Omit for automatic (integers shown whole, fractions to 1 dp).", "minimum": 0, "maximum": 4 }
+      }
+    },
+    "groups": {
+      "type": "array",
+      "description": "The semantic groups a node can belong to (e.g. fee revenue, principal, refunds, settlement rail). Each group drives the bottom legend, a toolbar toggle chip (collapse/hide that group's nodes + their links), and the low-opacity tint of links leaving a node of that group.",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "label"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "description": "Stable id referenced by node.group." },
+          "label": { "type": "string", "description": "Human label shown in the legend and the group-toggle chip." },
+          "tone": {
+            "type": "string",
+            "description": "Optional palette role for this group's ribbon tint. 'brand' = the active accent (default); 'risk'/'hold'/'ok' = the three semantic states; 'ink' = neutral grey. NEVER introduce a 4th semantic state colour.",
+            "enum": ["brand", "ok", "hold", "risk", "ink"],
+            "default": "brand"
+          }
+        }
+      }
+    },
+    "nodes": {
+      "type": "array",
+      "description": "The stages-and-stations of the flow. Each node is a rounded-rect bar in a vertical column; its height is proportional to its throughput = max(total inflow, total outflow). Nodes are assigned to a column (0 = leftmost source stage). 8-22 nodes across 3-6 columns is the sweet spot for one screen.",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "required": ["id", "label", "column"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "description": "Unique node id; referenced by links.source / links.target and the detail rail." },
+          "label": { "type": "string", "description": "Node display name shown beside its bar." },
+          "column": { "type": "integer", "description": "Zero-based stage index (x position). Column 0 is the leftmost source stage; the largest column is the rightmost sink stage. Links should flow from a lower column to a higher one.", "minimum": 0 },
+          "group": { "type": "string", "description": "Optional group id (must match a groups[].key). Drives the node accent and the tint of links leaving this node; also the target of group-toggle chips." },
+          "note": { "type": "string", "description": "Optional short caption shown under the node label in the detail rail." }
+        }
+      }
+    },
+    "links": {
+      "type": "array",
+      "description": "The value-weighted ribbons. Each link carries a numeric VALUE; the ribbon width is proportional to that value. Links connect a source node to a target node (typically in an adjacent, higher column). The renderer stacks each node's incident links to derive ribbon endpoints, then draws a filled cubic bezier between them.",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["source", "target", "value"],
+        "additionalProperties": false,
+        "properties": {
+          "source": { "type": "string", "description": "Source node id (must match a nodes[].id)." },
+          "target": { "type": "string", "description": "Target node id (must match a nodes[].id)." },
+          "value": { "type": "number", "description": "Flow magnitude in 'units'. Drives ribbon width and every percentage. Must be > 0.", "exclusiveMinimum": 0 },
+          "note": { "type": "string", "description": "Optional caption (route name, channel, instrument) shown in tooltips and the detail rail rows." }
+        }
+      }
+    },
+    "legend": {
+      "type": "object",
+      "description": "Optional caption overrides for the bottom legend / help line.",
+      "additionalProperties": false,
+      "properties": {
+        "ribbonHint": { "type": "string", "description": "One-line explanation of the ribbon-width encoding shown in the legend strip.", "default": "Ribbon width is proportional to flow value." },
+        "totalLabel": { "type": "string", "description": "Caption for the grand-total readout (e.g. 'Total throughput').", "default": "Total flow" }
+      }
+    }
+  },
+  "examples": [
+    {
+      "meta": {
+        "org": "{{ORG}}",
+        "project": "{{PROJECT}}",
+        "reportType": "Flow of Funds",
+        "title": "Daily Settlement Flow — Payments Pipeline",
+        "subtitle": "Where the day's value enters, how it is routed and cleared, and where it lands — by value (¥M)",
+        "date": "2026-06-22",
+        "author": "{{AUTHOR}}",
+        "theme": "teal"
+      },
+      "units": "¥M",
+      "valueFormat": { "prefix": "¥", "suffix": "M" },
+      "groups": [
+        { "id": "channel", "label": "Inbound channel", "tone": "brand" },
+        { "id": "core", "label": "Core processing", "tone": "ink" },
+        { "id": "rail", "label": "Clearing rail", "tone": "ok" },
+        { "id": "hold", "label": "Held / review", "tone": "hold" },
+        { "id": "reject", "label": "Returned / failed", "tone": "risk" }
+      ],
+      "nodes": [
+        { "id": "mobile", "label": "Mobile app", "column": 0, "group": "channel", "note": "Retail mobile originations" },
+        { "id": "web", "label": "Web banking", "column": 0, "group": "channel" },
+        { "id": "branch", "label": "Branch & ATM", "column": 0, "group": "channel" },
+        { "id": "corp", "label": "Corporate API", "column": 0, "group": "channel", "note": "Bulk host-to-host files" },
+        { "id": "intake", "label": "Payment intake", "column": 1, "group": "core", "note": "Validation & enrichment" },
+        { "id": "fraud", "label": "Fraud & sanctions", "column": 1, "group": "core", "note": "Screening engine" },
+        { "id": "route", "label": "Routing engine", "column": 2, "group": "core", "note": "Rail selection by scheme & cut-off" },
+        { "id": "review", "label": "Manual review", "column": 2, "group": "hold", "note": "Operator queue" },
+        { "id": "rtgs", "label": "RTGS / wire", "column": 3, "group": "rail" },
+        { "id": "ach", "label": "ACH / batch", "column": 3, "group": "rail" },
+        { "id": "card", "label": "Card network", "column": 3, "group": "rail" },
+        { "id": "intl", "label": "Cross-border", "column": 3, "group": "rail", "note": "Correspondent / SWIFT" },
+        { "id": "settled", "label": "Settled value", "column": 4, "group": "rail", "note": "Confirmed cleared" },
+        { "id": "pending", "label": "Pending cut-off", "column": 4, "group": "hold", "note": "Next-cycle release" },
+        { "id": "returned", "label": "Returned funds", "column": 4, "group": "reject", "note": "Bounced / recalled" }
+      ],
+      "links": [
+        { "source": "mobile", "target": "intake", "value": 1840, "note": "Retail push payments" },
+        { "source": "web", "target": "intake", "value": 1320 },
+        { "source": "branch", "target": "intake", "value": 760, "note": "Teller & ATM" },
+        { "source": "corp", "target": "intake", "value": 2960, "note": "Bulk salary & supplier files" },
+        { "source": "intake", "target": "fraud", "value": 6880, "note": "All intake screened" },
+        { "source": "fraud", "target": "route", "value": 6470, "note": "Cleared screening" },
+        { "source": "fraud", "target": "review", "value": 410, "note": "Flagged for review" },
+        { "source": "review", "target": "route", "value": 300, "note": "Released after review" },
+        { "source": "review", "target": "returned", "value": 110, "note": "Rejected on review" },
+        { "source": "route", "target": "rtgs", "value": 2510, "note": "High-value, same-day" },
+        { "source": "route", "target": "ach", "value": 2840, "note": "Low-value batch" },
+        { "source": "route", "target": "card", "value": 980, "note": "Card-scheme settlement" },
+        { "source": "route", "target": "intl", "value": 440, "note": "Correspondent routing" },
+        { "source": "rtgs", "target": "settled", "value": 2470 },
+        { "source": "rtgs", "target": "pending", "value": 40, "note": "After window cut-off" },
+        { "source": "ach", "target": "settled", "value": 2610 },
+        { "source": "ach", "target": "pending", "value": 230, "note": "Next ACH cycle" },
+        { "source": "card", "target": "settled", "value": 940 },
+        { "source": "card", "target": "returned", "value": 40, "note": "Scheme reject" },
+        { "source": "intl", "target": "settled", "value": 360 },
+        { "source": "intl", "target": "pending", "value": 60, "note": "Correspondent hold" },
+        { "source": "intl", "target": "returned", "value": 20, "note": "Compliance recall" }
+      ],
+      "legend": {
+        "ribbonHint": "Ribbon width is proportional to settled value (¥M); colour follows the source group.",
+        "totalLabel": "Day's intake"
+      }
+    }
+  ]
+}

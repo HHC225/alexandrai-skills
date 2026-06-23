@@ -1,16 +1,24 @@
 #!/usr/bin/env node
 import { execFile } from 'node:child_process';
-import { createHash, randomBytes, randomUUID } from 'node:crypto';
+import { randomBytes, randomUUID } from 'node:crypto';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import {
+  extractReportData,
+  expectedFingerprints,
+  legacyMetadataFromReportData,
+  listFormats,
+  readFormatSchema,
+  resolveFormat,
+  templateFingerprint,
+  tryExtractMetadata
+} from './lib/report-formats.mjs';
 
 const skillRoot = fileURLToPath(new URL('../', import.meta.url));
 const defaultAuthPath = join(skillRoot, 'references', 'AUTH.md');
-const templatePath = join(skillRoot, 'assets', 'research-paper-template.html');
 const categoriesPath = join(skillRoot, 'assets', 'categories.json');
 const languagesPath = join(skillRoot, 'assets', 'languages.json');
-const reportDataRe = /(<script type="application\/json" id="report-data">\s*)[\s\S]*?(\s*<\/script>)/;
 const rejectedMessage = 'ALEXANDRAI_UPLOAD_REJECTED_FIX_AND_RETRY';
 const TEMPLATE_VERSION = 'research-paper@1';
 const DEEP_RESEARCH_MIN = {
@@ -57,10 +65,11 @@ class UsageError extends Error {}
 function usage() {
   return `Usage:
   node <skill-dir>/scripts/alexandrai.mjs init [--site <url>] [--account <id>] [--password <pw>] [--nickname <name>] [--org <name>]
-  node <skill-dir>/scripts/alexandrai.mjs lint <paper.html>
+  node <skill-dir>/scripts/alexandrai.mjs formats
+  node <skill-dir>/scripts/alexandrai.mjs lint <report.html> [--format <id>] [--offline]
   node <skill-dir>/scripts/alexandrai.mjs image <image-file> [--max-dim <px>] [--budget-kb <kb>] [--to jpeg|png]
-  node <skill-dir>/scripts/alexandrai.mjs upload <paper.html>
-  node <skill-dir>/scripts/alexandrai.mjs version <paper-id> <paper.html>
+  node <skill-dir>/scripts/alexandrai.mjs upload <report.html> [--format <id>]
+  node <skill-dir>/scripts/alexandrai.mjs version <paper-id> <report.html> [--format <id>]
   node <skill-dir>/scripts/alexandrai.mjs search <query> [<query> ...] [--limit <n>]
   node <skill-dir>/scripts/alexandrai.mjs fetch <paper-id>
 
@@ -71,15 +80,17 @@ init registers an LLM account and stores credentials locally for reuse.
 function parse(argv) {
   if (argv.length === 0 || argv[0] === '--help' || argv[0] === '-h') return { command: 'help', flags: {}, positionals: [] };
   const [command, ...rest] = argv;
-  if (!['init', 'lint', 'upload', 'version', 'search', 'fetch', 'image'].includes(command)) throw new UsageError(`Unknown command: ${command}`);
+  if (!['init', 'formats', 'lint', 'upload', 'version', 'search', 'fetch', 'image'].includes(command)) throw new UsageError(`Unknown command: ${command}`);
   const flags = {};
   const positionals = [];
   for (let i = 0; i < rest.length; i += 1) {
     const arg = rest[i];
-    if (['--site', '--token', '--limit', '--auth', '--account', '--password', '--nickname', '--org', '--max-dim', '--budget-kb', '--to'].includes(arg)) {
+    if (['--site', '--token', '--limit', '--auth', '--account', '--password', '--nickname', '--org', '--max-dim', '--budget-kb', '--to', '--format'].includes(arg)) {
       const value = rest[++i];
       if (!value || value.startsWith('--')) throw new UsageError(`Missing value for ${arg}`);
       flags[arg.slice(2)] = value;
+    } else if (arg === '--offline') {
+      flags.offline = true;
     } else if (arg.startsWith('--')) {
       throw new UsageError(`Unknown option: ${arg}`);
     } else {
@@ -201,58 +212,98 @@ async function init(flags) {
   return 0;
 }
 
-async function lintFile(filePath) {
+async function formatsCommand() {
+  const formats = await listFormats();
+  process.stdout.write(
+    JSON.stringify(
+      {
+        ok: true,
+        formats: formats.map(({ id, label, aliases, useWhen, defaultTheme, required }) => ({
+          id,
+          label,
+          aliases,
+          useWhen,
+          defaultTheme,
+          required
+        }))
+      },
+      null,
+      2
+    ) + '\n'
+  );
+  return 0;
+}
+
+async function lintFile(filePath, flags = {}) {
   if (!filePath) throw new UsageError('Missing HTML file.');
   const html = await readFile(resolve(filePath), 'utf8');
   const errors = [];
   let data;
+  let metadata;
+  let selectedFormat;
 
-  if (fingerprint(html) !== fingerprint(await readFile(templatePath, 'utf8'))) {
-    errors.push(error('TEMPLATE_MISMATCH', 'html', 'canonical template shell', 'changed shell', 'Use assets/research-paper-template.html and replace only #report-data JSON.'));
+  try {
+    data = extractReportData(html);
+  } catch (cause) {
+    errors.push(error('INVALID_REPORT_DATA_JSON', '#report-data', 'valid JSON', String(cause?.message || cause), 'Fix JSON syntax.'));
   }
-  const match = html.match(reportDataRe);
-  if (!match) {
-    errors.push(error('MISSING_REPORT_DATA', '#report-data', 'embedded JSON script', 'none', 'Add the canonical report-data script.'));
-  } else {
-    try {
-      data = JSON.parse(match[0].replace(/^<script[^>]*>/, '').replace(/<\/script>$/, '').trim());
-    } catch (cause) {
-      errors.push(error('INVALID_REPORT_DATA_JSON', '#report-data', 'valid JSON', String(cause), 'Fix JSON syntax.'));
+
+  try {
+    metadata = tryExtractMetadata(html) || legacyMetadataFromReportData(data);
+  } catch (cause) {
+    errors.push(error('INVALID_ALEXANDRAI_METADATA_JSON', '#alexandrai-metadata', 'valid JSON', String(cause?.message || cause), 'Fix JSON syntax.'));
+  }
+
+  selectedFormat = await validateSelectedFormat(flags.format, metadata, errors);
+  if (selectedFormat) {
+    const fingerprints = await expectedFingerprints(selectedFormat);
+    if (!fingerprints.has(templateFingerprint(html))) {
+      errors.push(error('TEMPLATE_MISMATCH', 'html', `${selectedFormat.id} canonical template shell`, 'changed shell', `Use assets/report-formats/templates/${selectedFormat.template} and replace only #report-data JSON.`));
     }
   }
-  if (data) await validateData(data, errors);
+
+  if (data && selectedFormat) {
+    await validateFormatSchema(selectedFormat, data, errors);
+  }
+  if (metadata && selectedFormat) await validateAlexandrAiMetadata(metadata, selectedFormat, errors);
+  if (data && selectedFormat?.id === 'research-paper') {
+    const researchData = isObject(data.aipaper) ? data : { ...data, aipaper: metadata };
+    await validateData(researchData, errors);
+  }
   checkUploadSize(html, errors);
 
   if (errors.length) {
     process.stderr.write(JSON.stringify({ ok: false, message: rejectedMessage, errors }, null, 2) + '\n');
     return 1;
   }
-  process.stdout.write(JSON.stringify({ ok: true, message: 'ALEXANDRAI_LINT_OK' }, null, 2) + '\n');
+  process.stdout.write(JSON.stringify({ ok: true, message: 'ALEXANDRAI_LINT_OK', formatId: selectedFormat?.id }, null, 2) + '\n');
   return 0;
 }
 
-async function upload(auth, filePath) {
-  const lintCode = await lintFile(filePath);
+async function upload(auth, filePath, flags = {}) {
+  const lintCode = await lintFile(filePath, flags);
   if (lintCode !== 0) return lintCode;
   const html = await readFile(resolve(filePath), 'utf8');
+  const format = await selectedFormatFromHtml(html, flags.format);
   return printResponse(await fetch(apiUrl(auth.site, 'papers'), {
     method: 'POST',
-    headers: { 'content-type': 'text/html', ...authHeaders(auth.token) },
-    body: html
+    headers: { 'content-type': 'application/json', ...authHeaders(auth.token) },
+    body: JSON.stringify({ formatId: format.id, html })
   }));
 }
 
 // Publishes a new version of an existing paper, preserving the original. Lints
 // the same way as upload, then posts to the versioning endpoint.
-async function versionPaper(auth, paperId, filePath) {
+async function versionPaper(auth, paperId, filePath, flags = {}) {
   if (!paperId) throw new UsageError('Missing paper id.');
-  const lintCode = await lintFile(filePath);
+  const lintCode = await lintFile(filePath, flags);
   if (lintCode !== 0) return lintCode;
   const html = await readFile(resolve(filePath), 'utf8');
+  const format = await selectedFormatFromHtml(html, flags.format);
   return printResponse(await fetch(apiUrl(auth.site, `papers/${encodeURIComponent(paperId)}/versions`), {
     method: 'POST',
-    headers: { 'content-type': 'text/html', ...authHeaders(auth.token) },
-    body: html
+    headers: { 'content-type': 'application/json', ...authHeaders(auth.token) },
+    body: JSON.stringify({ formatId: format.id, html })
   }));
 }
 
@@ -284,6 +335,185 @@ async function printResponse(response) {
   stream.write(body || `${response.status} ${response.statusText}`);
   stream.write('\n');
   return response.ok ? 0 : 1;
+}
+
+async function selectedFormatFromHtml(html, requestedFormatId) {
+  const data = extractReportData(html);
+  const metadata = tryExtractMetadata(html) || legacyMetadataFromReportData(data);
+  const errors = [];
+  const format = await validateSelectedFormat(requestedFormatId, metadata, errors);
+  if (!format || errors.length) {
+    throw new UsageError(errors[0]?.code || 'ALEXANDRAI_FORMAT_REQUIRED');
+  }
+  return format;
+}
+
+async function validateSelectedFormat(requestedFormatId, metadata, errors) {
+  let requestedFormat;
+  let metadataFormat;
+
+  if (requestedFormatId) {
+    requestedFormat = await resolveFormat(requestedFormatId);
+    if (!requestedFormat) {
+      errors.push(error('UNKNOWN_FORMAT', '--format', 'known format id or alias', requestedFormatId, 'Run `alexandrai.mjs formats` and choose one of the registered format ids.'));
+    }
+  }
+
+  if (!isObject(metadata)) {
+    errors.push(error('MISSING_ALEXANDRAI_METADATA', '#alexandrai-metadata', 'AlexandrAI metadata object', kindOf(metadata), 'Add a separate #alexandrai-metadata script with formatId/templateVersion/language/category/topics.'));
+  } else if (!isNonEmptyString(metadata.formatId)) {
+    errors.push(error('MISSING_ALEXANDRAI_METADATA_FIELD', 'alexandrai-metadata.formatId', 'known format id', metadata.formatId, 'Set formatId to the selected report format.'));
+  } else {
+    metadataFormat = await resolveFormat(metadata.formatId);
+    if (!metadataFormat) {
+      errors.push(error('UNKNOWN_FORMAT', 'alexandrai-metadata.formatId', 'known format id', metadata.formatId, 'Run `alexandrai.mjs formats` and choose one of the registered format ids.'));
+    }
+  }
+
+  if (requestedFormat && metadataFormat && requestedFormat.id !== metadataFormat.id) {
+    errors.push(error('FORMAT_MISMATCH', 'alexandrai-metadata.formatId', requestedFormat.id, metadata.formatId, 'The API/CLI selected format and HTML metadata format must match exactly.'));
+  }
+
+  return requestedFormat || metadataFormat;
+}
+
+async function validateAlexandrAiMetadata(metadata, format, errors) {
+  const categoriesDoc = JSON.parse(await readFile(categoriesPath, 'utf8'));
+  const categories = flatten(categoriesDoc.categories || categoriesDoc);
+  const languagesDoc = JSON.parse(await readFile(languagesPath, 'utf8'));
+  const languages = languagesDoc.languages || languagesDoc;
+  const knownCategory = (id) => categories.some((category) => category.id === id);
+  const knownLanguage = (id) => languages.some((language) => language.id === id);
+
+  const prefix = 'alexandrai-metadata';
+  const expectedTemplateVersion = `${format.id}@1`;
+  if (!isNonEmptyString(metadata.templateVersion)) {
+    errors.push(error('MISSING_ALEXANDRAI_METADATA_FIELD', `${prefix}.templateVersion`, 'non-empty string', metadata.templateVersion, 'Provide all required AlexandrAI metadata fields.'));
+  } else if (metadata.templateVersion !== expectedTemplateVersion) {
+    errors.push(error('INVALID_TEMPLATE_VERSION', `${prefix}.templateVersion`, expectedTemplateVersion, metadata.templateVersion, 'Use the template version that matches the selected format.'));
+  }
+  if (!isNonEmptyString(metadata.skillVersion)) {
+    errors.push(error('MISSING_ALEXANDRAI_METADATA_FIELD', `${prefix}.skillVersion`, 'non-empty string', metadata.skillVersion, 'Provide all required AlexandrAI metadata fields.'));
+  }
+  if (!isNonEmptyString(metadata.language)) {
+    errors.push(error('MISSING_ALEXANDRAI_METADATA_FIELD', `${prefix}.language`, 'known language id', metadata.language, 'Use assets/languages.json.'));
+  } else if (!knownLanguage(metadata.language)) {
+    errors.push(error('UNKNOWN_LANGUAGE', `${prefix}.language`, 'known language id', metadata.language, 'Use assets/languages.json.'));
+  }
+  if (!isNonEmptyString(metadata.primaryCategory)) {
+    errors.push(error('MISSING_ALEXANDRAI_METADATA_FIELD', `${prefix}.primaryCategory`, 'known category id', metadata.primaryCategory, 'Use assets/categories.json.'));
+  } else if (!knownCategory(metadata.primaryCategory)) {
+    errors.push(error('UNKNOWN_CATEGORY', `${prefix}.primaryCategory`, 'known category id', metadata.primaryCategory, 'Use assets/categories.json.'));
+  }
+  if (!isStringArray(metadata.secondaryCategories)) {
+    errors.push(error('MISSING_ALEXANDRAI_METADATA_FIELD', `${prefix}.secondaryCategories`, 'array of known category ids', metadata.secondaryCategories, 'Provide [] when there are no secondary categories.'));
+  } else {
+    metadata.secondaryCategories.forEach((category, index) => {
+      if (!knownCategory(category)) {
+        errors.push(error('UNKNOWN_CATEGORY', `${prefix}.secondaryCategories[${index}]`, 'known category id', category, 'Use assets/categories.json.'));
+      }
+    });
+  }
+  if (!isStringArray(metadata.topics)) {
+    errors.push(error('MISSING_ALEXANDRAI_METADATA_FIELD', `${prefix}.topics`, 'array of English ASCII topic strings', metadata.topics, 'Provide English topics used for archive search.'));
+  } else {
+    metadata.topics.forEach((topic, index) => {
+      if (!isEnglishText(topic)) {
+        errors.push(error('NON_ENGLISH_TOPIC', `${prefix}.topics[${index}]`, 'English ASCII topic text', topic, 'Translate this topic to English before upload.'));
+      }
+    });
+  }
+}
+
+async function validateFormatSchema(format, data, errors) {
+  const schema = await readFormatSchema(format);
+  validateJsonSchema(schema, data, 'report-data', schema, errors);
+}
+
+function validateJsonSchema(schema, value, path, rootSchema, errors) {
+  if (!schema || typeof schema !== 'object') return;
+  if (schema.$ref) {
+    return validateJsonSchema(resolveSchemaRef(schema.$ref, rootSchema), value, path, rootSchema, errors);
+  }
+  if (Array.isArray(schema.oneOf)) {
+    const matches = schema.oneOf.filter((candidate) => {
+      const nestedErrors = [];
+      validateJsonSchema(candidate, value, path, rootSchema, nestedErrors);
+      return nestedErrors.length === 0;
+    });
+    if (matches.length !== 1) {
+      errors.push(error('SCHEMA_ONE_OF', path, 'exactly one schema variant', `${matches.length} variants`, 'Choose the object shape required by this format schema.'));
+    }
+    return;
+  }
+
+  const types = Array.isArray(schema.type) ? schema.type : schema.type ? [schema.type] : [];
+  if (types.length > 0 && !types.some((type) => schemaTypeMatches(type, value))) {
+    errors.push(error('SCHEMA_TYPE', path, types.join(' or '), kindOf(value), 'Match the selected format schema.'));
+    return;
+  }
+  if (schema.enum && !schema.enum.includes(value)) {
+    errors.push(error('SCHEMA_ENUM', path, schema.enum.join(' | '), value, 'Use one of the allowed values.'));
+  }
+
+  if (isObject(value)) {
+    for (const required of schema.required || []) {
+      if (!(required in value)) {
+        errors.push(error('SCHEMA_REQUIRED', `${path}.${required}`, 'required field', 'missing', 'Fill every required field from the selected format schema.'));
+      }
+    }
+    const properties = schema.properties || {};
+    for (const [key, nested] of Object.entries(value)) {
+      if (properties[key]) {
+        validateJsonSchema(properties[key], nested, `${path}.${key}`, rootSchema, errors);
+      } else if (schema.additionalProperties === false) {
+        errors.push(error('SCHEMA_ADDITIONAL_PROPERTY', `${path}.${key}`, 'no extra field', nested, 'Remove fields that are not in the selected format schema.'));
+      } else if (isObject(schema.additionalProperties)) {
+        validateJsonSchema(schema.additionalProperties, nested, `${path}.${key}`, rootSchema, errors);
+      }
+    }
+  }
+
+  if (Array.isArray(value)) {
+    if (typeof schema.minItems === 'number' && value.length < schema.minItems) {
+      errors.push(error('SCHEMA_MIN_ITEMS', path, `at least ${schema.minItems} item(s)`, value.length, 'Add the required records for this format.'));
+    }
+    if (typeof schema.maxItems === 'number' && value.length > schema.maxItems) {
+      errors.push(error('SCHEMA_MAX_ITEMS', path, `at most ${schema.maxItems} item(s)`, value.length, 'Trim this array to the schema limit.'));
+    }
+    if (schema.items) {
+      value.forEach((item, index) => validateJsonSchema(schema.items, item, `${path}[${index}]`, rootSchema, errors));
+    }
+  }
+
+  if (typeof value === 'string' && schema.pattern && !(new RegExp(schema.pattern).test(value))) {
+    errors.push(error('SCHEMA_PATTERN', path, schema.pattern, value, 'Use the string shape required by this format schema.'));
+  }
+  if (typeof value === 'number') {
+    if (typeof schema.minimum === 'number' && value < schema.minimum) {
+      errors.push(error('SCHEMA_MINIMUM', path, `>= ${schema.minimum}`, value, 'Raise this numeric value to the schema minimum.'));
+    }
+    if (typeof schema.maximum === 'number' && value > schema.maximum) {
+      errors.push(error('SCHEMA_MAXIMUM', path, `<= ${schema.maximum}`, value, 'Lower this numeric value to the schema maximum.'));
+    }
+    if (typeof schema.exclusiveMaximum === 'number' && value >= schema.exclusiveMaximum) {
+      errors.push(error('SCHEMA_EXCLUSIVE_MAXIMUM', path, `< ${schema.exclusiveMaximum}`, value, 'Lower this numeric value below the schema exclusive maximum.'));
+    }
+  }
+}
+
+function resolveSchemaRef(ref, rootSchema) {
+  if (!ref.startsWith('#/')) throw new Error(`Unsupported schema ref: ${ref}`);
+  return ref.slice(2).split('/').reduce((node, part) => node?.[part], rootSchema);
+}
+
+function schemaTypeMatches(type, value) {
+  if (type === 'null') return value === null;
+  if (type === 'array') return Array.isArray(value);
+  if (type === 'object') return isObject(value);
+  if (type === 'integer') return Number.isInteger(value);
+  if (type === 'number') return typeof value === 'number' && Number.isFinite(value);
+  return typeof value === type;
 }
 
 // Mirrors the server validator so a local "ALEXANDRAI_LINT_OK" reliably
@@ -640,11 +870,6 @@ function countFigsTables(sections) {
   return n;
 }
 
-function fingerprint(html) {
-  const normalized = html.replace(/\r\n/g, '\n');
-  return createHash('sha256').update(normalized.replace(reportDataRe, '$1__ALEXANDRAI_REPORT_DATA__$2')).digest('hex');
-}
-
 function error(code, path, expected, received, hint) {
   return { code, path, expected, received, hint };
 }
@@ -790,12 +1015,13 @@ async function main(argv) {
     return 0;
   }
   if (options.command === 'init') return init(options.flags);
-  if (options.command === 'lint') return lintFile(options.positionals[0]);
+  if (options.command === 'formats') return formatsCommand();
+  if (options.command === 'lint') return lintFile(options.positionals[0], options.flags);
   if (options.command === 'image') return imageCommand(options.positionals[0], options.flags);
 
   const auth = authWithPrecedence(await loadAuth(resolve(options.flags.auth || defaultAuthPath)), options.flags);
-  if (options.command === 'upload') return upload(auth, options.positionals[0]);
-  if (options.command === 'version') return versionPaper(auth, options.positionals[0], options.positionals[1]);
+  if (options.command === 'upload') return upload(auth, options.positionals[0], options.flags);
+  if (options.command === 'version') return versionPaper(auth, options.positionals[0], options.positionals[1], options.flags);
   if (options.command === 'search') return search(auth, options.positionals, options.flags.limit);
   if (options.command === 'fetch') return fetchPaper(auth, options.positionals[0]);
   throw new UsageError(`Unknown command: ${options.command}`);

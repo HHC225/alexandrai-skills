@@ -1,0 +1,546 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://genesis.local/html_report_design/schemas/slide-deck.schema.json",
+  "title": "Presentation / HTML slide deck",
+  "description": "Data contract for the slide-deck format: a full-viewport 16:9 HTML PPT with scroll-snap navigation. Each slide occupies one full screen (one idea per slide); the deck renders as a vertical scroll-snap container with a fixed progress bar, slide counter, and keyboard nav. Renders to a self-contained, themeable HTML file (default theme: Purple). The sample's #report-data is a valid instance of this schema.",
+  "type": "object",
+  "required": ["meta", "slides"],
+  "additionalProperties": false,
+  "properties": {
+    "meta": {
+      "type": "object",
+      "description": "Shared report chrome (org / project / title / theme). Brand-neutral: keep {{ORG}} / {{PROJECT}} / {{AUTHOR}} placeholders unless real values are supplied.",
+      "required": ["org", "project", "reportType", "title", "date", "theme"],
+      "additionalProperties": false,
+      "properties": {
+        "org": { "type": "string", "description": "Organisation name or {{ORG}} placeholder.", "default": "{{ORG}}" },
+        "project": { "type": "string", "description": "Project / programme name or {{PROJECT}} placeholder.", "default": "{{PROJECT}}" },
+        "reportType": { "type": "string", "description": "Eyebrow label shown above the deck title, e.g. 'Executive Readout' or {{REPORT_TYPE}}." },
+        "title": { "type": "string", "description": "Deck title used in the browser <title> and cover slide, e.g. 'FY26 Q2 Executive Readout'." },
+        "subtitle": { "type": "string", "description": "Optional one-line standfirst shown on the cover slide below the main title." },
+        "date": { "type": "string", "description": "ISO date the deck was produced (YYYY-MM-DD).", "format": "date" },
+        "author": { "type": "string", "description": "Author or owning team, shown in the cover byline or {{AUTHOR}} placeholder.", "default": "{{AUTHOR}}" },
+        "theme": {
+          "type": "string",
+          "description": "Initial brand theme; applied as <html data-theme>. The in-deck theme picker can change it live. Default for this format is 'purple'.",
+          "enum": ["blue", "purple", "indigo", "teal", "cyan", "green", "plum", "slate"],
+          "default": "purple"
+        }
+      }
+    },
+    "slides": {
+      "type": "array",
+      "description": "The ordered list of slides in the deck. Each slide occupies one full 16:9 viewport. Render order matches presentation order. Typical deck: 8–16 slides.",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "type"],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": ["string", "integer"],
+            "description": "Stable unique slide identifier used for deep-linking (e.g. '#3'). Typically a 1-based integer or a short slug."
+          },
+          "type": {
+            "type": "string",
+            "description": "Slide layout variant. Determines which content fields are relevant and which CSS class (.slide-cover, .slide-agenda, etc.) is applied.",
+            "enum": ["cover", "agenda", "section", "bullets", "two-col", "stat", "chart", "table", "quote", "compare", "close"]
+          },
+          "eyebrow": {
+            "type": "string",
+            "description": "Optional small tracked-mono label shown above the title on most slide types (e.g. 'Context', 'Section 02', 'Key finding')."
+          },
+          "title": {
+            "type": "string",
+            "description": "Main slide headline (30–48px on screen). Required for most types; omit only on purely visual slides."
+          },
+          "subtitle": {
+            "type": "string",
+            "description": "Optional supporting line shown under the title (.deck-sub). Appropriate for cover, section, and bullets slides."
+          },
+          "chips": {
+            "type": "array",
+            "description": "Optional small status/info pills (.chip / .st-badge) shown on cover and close slides (e.g. verdict status, date chip).",
+            "items": {
+              "type": "object",
+              "required": ["label"],
+              "additionalProperties": false,
+              "properties": {
+                "label": { "type": "string", "description": "Chip text." },
+                "tone": {
+                  "type": "string",
+                  "description": "Semantic tone for colour: 'brand' (default, accent), 'ok' (green/teal), 'risk' (red), 'hold' (amber).",
+                  "enum": ["brand", "ok", "risk", "hold"],
+                  "default": "brand"
+                }
+              }
+            }
+          },
+          "byline": {
+            "type": "array",
+            "description": "Optional key/value pairs shown in the byline row on the cover slide (e.g. [{key:'Presented by', value:'{{AUTHOR}}'}, {key:'Date', value:'2026-06-22'}]).",
+            "items": {
+              "type": "object",
+              "required": ["key", "value"],
+              "additionalProperties": false,
+              "properties": {
+                "key": { "type": "string", "description": "Label above the value (mono small-caps)." },
+                "value": { "type": "string", "description": "Value shown large." }
+              }
+            }
+          },
+          "bullets": {
+            "type": "array",
+            "description": "For type='bullets': the bullet list items (3–6 items is ideal; each item is ≥18px on screen). Also used for the close slide's next-steps list when items have an 'owner' field.",
+            "items": {
+              "type": "object",
+              "required": ["text"],
+              "additionalProperties": false,
+              "properties": {
+                "text": { "type": "string", "description": "Bullet text. May contain basic inline emphasis (bold). Keep to one sentence." },
+                "tone": {
+                  "type": "string",
+                  "description": "Optional semantic tone applied to the bullet icon box: 'ok', 'risk', 'hold', or 'brand' (default).",
+                  "enum": ["brand", "ok", "risk", "hold"],
+                  "default": "brand"
+                },
+                "icon": { "type": "string", "description": "Optional house icon key from the icons/ catalog (e.g. 'check', 'alert', 'arrow-right')." },
+                "owner": { "type": "string", "description": "For close/next-steps bullets: the responsible owner or team." },
+                "due": { "type": "string", "description": "For close/next-steps bullets: the due date or deadline (ISO date or natural language, e.g. '2026-06-30')." }
+              }
+            }
+          },
+          "agendaItems": {
+            "type": "array",
+            "description": "For type='agenda': the ordered list of sections to be covered. Renders as a numbered list.",
+            "items": {
+              "type": "object",
+              "required": ["index", "title"],
+              "additionalProperties": false,
+              "properties": {
+                "index": { "type": ["string", "integer"], "description": "Display index shown in the large mono column (e.g. 1, '01')." },
+                "title": { "type": "string", "description": "Section title." },
+                "note": { "type": "string", "description": "Optional short annotation or time estimate shown in the right column (e.g. '10 min', 'slides 4–7')." },
+                "current": { "type": "boolean", "description": "If true, this item is highlighted as the current position in the deck (is-here state).", "default": false }
+              }
+            }
+          },
+          "sectionNumber": {
+            "type": ["string", "integer"],
+            "description": "For type='section': the large two-digit section number displayed prominently (e.g. '01', 2)."
+          },
+          "sectionProgress": {
+            "type": "array",
+            "description": "For type='section': optional list of section identifiers (same length as total sections) used to render the progress pip row at the bottom of the divider slide.",
+            "items": { "type": "string" }
+          },
+          "cols": {
+            "type": "array",
+            "description": "For type='two-col': exactly two panel definitions (left and right). Each panel has a heading and a body expressed as either a key/value list or a bullet list.",
+            "minItems": 2,
+            "maxItems": 2,
+            "items": {
+              "type": "object",
+              "required": ["heading"],
+              "additionalProperties": false,
+              "properties": {
+                "heading": { "type": "string", "description": "Panel heading shown in mono small-caps." },
+                "accent": { "type": "boolean", "description": "If true, the panel gets a top accent border (.panel.accent).", "default": false },
+                "kvRows": {
+                  "type": "array",
+                  "description": "Optional key/value rows rendered in this panel.",
+                  "items": {
+                    "type": "object",
+                    "required": ["key", "value"],
+                    "additionalProperties": false,
+                    "properties": {
+                      "key": { "type": "string" },
+                      "value": { "type": "string" }
+                    }
+                  }
+                },
+                "items": {
+                  "type": "array",
+                  "description": "Optional bullet/prose items rendered in this panel.",
+                  "items": { "type": "string" }
+                }
+              }
+            }
+          },
+          "stats": {
+            "type": "array",
+            "description": "For type='stat': one to three KPI cells shown as oversized tnum numbers. Each cell renders as a .kpi block with a large figure, a label, and an optional note and trend.",
+            "minItems": 1,
+            "maxItems": 3,
+            "items": {
+              "type": "object",
+              "required": ["value", "label"],
+              "additionalProperties": false,
+              "properties": {
+                "value": { "type": "string", "description": "The large headline figure, e.g. '¥2.8B', '99.99%', '+18pp'." },
+                "unit": { "type": "string", "description": "Optional unit appended to the value in smaller type, e.g. '%', 'ms', 'tps'." },
+                "label": { "type": "string", "description": "Short descriptive label in mono small-caps below the number, e.g. 'Phase 2 investment'." },
+                "note": { "type": "string", "description": "Optional one-line context shown under the label." },
+                "trend": { "type": "string", "description": "Optional trend indicator text, e.g. '+12% YoY', '↑ vs Q1'." },
+                "trendDir": { "type": "string", "description": "Direction of the trend for colour: 'up' (ok/green) or 'down' (risk/red).", "enum": ["up", "down"] },
+                "tone": {
+                  "type": "string",
+                  "description": "Override tone applied to the KPI number colour: 'brand' (default), 'ok', 'risk', 'hold'.",
+                  "enum": ["brand", "ok", "risk", "hold"],
+                  "default": "brand"
+                }
+              }
+            }
+          },
+          "chart": {
+            "type": "object",
+            "description": "For type='chart': a single CSS/SVG bar or line chart. Axis labels, series legend, and a one-line takeaway heading.",
+            "required": ["kind", "series"],
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "type": "string",
+                "description": "Chart rendering mode.",
+                "enum": ["bar", "line"]
+              },
+              "xLabel": { "type": "string", "description": "Optional horizontal axis label." },
+              "yLabel": { "type": "string", "description": "Optional vertical axis label." },
+              "series": {
+                "type": "array",
+                "description": "One or more data series. For a bar chart each series is a set of category/value pairs. For a line chart each series is an ordered list of values at the same x-positions.",
+                "minItems": 1,
+                "items": {
+                  "type": "object",
+                  "required": ["name", "values"],
+                  "additionalProperties": false,
+                  "properties": {
+                    "name": { "type": "string", "description": "Series name shown in the legend." },
+                    "tone": {
+                      "type": "string",
+                      "description": "Bar/line colour tone: 'brand' (accent, default), 'ok', 'hold', 'risk'.",
+                      "enum": ["brand", "ok", "hold", "risk"],
+                      "default": "brand"
+                    },
+                    "values": {
+                      "type": "array",
+                      "description": "Data values. Align positionally with the shared categories array.",
+                      "items": { "type": "number" }
+                    }
+                  }
+                }
+              },
+              "categories": {
+                "type": "array",
+                "description": "X-axis category labels (shared across all series).",
+                "items": { "type": "string" }
+              },
+              "maxValue": { "type": "number", "description": "Optional explicit max for the value axis (for consistent scale across slides). Defaults to the data maximum." }
+            }
+          },
+          "tableData": {
+            "type": "object",
+            "description": "For type='table': a single data table (≤6 rows recommended so it reads from a projector). Renders using the .deck-table style.",
+            "required": ["headers", "rows"],
+            "additionalProperties": false,
+            "properties": {
+              "headers": {
+                "type": "array",
+                "description": "Column header labels.",
+                "items": {
+                  "type": "object",
+                  "required": ["label"],
+                  "additionalProperties": false,
+                  "properties": {
+                    "label": { "type": "string", "description": "Header text (displayed in mono small-caps)." },
+                    "numeric": { "type": "boolean", "description": "If true, the column is right-aligned with tnum font.", "default": false }
+                  }
+                }
+              },
+              "rows": {
+                "type": "array",
+                "description": "Data rows. Each row is an array of cell values aligned to headers.",
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "oneOf": [
+                      { "type": "string" },
+                      {
+                        "type": "object",
+                        "required": ["text"],
+                        "additionalProperties": false,
+                        "properties": {
+                          "text": { "type": "string", "description": "Cell text." },
+                          "tone": { "type": "string", "description": "Optional mini-badge tone for status cells: 'ok', 'hold', 'risk'.", "enum": ["ok", "hold", "risk"] }
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "quote": {
+            "type": "object",
+            "description": "For type='quote': a single large pull-quote with optional attribution. Renders with lots of negative space.",
+            "required": ["text"],
+            "additionalProperties": false,
+            "properties": {
+              "text": { "type": "string", "description": "The pull-quote text (28–40px). One sentence or a very short paragraph." },
+              "attribution": { "type": "string", "description": "Optional attribution line (role, source, name)." }
+            }
+          },
+          "compare": {
+            "type": "object",
+            "description": "For type='compare': an A-vs-B two-panel comparison layout. Each side has a heading, a short label, and a list of positive/negative points.",
+            "required": ["optionA", "optionB"],
+            "additionalProperties": false,
+            "properties": {
+              "vsLabel": { "type": "string", "description": "Label in the centre divider element (default 'VS').", "default": "VS" },
+              "optionA": {
+                "type": "object",
+                "required": ["heading", "label", "items"],
+                "additionalProperties": false,
+                "description": "The left-hand comparison panel (typically the status quo or less-favoured option).",
+                "properties": {
+                  "heading": { "type": "string", "description": "Panel heading in mono small-caps (e.g. 'Option A · Current state')." },
+                  "label": { "type": "string", "description": "Short option name shown in large type (e.g. 'Full vendor renewal')." },
+                  "items": {
+                    "type": "array",
+                    "description": "Comparison point list.",
+                    "items": {
+                      "type": "object",
+                      "required": ["text", "positive"],
+                      "additionalProperties": false,
+                      "properties": {
+                        "text": { "type": "string" },
+                        "positive": { "type": "boolean", "description": "true = ok/green check; false = risk/red alert." }
+                      }
+                    }
+                  }
+                }
+              },
+              "optionB": {
+                "type": "object",
+                "required": ["heading", "label", "items"],
+                "additionalProperties": false,
+                "description": "The right-hand comparison panel (typically the recommended option).",
+                "properties": {
+                  "heading": { "type": "string", "description": "Panel heading (e.g. 'Option B · Recommended')." },
+                  "label": { "type": "string", "description": "Short option name shown in large type." },
+                  "recommended": { "type": "boolean", "description": "If true, this panel gets the win highlight (.cmp-pane.win).", "default": false },
+                  "items": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": ["text", "positive"],
+                      "additionalProperties": false,
+                      "properties": {
+                        "text": { "type": "string" },
+                        "positive": { "type": "boolean" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "footnote": {
+            "type": "string",
+            "description": "Optional small-print footnote line rendered at the bottom of the slide stage (mono, faint). Useful on close slides for source references."
+          }
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "meta": {
+        "org": "{{ORG}}",
+        "project": "{{PROJECT}}",
+        "reportType": "Executive Readout",
+        "title": "GEN2 Core Banking — FY26 Q2 Readout",
+        "subtitle": "Programme health, financials, and vendor decision for committee approval",
+        "date": "2026-06-22",
+        "author": "{{AUTHOR}}",
+        "theme": "purple"
+      },
+      "slides": [
+        {
+          "id": 1,
+          "type": "cover",
+          "eyebrow": "Executive Readout · FY26 Q2",
+          "title": "GEN2 Core Banking — Steering Committee",
+          "subtitle": "Programme health, financials, and vendor decision for committee approval",
+          "chips": [
+            { "label": "On Track", "tone": "ok" },
+            { "label": "2026-06-22", "tone": "brand" }
+          ],
+          "byline": [
+            { "key": "Presented by", "value": "{{AUTHOR}}" },
+            { "key": "Prepared for", "value": "Steering Committee" },
+            { "key": "Programme", "value": "GEN2 Core Banking" }
+          ]
+        },
+        {
+          "id": 2,
+          "type": "agenda",
+          "title": "Today's agenda",
+          "agendaItems": [
+            { "index": "01", "title": "Programme health & KPIs", "note": "slides 3–5" },
+            { "index": "02", "title": "Financial status & outlook", "note": "slides 6–7" },
+            { "index": "03", "title": "Vendor renewal decision", "note": "slides 8–10" },
+            { "index": "04", "title": "Ask & next steps", "note": "slide 11" }
+          ]
+        },
+        {
+          "id": 3,
+          "type": "section",
+          "sectionNumber": "01",
+          "title": "Programme health & KPIs",
+          "subtitle": "Where we stand at end of FY26 Q2",
+          "sectionProgress": ["health", "financials", "vendor", "close"]
+        },
+        {
+          "id": 4,
+          "type": "bullets",
+          "eyebrow": "Health snapshot",
+          "title": "Three signals demand attention",
+          "bullets": [
+            { "text": "Integration test pass rate reached 94.2% — above the 90% gate.", "tone": "ok" },
+            { "text": "UAT cutover window moved to 2026-09-14 (+3 weeks) due to vendor API delay.", "tone": "hold" },
+            { "text": "Compliance sign-off outstanding; CISO exception request filed.", "tone": "risk" },
+            { "text": "Team capacity stable; no attrition risk flagged this quarter.", "tone": "ok" }
+          ]
+        },
+        {
+          "id": 5,
+          "type": "stat",
+          "eyebrow": "Key metrics",
+          "title": "Performance at a glance",
+          "stats": [
+            { "value": "94.2", "unit": "%", "label": "Integration test pass rate", "note": "Gate: 90%", "trend": "+4.1pp vs Q1", "trendDir": "up", "tone": "ok" },
+            { "value": "¥4.2B", "label": "Budget consumed to date", "note": "vs ¥4.0B plan", "trend": "+5% variance", "trendDir": "down", "tone": "hold" },
+            { "value": "11", "label": "Weeks to cutover", "note": "Revised: 2026-09-14" }
+          ]
+        },
+        {
+          "id": 6,
+          "type": "chart",
+          "eyebrow": "Financials",
+          "title": "Monthly spend is tracking ¥60M above plan",
+          "chart": {
+            "kind": "bar",
+            "xLabel": "Month",
+            "yLabel": "¥M",
+            "categories": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+            "series": [
+              { "name": "Actual", "tone": "brand", "values": [680, 710, 740, 780, 800, 820] },
+              { "name": "Plan",   "tone": "ok",    "values": [700, 720, 740, 760, 760, 760] }
+            ]
+          }
+        },
+        {
+          "id": 7,
+          "type": "two-col",
+          "eyebrow": "Vendor decision",
+          "title": "Two paths to renewal — one clear winner",
+          "cols": [
+            {
+              "heading": "Option A · Full SaaS renewal",
+              "accent": false,
+              "kvRows": [
+                { "key": "3-yr TCO", "value": "¥3.2B" },
+                { "key": "Time to first release", "value": "5 months" },
+                { "key": "Exit flexibility", "value": "Low" }
+              ],
+              "items": [
+                "Locks in vendor roadmap for 5 years.",
+                "No in-house capability built."
+              ]
+            },
+            {
+              "heading": "Option B · Hybrid (recommended)",
+              "accent": true,
+              "kvRows": [
+                { "key": "3-yr TCO", "value": "¥2.1B" },
+                { "key": "Time to first release", "value": "8 months" },
+                { "key": "Exit flexibility", "value": "High" }
+              ],
+              "items": [
+                "Builds in-house capability; exit-ready.",
+                "¥1.1B cheaper over three years."
+              ]
+            }
+          ]
+        },
+        {
+          "id": 8,
+          "type": "compare",
+          "eyebrow": "Decision slide",
+          "title": "Option B is the recommended path",
+          "compare": {
+            "vsLabel": "VS",
+            "optionA": {
+              "heading": "Option A · Full SaaS renewal",
+              "label": "Full vendor SaaS",
+              "items": [
+                { "text": "¥3.2B over three years — highest cost.", "positive": false },
+                { "text": "Fastest time to first release (5 months).", "positive": true },
+                { "text": "Zero exit flexibility; deep lock-in.", "positive": false }
+              ]
+            },
+            "optionB": {
+              "heading": "Option B · Recommended",
+              "label": "Hybrid (renew + in-house)",
+              "recommended": true,
+              "items": [
+                { "text": "¥1.1B cheaper over three years.", "positive": true },
+                { "text": "Builds in-house capability; exit-ready.", "positive": true },
+                { "text": "Needs a 6-week transition; modest risk.", "positive": false }
+              ]
+            }
+          }
+        },
+        {
+          "id": 9,
+          "type": "quote",
+          "quote": {
+            "text": "\"The hybrid path gives us optionality we can actually execute. The cost case alone makes it defensible to the board.\"",
+            "attribution": "Programme Director, GEN2 Core Banking"
+          }
+        },
+        {
+          "id": 10,
+          "type": "table",
+          "eyebrow": "Risk register summary",
+          "title": "Three open risks require a decision today",
+          "tableData": {
+            "headers": [
+              { "label": "Risk", "numeric": false },
+              { "label": "Owner", "numeric": false },
+              { "label": "Impact", "numeric": false },
+              { "label": "Status", "numeric": false }
+            ],
+            "rows": [
+              ["API integration delay (vendor)", "Vendor PM", "Schedule +3 wk", { "text": "Hold", "tone": "hold" }],
+              ["CISO compliance exception", "CISO", "Go/no-go gate", { "text": "Risk", "tone": "risk" }],
+              ["UAT resource shortfall", "Delivery Lead", "Minor", { "text": "OK", "tone": "ok" }]
+            ]
+          }
+        },
+        {
+          "id": 11,
+          "type": "close",
+          "eyebrow": "Next steps",
+          "title": "What we ask of the committee today",
+          "bullets": [
+            { "text": "Approve the hybrid vendor renewal (Option B).", "owner": "Procurement", "due": "2026-06-30", "tone": "ok" },
+            { "text": "Approve Phase 2 investment of ¥2.8B.", "owner": "CFO", "due": "This quarter", "tone": "brand" },
+            { "text": "Accept or direct a scope re-cut on the compliance exception.", "owner": "Risk & CISO", "due": "Decision today", "tone": "risk" }
+          ],
+          "footnote": "{{PROJECT}} · Executive Readout · FY26 Q2 — full evidence in the long-form QBR"
+        }
+      ]
+    }
+  ]
+}

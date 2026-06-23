@@ -1,0 +1,181 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://genesis.design/schemas/incident-timeline.schema.json",
+  "title": "Incident timeline / postmortem chronology",
+  "description": "Data contract for the incident-timeline format: a vertical, chronological PAST event log for an incident / postmortem. Events run top-to-bottom down a time rail with exact timestamps, kind/severity coding and actor attribution; phase markers (detected -> mitigated -> resolved) carry durations; a header states severity + key times; a contributing-factors panel and a sticky summary rail with a LIVE-computed MTTR (time-to-detect / time-to-mitigate / time-to-resolve, derived from the data, never hard-coded) complete the chrome. This is NOT the timeline-roadmap (that is a FORWARD horizontal gantt of planned work); this reads DOWNWARD as a record of what already happened. The #report-data instance in incident_timeline_sample.html is the canonical example. Default theme: plum.",
+  "type": "object",
+  "required": ["meta", "incident", "actors", "events"],
+  "additionalProperties": false,
+  "properties": {
+    "meta": {
+      "type": "object",
+      "description": "Shared report identity block (see _DATA_DRIVEN.md). Brand-neutral: keep {{ORG}}/{{PROJECT}}/{{AUTHOR}} placeholders unless real values are supplied.",
+      "required": ["org", "project", "reportType", "title", "date", "author", "theme"],
+      "additionalProperties": false,
+      "properties": {
+        "org": { "type": "string", "description": "Organisation wordmark shown in header + footer. Placeholder: {{ORG}}.", "default": "{{ORG}}" },
+        "project": { "type": "string", "description": "Project / system the incident occurred on. Placeholder: {{PROJECT}}.", "default": "{{PROJECT}}" },
+        "reportType": { "type": "string", "description": "Artefact type label shown in the eyebrow.", "examples": ["Incident Timeline", "Postmortem · Chronology", "Incident Review"] },
+        "title": { "type": "string", "description": "Incident title — what happened, stated plainly.", "examples": ["Settlement path outage — duplicate-disbursement clearing under retry"] },
+        "subtitle": { "type": "string", "description": "Optional one-line standfirst: the impact / scope summary shown under the title." },
+        "date": { "type": "string", "format": "date", "description": "Report issue / review date (YYYY-MM-DD). Distinct from the incident times below.", "examples": ["2026-06-22"] },
+        "author": { "type": "string", "description": "Incident reviewer / scribe. Placeholder: {{AUTHOR}}.", "default": "{{AUTHOR}}" },
+        "theme": {
+          "type": "string",
+          "description": "Initial brand theme; set on <html data-theme>. Live-switchable via the .rc-theme dot group. Default plum for this format.",
+          "enum": ["blue", "purple", "indigo", "teal", "cyan", "green", "plum", "slate", "black"],
+          "default": "plum"
+        }
+      }
+    },
+    "incident": {
+      "type": "object",
+      "description": "Incident-level facts shown in the header and used to compute phase durations / MTTR. All timestamps are ISO-8601 with offset (e.g. 2026-06-19T01:12:00+09:00); the renderer derives every '+Nm since start' and the time-to-detect / mitigate / resolve from these.",
+      "required": ["id", "severity", "start", "detected"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "description": "Incident reference / ticket id.", "examples": ["INC-2026-0619", "GEN2-PROD-118"] },
+        "severity": {
+          "type": "string",
+          "description": "Incident severity. Drives the header severity badge colour: sev1/sev2 -> risk (bordeaux), sev3 -> hold (amber), sev4/info -> ok.",
+          "enum": ["sev1", "sev2", "sev3", "sev4", "info"]
+        },
+        "status": {
+          "type": "string",
+          "description": "Current lifecycle state of the incident at report time.",
+          "enum": ["open", "mitigated", "resolved", "closed"],
+          "default": "resolved"
+        },
+        "start": { "type": "string", "format": "date-time", "description": "When the incident actually began (impact start / time-zero). Anchors every relative '+Nm' offset.", "examples": ["2026-06-19T01:12:00+09:00"] },
+        "detected": { "type": "string", "format": "date-time", "description": "When the incident was first detected (alert fired / reported). start->detected = time-to-detect (TTD)." },
+        "mitigated": { "type": "string", "format": "date-time", "description": "Optional — when impact was stopped / contained (the bleed stopped). start->mitigated = time-to-mitigate (TTM)." },
+        "resolved": { "type": "string", "format": "date-time", "description": "Optional — when the incident was fully resolved. start->resolved = time-to-resolve / MTTR." },
+        "impact": { "type": "string", "description": "Optional one-line blast-radius statement (who/what was affected, magnitude).", "examples": ["~3,400 settlement requests double-posted; JPY 0 net customer loss after reversal."] }
+      }
+    },
+    "actors": {
+      "type": "array",
+      "description": "The people / teams / systems that appear as event authors. Each event's `actor` MUST reference one of these `key`s. Rendered as filter chips in the rail and as the attribution label on each event.",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["key", "label"],
+        "additionalProperties": false,
+        "properties": {
+          "key": { "type": "string", "description": "Stable slug referenced by event.actor.", "examples": ["sre", "ic", "monitoring", "dba", "comms"] },
+          "label": { "type": "string", "description": "Display name of the actor (person, team, or system).", "examples": ["On-call SRE", "Incident Commander", "Monitoring", "Data Platform"] },
+          "kind": {
+            "type": "string",
+            "description": "Optional actor classification (chooses the chip icon: person / team / automated system).",
+            "enum": ["person", "team", "system"],
+            "default": "person"
+          }
+        }
+      }
+    },
+    "events": {
+      "type": "array",
+      "description": "The chronological event log — the spine of the format. SHOULD be provided in time order (the renderer also sorts by `ts`). Each event sits on the vertical time rail with its exact timestamp and a derived '+Nm since start'. Events whose `kind` matches a phase (detect/resolve) and the mitigate point also act as the phase markers.",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["ts", "actor", "kind", "title"],
+        "additionalProperties": false,
+        "properties": {
+          "ts": { "type": "string", "format": "date-time", "description": "Exact event timestamp (ISO-8601 with offset). Used for ordering, the rail position, the displayed clock and the '+Nm since start' offset.", "examples": ["2026-06-19T01:18:00+09:00"] },
+          "actor": { "type": "string", "description": "Author of this event — must match an entry in actors[].key.", "examples": ["sre", "monitoring", "ic"] },
+          "kind": {
+            "type": "string",
+            "description": "Event category, drives the node icon + accent: detect (alert/observation), action (a change made), comms (a communication / status update), escalation (page / sev raise), decision (a call made on the bridge), resolve (a milestone toward closure / recovery).",
+            "enum": ["detect", "action", "comms", "escalation", "decision", "resolve"]
+          },
+          "severity": {
+            "type": "string",
+            "description": "Optional per-event severity emphasis (colours the node). Use sparingly for the events that mattered. sev1/sev2 -> risk, sev3 -> hold, info -> ok.",
+            "enum": ["sev1", "sev2", "sev3", "info"]
+          },
+          "title": { "type": "string", "description": "One-line summary of the event — what happened, in the past tense.", "examples": ["Duplicate-disbursement alert fired; dup_count non-zero."] },
+          "detail": { "type": "string", "description": "Optional longer explanation revealed when the event is expanded. May contain backtick `code` spans (rendered as <code>; all other markup is escaped)." },
+          "command": { "type": "string", "description": "Optional command / change exhibit for an action-kind event (the change that was made); rendered in a dark mono block inside the expanded detail. May contain newlines.", "examples": ["kubectl -n payments set env deploy/settle-orchestrator RETRY_BUDGET_MS=15000"] },
+          "ref": {
+            "type": "object",
+            "description": "Optional reference chip for this event (ticket / commit / dashboard / runbook). Rendered as a mono ref-chip; href is shown as a non-navigating label in the self-contained sample.",
+            "required": ["label"],
+            "additionalProperties": false,
+            "properties": {
+              "label": { "type": "string", "description": "Short reference label.", "examples": ["CHG-4471", "deploy a1b2c3d", "OR-CTL-118-dup"] },
+              "href": { "type": "string", "description": "Optional URL the reference points to (shown as a label; not auto-fetched)." }
+            }
+          }
+        }
+      }
+    },
+    "factors": {
+      "type": "array",
+      "description": "Contributing factors / what went wrong — rendered in a dedicated panel below or beside the timeline (NOT on the rail). Each is a labelled cause with a short explanation.",
+      "items": {
+        "type": "object",
+        "required": ["label", "detail"],
+        "additionalProperties": false,
+        "properties": {
+          "label": { "type": "string", "description": "Short name of the contributing factor.", "examples": ["Missing DB uniqueness constraint", "Detection lag", "Retry without idempotency"] },
+          "detail": { "type": "string", "description": "One-to-two sentence explanation of how this factor contributed. May contain backtick `code` spans." },
+          "kind": {
+            "type": "string",
+            "description": "Optional factor classification for the leading icon: cause (a root/contributing cause), gap (a missing control / detection gap), trigger (the proximate trigger).",
+            "enum": ["cause", "gap", "trigger"],
+            "default": "cause"
+          }
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "meta": {
+        "org": "{{ORG}}",
+        "project": "{{PROJECT}}",
+        "reportType": "Incident Timeline · Postmortem",
+        "title": "Settlement path outage — duplicate disbursements clearing under retry",
+        "subtitle": "SEV1 — a post-commit retry gap double-posted settlement requests for 1h47m until a DB uniqueness constraint stopped the bleed.",
+        "date": "2026-06-22",
+        "author": "{{AUTHOR}}",
+        "theme": "plum"
+      },
+      "incident": {
+        "id": "INC-2026-0619",
+        "severity": "sev1",
+        "status": "resolved",
+        "start": "2026-06-19T01:12:00+09:00",
+        "detected": "2026-06-19T01:31:00+09:00",
+        "mitigated": "2026-06-19T02:24:00+09:00",
+        "resolved": "2026-06-19T02:59:00+09:00",
+        "impact": "~3,400 settlement requests double-posted; JPY 0 net customer loss after automated reversal."
+      },
+      "actors": [
+        { "key": "monitoring", "label": "Monitoring", "kind": "system" },
+        { "key": "sre", "label": "On-call SRE", "kind": "person" },
+        { "key": "ic", "label": "Incident Commander", "kind": "person" },
+        { "key": "dba", "label": "Data Platform", "kind": "team" },
+        { "key": "comms", "label": "Comms", "kind": "person" }
+      ],
+      "events": [
+        { "ts": "2026-06-19T01:12:00+09:00", "actor": "monitoring", "kind": "detect", "severity": "info", "title": "Settlement throughput dipped; first double-post written to the ledger.", "detail": "Impact start (time-zero). The first duplicate `ledger_entries` row was committed when a client retry fired after a successful-but-slow commit." },
+        { "ts": "2026-06-19T01:31:00+09:00", "actor": "monitoring", "kind": "detect", "severity": "sev2", "title": "Duplicate-disbursement alert fired (dup_count non-zero).", "detail": "Detection. The `OR-CTL-118-dup` reconciliation alert tripped 19 minutes after impact start — detection lag was the single largest slice of the timeline.", "ref": { "label": "OR-CTL-118-dup" } },
+        { "ts": "2026-06-19T01:34:00+09:00", "actor": "sre", "kind": "escalation", "severity": "sev1", "title": "Paged Incident Commander and raised severity to SEV1.", "detail": "Confirmed live double-posting on the settlement path; customer-facing money movement in scope, so severity was raised from SEV2 to SEV1 and a bridge opened." },
+        { "ts": "2026-06-19T01:39:00+09:00", "actor": "ic", "kind": "decision", "title": "Declared blast radius; agreed to stop the bleed at the database before reversing.", "detail": "Decision on the bridge: prioritise stopping further duplicate persists over reversing existing ones, to bound the blast radius first." },
+        { "ts": "2026-06-19T01:52:00+09:00", "actor": "sre", "kind": "action", "title": "Raised client retry budget to shrink the post-commit gap window.", "detail": "Partial relief only — narrowed but did not close the race. Rollout completed across all pods.", "command": "kubectl -n payments set env deploy/settle-orchestrator RETRY_BUDGET_MS=15000", "ref": { "label": "CHG-4471" } },
+        { "ts": "2026-06-19T02:08:00+09:00", "actor": "comms", "kind": "comms", "title": "Posted customer-facing status note and internal SEV1 update.", "detail": "Status page updated to 'investigating'; stakeholders notified with the agreed blast-radius statement." },
+        { "ts": "2026-06-19T02:24:00+09:00", "actor": "dba", "kind": "action", "severity": "sev1", "title": "Built unique index on (account_id, request_id) — duplicate persists stopped.", "detail": "Mitigation point — the bleed stopped here. The CONCURRENTLY build succeeded because the existing duplicates did not overlap the index key after the throughput dip.", "command": "CREATE UNIQUE INDEX CONCURRENTLY ux_ledger_req ON ledger_entries(account_id, request_id);", "ref": { "label": "CHG-4472" } },
+        { "ts": "2026-06-19T02:41:00+09:00", "actor": "dba", "kind": "action", "title": "Ran the reversal job for the 3,400 confirmed duplicate ledger pairs.", "detail": "Reversals are themselves logged and idempotent on `request_id`, so a re-run is safe. Reconciliation confirmed JPY 0 net customer impact." },
+        { "ts": "2026-06-19T02:59:00+09:00", "actor": "ic", "kind": "resolve", "severity": "info", "title": "Dashboards green for 15 min; severity lowered and incident resolved.", "detail": "Resolution. `settle_error_rate` and `dup_count` flat at baseline for 15 minutes; handed off to the post-incident review.", "ref": { "label": "INC-2026-0619" } }
+      ],
+      "factors": [
+        { "kind": "cause", "label": "Retry without idempotency key", "detail": "The settlement client retried on a slow-but-successful commit; the orchestrator had no idempotency key on `request_id`, so the retry produced a second `ledger_entries` row." },
+        { "kind": "gap", "label": "Missing database uniqueness constraint", "detail": "There was no unique index on `(account_id, request_id)`, so the database accepted the duplicate persist instead of rejecting it — the control that finally stopped the bleed had simply never been added." },
+        { "kind": "gap", "label": "Detection lag", "detail": "Reconciliation ran on a 6-hour cadence rather than same-day, so 19 minutes of double-posting accumulated before the alert fired — the largest single slice of the timeline." },
+        { "kind": "trigger", "label": "Latency spike on the commit path", "detail": "A brief storage-layer latency spike pushed commit times past the client retry threshold, which is what set the duplicate-on-retry race in motion." }
+      ]
+    }
+  ]
+}

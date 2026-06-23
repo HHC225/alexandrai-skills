@@ -1,0 +1,192 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://genesis.local/html_report_design/schemas/scorecard.schema.json",
+  "title": "Assessment scorecard report",
+  "description": "Data contract for the scorecard format: a PERIODIC ASSESSMENT SCORECARD. Assessment areas are graded cards/rows, each scored 0-100 against a small set of criteria with RAG (ok/risk/hold) ratings, a trend arrow, and a weight that drives its contribution to a single overall grade under a banner. This is areas x criteria, graded for a period (NOT a live monitoring console, NOT an options x criteria decision matrix). Renders to a centred (~1500px), themeable, interactive HTML scorecard. The sample's #report-data is a valid instance of this schema.",
+  "type": "object",
+  "required": ["meta", "scale", "areas", "overall"],
+  "additionalProperties": false,
+  "properties": {
+    "meta": {
+      "type": "object",
+      "description": "Shared report chrome (org / project / title / theme). Brand-neutral: keep {{ORG}} / {{PROJECT}} / {{AUTHOR}} placeholders unless real values are supplied.",
+      "required": ["org", "project", "reportType", "title", "date", "theme"],
+      "additionalProperties": false,
+      "properties": {
+        "org": { "type": "string", "description": "Organisation name or {{ORG}} placeholder.", "default": "{{ORG}}" },
+        "project": { "type": "string", "description": "Project / programme name or {{PROJECT}} placeholder.", "default": "{{PROJECT}}" },
+        "reportType": { "type": "string", "description": "Eyebrow label shown above the title, e.g. 'Quarterly delivery assessment' or {{REPORT_TYPE}}." },
+        "title": { "type": "string", "description": "Main scorecard title, e.g. 'GEN2 programme health scorecard'." },
+        "subtitle": { "type": "string", "description": "Optional one-line standfirst describing what is being assessed and the assessment basis." },
+        "date": { "type": "string", "description": "ISO date the assessment was produced (YYYY-MM-DD).", "format": "date" },
+        "author": { "type": "string", "description": "Assessor / owning team or {{AUTHOR}} placeholder.", "default": "{{AUTHOR}}" },
+        "theme": {
+          "type": "string",
+          "description": "Initial brand theme; applied as <html data-theme>. The in-report 9-dot switcher (Black mandatory) can change it live.",
+          "enum": ["blue", "purple", "indigo", "teal", "cyan", "green", "plum", "slate", "black"],
+          "default": "blue"
+        }
+      }
+    },
+    "scale": {
+      "type": "object",
+      "description": "The 0-100 scoring scale and the grade bands every score (area scores and the overall) is bucketed into. Bands define the RAG-style tiers (e.g. A/B/C/D or Strong/Stable/Watch/At risk) and colour the score chips, gauges and overall banner.",
+      "required": ["min", "max", "bands"],
+      "additionalProperties": false,
+      "properties": {
+        "min": { "type": "number", "description": "Lowest possible score on the scale (typically 0).", "default": 0 },
+        "max": { "type": "number", "description": "Highest possible score on the scale (typically 100).", "default": 100 },
+        "bands": {
+          "type": "array",
+          "description": "Grade bands from worst to best (or best to worst — render order follows the array). A score falls in the first band whose [min, max] range it satisfies; bands should tile the scale without gaps.",
+          "minItems": 2,
+          "items": {
+            "type": "object",
+            "required": ["label", "min", "tone"],
+            "additionalProperties": false,
+            "properties": {
+              "label": { "type": "string", "description": "Band label / grade letter shown on chips and the banner, e.g. 'A', 'Strong', 'At risk'." },
+              "min": { "type": "number", "description": "Inclusive lower bound of this band on the scale. A score qualifies for the highest band whose min it meets or exceeds." },
+              "max": { "type": "number", "description": "Optional inclusive upper bound. If omitted, the band extends to scale.max (top band) or up to the next band's min." },
+              "tone": { "type": "string", "description": "Semantic tone driving the band colour: 'ok' (cleared/strong), 'risk' (bordeaux/at risk), 'hold' (amber/watch), or 'brand' (neutral brand accent).", "enum": ["ok", "risk", "hold", "brand"] }
+            }
+          }
+        }
+      }
+    },
+    "areas": {
+      "type": "array",
+      "description": "The assessment areas — one graded card (and one row) each. Each area carries a 0-100 score, a weight (relative importance), a period trend arrow, and the criteria it was graded on. The overall grade is recomputed from these (weighted or raw, per the live toggle).",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "weight", "score", "trend", "criteria"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "description": "Stable unique key for the area (used for sort/filter/expand state). e.g. 'delivery'." },
+          "name": { "type": "string", "description": "Area display name shown on the card header and row, e.g. 'Delivery & scope'." },
+          "summary": { "type": "string", "description": "Optional one-line assessor note summarising this area's standing for the period." },
+          "icon": { "type": "string", "description": "Optional house icon key for the area header (falls back to a generic mark): 'delivery', 'quality', 'risk', 'finance', 'people', 'security', 'process', 'data', 'generic'.", "enum": ["delivery", "quality", "risk", "finance", "people", "security", "process", "data", "generic"] },
+          "weight": { "type": "number", "description": "Relative importance of this area (any positive scale, e.g. 1-10 or a percentage). Drives the weighted contribution to the overall score; the template normalises weights so they need not sum to 100.", "exclusiveMinimum": 0 },
+          "score": { "type": "number", "description": "This area's assessed score on the scale (scale.min..scale.max). Bucketed into a band for its chip and gauge." },
+          "prevScore": { "type": "number", "description": "Optional score for this area in the previous period; powers the per-area delta (Δ) shown when 'period compare' is on." },
+          "trend": { "type": "string", "description": "Period-over-period direction shown as an arrow: 'up' (improving ▲), 'down' (declining ▼), 'flat' (steady ▬).", "enum": ["up", "down", "flat"] },
+          "criteria": {
+            "type": "array",
+            "description": "The graded criteria for this area, revealed when the area is expanded. Each is a RAG-rated line item with its own optional sub-score and note.",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "required": ["label", "rating"],
+              "additionalProperties": false,
+              "properties": {
+                "label": { "type": "string", "description": "Criterion name, e.g. 'Sprint commitment met'." },
+                "rating": { "type": "string", "description": "RAG rating for this criterion: 'ok' (green/met), 'risk' (bordeaux/breached), 'hold' (amber/at watch), 'na' (not assessed / not applicable). Drives the criterion dot and the RAG filter.", "enum": ["ok", "risk", "hold", "na"] },
+                "score": { "type": "number", "description": "Optional sub-score on the scale for this criterion (shown as a mini bar). Purely indicative; the area score is authoritative." },
+                "note": { "type": "string", "description": "Optional short evidence / qualifier shown on hover and in the expanded panel." }
+              }
+            }
+          }
+        }
+      }
+    },
+    "overall": {
+      "type": "object",
+      "description": "The headline assessment banner: the overall grade and score for the period, plus the optional previous-period score that powers the headline delta. The score may be authoritative (assessor-set) or treated as a check against the data-recomputed total shown by the template.",
+      "required": ["grade", "score", "period"],
+      "additionalProperties": false,
+      "properties": {
+        "grade": { "type": "string", "description": "Overall grade label shown large in the banner, e.g. 'B+', 'Stable'. Should correspond to a scale band." },
+        "score": { "type": "number", "description": "Overall assessed score on the scale for this period. The template also computes a weighted/raw roll-up from areas and flags any divergence." },
+        "period": { "type": "string", "description": "The assessment period this scorecard covers, e.g. 'Q2 2026' or 'May 2026'." },
+        "prevScore": { "type": "number", "description": "Optional overall score for the previous period; drives the banner Δ (▲▼ vs last period) and enables the 'period compare' control." },
+        "prevPeriod": { "type": "string", "description": "Optional label for the previous period, e.g. 'Q1 2026', shown alongside the delta." },
+        "statement": { "type": "string", "description": "Optional 1-2 sentence overall assessor statement shown under the banner grade." }
+      }
+    }
+  },
+  "examples": [
+    {
+      "meta": {
+        "org": "{{ORG}}",
+        "project": "{{PROJECT}}",
+        "reportType": "{{REPORT_TYPE}}",
+        "title": "Programme health scorecard",
+        "subtitle": "Quarterly assessment of the GEN2 delivery programme against weighted health areas.",
+        "date": "2026-06-22",
+        "author": "{{AUTHOR}}",
+        "theme": "blue"
+      },
+      "scale": {
+        "min": 0,
+        "max": 100,
+        "bands": [
+          { "label": "At risk", "min": 0, "max": 49, "tone": "risk" },
+          { "label": "Watch", "min": 50, "max": 69, "tone": "hold" },
+          { "label": "Stable", "min": 70, "max": 84, "tone": "brand" },
+          { "label": "Strong", "min": 85, "max": 100, "tone": "ok" }
+        ]
+      },
+      "areas": [
+        {
+          "id": "delivery", "name": "Delivery & scope", "icon": "delivery", "weight": 9, "score": 78, "prevScore": 71, "trend": "up",
+          "summary": "Velocity recovered after the integration freeze; two epics slipped to next quarter.",
+          "criteria": [
+            { "label": "Sprint commitment met", "rating": "ok", "score": 84, "note": "5 of 6 sprints hit commitment" },
+            { "label": "Scope creep controlled", "rating": "hold", "score": 66, "note": "2 unplanned epics absorbed" },
+            { "label": "Release cadence on plan", "rating": "ok", "score": 80 },
+            { "label": "Dependency risks closed", "rating": "hold", "score": 62, "note": "core-API dependency still open" }
+          ]
+        },
+        {
+          "id": "quality", "name": "Quality & defects", "icon": "quality", "weight": 8, "score": 64, "prevScore": 70, "trend": "down",
+          "summary": "Escaped-defect rate rose during the ITb monkey-test phase; regression suite stabilising.",
+          "criteria": [
+            { "label": "Escaped defect rate", "rating": "risk", "score": 48, "note": "P1 escapes above target this period" },
+            { "label": "Automated coverage", "rating": "ok", "score": 82 },
+            { "label": "Regression pass rate", "rating": "hold", "score": 67 },
+            { "label": "Defect ageing within SLA", "rating": "risk", "score": 55, "note": "3 P2s breached SLA" }
+          ]
+        },
+        {
+          "id": "risk", "name": "Risk & compliance", "icon": "risk", "weight": 7, "score": 88, "prevScore": 85, "trend": "up",
+          "summary": "Regulatory gap assessment closed; one residual audit action carried over.",
+          "criteria": [
+            { "label": "Open high risks", "rating": "ok", "score": 90, "note": "no open P1 risks" },
+            { "label": "Audit actions on track", "rating": "ok", "score": 86 },
+            { "label": "Compliance gaps closed", "rating": "ok", "score": 88 },
+            { "label": "BCP / DR validated", "rating": "hold", "score": 72, "note": "failover drill due next quarter" }
+          ]
+        },
+        {
+          "id": "finance", "name": "Budget & forecast", "icon": "finance", "weight": 6, "score": 71, "prevScore": 73, "trend": "flat",
+          "summary": "On budget at the half-year; vendor change-request pipeline a watch item.",
+          "criteria": [
+            { "label": "Spend vs budget", "rating": "ok", "score": 79 },
+            { "label": "Forecast confidence", "rating": "hold", "score": 64, "note": "CR pipeline not yet costed" },
+            { "label": "Benefits realisation", "rating": "hold", "score": 60 },
+            { "label": "Contingency held", "rating": "ok", "score": 81 }
+          ]
+        },
+        {
+          "id": "people", "name": "Team & capacity", "icon": "people", "weight": 5, "score": 82, "prevScore": 79, "trend": "up",
+          "summary": "Key roles filled; reliance on two specialists remains a single-point risk.",
+          "criteria": [
+            { "label": "Key roles staffed", "rating": "ok", "score": 88 },
+            { "label": "Attrition within target", "rating": "ok", "score": 85 },
+            { "label": "Knowledge concentration", "rating": "hold", "score": 66, "note": "2 single-points of knowledge" },
+            { "label": "Onboarding throughput", "rating": "na" }
+          ]
+        }
+      ],
+      "overall": {
+        "grade": "Stable",
+        "score": 76,
+        "period": "Q2 2026",
+        "prevScore": 73,
+        "prevPeriod": "Q1 2026",
+        "statement": "The programme is stable and improving overall, lifted by risk and team areas, but quality has regressed during the ITb test phase and is the priority focus for Q3."
+      }
+    }
+  ]
+}

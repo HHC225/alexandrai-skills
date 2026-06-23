@@ -1,0 +1,183 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://genesis.design/schemas/flowchart.schema.json",
+  "title": "Flowchart (swimlane process flow)",
+  "description": "Data contract for the flowchart format: a STRUCTURED, ORDERED BPMN-style process flowchart. Unlike the diagram-topology format (a FREE spatial node-edge graph positioned by x/y), here every node is placed deterministically by its lane (a horizontal swimlane = an actor/system) and col (its column/step ordinal); the renderer computes pixel positions from lane+col. Nodes are typed terminals (start/end), step boxes, decision diamonds, and IO parallelograms; edges are routed orthogonal SVG connectors with explicit arrowhead markers, and decision branches carry a yes/no label. The sample's #report-data is a valid instance of this schema and is its canonical example. Render: a full-bleed pannable/zoomable canvas with a swimlane grid (one band per lane), shaped HTML nodes placed at lane/col, an inline SVG connector layer, a toolbar (zoom in/out/fit/fullscreen), a lane panel (toggle/collapse lanes), a legend, and a side info panel for the selected node.",
+  "type": "object",
+  "required": ["meta", "lanes", "nodes", "edges"],
+  "additionalProperties": false,
+  "properties": {
+    "meta": {
+      "type": "object",
+      "description": "Shared chrome block carried by every format in the family. Brand-neutral: keep {{ORG}}/{{PROJECT}}/{{AUTHOR}} placeholders unless real values are supplied. 'theme' picks the initial brand palette (one of the 9 presets; Black is always selectable).",
+      "required": ["org", "project", "reportType", "title", "date", "theme"],
+      "additionalProperties": false,
+      "properties": {
+        "org": { "type": "string", "description": "Organisation wordmark shown in the bar/footer. Placeholder: {{ORG}}.", "default": "{{ORG}}" },
+        "project": { "type": "string", "description": "Project / system name shown in the title. Placeholder: {{PROJECT}}.", "default": "{{PROJECT}}" },
+        "reportType": { "type": "string", "description": "Eyebrow label, e.g. 'Process Flow', 'Approval Workflow', 'Decision Flowchart'." },
+        "title": { "type": "string", "description": "Flow title shown in the top app bar." },
+        "subtitle": { "type": "string", "description": "Optional one-line standfirst / scope note." },
+        "date": { "type": "string", "description": "As-of date stamp (ISO 'YYYY-MM-DD' preferred). Placeholder: {{DATE}}." },
+        "author": { "type": "string", "description": "Author / team, shown in the print footer. Placeholder: {{AUTHOR}}.", "default": "{{AUTHOR}}" },
+        "theme": {
+          "type": "string",
+          "description": "Initial brand theme; sets <html data-theme>. Default for this format is 'indigo'. Black is a mandatory, always-selectable preset.",
+          "enum": ["blue", "purple", "indigo", "teal", "cyan", "green", "plum", "slate", "black"],
+          "default": "indigo"
+        },
+        "orientation": {
+          "type": "string",
+          "description": "Primary flow direction. 'lr' (default) lays columns left-to-right with horizontal swimlanes stacked top-to-bottom. 'tb' is reserved for top-to-bottom flows; the reference template renders 'lr'.",
+          "enum": ["lr", "tb"],
+          "default": "lr"
+        }
+      }
+    },
+    "lanes": {
+      "type": "array",
+      "description": "The horizontal swimlanes of the flow — each is one actor, role, or system that owns the steps placed in it (e.g. 'Applicant', 'Reviewer', 'Core System'). Lane order is top-to-bottom render order. Each lane can be toggled (hide its nodes + touching edges) and collapsed (squash its band). A node's vertical band is decided entirely by its 'lane'.",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "label"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "description": "Stable lane id, referenced by node.lane." },
+          "label": { "type": "string", "description": "Human lane title shown on the lane's left header band and in the lane panel." },
+          "icon": { "type": "string", "description": "Optional house-icon key for the lane header (e.g. 'user','reviewer','microservice','database','approver'). Falls back to a generic glyph.", "default": "swimlane" }
+        }
+      }
+    },
+    "nodes": {
+      "type": "array",
+      "description": "The flow's nodes, each placed deterministically at its (lane, col) — NOT by free x/y. 'type' decides the shape: start/end terminals (pill), step (rounded box), decision (diamond, must have outgoing yes/no branches), io (parallelogram for input/output). ~10-14 nodes across 2-3 lanes is the sweet spot.",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "required": ["id", "type", "label", "lane", "col"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "description": "Unique node id; referenced by edges.from / edges.to and the path-highlight logic." },
+          "type": {
+            "type": "string",
+            "description": "Node kind → shape + role. 'start'/'end' = rounded terminals; 'step' = a process/action box; 'decision' = a diamond that branches (its outgoing edges should carry branch:'yes'|'no'); 'io' = an input/output parallelogram.",
+            "enum": ["start", "step", "decision", "end", "io"]
+          },
+          "label": { "type": "string", "description": "Node caption shown inside the shape." },
+          "lane": { "type": "string", "description": "The owning swimlane; must match a lanes[].id. Sets the node's vertical band." },
+          "col": { "type": "integer", "description": "The node's column ordinal along the flow (0-based, left→right for orientation 'lr'). Sets the node's horizontal position; columns are evenly spaced. Two nodes may share a column across different lanes.", "minimum": 0 },
+          "status": { "type": "string", "description": "Optional state accent on the node (left edge + dot). 'neutral' is the uncoloured default.", "enum": ["ok", "risk", "hold", "neutral"], "default": "neutral" },
+          "detail": { "type": "string", "description": "Optional longer description shown in the info panel and on hover (what this step does, its SLA, owner, rule, etc.)." }
+        }
+      }
+    },
+    "edges": {
+      "type": "array",
+      "description": "Directed connectors between nodes (from -> to), routed as orthogonal SVG paths with an explicit arrowhead marker. 'label' is an optional caption pill; 'branch' tags a decision's outgoing edge as the yes/no path (recolours the connector and shows a Yes/No chip).",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["from", "to"],
+        "additionalProperties": false,
+        "properties": {
+          "from": { "type": "string", "description": "Source node id (must match a nodes[].id)." },
+          "to": { "type": "string", "description": "Target node id (must match a nodes[].id)." },
+          "label": { "type": "string", "description": "Optional connector caption shown as a mid-path pill (e.g. an action, condition, or message)." },
+          "branch": { "type": "string", "description": "For an edge leaving a decision: which branch this is. 'yes' is styled as the approve/proceed path, 'no' as the reject/loop-back path.", "enum": ["yes", "no"] }
+        }
+      }
+    },
+    "primaryPath": {
+      "type": "array",
+      "description": "Optional ordered list of node ids defining the happy-path / primary walkthrough that the step-through control (next/prev) advances along, centering each node. If omitted, the renderer derives a primary path by following the first/'yes' edge from the start terminal.",
+      "items": { "type": "string" }
+    },
+    "legend": {
+      "type": "object",
+      "description": "Optional override of the node-type and status legend captions.",
+      "additionalProperties": false,
+      "properties": {
+        "types": {
+          "type": "object",
+          "description": "Captions for the node-type legend.",
+          "additionalProperties": false,
+          "properties": {
+            "start": { "type": "string", "default": "Start" },
+            "step": { "type": "string", "default": "Process step" },
+            "decision": { "type": "string", "default": "Decision" },
+            "io": { "type": "string", "default": "Input / output" },
+            "end": { "type": "string", "default": "End" }
+          }
+        },
+        "status": {
+          "type": "object",
+          "description": "Captions for the status accents.",
+          "additionalProperties": false,
+          "properties": {
+            "ok": { "type": "string", "default": "Approved / done" },
+            "risk": { "type": "string", "default": "Rejected / fail" },
+            "hold": { "type": "string", "default": "Pending / review" },
+            "neutral": { "type": "string", "default": "Standard" }
+          }
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "meta": {
+        "org": "{{ORG}}",
+        "project": "{{PROJECT}}",
+        "reportType": "Approval Workflow",
+        "title": "Account Opening — Review & Approval Flow",
+        "subtitle": "End-to-end path from application intake through KYC, review decisions and account activation",
+        "date": "2026-06-22",
+        "author": "{{AUTHOR}}",
+        "theme": "indigo",
+        "orientation": "lr"
+      },
+      "lanes": [
+        { "id": "applicant", "label": "Applicant", "icon": "user" },
+        { "id": "reviewer", "label": "Onboarding Reviewer", "icon": "reviewer" },
+        { "id": "system", "label": "Core Banking System", "icon": "microservice" }
+      ],
+      "nodes": [
+        { "id": "start", "type": "start", "label": "Application submitted", "lane": "applicant", "col": 0, "status": "neutral", "detail": "Customer submits the online account-opening form with identity documents." },
+        { "id": "intake", "type": "io", "label": "Capture KYC documents", "lane": "applicant", "col": 1, "detail": "ID, proof of address and selfie are uploaded and queued for verification." },
+        { "id": "autocheck", "type": "step", "label": "Automated KYC screening", "lane": "system", "col": 2, "status": "ok", "detail": "Sanctions, PEP and document-authenticity checks run automatically; produces a risk score." },
+        { "id": "riskgate", "type": "decision", "label": "Risk score acceptable?", "lane": "system", "col": 3, "status": "hold", "detail": "If the automated risk score is below threshold, route to fast-track; otherwise send to manual review." },
+        { "id": "manualreview", "type": "step", "label": "Manual review", "lane": "reviewer", "col": 4, "status": "hold", "detail": "Reviewer inspects flagged documents and the customer profile against policy. SLA: 1 business day." },
+        { "id": "approve", "type": "decision", "label": "Approve application?", "lane": "reviewer", "col": 5, "detail": "Reviewer decides to approve, reject, or request more information." },
+        { "id": "requestinfo", "type": "io", "label": "Request more info", "lane": "applicant", "col": 5, "status": "hold", "detail": "Reviewer asks the applicant for additional documentation; the case loops back to intake." },
+        { "id": "fasttrack", "type": "step", "label": "Fast-track approval", "lane": "system", "col": 4, "status": "ok", "detail": "Low-risk applications are auto-approved without manual review." },
+        { "id": "openacct", "type": "step", "label": "Open account", "lane": "system", "col": 6, "status": "ok", "detail": "Core banking provisions the account number, ledger entry and initial limits." },
+        { "id": "notify", "type": "step", "label": "Notify customer", "lane": "applicant", "col": 7, "status": "ok", "detail": "Welcome pack, account details and onboarding next-steps are sent to the customer." },
+        { "id": "reject", "type": "step", "label": "Record rejection", "lane": "reviewer", "col": 6, "status": "risk", "detail": "Rejection reason is logged for audit and the applicant is informed with appeal options." },
+        { "id": "endok", "type": "end", "label": "Account active", "lane": "applicant", "col": 8, "status": "ok", "detail": "Onboarding complete — the account is live and usable." },
+        { "id": "endno", "type": "end", "label": "Application closed", "lane": "reviewer", "col": 7, "status": "risk", "detail": "Application is closed as rejected." }
+      ],
+      "edges": [
+        { "from": "start", "to": "intake" },
+        { "from": "intake", "to": "autocheck", "label": "submit" },
+        { "from": "autocheck", "to": "riskgate" },
+        { "from": "riskgate", "to": "fasttrack", "branch": "yes", "label": "low risk" },
+        { "from": "riskgate", "to": "manualreview", "branch": "no", "label": "elevated" },
+        { "from": "fasttrack", "to": "openacct" },
+        { "from": "manualreview", "to": "approve" },
+        { "from": "approve", "to": "openacct", "branch": "yes", "label": "approved" },
+        { "from": "approve", "to": "requestinfo", "branch": "no", "label": "need info" },
+        { "from": "approve", "to": "reject", "label": "rejected" },
+        { "from": "requestinfo", "to": "intake", "label": "resubmit" },
+        { "from": "openacct", "to": "notify" },
+        { "from": "notify", "to": "endok" },
+        { "from": "reject", "to": "endno" }
+      ],
+      "primaryPath": ["start", "intake", "autocheck", "riskgate", "manualreview", "approve", "openacct", "notify", "endok"],
+      "legend": {
+        "types": { "start": "Start", "step": "Process step", "decision": "Decision", "io": "Input / output", "end": "End" },
+        "status": { "ok": "Approved / done", "risk": "Rejected / fail", "hold": "Pending / review", "neutral": "Standard" }
+      }
+    }
+  ]
+}

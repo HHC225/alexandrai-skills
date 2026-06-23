@@ -1,0 +1,1148 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="slate">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>{{PROJECT}} · Code Review — {{ORG}}</title>
+
+<!-- ============================================================
+     DATA-DRIVEN: the ONLY content source. render() builds the
+     entire three-pane IDE shell from this JSON; it is a valid
+     instance of designs/schemas/diff-review.schema.json.
+     Realistic FICTIONAL banking-platform change (brand-neutral).
+     ============================================================ -->
+<script type="application/json" id="report-data">
+{
+  "meta": {
+    "org": "{{ORG}}",
+    "project": "{{PROJECT}}",
+    "reportType": "Code Review",
+    "title": "Harden ledger-writer retry path",
+    "subtitle": "payments platform · service change",
+    "date": "2026-06-22",
+    "author": "{{AUTHOR}}",
+    "theme": "slate"
+  },
+  "change": {
+    "title": "fix(ledger): bound retries + dead-letter poison events",
+    "id": "PR-481",
+    "sourceBranch": "fix/ledger-retry-bound",
+    "targetBranch": "main",
+    "verdict": "changes-requested",
+    "summary": "Caps ledger-writer retries at MAX_ATTEMPTS with exponential backoff and routes poison-pill events to a dead-letter queue, so a single malformed event can no longer hot-loop and OOMKill the pod. Root cause of INC-2041 (ledger-writer 5xx surge · pod OOMKilled ×3). Adds DLQ wiring, a config flag, a metric, and replay regression coverage."
+  },
+  "reviewers": [
+    { "name": "@h.cho",    "role": "codeowner", "state": "changes-requested" },
+    { "name": "@m.tan",    "role": "platform",  "state": "approved" },
+    { "name": "@sec-team", "role": "security",  "state": "pending" },
+    { "name": "@a.ito",    "role": "reviewer",  "state": "commented" }
+  ],
+  "checks": [
+    { "name": "unit-tests",     "status": "pass",    "detail": "248 passed · 0 failed · 31s" },
+    { "name": "integration",    "status": "fail",    "detail": "1 failed · ledger.replay.poison" },
+    { "name": "lint / format",  "status": "pass",    "detail": "no findings" },
+    { "name": "coverage",       "status": "pass",    "detail": "+1.4% · 84.2% lines" },
+    { "name": "build image",    "status": "running", "detail": "2 of 4 stages" },
+    { "name": "license-scan",   "status": "pass",    "detail": "0 new dependencies" }
+  ],
+  "files": [
+    {
+      "path": "services/ledger-writer/src/RetryPolicy.java",
+      "status": "mod",
+      "lang": "java",
+      "additions": 11,
+      "deletions": 4,
+      "hunks": [
+        {
+          "header": "class RetryPolicy",
+          "oldStart": 14,
+          "newStart": 14,
+          "lines": [
+            { "type": "ctx", "oldNo": 14, "newNo": 14, "text": "public final class RetryPolicy {" },
+            { "type": "del", "oldNo": 15, "text": "  private static final int MAX_ATTEMPTS = 5;",
+              "tokens": [{ "t": "  " }, { "t": "private static final", "c": "kw" }, { "t": " " }, { "t": "int", "c": "kw" }, { "t": " MAX_ATTEMPTS = " }, { "t": "5", "c": "num" }, { "t": ";" }] },
+            { "type": "add", "newNo": 15, "text": "  private final int maxAttempts;",
+              "tokens": [{ "t": "  " }, { "t": "private final", "c": "kw" }, { "t": " " }, { "t": "int", "c": "kw" }, { "t": " maxAttempts;" }] },
+            { "type": "add", "newNo": 16, "text": "  private final Duration baseBackoff;",
+              "tokens": [{ "t": "  " }, { "t": "private final", "c": "kw" }, { "t": " " }, { "t": "Duration", "c": "fn" }, { "t": " baseBackoff;" }] },
+            { "type": "ctx", "oldNo": 16, "newNo": 17, "text": "" },
+            { "type": "ctx", "oldNo": 17, "newNo": 18, "text": "  public boolean shouldRetry(LedgerEvent e, int attempt) {",
+              "tokens": [{ "t": "  " }, { "t": "public", "c": "kw" }, { "t": " " }, { "t": "boolean", "c": "kw" }, { "t": " shouldRetry(" }, { "t": "LedgerEvent", "c": "fn" }, { "t": " e, " }, { "t": "int", "c": "kw" }, { "t": " attempt) {" }] },
+            { "type": "del", "oldNo": 18, "text": "    return e.isTransient();",
+              "tokens": [{ "t": "    " }, { "t": "return", "c": "kw" }, { "t": " e.isTransient();" }] },
+            { "type": "add", "newNo": 19, "text": "    if (attempt >= maxAttempts) {",
+              "tokens": [{ "t": "    " }, { "t": "if", "c": "kw" }, { "t": " (attempt >= maxAttempts) {" }] },
+            { "type": "add", "newNo": 20, "text": "      log.warn(\"retry budget exhausted for {}\", e.id());",
+              "tokens": [{ "t": "      log.warn(" }, { "t": "\"retry budget exhausted for {}\"", "c": "str" }, { "t": ", e.id());" }] },
+            { "type": "add", "newNo": 21, "text": "      return false; // route to DLQ instead",
+              "tokens": [{ "t": "      " }, { "t": "return", "c": "kw" }, { "t": " " }, { "t": "false", "c": "kw" }, { "t": ";" }, { "t": " // route to DLQ instead", "c": "com" }] },
+            { "type": "add", "newNo": 22, "text": "    }" },
+            { "type": "add", "newNo": 23, "text": "    return e.isTransient();",
+              "tokens": [{ "t": "    " }, { "t": "return", "c": "kw" }, { "t": " e.isTransient();" }] },
+            { "type": "ctx", "oldNo": 19, "newNo": 24, "text": "  }" }
+          ]
+        },
+        {
+          "header": "Duration backoffFor(int attempt)",
+          "oldStart": 28,
+          "newStart": 33,
+          "collapsed": true,
+          "lines": [
+            { "type": "ctx", "oldNo": 28, "newNo": 33, "text": "  public Duration backoffFor(int attempt) {",
+              "tokens": [{ "t": "  " }, { "t": "public", "c": "kw" }, { "t": " " }, { "t": "Duration", "c": "fn" }, { "t": " backoffFor(" }, { "t": "int", "c": "kw" }, { "t": " attempt) {" }] },
+            { "type": "del", "oldNo": 29, "text": "    return Duration.ofSeconds(1);",
+              "tokens": [{ "t": "    " }, { "t": "return", "c": "kw" }, { "t": " " }, { "t": "Duration", "c": "fn" }, { "t": ".ofSeconds(" }, { "t": "1", "c": "num" }, { "t": ");" }] },
+            { "type": "add", "newNo": 34, "text": "    return baseBackoff.multipliedBy(1L << attempt);",
+              "tokens": [{ "t": "    " }, { "t": "return", "c": "kw" }, { "t": " baseBackoff.multipliedBy(" }, { "t": "1L", "c": "num" }, { "t": " << attempt);" }] },
+            { "type": "ctx", "oldNo": 30, "newNo": 35, "text": "  }" }
+          ]
+        }
+      ],
+      "threads": [
+        { "side": "new", "line": 15, "author": "@h.cho", "time": "2h ago", "resolved": false,
+          "body": "Good — making maxAttempts an instance field is the right call. Make sure it's wired from config (see LedgerWriterConfig) rather than constructed with a literal anywhere." },
+        { "side": "new", "line": 20, "author": "@a.ito", "time": "1h ago", "resolved": true,
+          "body": "nit: log at warn is fine here, but include the attempt count too. (resolved — added in a fixup)" }
+      ]
+    },
+    {
+      "path": "services/ledger-writer/src/DeadLetterQueue.java",
+      "status": "add",
+      "lang": "java",
+      "additions": 22,
+      "deletions": 0,
+      "hunks": [
+        {
+          "header": "new file",
+          "oldStart": 0,
+          "newStart": 1,
+          "lines": [
+            { "type": "add", "newNo": 1, "text": "package platform.ledger;",
+              "tokens": [{ "t": "package", "c": "kw" }, { "t": " platform.ledger;" }] },
+            { "type": "add", "newNo": 2, "text": "" },
+            { "type": "add", "newNo": 3, "text": "/** Sink for events that exhausted their retry budget. */",
+              "tokens": [{ "t": "/** Sink for events that exhausted their retry budget. */", "c": "com" }] },
+            { "type": "add", "newNo": 4, "text": "public final class DeadLetterQueue {",
+              "tokens": [{ "t": "public final class", "c": "kw" }, { "t": " " }, { "t": "DeadLetterQueue", "c": "fn" }, { "t": " {" }] },
+            { "type": "add", "newNo": 5, "text": "  private final Producer<String, byte[]> producer;",
+              "tokens": [{ "t": "  " }, { "t": "private final", "c": "kw" }, { "t": " " }, { "t": "Producer", "c": "fn" }, { "t": "<" }, { "t": "String", "c": "fn" }, { "t": ", " }, { "t": "byte", "c": "kw" }, { "t": "[]> producer;" }] },
+            { "type": "add", "newNo": 6, "text": "  private static final String TOPIC = \"ledger.dlq.v1\";",
+              "tokens": [{ "t": "  " }, { "t": "private static final", "c": "kw" }, { "t": " " }, { "t": "String", "c": "fn" }, { "t": " TOPIC = " }, { "t": "\"ledger.dlq.v1\"", "c": "str" }, { "t": ";" }] },
+            { "type": "add", "newNo": 7, "text": "" },
+            { "type": "add", "newNo": 8, "text": "  public void publish(LedgerEvent poisoned, String reason) {",
+              "tokens": [{ "t": "  " }, { "t": "public", "c": "kw" }, { "t": " " }, { "t": "void", "c": "kw" }, { "t": " publish(" }, { "t": "LedgerEvent", "c": "fn" }, { "t": " poisoned, " }, { "t": "String", "c": "fn" }, { "t": " reason) {" }] },
+            { "type": "add", "newNo": 9, "text": "    dlqDepth.increment();",
+              "tokens": [{ "t": "    dlqDepth.increment();" }] },
+            { "type": "add", "newNo": 10, "text": "    producer.send(record(TOPIC, poisoned, reason));",
+              "tokens": [{ "t": "    producer.send(record(TOPIC, poisoned, reason));" }] },
+            { "type": "add", "newNo": 11, "text": "  }" },
+            { "type": "add", "newNo": 12, "text": "}" }
+          ]
+        }
+      ],
+      "threads": [
+        { "side": "new", "line": 6, "author": "@h.cho", "time": "2h ago", "resolved": false,
+          "body": "Topic name shouldn't be a literal — register it in TopicCatalog so the infra team can pre-provision it with the right retention. Requesting changes until this and the config flag land." }
+      ]
+    },
+    {
+      "path": "services/ledger-writer/src/LedgerConsumer.java",
+      "status": "mod",
+      "lang": "java",
+      "additions": 7,
+      "deletions": 2,
+      "hunks": [
+        {
+          "header": "void onEvent(LedgerEvent e)",
+          "oldStart": 52,
+          "newStart": 52,
+          "lines": [
+            { "type": "ctx", "oldNo": 52, "newNo": 52, "text": "  void onEvent(LedgerEvent e) {",
+              "tokens": [{ "t": "  " }, { "t": "void", "c": "kw" }, { "t": " onEvent(" }, { "t": "LedgerEvent", "c": "fn" }, { "t": " e) {" }] },
+            { "type": "ctx", "oldNo": 53, "newNo": 53, "text": "    int attempt = attempts.incrementAndGet(e.id());" },
+            { "type": "del", "oldNo": 54, "text": "    if (policy.shouldRetry(e, attempt)) retry(e);",
+              "tokens": [{ "t": "    " }, { "t": "if", "c": "kw" }, { "t": " (policy.shouldRetry(e, attempt)) retry(e);" }] },
+            { "type": "add", "newNo": 54, "text": "    if (policy.shouldRetry(e, attempt)) {",
+              "tokens": [{ "t": "    " }, { "t": "if", "c": "kw" }, { "t": " (policy.shouldRetry(e, attempt)) {" }] },
+            { "type": "add", "newNo": 55, "text": "      schedule(e, policy.backoffFor(attempt));" },
+            { "type": "add", "newNo": 56, "text": "    } else {",
+              "tokens": [{ "t": "    } " }, { "t": "else", "c": "kw" }, { "t": " {" }] },
+            { "type": "add", "newNo": 57, "text": "      dlq.publish(e, \"retry-budget-exhausted\");",
+              "tokens": [{ "t": "      dlq.publish(e, " }, { "t": "\"retry-budget-exhausted\"", "c": "str" }, { "t": ");" }] },
+            { "type": "add", "newNo": 58, "text": "    }" },
+            { "type": "del", "oldNo": 55, "text": "    metrics.mark(\"processed\");",
+              "tokens": [{ "t": "    metrics.mark(" }, { "t": "\"processed\"", "c": "str" }, { "t": ");" }] },
+            { "type": "add", "newNo": 59, "text": "    metrics.mark(e.kind());" },
+            { "type": "ctx", "oldNo": 56, "newNo": 60, "text": "  }" }
+          ]
+        }
+      ],
+      "threads": []
+    },
+    {
+      "path": "services/ledger-writer/config/application.yaml",
+      "status": "mod",
+      "lang": "yaml",
+      "additions": 4,
+      "deletions": 1,
+      "hunks": [
+        {
+          "header": "ledger:",
+          "oldStart": 8,
+          "newStart": 8,
+          "lines": [
+            { "type": "ctx", "oldNo": 8, "newNo": 8, "text": "ledger:",
+              "tokens": [{ "t": "ledger:", "c": "kw" }] },
+            { "type": "del", "oldNo": 9, "text": "  retry: { enabled: true }",
+              "tokens": [{ "t": "  retry:", "c": "kw" }, { "t": " { enabled: " }, { "t": "true", "c": "num" }, { "t": " }" }] },
+            { "type": "add", "newNo": 9, "text": "  retry:",
+              "tokens": [{ "t": "  retry:", "c": "kw" }] },
+            { "type": "add", "newNo": 10, "text": "    maxAttempts: 5",
+              "tokens": [{ "t": "    maxAttempts:", "c": "kw" }, { "t": " " }, { "t": "5", "c": "num" }] },
+            { "type": "add", "newNo": 11, "text": "    baseBackoff: 1s",
+              "tokens": [{ "t": "    baseBackoff:", "c": "kw" }, { "t": " 1s" }] },
+            { "type": "add", "newNo": 12, "text": "    deadLetterTopic: ledger.dlq.v1",
+              "tokens": [{ "t": "    deadLetterTopic:", "c": "kw" }, { "t": " ledger.dlq.v1" }] }
+          ]
+        }
+      ],
+      "threads": [
+        { "side": "new", "line": 10, "author": "@m.tan", "time": "40m ago", "resolved": false,
+          "body": "5 is a sensible default. We can override per-env in the overlay; no need to template it here." }
+      ]
+    },
+    {
+      "path": "services/ledger-writer/src/LegacyRetryShim.java",
+      "status": "del",
+      "lang": "java",
+      "additions": 0,
+      "deletions": 9,
+      "hunks": [
+        {
+          "header": "deleted file",
+          "oldStart": 1,
+          "newStart": 0,
+          "lines": [
+            { "type": "del", "oldNo": 1, "text": "// Deprecated 2025-11. Superseded by RetryPolicy.",
+              "tokens": [{ "t": "// Deprecated 2025-11. Superseded by RetryPolicy.", "c": "com" }] },
+            { "type": "del", "oldNo": 2, "text": "class LegacyRetryShim {",
+              "tokens": [{ "t": "class", "c": "kw" }, { "t": " " }, { "t": "LegacyRetryShim", "c": "fn" }, { "t": " {" }] },
+            { "type": "del", "oldNo": 3, "text": "  boolean retry(Event e) { return true; }",
+              "tokens": [{ "t": "  " }, { "t": "boolean", "c": "kw" }, { "t": " retry(" }, { "t": "Event", "c": "fn" }, { "t": " e) { " }, { "t": "return", "c": "kw" }, { "t": " " }, { "t": "true", "c": "kw" }, { "t": "; }" }] },
+            { "type": "del", "oldNo": 4, "text": "}" }
+          ]
+        }
+      ],
+      "threads": []
+    },
+    {
+      "path": "services/ledger-writer/test/ReplayPoisonTest.java",
+      "status": "ren",
+      "oldPath": "services/ledger-writer/test/ReplayTest.java",
+      "lang": "java",
+      "additions": 16,
+      "deletions": 1,
+      "hunks": [
+        {
+          "header": "void poisonEventGoesToDlqAfterBudget()",
+          "oldStart": 11,
+          "newStart": 11,
+          "lines": [
+            { "type": "ctx", "oldNo": 11, "newNo": 11, "text": "  @Test",
+              "tokens": [{ "t": "  @Test", "c": "fn" }] },
+            { "type": "del", "oldNo": 12, "text": "  void retriesTransient() { /* ... */ }",
+              "tokens": [{ "t": "  " }, { "t": "void", "c": "kw" }, { "t": " retriesTransient() { " }, { "t": "/* ... */", "c": "com" }, { "t": " }" }] },
+            { "type": "add", "newNo": 12, "text": "  void poisonEventGoesToDlqAfterBudget() {",
+              "tokens": [{ "t": "  " }, { "t": "void", "c": "kw" }, { "t": " poisonEventGoesToDlqAfterBudget() {" }] },
+            { "type": "add", "newNo": 13, "text": "    var e = poison(\"bad-amount\");",
+              "tokens": [{ "t": "    " }, { "t": "var", "c": "kw" }, { "t": " e = poison(" }, { "t": "\"bad-amount\"", "c": "str" }, { "t": ");" }] },
+            { "type": "add", "newNo": 14, "text": "    for (int i = 0; i <= 5; i++) consumer.onEvent(e);",
+              "tokens": [{ "t": "    " }, { "t": "for", "c": "kw" }, { "t": " (" }, { "t": "int", "c": "kw" }, { "t": " i = " }, { "t": "0", "c": "num" }, { "t": "; i <= " }, { "t": "5", "c": "num" }, { "t": "; i++) consumer.onEvent(e);" }] },
+            { "type": "add", "newNo": 15, "text": "    assertThat(dlq.depth()).isEqualTo(1);",
+              "tokens": [{ "t": "    assertThat(dlq.depth()).isEqualTo(" }, { "t": "1", "c": "num" }, { "t": ");" }] },
+            { "type": "add", "newNo": 16, "text": "  }" }
+          ]
+        }
+      ],
+      "threads": [
+        { "side": "new", "line": 14, "author": "@sec-team", "time": "18m ago", "resolved": false,
+          "body": "This is the case the integration job is failing on — the loop runs 6 times but onEvent dedupes by id, so attempt never increments past 1. Fix the test harness to reset the attempt counter, or assert the DLQ via the consumer, not the raw loop." }
+      ]
+    }
+  ]
+}
+</script>
+
+<style>
+/* ============================================================
+   DIFF-REVIEW — IDE-style code-review / pull-request shell
+   Inherits the family DNA from designs/_FOUNDATION.md and the
+   data-driven contract from designs/_DATA_DRIVEN.md.
+   Default theme: Slate (shipped in :root). Self-contained.
+   Content is rendered from #report-data by render() below.
+   ============================================================ */
+
+/* ---- 1. tokens (copied verbatim; Slate is this format's default) ---- */
+:root{
+  /* surfaces */
+  --bg:#fff; --bg-band:#f6f6f8; --bg-subtle:#fafafb; --bg-deep:#15131a;
+  --rule:#dcdce2; --rule-soft:#ebebef;
+  /* ink */
+  --ink:#11131a; --ink-mid:#33363f; --ink-soft:#5a5e68; --ink-faint:#868b95;
+  /* brand accent — overridden per theme below (Slate default) */
+  --navy:#a100ff; --navy-deep:#7a00c2; --navy-bg:#f3e8ff; --navy-line:#d9bef5;
+  --ok:#5a2f8a; --ok-bg:#efe8f5; --ok-line:#d0b5e0;
+  /* semantic states — CONSTANT across themes */
+  --risk:#b3261e; --risk-bg:#fbeceb; --risk-line:#edc7c4;
+  --hold:#8a6d00; --hold-bg:#fbf3da; --hold-line:#e7d8a4;
+  /* type stacks */
+  --mono:ui-monospace,"JetBrains Mono","SFMono-Regular",Menlo,Consolas,monospace;
+  --sans:-apple-system,"Segoe UI",system-ui,Roboto,"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic UI","Apple SD Gothic Neo","Malgun Gothic","PingFang SC","Microsoft YaHei","Noto Sans CJK JP","Noto Sans CJK KR","Noto Sans CJK SC","Noto Sans JP","Noto Sans KR","Noto Sans SC","Noto Sans",sans-serif;
+  /* shell geometry */
+  --tree-w:264px; --review-w:308px;
+  --shadow:0 1px 2px rgba(17,19,26,.045);
+  --shadow-bar:0 1px 3px rgba(17,19,26,.05);
+}
+/* alternate theme swaps (all 9 per _FOUNDATION §1 / _DATA_DRIVEN §3 — Black mandatory) */
+html[data-theme="slate"]{  --navy:#3f4f63; --navy-deep:#29384b; --navy-bg:#eef1f5; --navy-line:#c2ccd8; --ok:#34495e; --ok-bg:#eef1f5; --ok-line:#c2ccd8; }
+html[data-theme="blue"]{   --navy:#0b5fd4; --navy-deep:#0842a0; --navy-bg:#e8f1fc; --navy-line:#bcd6f5; --ok:#1a4f9c; --ok-bg:#e9f0fa; --ok-line:#b7cdea; }
+html[data-theme="purple"]{ --navy:#a100ff; --navy-deep:#7a00c2; --navy-bg:#f3e8ff; --navy-line:#d9bef5; --ok:#5a2f8a; --ok-bg:#efe8f5; --ok-line:#d0b5e0; }
+html[data-theme="indigo"]{ --navy:#4338ca; --navy-deep:#312c92; --navy-bg:#ebebfb; --navy-line:#c7c3f0; --ok:#3730a3; --ok-bg:#ebeaf7; --ok-line:#c5c2ea; }
+html[data-theme="teal"]{   --navy:#0e7c86; --navy-deep:#095861; --navy-bg:#e0f3f4; --navy-line:#a9dade; --ok:#0f5d54; --ok-bg:#e3f3ef; --ok-line:#b3ddd4; }
+html[data-theme="cyan"]{   --navy:#0891b2; --navy-deep:#0e6f88; --navy-bg:#e2f4f9; --navy-line:#abdde9; --ok:#0e6b7a; --ok-bg:#e4f3f4; --ok-line:#b0dde2; }
+html[data-theme="green"]{  --navy:#1f7a44; --navy-deep:#155730; --navy-bg:#e6f4ea; --navy-line:#b3dcc1; --ok:#2f6b3c; --ok-bg:#e9f3ea; --ok-line:#bedcc4; }
+html[data-theme="plum"]{   --navy:#a21d6e; --navy-deep:#7c1450; --navy-bg:#fbe8f2; --navy-line:#e8b9d4; --ok:#6d2356; --ok-bg:#f6e8f0; --ok-line:#e3bcd5; }
+html[data-theme="black"]{  --navy:#000000; --navy-deep:#000000; --navy-bg:#f1f1f3; --navy-line:#d6d6db; --ok:#3f3f46; --ok-bg:#f1f1f3; --ok-line:#cfcfd6; }
+
+*{ box-sizing:border-box; }
+html,body{ margin:0; height:100%; }
+body{
+  font:13px/1.55 var(--sans); color:var(--ink); background:var(--bg-band);
+  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+}
+.tnum{ font-feature-settings:"tnum" 1; font-variant-numeric:tabular-nums; }
+.muted{ color:var(--ink-faint); }
+
+/* ---- icons ---- */
+.icon{ width:1.15em; height:1.15em; display:inline-block; vertical-align:-.18em; color:inherit; flex:none; }
+.icon-sm{ width:13px; height:13px; }
+
+/* ---- shared primitives: status badge / dot / chip ---- */
+.st-badge{
+  display:inline-flex; align-items:center; gap:.4em;
+  font:600 11px/1 var(--sans); padding:4px 8px 4px 7px; border-radius:6px;
+  border:1px solid var(--rule); color:var(--ink-mid); background:var(--bg); white-space:nowrap;
+}
+.st-badge::before{ content:""; width:7px; height:7px; border-radius:50%; background:var(--ink-faint); flex:none; }
+.st-ok{ color:var(--ok); background:var(--ok-bg); border-color:var(--ok-line); }
+.st-ok::before{ background:var(--ok); }
+.st-risk{ color:var(--risk); background:var(--risk-bg); border-color:var(--risk-line); }
+.st-risk::before{ background:var(--risk); }
+.st-hold{ color:var(--hold); background:var(--hold-bg); border-color:var(--hold-line); }
+.st-hold::before{ background:var(--hold); }
+.mini-dot{ display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--ink-faint); flex:none; }
+.mini-dot.ok{ background:var(--ok); } .mini-dot.risk{ background:var(--risk); } .mini-dot.hold{ background:var(--hold); }
+.chip{
+  display:inline-flex; align-items:center; gap:.35em;
+  font:600 10.5px/1 var(--mono); letter-spacing:.02em; padding:3px 7px; border-radius:6px;
+  background:var(--navy-bg); color:var(--navy-deep); border:1px solid var(--navy-line);
+}
+.mlabel{ font:600 10px/1.4 var(--mono); letter-spacing:.1em; text-transform:uppercase; color:var(--ink-faint); }
+
+/* ---- noscript banner ---- */
+.noscript-note{
+  margin:0; padding:14px 22px; background:var(--hold-bg); color:var(--hold);
+  border-bottom:1px solid var(--hold-line); font:600 12.5px/1.5 var(--sans);
+}
+.noscript-note code{ font:600 11.5px/1 var(--mono); }
+
+/* ============================================================
+   2. APP SHELL — full-bleed IDE three-pane
+   ============================================================ */
+.dr-shell{ width:100vw; height:100vh; display:flex; flex-direction:column; background:var(--bg); overflow:hidden; }
+
+/* ---- top bar ---- */
+.dr-top{
+  position:sticky; top:0; z-index:40; flex:none;
+  display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+  padding:9px 16px; background:var(--bg); border-bottom:1px solid var(--rule); box-shadow:var(--shadow-bar);
+}
+.dr-brand{ display:flex; align-items:center; gap:8px; font-weight:800; font-size:13px; letter-spacing:-.01em; color:var(--ink); white-space:nowrap; }
+.dr-brand .mark{ width:20px; height:20px; border-radius:5px; background:var(--navy); color:#fff; display:grid; place-items:center; }
+.dr-brand .mark .icon{ width:13px; height:13px; }
+.dr-title{ display:flex; flex-direction:column; gap:2px; min-width:0; }
+.dr-title .pid{ font:600 9.5px/1 var(--mono); letter-spacing:.1em; text-transform:uppercase; color:var(--ink-faint); }
+.dr-title .nm{ font:800 13.5px/1.15 var(--sans); color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:46ch; }
+.dr-title .nm code{ font:700 12px/1 var(--mono); color:var(--navy-deep); }
+
+/* branch chips */
+.dr-branches{ display:inline-flex; align-items:center; gap:5px; }
+.dr-branch{ display:inline-flex; align-items:center; gap:5px; font:600 11px/1 var(--mono); padding:5px 8px; border-radius:6px; background:var(--navy-bg); color:var(--navy-deep); border:1px solid var(--navy-line); white-space:nowrap; }
+.dr-branch .icon{ width:13px; height:13px; color:var(--navy); }
+.dr-branch.target{ background:var(--bg-band); color:var(--ink-mid); border-color:var(--rule); }
+.dr-branch.target .icon{ color:var(--ink-faint); }
+.dr-mergearrow{ color:var(--ink-faint); display:inline-flex; }
+.dr-mergearrow .icon{ width:15px; height:15px; }
+
+/* verdict badge (live target of the right-pane control) */
+.dr-verdict{ font:700 11px/1 var(--sans); }
+
+/* +N -M stat */
+.dr-stat{ display:inline-flex; align-items:center; gap:8px; font:700 12px/1 var(--mono); }
+.dr-stat .add{ color:var(--ok); } .dr-stat .del{ color:var(--risk); }
+
+.dr-spacer{ flex:1 1 auto; }
+
+/* file-status filter chips */
+.dr-filter{ display:inline-flex; gap:5px; }
+.dr-filter button{
+  display:inline-flex; align-items:center; gap:5px; cursor:pointer;
+  font:600 10.5px/1 var(--mono); letter-spacing:.02em; color:var(--ink-soft);
+  background:var(--bg); border:1px solid var(--rule); border-radius:6px; padding:5px 8px;
+  transition:background .12s,color .12s,border-color .12s;
+}
+.dr-filter button:hover{ border-color:var(--navy-line); color:var(--ink-mid); }
+.dr-filter button .fdot{ width:7px; height:7px; border-radius:2px; background:var(--ink-faint); flex:none; }
+.dr-filter button[data-fs="add"] .fdot{ background:var(--ok); }
+.dr-filter button[data-fs="mod"] .fdot{ background:var(--navy); }
+.dr-filter button[data-fs="del"] .fdot{ background:var(--risk); }
+.dr-filter button[data-fs="ren"] .fdot{ background:var(--hold); }
+.dr-filter button .n{ font-weight:700; color:var(--ink-faint); }
+.dr-filter button.on{ background:var(--navy); border-color:var(--navy-deep); color:#fff; }
+.dr-filter button.on .n{ color:#fff; }
+.dr-filter button.on .fdot{ background:#fff; }
+
+/* segmented unified|split toggle */
+.dr-seg{ display:inline-flex; border:1px solid var(--rule); border-radius:7px; overflow:hidden; }
+.dr-seg button{
+  border:0; background:var(--bg); cursor:pointer; font:600 10.5px/1 var(--mono); letter-spacing:.04em;
+  color:var(--ink-soft); padding:6px 10px; border-right:1px solid var(--rule-soft); transition:background .12s,color .12s;
+}
+.dr-seg button:last-child{ border-right:0; }
+.dr-seg button:hover{ background:var(--navy-bg); color:var(--navy-deep); }
+.dr-seg button.on{ background:var(--navy); color:#fff; }
+
+/* comment-visibility toggle */
+.dr-cmt-toggle{
+  display:inline-flex; align-items:center; gap:7px; cursor:pointer; user-select:none;
+  font:600 10.5px/1 var(--sans); color:var(--ink-soft);
+  padding:5px 9px; border:1px solid var(--rule); border-radius:7px; background:var(--bg);
+  transition:background .12s,color .12s,border-color .12s;
+}
+.dr-cmt-toggle .icon{ width:13px; height:13px; }
+.dr-cmt-toggle .sw{ width:28px; height:15px; border-radius:8px; background:var(--navy); position:relative; transition:background .15s; flex:none; }
+.dr-cmt-toggle .sw::after{ content:""; position:absolute; top:2px; left:14px; width:11px; height:11px; border-radius:50%; background:#fff; box-shadow:0 1px 2px rgba(0,0,0,.2); transition:left .15s; }
+.dr-cmt-toggle.on{ color:var(--navy-deep); border-color:var(--navy-line); background:var(--navy-bg); }
+.dr-cmt-toggle.off .sw{ background:var(--rule); }
+.dr-cmt-toggle.off .sw::after{ left:3px; }
+
+/* theme switcher (MANDATORY, canonical dropdown per _DATA_DRIVEN §3) */
+.rc-theme{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--rule);border-radius:7px;padding:3px 4px 3px 7px;background:var(--bg);}
+.rc-theme-sw{width:12px;height:12px;border-radius:50%;background:var(--navy);box-shadow:0 0 0 1px var(--rule);flex:none;}
+.rc-theme-sel{border:0;background:none;font:600 11px/1 var(--mono);color:var(--ink-mid);cursor:pointer;outline:none;padding:2px;}
+@media print{.rc-theme{display:none;}}
+
+/* ---- body: three panes ---- */
+.dr-body{ flex:1 1 auto; display:grid; grid-template-columns:var(--tree-w) 1fr var(--review-w); min-height:0; }
+
+/* ============================================================
+   3a. LEFT — changed-file tree
+   ============================================================ */
+.dr-tree{ border-right:1px solid var(--rule); background:var(--bg-subtle); overflow:auto; min-width:0; display:flex; flex-direction:column; }
+.dr-tree-head{
+  position:sticky; top:0; z-index:2; background:var(--bg-subtle);
+  display:flex; align-items:center; gap:8px; padding:11px 13px 9px; border-bottom:1px solid var(--rule-soft);
+}
+.dr-tree-head .mlabel{ display:flex; align-items:center; gap:6px; }
+.dr-tree-head .mlabel .icon{ color:var(--navy); width:14px; height:14px; }
+.dr-tree-head .cnt{ margin-left:auto; font:700 10px/1 var(--mono); color:var(--ink-faint); }
+.dr-tree-list{ padding:6px; flex:1 1 auto; }
+
+.dr-folder{
+  display:flex; align-items:center; gap:6px; width:100%; cursor:pointer;
+  padding:6px 7px; border:0; background:none; border-radius:6px; text-align:left;
+  font:600 11px/1.2 var(--mono); color:var(--ink-soft); letter-spacing:.01em;
+}
+.dr-folder:hover{ background:var(--navy-bg); color:var(--navy-deep); }
+.dr-folder .tw{ width:0; height:0; border-left:5px solid var(--ink-faint); border-top:4px solid transparent; border-bottom:4px solid transparent; transition:transform .15s; flex:none; }
+.dr-folder.open .tw{ transform:rotate(90deg); }
+.dr-folder .icon{ width:14px; height:14px; color:var(--ink-faint); }
+.dr-folder .fname{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.dr-folder-kids{ overflow:hidden; }
+.dr-folder-kids.collapsed{ display:none; }
+
+.dr-file{
+  display:flex; align-items:center; gap:8px; width:100%; cursor:pointer;
+  padding:6px 8px 6px 24px; border:0; background:none; border-radius:6px; text-align:left;
+  border-left:2px solid transparent; transition:background .12s;
+}
+.dr-file:hover{ background:var(--bg-band); }
+.dr-file.active{ background:var(--navy-bg); border-left-color:var(--navy); }
+.dr-file.is-hidden{ display:none; }
+.dr-file .sdot{ width:8px; height:8px; border-radius:2px; flex:none; background:var(--ink-faint); }
+.dr-file .sdot.add{ background:var(--ok); } .dr-file .sdot.mod{ background:var(--navy); }
+.dr-file .sdot.del{ background:var(--risk); } .dr-file .sdot.ren{ background:var(--hold); }
+.dr-file .fn{ flex:1 1 auto; min-width:0; font:600 11.5px/1.25 var(--sans); color:var(--ink); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.dr-file.active .fn{ color:var(--navy-deep); }
+.dr-file .pm{ font:700 9.5px/1 var(--mono); display:inline-flex; gap:5px; flex:none; }
+.dr-file .pm .a{ color:var(--ok); } .dr-file .pm .d{ color:var(--risk); }
+.dr-cc{ display:inline-flex; align-items:center; gap:3px; font:700 9.5px/1 var(--mono); color:var(--ink-faint); background:var(--bg-band); border:1px solid var(--rule-soft); border-radius:10px; padding:2px 6px 2px 5px; flex:none; }
+.dr-cc .icon{ width:11px; height:11px; }
+.dr-cc.zero{ display:none; }
+
+/* ============================================================
+   3b. CENTER — diff viewer
+   ============================================================ */
+.dr-diff{ overflow:auto; min-width:0; background:var(--bg); display:flex; flex-direction:column; }
+.dr-diff-head{
+  position:sticky; top:0; z-index:3; background:var(--bg);
+  display:flex; align-items:center; gap:11px; padding:11px 16px; border-bottom:1px solid var(--rule-soft);
+}
+.dr-diff-head .path{ font:600 12.5px/1.2 var(--mono); color:var(--ink); display:flex; align-items:center; gap:7px; min-width:0; }
+.dr-diff-head .path .icon{ color:var(--navy); width:15px; height:15px; flex:none; }
+.dr-diff-head .path .seg{ color:var(--ink-faint); }
+.dr-diff-head .path .leaf{ color:var(--ink); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.dr-diff-head .renfrom{ font:600 10px/1 var(--mono); color:var(--ink-faint); }
+.dr-diff-head .pm{ margin-left:auto; font:700 11px/1 var(--mono); display:inline-flex; gap:8px; }
+.dr-diff-head .pm .a{ color:var(--ok); } .dr-diff-head .pm .d{ color:var(--risk); }
+
+.dr-diff-body{ padding:14px 16px 24px; flex:1 1 auto; }
+
+/* a hunk */
+.dr-hunk{ border:1px solid var(--rule); border-radius:10px; overflow:hidden; margin-bottom:14px; box-shadow:var(--shadow); }
+.dr-hunk-head{
+  display:flex; align-items:center; gap:9px; width:100%; cursor:pointer; text-align:left;
+  border:0; background:var(--bg-band); padding:8px 12px; border-bottom:1px solid var(--rule-soft);
+}
+.dr-hunk.collapsed .dr-hunk-head{ border-bottom:0; }
+.dr-hunk-head .tw{ width:0; height:0; border-left:5px solid var(--ink-faint); border-top:4px solid transparent; border-bottom:4px solid transparent; transition:transform .15s; flex:none; }
+.dr-hunk:not(.collapsed) .dr-hunk-head .tw{ transform:rotate(90deg); }
+.dr-hunk-head .at{ font:700 10.5px/1 var(--mono); color:var(--navy-deep); background:var(--navy-bg); border:1px solid var(--navy-line); border-radius:5px; padding:3px 6px; flex:none; }
+.dr-hunk-head .ctx{ font:600 11.5px/1.2 var(--mono); color:var(--ink-soft); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.dr-hunk-head .ln{ margin-left:auto; font:600 9.5px/1 var(--mono); color:var(--ink-faint); flex:none; }
+.dr-hunk-lines{ overflow:hidden; }
+.dr-hunk.collapsed .dr-hunk-lines{ display:none; }
+
+/* unified diff lines */
+.dr-code{ font:12px/1.6 var(--mono); }
+.dr-line{ display:grid; grid-template-columns:46px 46px 1fr; align-items:stretch; }
+.dr-gutter{
+  text-align:right; padding:0 8px; color:var(--ink-faint); font-feature-settings:"tnum" 1;
+  user-select:none; border-right:1px solid var(--rule-soft); background:var(--bg-subtle); white-space:nowrap;
+}
+.dr-line .src{ padding:0 12px; white-space:pre-wrap; word-break:break-word; position:relative; color:var(--ink); }
+.dr-line .src .mk{ color:var(--ink-faint); user-select:none; }
+.dr-line.add{ background:var(--ok-bg); }
+.dr-line.add .src{ box-shadow:inset 2px 0 0 var(--ok); }
+.dr-line.add .src .mk{ color:var(--ok); }
+.dr-line.add .dr-gutter{ background:color-mix(in srgb, var(--ok-bg) 78%, var(--bg-subtle)); }
+.dr-line.del{ background:var(--risk-bg); }
+.dr-line.del .src{ box-shadow:inset 2px 0 0 var(--risk); }
+.dr-line.del .src .mk{ color:var(--risk); }
+.dr-line.del .dr-gutter{ background:color-mix(in srgb, var(--risk-bg) 78%, var(--bg-subtle)); }
+.dr-line.ctx .src .mk{ opacity:0; }
+
+/* light, honest syntax tints (baked from data tokens — no parser) */
+.tk-kw{ color:var(--navy-deep); font-weight:600; }
+.tk-str{ color:var(--ok); }
+.tk-com{ color:var(--ink-faint); font-style:italic; }
+.tk-num{ color:var(--hold); }
+.tk-fn{ color:var(--ink); font-weight:600; }
+html[data-theme="black"] .tk-kw{ color:#000; }
+
+/* split mode */
+.dr-line.split{ grid-template-columns:38px 1fr 38px 1fr; }
+.dr-line.split .side{ padding:0 12px; white-space:pre-wrap; word-break:break-word; min-width:0; }
+.dr-line.split .side.old{ border-right:1px solid var(--rule-soft); }
+.dr-line.split .g{ text-align:right; padding:0 7px; color:var(--ink-faint); font-feature-settings:"tnum" 1; user-select:none; background:var(--bg-subtle); white-space:nowrap; }
+.dr-line.split .side.old.del{ background:var(--risk-bg); box-shadow:inset 2px 0 0 var(--risk); }
+.dr-line.split .side.new.add{ background:var(--ok-bg); box-shadow:inset 2px 0 0 var(--ok); }
+.dr-line.split .g.del{ background:color-mix(in srgb, var(--risk-bg) 78%, var(--bg-subtle)); }
+.dr-line.split .g.add{ background:color-mix(in srgb, var(--ok-bg) 78%, var(--bg-subtle)); }
+.dr-line.split .side.empty{ background:repeating-linear-gradient(45deg,var(--bg-subtle),var(--bg-subtle) 6px,var(--bg) 6px,var(--bg) 12px); }
+
+/* inline review thread (anchored under a line) */
+.dr-thread{
+  margin:0; padding:10px 14px 11px 24px; background:var(--bg-band);
+  border-top:1px solid var(--rule-soft); border-bottom:1px solid var(--rule-soft);
+}
+.dr-thread + .dr-line{ border-top:0; }
+.dr-thread.resolved{ background:var(--bg-subtle); }
+.dr-thread-card{ background:var(--bg); border:1px solid var(--rule); border-radius:9px; padding:9px 11px; max-width:680px; box-shadow:var(--shadow); }
+.dr-thread.resolved .dr-thread-card{ opacity:.72; }
+.dr-thread-top{ display:flex; align-items:center; gap:8px; margin-bottom:5px; }
+.dr-thread-top .av{ width:20px; height:20px; border-radius:50%; background:var(--navy); color:#fff; display:grid; place-items:center; font:700 9px/1 var(--sans); flex:none; }
+.dr-thread-top .who{ font:700 11.5px/1 var(--sans); color:var(--ink); }
+.dr-thread-top .when{ font:600 10px/1 var(--mono); color:var(--ink-faint); }
+.dr-thread-top .anchor{ font:600 9.5px/1 var(--mono); color:var(--ink-faint); }
+.dr-thread-top .resolve{
+  margin-left:auto; display:inline-flex; align-items:center; gap:5px; cursor:pointer;
+  font:600 10px/1 var(--mono); letter-spacing:.03em; color:var(--ink-soft);
+  background:var(--bg); border:1px solid var(--rule); border-radius:6px; padding:4px 8px;
+  transition:background .12s,color .12s,border-color .12s;
+}
+.dr-thread-top .resolve .icon{ width:12px; height:12px; }
+.dr-thread-top .resolve:hover{ border-color:var(--ok-line); color:var(--ok); }
+.dr-thread.resolved .dr-thread-top .resolve{ background:var(--ok-bg); border-color:var(--ok-line); color:var(--ok); }
+.dr-thread-body{ font:13px/1.55 var(--sans); color:var(--ink-mid); margin:0; }
+.dr-thread.resolved .dr-thread-body{ text-decoration:line-through; text-decoration-color:var(--ink-faint); color:var(--ink-faint); }
+.dr-threads-off .dr-thread{ display:none; }
+
+/* ============================================================
+   3c. RIGHT — review summary
+   ============================================================ */
+.dr-review{ border-left:1px solid var(--rule); background:var(--bg-subtle); overflow:auto; min-width:0; padding:16px 15px 24px; }
+.dr-card{ background:var(--bg); border:1px solid var(--rule); border-radius:11px; box-shadow:var(--shadow); margin-bottom:14px; overflow:hidden; }
+.dr-card h3{ margin:0; padding:10px 13px 9px; border-bottom:1px solid var(--rule-soft); font:600 10px/1.2 var(--mono); letter-spacing:.12em; text-transform:uppercase; color:var(--ink-faint); display:flex; align-items:center; gap:7px; }
+.dr-card h3 .icon{ color:var(--navy); width:14px; height:14px; }
+.dr-card h3 .pill{ margin-left:auto; font:700 9.5px/1 var(--mono); color:var(--ink-faint); }
+.dr-card-b{ padding:12px 13px; }
+.dr-summary{ font:13px/1.6 var(--sans); color:var(--ink-mid); margin:0; }
+
+/* reviewers */
+.dr-rev{ display:flex; align-items:center; gap:9px; padding:8px 0; border-bottom:1px solid var(--rule-soft); }
+.dr-rev:first-child{ padding-top:0; } .dr-rev:last-child{ border-bottom:0; padding-bottom:0; }
+.dr-rev .av{ width:24px; height:24px; border-radius:50%; background:var(--navy-bg); color:var(--navy-deep); border:1px solid var(--navy-line); display:grid; place-items:center; font:700 9.5px/1 var(--sans); flex:none; }
+.dr-rev .meta{ min-width:0; flex:1 1 auto; }
+.dr-rev .meta b{ display:block; font:700 12px/1.2 var(--sans); color:var(--ink); }
+.dr-rev .meta em{ font:600 9.5px/1 var(--mono); font-style:normal; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-faint); }
+
+/* checks */
+.dr-check{ display:flex; align-items:flex-start; gap:9px; padding:8px 0; border-bottom:1px solid var(--rule-soft); }
+.dr-check:first-child{ padding-top:0; } .dr-check:last-child{ border-bottom:0; padding-bottom:0; }
+.dr-check .ci{ width:16px; height:16px; flex:none; margin-top:1px; }
+.dr-check .ci.pass{ color:var(--ok); } .dr-check .ci.fail{ color:var(--risk); } .dr-check .ci.run{ color:var(--hold); }
+.dr-check .ct{ min-width:0; }
+.dr-check .ct b{ display:block; font:600 12px/1.3 var(--sans); color:var(--ink); }
+.dr-check .ct span{ font:600 10.5px/1.3 var(--mono); color:var(--ink-faint); }
+.dr-check .run-anim{ animation:dr-spin 1.4s linear infinite; transform-origin:50% 50%; }
+@keyframes dr-spin{ to{ transform:rotate(360deg); } }
+
+/* verdict control */
+.dr-verdict-ctl{ display:flex; flex-direction:column; gap:9px; }
+.dr-vbtn{ display:flex; align-items:center; gap:9px; width:100%; cursor:pointer; text-align:left; border:1px solid var(--rule); background:var(--bg); border-radius:9px; padding:10px 12px; transition:border-color .12s, background .12s; }
+.dr-vbtn .icon{ width:17px; height:17px; flex:none; }
+.dr-vbtn b{ display:block; font:700 12.5px/1.2 var(--sans); color:var(--ink); }
+.dr-vbtn span{ font:600 10.5px/1.3 var(--mono); color:var(--ink-faint); }
+.dr-vbtn.approve:hover, .dr-vbtn.approve.sel{ border-color:var(--ok-line); background:var(--ok-bg); }
+.dr-vbtn.approve .icon{ color:var(--ok); }
+.dr-vbtn.reject:hover, .dr-vbtn.reject.sel{ border-color:var(--risk-line); background:var(--risk-bg); }
+.dr-vbtn.reject .icon{ color:var(--risk); }
+.dr-vbtn.sel{ box-shadow:inset 0 0 0 1px currentColor; }
+
+/* ---- print: static, complete snapshot; hide chrome ---- */
+@media print{
+  html,body{ height:auto; }
+  body{ background:#fff; }
+  .dr-shell{ width:auto; height:auto; display:block; overflow:visible; }
+  .dr-top{ position:static; box-shadow:none; }
+  .dr-filter, .dr-seg, .dr-cmt-toggle, .rc-theme{ display:none !important; }
+  .dr-body{ display:block; }
+  .dr-tree, .dr-diff, .dr-review{ overflow:visible; border:0; background:#fff; }
+  .dr-tree{ border-bottom:2px solid var(--ink); }
+  .dr-tree-head, .dr-diff-head, .dr-card h3{ position:static; }
+  .dr-file.is-hidden{ display:flex !important; }
+  .dr-hunk.collapsed .dr-hunk-lines{ display:block !important; }
+  .dr-hunk.collapsed .dr-hunk-head{ border-bottom:1px solid var(--rule-soft); }
+  .dr-folder-kids.collapsed{ display:block !important; }
+  .dr-threads-off .dr-thread{ display:block !important; }
+  .dr-hunk, .dr-card{ box-shadow:none; break-inside:avoid; }
+}
+</style>
+</head>
+<body>
+
+<noscript>
+  <div class="noscript-note">
+    This code-review view renders from embedded data and requires JavaScript for its interactive
+    controls (file tree, diff layout, hunk collapse, comment threads, verdict). The complete review
+    data — every file, hunk, line, and comment — is in the <code>#report-data</code> block above.
+  </div>
+</noscript>
+
+<div class="dr-shell" id="shell"><!-- built by render() --></div>
+
+<script>
+/* ============================================================
+   DIFF-REVIEW RENDERER + INTERACTIONS  (vanilla JS, no libraries)
+   - render()            : #report-data JSON  →  three-pane DOM
+   - renderDiff(fileId)  : load one file's diff into the center pane
+   - wireInteractions()  : file select · status filters · unified/split ·
+                           hunk collapse · comment toggle · resolve · verdict
+   - wireThemeSwitch()   : canonical 9-preset .rc-theme switcher (§3)
+   Reading requires JS (data-driven, per _DATA_DRIVEN §1); a
+   <noscript> notice + the raw JSON are provided above.
+   ============================================================ */
+(function(){
+  "use strict";
+
+  var DATA;
+  try { DATA = JSON.parse(document.getElementById('report-data').textContent); }
+  catch(e){ document.getElementById('shell').innerHTML =
+    '<p style="padding:24px;font:600 13px var(--sans);color:var(--risk)">Could not parse #report-data: '+e.message+'</p>'; return; }
+
+  var root  = document.documentElement;
+  var shell = document.getElementById('shell');
+
+  /* ---- helpers ---- */
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+  function initials(name){
+    var t = String(name||'').replace(/^@/,'').replace(/[-_.]/g,' ').trim().split(/\s+/);
+    return ((t[0]||'?').charAt(0) + (t[1]?t[1].charAt(0):(t[0]||'?').charAt(1)||'')).toUpperCase();
+  }
+
+  /* ---- inline house SVG icons (24×24, stroke=currentColor) ---- */
+  var ICON = {
+    diff:'<path d="M9 4v7M5.5 7.5h7"/><path d="M11.5 19.5h7"/><path d="M4.5 5.5 7 8 4.5 10.5"/><rect x="14.5" y="13.5" width="6" height="3.2" rx="1.2" fill="currentColor" stroke="none"/>',
+    pull:'<circle cx="7" cy="6" r="2.4"/><circle cx="7" cy="18" r="2.4"/><circle cx="17" cy="18" r="2.4"/><path d="M7 8.4v7.2"/><path d="M17 15.6V11a3 3 0 0 0-3-3h-3"/><path d="M13 5.5 11 8l2 2.5"/>',
+    branch:'<circle cx="7" cy="6" r="2.4"/><circle cx="7" cy="18" r="2.4"/><circle cx="17" cy="9" r="2.4"/><path d="M7 8.4v7.2"/><path d="M17 11.4c0 3-2 4-4.5 4.5-2 .4-3 1-3.4 2.1"/>',
+    merge:'<path d="M5 12h12"/><path d="M13 7.5 17.5 12 13 16.5"/>',
+    folder:'<path d="M4 7a2 2 0 0 1 2-2h3.2l1.6 2H18a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2Z"/>',
+    folderOpen:'<path d="M4 8a2 2 0 0 1 2-2h3.2l1.6 2H18a2 2 0 0 1 2 2"/><path d="M3.5 10.5h17l-1.6 6.2a1.5 1.5 0 0 1-1.45 1.1H6.05A1.5 1.5 0 0 1 4.6 16.6Z"/>',
+    fileCode:'<path d="M7 3.5h7l4 4V20a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4.5a1 1 0 0 1 1-1Z"/><path d="M13.5 3.75V8h4.25"/><path d="M10.5 12.5 9 14l1.5 1.5M13.5 12.5 15 14l-1.5 1.5"/>',
+    comment:'<path d="M5 5.5h14a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1h-7l-4 3.2V16.5H5a1 1 0 0 1-1-1v-9a1 1 0 0 1 1-1Z"/>',
+    checkC:'<circle cx="12" cy="12" r="8.5"/><path d="M8.3 12.4l2.5 2.5 4.9-5.3"/>',
+    crossC:'<circle cx="12" cy="12" r="8.5"/><path d="M9.3 9.3l5.4 5.4M14.7 9.3l-5.4 5.4"/>',
+    clock:'<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>',
+    spin:'<path d="M12 3.5a8.5 8.5 0 1 1-6 2.5"/>',
+    check:'<path d="M5 12.5 10 17.5 19 7"/>',
+    users:'<circle cx="9" cy="9" r="3"/><path d="M3.5 19c.4-3 2.6-4.6 5.5-4.6S14 16 14.5 19"/><path d="M15.5 6.5a3 3 0 0 1 0 5.6"/><path d="M17 14.6c2.2.5 3.4 1.9 3.5 4.4"/>',
+    flask:'<path d="M10 3.5v5.2L5.5 17a2 2 0 0 0 1.8 3h9.4a2 2 0 0 0 1.8-3L14 8.7V3.5"/><path d="M9 3.5h6"/><path d="M7.6 14h8.8"/>',
+    note:'<path d="M5.5 4.5h13a1 1 0 0 1 1 1v9.5L14 20H6.5a1 1 0 0 1-1-1Z"/><path d="M19.5 15H15a1 1 0 0 0-1 1v4"/><path d="M8.5 9h7M8.5 12h4"/>',
+    filter:'<path d="M4.5 6h15l-5.6 6.6V18l-3.8 2v-7.4Z"/>'
+  };
+  function svg(name, cls, extra){
+    return '<svg class="'+(cls||'icon')+(extra?' '+extra:'')+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" '
+      + 'stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">'+(ICON[name]||'')+'</svg>';
+  }
+
+  var STATUS_LABEL = { add:'added', mod:'modified', del:'deleted', ren:'renamed' };
+  var STATUS_BADGE = { add:'st-ok', mod:'st-badge', del:'st-risk', ren:'st-hold' };
+  var VERDICT = {
+    'approved':          { cls:'st-ok',   label:'Approved' },
+    'changes-requested': { cls:'st-risk', label:'Changes requested' },
+    'pending':           { cls:'st-hold', label:'Review pending' }
+  };
+  var REV_STATE = {
+    'approved':          { cls:'st-ok',   label:'Approved' },
+    'changes-requested': { cls:'st-risk', label:'Changes' },
+    'pending':           { cls:'st-hold', label:'Pending' },
+    'commented':         { cls:'st-badge',label:'Commented' }
+  };
+
+  /* state shared across interactions */
+  var STATE = { active:0, layout:'unified', filter:'all', commentsOn:true };
+  /* give each file a stable id + count live (unresolved) comments */
+  (DATA.files||[]).forEach(function(f,i){ f.__i = i; });
+  function liveComments(f){ return (f.threads||[]).filter(function(t){ return !t.resolved; }).length; }
+
+  /* ============================================================
+     RENDER — build the whole shell from DATA
+     ============================================================ */
+  function render(){
+    var m = DATA.meta || {}, ch = DATA.change || {};
+    root.dataset.theme = m.theme || 'slate';
+
+    var themeSwitcher = '<label class="rc-theme" title="Brand colour">'
+      + '<span class="rc-theme-sw" aria-hidden="true"></span>'
+      + '<select class="rc-theme-sel" aria-label="Brand theme">'
+      + '<option value="blue">Blue</option><option value="purple">Purple</option>'
+      + '<option value="indigo">Indigo</option><option value="teal">Teal</option>'
+      + '<option value="cyan">Cyan</option><option value="green">Green</option>'
+      + '<option value="plum">Plum</option><option value="slate">Slate</option>'
+      + '<option value="black">Black</option></select></label>';
+
+    var totals = (DATA.files||[]).reduce(function(a,f){ a.add += (f.additions||0); a.del += (f.deletions||0); return a; }, {add:0,del:0});
+
+    /* file-status filter chips */
+    var counts = { all:(DATA.files||[]).length, add:0, mod:0, del:0, ren:0 };
+    (DATA.files||[]).forEach(function(f){ if(counts[f.status]!=null) counts[f.status]++; });
+    var fchips = ['all','add','mod','del','ren'].map(function(fs){
+      if(fs!=='all' && !counts[fs]) return '';
+      var lbl = fs==='all' ? 'All' : STATUS_LABEL[fs].charAt(0).toUpperCase()+STATUS_LABEL[fs].slice(1);
+      return '<button type="button" data-fs="'+fs+'"'+(fs==='all'?' class="on"':'')+' aria-pressed="'+(fs==='all')+'">'
+        + (fs==='all'?'':'<span class="fdot"></span>') + esc(lbl) + ' <span class="n tnum">'+counts[fs]+'</span></button>';
+    }).join('');
+
+    var vb = VERDICT[ch.verdict] || VERDICT.pending;
+
+    shell.innerHTML = ''
+    + '<header class="dr-top">'
+    +   '<div class="dr-brand"><span class="mark">'+svg('diff')+'</span>'+esc(m.org||'{{ORG}}')+'</div>'
+    +   '<div class="dr-title"><span class="pid">'+esc(m.project||'{{PROJECT}}')+' · '+esc((m.reportType||'Code Review').toUpperCase())+(ch.id?' · '+esc(ch.id):'')+'</span>'
+    +     '<span class="nm">'+(ch.title?'<code>'+esc(ch.title)+'</code>':esc(m.title||''))+'</span></div>'
+    +   '<div class="dr-branches">'
+    +     '<span class="dr-branch" title="source branch">'+svg('branch')+esc(ch.sourceBranch||'')+'</span>'
+    +     '<span class="dr-mergearrow" aria-label="merges into">'+svg('merge')+'</span>'
+    +     '<span class="dr-branch target" title="target branch">'+svg('branch')+esc(ch.targetBranch||'')+'</span>'
+    +   '</div>'
+    +   '<span class="st-badge dr-verdict '+vb.cls+'" id="verdict-badge">'+esc(vb.label)+'</span>'
+    +   '<span class="dr-stat tnum" title="lines added / removed across all files"><span class="add">+'+totals.add+'</span><span class="del">−'+totals.del+'</span></span>'
+    +   '<div class="dr-spacer"></div>'
+    +   '<div class="dr-filter" role="group" aria-label="Filter by file status">'+fchips+'</div>'
+    +   '<div class="dr-seg" role="group" aria-label="Diff layout">'
+    +     '<button type="button" data-layout="unified" class="on">Unified</button>'
+    +     '<button type="button" data-layout="split">Split</button>'
+    +   '</div>'
+    +   '<button class="dr-cmt-toggle on" id="cmt-toggle" type="button" aria-pressed="true" title="Show / hide inline comments">'
+    +     svg('comment')+'<span class="sw" aria-hidden="true"></span>Comments</button>'
+    +   themeSwitcher
+    + '</header>'
+
+    + '<div class="dr-body">'
+    +   '<aside class="dr-tree" id="tree" aria-label="Changed files">'+renderTree()+'</aside>'
+    +   '<section class="dr-diff" id="diff" aria-label="Diff viewer"></section>'
+    +   '<aside class="dr-review" id="review" aria-label="Review summary">'+renderReview()+'</aside>'
+    + '</div>';
+
+    renderDiff(STATE.active);
+  }
+
+  /* ---- LEFT: changed-file tree (folders + files) ---- */
+  function renderTree(){
+    var files = DATA.files || [];
+    /* group files by their parent folder (dirname) */
+    var groups = []; var index = {};
+    files.forEach(function(f){
+      var p = f.path || ''; var slash = p.lastIndexOf('/');
+      var dir = slash>=0 ? p.slice(0,slash) : '';
+      var name = slash>=0 ? p.slice(slash+1) : p;
+      if(index[dir]==null){ index[dir] = groups.length; groups.push({ dir:dir, items:[] }); }
+      groups[index[dir]].items.push({ f:f, name:name });
+    });
+
+    var html = '<div class="dr-tree-head"><span class="mlabel">'+svg('fileCode','icon')+'Changed files</span>'
+      + '<span class="cnt tnum">'+files.length+'</span></div><div class="dr-tree-list">';
+
+    html += groups.map(function(g, gi){
+      var folder = g.dir
+        ? '<button class="dr-folder open" type="button" data-folder="'+gi+'" aria-expanded="true">'
+          + '<span class="tw" aria-hidden="true"></span>'+svg('folderOpen','icon')
+          + '<span class="fname" title="'+esc(g.dir)+'">'+esc(g.dir)+'</span></button>'
+        : '';
+      var kids = '<div class="dr-folder-kids" data-kids="'+gi+'">' + g.items.map(function(it){
+        var f = it.f; var cc = liveComments(f);
+        return '<button class="dr-file'+(f.__i===STATE.active?' active':'')+'" type="button" data-file="'+f.__i+'" data-status="'+f.status+'" '
+          + 'title="'+esc(f.path)+'">'
+          + '<span class="sdot '+f.status+'" title="'+STATUS_LABEL[f.status]+'"></span>'
+          + '<span class="fn">'+esc(it.name)+'</span>'
+          + '<span class="pm tnum"><span class="a">+'+(f.additions||0)+'</span><span class="d">−'+(f.deletions||0)+'</span></span>'
+          + '<span class="dr-cc'+(cc?'':' zero')+'" data-cc="'+f.__i+'">'+svg('comment','icon')+'<span class="ccn tnum">'+cc+'</span></span>'
+          + '</button>';
+      }).join('') + '</div>';
+      return folder + kids;
+    }).join('');
+
+    return html + '</div>';
+  }
+
+  /* ---- CENTER: render one file's diff ---- */
+  function renderDiff(fileId){
+    var diff = document.getElementById('diff');
+    var f = (DATA.files||[]).filter(function(x){ return x.__i===fileId; })[0];
+    if(!f){ diff.innerHTML = '<div class="dr-diff-body"><p class="muted" style="padding:20px">No file selected.</p></div>'; return; }
+
+    /* breadcrumb path */
+    var parts = (f.path||'').split('/');
+    var leaf = parts.pop();
+    var crumb = parts.map(function(p){ return '<span class="seg">'+esc(p)+'/</span>'; }).join('')
+      + '<span class="leaf">'+esc(leaf)+'</span>';
+    var sb = STATUS_BADGE[f.status]||'st-badge';
+
+    var head = '<div class="dr-diff-head">'
+      + '<span class="path">'+svg('fileCode','icon')+crumb+'</span>'
+      + (f.status==='ren'&&f.oldPath ? '<span class="renfrom">← '+esc(f.oldPath)+'</span>' : '')
+      + '<span class="st-badge '+sb+'" style="margin-left:10px">'+esc(STATUS_LABEL[f.status])+'</span>'
+      + '<span class="pm tnum"><span class="a">+'+(f.additions||0)+'</span><span class="d">−'+(f.deletions||0)+'</span></span>'
+      + '</div>';
+
+    var body = '<div class="dr-diff-body">'
+      + (f.hunks||[]).map(function(h,hi){ return renderHunk(f,h,hi); }).join('')
+      + (!(f.hunks||[]).length ? '<p class="muted">Binary or empty diff.</p>' : '')
+      + '</div>';
+
+    diff.innerHTML = head + body;
+    diff.scrollTop = 0;
+  }
+
+  /* ---- one hunk (unified or split) ---- */
+  function renderHunk(f, h, hi){
+    var collapsed = !!h.collapsed;
+    var oldSpan = (h.lines||[]).filter(function(l){ return l.type!=='add'; }).length;
+    var newSpan = (h.lines||[]).filter(function(l){ return l.type!=='del'; }).length;
+    var at = '@@ -'+(h.oldStart||0)+','+oldSpan+' +'+(h.newStart||0)+','+newSpan+' @@';
+
+    var rows = STATE.layout==='split' ? splitRows(f,h) : unifiedRows(f,h);
+
+    return '<div class="dr-hunk'+(collapsed?' collapsed':'')+'" data-hunk="'+hi+'">'
+      + '<button class="dr-hunk-head" type="button" aria-expanded="'+(!collapsed)+'">'
+      +   '<span class="tw" aria-hidden="true"></span>'
+      +   '<span class="at">'+esc(at)+'</span>'
+      +   '<span class="ctx">'+esc(h.header||'')+'</span>'
+      +   '<span class="ln">'+(h.lines||[]).length+' lines</span>'
+      + '</button>'
+      + '<div class="dr-hunk-lines dr-code">'+rows+'</div>'
+      + '</div>';
+  }
+
+  /* render the light syntax tokens (or plain escaped text) */
+  function srcHTML(l){
+    if(l.tokens && l.tokens.length){
+      return l.tokens.map(function(tk){
+        var c = tk.c ? ' class="tk-'+esc(tk.c)+'"' : '';
+        return '<span'+c+'>'+esc(tk.t)+'</span>';
+      }).join('');
+    }
+    return esc(l.text||'');
+  }
+  function mark(type){ return type==='add'?'+':type==='del'?'−':' '; }
+
+  /* unified: old-gutter | new-gutter | code, plus anchored threads */
+  function unifiedRows(f, h){
+    return (h.lines||[]).map(function(l){
+      var row = '<div class="dr-line '+l.type+'">'
+        + '<span class="dr-gutter">'+(l.oldNo!=null?l.oldNo:'')+'</span>'
+        + '<span class="dr-gutter">'+(l.newNo!=null?l.newNo:'')+'</span>'
+        + '<span class="src"><span class="mk">'+mark(l.type)+' </span>'+srcHTML(l)+'</span>'
+        + '</div>';
+      return row + threadsForLine(f, l);
+    }).join('');
+  }
+
+  /* split: old (g|code) | new (g|code) — pair del/add, context spans both */
+  function splitRows(f, h){
+    var lines = h.lines||[]; var out = ''; var i = 0;
+    function cell(side, l){
+      if(!l) return '<span class="g"></span><span class="side '+side+' empty"></span>';
+      var stateCls = (side==='old'&&l.type==='del') ? ' del' : (side==='new'&&l.type==='add') ? ' add' : '';
+      var no = side==='old' ? l.oldNo : l.newNo;
+      return '<span class="g'+stateCls+'">'+(no!=null?no:'')+'</span>'
+        + '<span class="side '+side+stateCls+'">'+srcHTML(l)+'</span>';
+    }
+    while(i < lines.length){
+      var l = lines[i];
+      if(l.type==='ctx'){
+        out += '<div class="dr-line split">'+cell('old',l)+cell('new',l)+'</div>' + threadsForLine(f,l);
+        i++;
+      } else if(l.type==='del'){
+        /* gather a run of dels then a run of adds, pair them up */
+        var dels=[], adds=[];
+        while(i<lines.length && lines[i].type==='del'){ dels.push(lines[i]); i++; }
+        while(i<lines.length && lines[i].type==='add'){ adds.push(lines[i]); i++; }
+        var n = Math.max(dels.length, adds.length);
+        for(var k=0;k<n;k++){
+          out += '<div class="dr-line split">'+cell('old',dels[k]||null)+cell('new',adds[k]||null)+'</div>';
+          if(adds[k]) out += threadsForLine(f, adds[k]);
+          else if(dels[k]) out += threadsForLine(f, dels[k]);
+        }
+      } else { /* add with no preceding del */
+        out += '<div class="dr-line split">'+cell('old',null)+cell('new',l)+'</div>' + threadsForLine(f,l);
+        i++;
+      }
+    }
+    return out;
+  }
+
+  /* threads anchored under a given line (matched by side+line number) */
+  function threadsForLine(f, l){
+    var ths = (f.threads||[]).filter(function(t){
+      if(t.side==='old') return l.oldNo!=null && t.line===l.oldNo;
+      return l.newNo!=null && t.line===l.newNo;   /* 'new' (default) */
+    });
+    if(!ths.length) return '';
+    return ths.map(function(t){
+      var key = f.__i+':'+t.side+':'+t.line;
+      return '<div class="dr-thread'+(t.resolved?' resolved':'')+'" data-thread="'+esc(key)+'">'
+        + '<div class="dr-thread-card">'
+        +   '<div class="dr-thread-top">'
+        +     '<span class="av">'+esc(initials(t.author))+'</span>'
+        +     '<span class="who">'+esc(t.author)+'</span>'
+        +     '<span class="when">'+esc(t.time)+'</span>'
+        +     '<span class="anchor">'+esc(t.side)+' L'+t.line+'</span>'
+        +     '<button class="resolve" type="button" data-resolve="'+esc(key)+'">'+svg('check','icon')
+        +       '<span class="rl">'+(t.resolved?'Resolved':'Resolve')+'</span></button>'
+        +   '</div>'
+        +   '<p class="dr-thread-body">'+esc(t.body)+'</p>'
+        + '</div></div>';
+    }).join('');
+  }
+
+  /* ---- RIGHT: review summary ---- */
+  function renderReview(){
+    var ch = DATA.change || {};
+    var revs = DATA.reviewers || []; var checks = DATA.checks || [];
+
+    var summary = ch.summary
+      ? '<div class="dr-card"><h3>'+svg('pull','icon')+'Summary</h3><div class="dr-card-b"><p class="dr-summary">'+esc(ch.summary)+'</p></div></div>'
+      : '';
+
+    var revRows = revs.map(function(r){
+      var st = REV_STATE[r.state] || REV_STATE.pending;
+      return '<div class="dr-rev"><span class="av">'+esc(initials(r.name))+'</span>'
+        + '<span class="meta"><b>'+esc(r.name)+'</b>'+(r.role?'<em>'+esc(r.role)+'</em>':'')+'</span>'
+        + '<span class="st-badge '+st.cls+'" data-rev="'+esc(r.name)+'">'+esc(st.label)+'</span></div>';
+    }).join('');
+    var reviewers = revs.length
+      ? '<div class="dr-card"><h3>'+svg('users','icon')+'Reviewers<span class="pill tnum">'+revs.length+'</span></h3><div class="dr-card-b">'+revRows+'</div></div>'
+      : '';
+
+    var passN = checks.filter(function(c){ return c.status==='pass'; }).length;
+    var checkRows = checks.map(function(c){
+      var ic = c.status==='pass' ? ['checkC','pass',''] :
+               c.status==='fail' ? ['crossC','fail',''] :
+               c.status==='running' ? ['spin','run','run-anim'] : ['clock','run',''];
+      return '<div class="dr-check">'+svg(ic[0],'ci '+ic[1], ic[2])
+        + '<span class="ct"><b>'+esc(c.name)+'</b>'+(c.detail?'<span>'+esc(c.detail)+'</span>':'')+'</span></div>';
+    }).join('');
+    var checksCard = checks.length
+      ? '<div class="dr-card"><h3>'+svg('flask','icon')+'Checks<span class="pill tnum">'+passN+'/'+checks.length+' passing</span></h3><div class="dr-card-b">'+checkRows+'</div></div>'
+      : '';
+
+    var verdictCtl = '<div class="dr-card"><h3>'+svg('note','icon')+'Your review</h3><div class="dr-card-b">'
+      + '<div class="dr-verdict-ctl">'
+      +   '<button class="dr-vbtn approve'+(ch.verdict==='approved'?' sel':'')+'" type="button" data-verdict="approved">'+svg('checkC','icon')
+      +     '<span><b>Approve</b><span>looks good to merge</span></span></button>'
+      +   '<button class="dr-vbtn reject'+(ch.verdict==='changes-requested'?' sel':'')+'" type="button" data-verdict="changes-requested">'+svg('crossC','icon')
+      +     '<span><b>Request changes</b><span>blocks the merge</span></span></button>'
+      + '</div></div></div>';
+
+    return summary + reviewers + checksCard + verdictCtl;
+  }
+
+  /* ============================================================
+     INTERACTIONS
+     ============================================================ */
+  function wireInteractions(){
+    /* ---- FILE SELECT (tree → center) ---- */
+    shell.addEventListener('click', function(e){
+      var fb = e.target.closest('.dr-file'); if(!fb) return;
+      var id = +fb.dataset.file;
+      STATE.active = id;
+      shell.querySelectorAll('.dr-file').forEach(function(x){ x.classList.remove('active'); });
+      fb.classList.add('active');
+      renderDiff(id);
+      applyCommentsVisibility();
+    });
+
+    /* ---- FOLDER collapse/expand ---- */
+    shell.addEventListener('click', function(e){
+      var fo = e.target.closest('.dr-folder'); if(!fo) return;
+      var gi = fo.dataset.folder;
+      var open = fo.classList.toggle('open');
+      fo.setAttribute('aria-expanded', open?'true':'false');
+      var kids = shell.querySelector('.dr-folder-kids[data-kids="'+gi+'"]');
+      if(kids) kids.classList.toggle('collapsed', !open);
+    });
+
+    /* ---- FILE-STATUS filter chips → filter the tree ---- */
+    shell.addEventListener('click', function(e){
+      var ch = e.target.closest('.dr-filter button'); if(!ch) return;
+      STATE.filter = ch.dataset.fs;
+      shell.querySelectorAll('.dr-filter button').forEach(function(x){
+        var on = x===ch; x.classList.toggle('on', on); x.setAttribute('aria-pressed', on?'true':'false');
+      });
+      shell.querySelectorAll('.dr-file').forEach(function(fb){
+        fb.classList.toggle('is-hidden', STATE.filter!=='all' && fb.dataset.status!==STATE.filter);
+      });
+    });
+
+    /* ---- UNIFIED|SPLIT layout toggle → re-render diff ---- */
+    shell.addEventListener('click', function(e){
+      var sb = e.target.closest('.dr-seg button'); if(!sb) return;
+      STATE.layout = sb.dataset.layout;
+      shell.querySelectorAll('.dr-seg button').forEach(function(x){ x.classList.toggle('on', x===sb); });
+      renderDiff(STATE.active);
+      applyCommentsVisibility();
+    });
+
+    /* ---- HUNK collapse/expand ---- */
+    shell.addEventListener('click', function(e){
+      var hh = e.target.closest('.dr-hunk-head'); if(!hh) return;
+      var hunk = hh.closest('.dr-hunk');
+      var collapsed = hunk.classList.toggle('collapsed');
+      hh.setAttribute('aria-expanded', collapsed?'false':'true');
+    });
+
+    /* ---- COMMENT visibility toggle ---- */
+    var ct = document.getElementById('cmt-toggle');
+    ct.addEventListener('click', function(){
+      STATE.commentsOn = !STATE.commentsOn;
+      ct.classList.toggle('on', STATE.commentsOn);
+      ct.classList.toggle('off', !STATE.commentsOn);
+      ct.setAttribute('aria-pressed', STATE.commentsOn?'true':'false');
+      applyCommentsVisibility();
+    });
+
+    /* ---- RESOLVE / UNRESOLVE a thread (updates data + count) ---- */
+    shell.addEventListener('click', function(e){
+      var rb = e.target.closest('.resolve'); if(!rb) return;
+      var key = rb.dataset.resolve;
+      var parts = key.split(':'); var fid = +parts[0], side = parts[1], line = +parts[2];
+      var f = (DATA.files||[]).filter(function(x){ return x.__i===fid; })[0]; if(!f) return;
+      (f.threads||[]).forEach(function(t){ if(t.side===side && t.line===line) t.resolved = !t.resolved; });
+      /* reflect on the thread element */
+      var el = shell.querySelector('.dr-thread[data-thread="'+CSS.escape(key)+'"]');
+      var nowResolved = (f.threads||[]).filter(function(t){ return t.side===side && t.line===line; })[0].resolved;
+      if(el){ el.classList.toggle('resolved', nowResolved);
+        var lbl = el.querySelector('.rl'); if(lbl) lbl.textContent = nowResolved?'Resolved':'Resolve'; }
+      /* update the file's comment-count chip in the tree */
+      updateCommentCount(fid);
+    });
+
+    /* ---- VERDICT control → updates badge + data + reviewer state ---- */
+    shell.addEventListener('click', function(e){
+      var vbtn = e.target.closest('.dr-vbtn'); if(!vbtn) return;
+      var v = vbtn.dataset.verdict;
+      DATA.change.verdict = v;
+      shell.querySelectorAll('.dr-vbtn').forEach(function(x){ x.classList.toggle('sel', x===vbtn); });
+      var badge = document.getElementById('verdict-badge');
+      var vb = VERDICT[v] || VERDICT.pending;
+      badge.className = 'st-badge dr-verdict '+vb.cls; badge.textContent = vb.label;
+      /* reflect onto the codeowner reviewer chip (the acting reviewer) */
+      var owner = (DATA.reviewers||[]).filter(function(r){ return r.role==='codeowner'; })[0]
+                  || (DATA.reviewers||[])[0];
+      if(owner){
+        owner.state = v;
+        var chip = shell.querySelector('.st-badge[data-rev="'+CSS.escape(owner.name)+'"]');
+        var st = REV_STATE[v] || REV_STATE.pending;
+        if(chip){ chip.className = 'st-badge '+st.cls; chip.setAttribute('data-rev', owner.name); chip.textContent = st.label; }
+      }
+      flash(badge);
+    });
+  }
+
+  function applyCommentsVisibility(){
+    var body = shell.querySelector('.dr-body');
+    if(body) body.classList.toggle('dr-threads-off', !STATE.commentsOn);
+  }
+  function updateCommentCount(fid){
+    var f = (DATA.files||[]).filter(function(x){ return x.__i===fid; })[0]; if(!f) return;
+    var cc = liveComments(f);
+    var chip = shell.querySelector('.dr-cc[data-cc="'+fid+'"]');
+    if(chip){ chip.classList.toggle('zero', cc===0); var n = chip.querySelector('.ccn'); if(n) n.textContent = cc; }
+  }
+  function flash(el){
+    el.style.transition='box-shadow .2s'; el.style.boxShadow='0 0 0 3px var(--navy-bg)';
+    setTimeout(function(){ el.style.boxShadow=''; }, 600);
+  }
+
+  /* ---- canonical dropdown theme switcher (per _DATA_DRIVEN §3) ---- */
+  function wireThemeSwitch(){
+    var rcSel = document.querySelector('.rc-theme-sel');
+    if (rcSel) {
+      rcSel.value = document.documentElement.dataset.theme || 'slate';
+      rcSel.addEventListener('change', function(){ document.documentElement.dataset.theme = rcSel.value; });
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', function(){
+    render();
+    wireInteractions();
+    wireThemeSwitch();
+    applyCommentsVisibility();
+  });
+})();
+</script>
+</body>
+</html>

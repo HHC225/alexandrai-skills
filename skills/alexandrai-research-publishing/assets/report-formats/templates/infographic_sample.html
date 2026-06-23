@@ -1,0 +1,868 @@
+<!doctype html>
+<html lang="en" data-theme="green">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1440">
+<title>{{PROJECT}} — The State of Digital Onboarding 2026</title>
+<style>
+/* ============================================================
+   INFOGRAPHIC POSTER — self-contained, system fonts, all CSS/SVG.
+   Inherits the family DNA from _FOUNDATION.md; diverges on chrome:
+   one tall poster of full-bleed coloured bands, oversized tnum
+   numbers, and hand-drawn diagram primitives. Default theme: Green.
+   DATA-DRIVEN: the body is built by render() from #report-data.
+   ============================================================ */
+
+:root{
+  /* surfaces */
+  --bg:#fff; --bg-band:#f6f6f8; --bg-subtle:#fafafb; --bg-deep:#15131a;
+  --rule:#dcdce2; --rule-soft:#ebebef;
+  /* ink */
+  --ink:#11131a; --ink-mid:#33363f; --ink-soft:#5a5e68; --ink-faint:#868b95;
+  /* brand accent — GREEN default */
+  --navy:#1f7a44; --navy-deep:#155730; --navy-bg:#e6f4ea; --navy-line:#b3dcc1;
+  /* cleared / approved — deeper low-chroma shade of the accent hue */
+  --ok:#2f6b3c; --ok-bg:#e9f3ea; --ok-line:#bedcc4;
+  /* semantic states — CONSTANT across themes */
+  --risk:#b3261e; --risk-bg:#fbeceb; --risk-line:#edc7c4;
+  --hold:#8a6d00; --hold-bg:#fbf3da; --hold-line:#e7d8a4;
+  /* type stacks */
+  --mono:ui-monospace,"JetBrains Mono","SFMono-Regular",Menlo,Consolas,monospace;
+  --sans:-apple-system,"Segoe UI",system-ui,Roboto,"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic UI","Apple SD Gothic Neo","Malgun Gothic","PingFang SC","Microsoft YaHei","Noto Sans CJK JP","Noto Sans CJK KR","Noto Sans CJK SC","Noto Sans JP","Noto Sans KR","Noto Sans SC","Noto Sans",sans-serif;
+}
+/* ---- alternate-theme swaps (only the 7 brand values change) ---- */
+html[data-theme="blue"]  {--navy:#0b5fd4;--navy-deep:#0842a0;--navy-bg:#e8f1fc;--navy-line:#bcd6f5;--ok:#1a4f9c;--ok-bg:#e9f0fa;--ok-line:#b7cdea;}
+html[data-theme="purple"]{--navy:#a100ff;--navy-deep:#7a00c2;--navy-bg:#f3e8ff;--navy-line:#d9bef5;--ok:#5a2f8a;--ok-bg:#efe8f5;--ok-line:#d0b5e0;}
+html[data-theme="indigo"]{--navy:#4338ca;--navy-deep:#312c92;--navy-bg:#ebebfb;--navy-line:#c7c3f0;--ok:#3730a3;--ok-bg:#ebeaf7;--ok-line:#c5c2ea;}
+html[data-theme="teal"]  {--navy:#0e7c86;--navy-deep:#095861;--navy-bg:#e0f3f4;--navy-line:#a9dade;--ok:#0f5d54;--ok-bg:#e3f3ef;--ok-line:#b3ddd4;}
+html[data-theme="cyan"]  {--navy:#0891b2;--navy-deep:#0e6f88;--navy-bg:#e2f4f9;--navy-line:#abdde9;--ok:#0e6b7a;--ok-bg:#e4f3f4;--ok-line:#b0dde2;}
+html[data-theme="green"] {--navy:#1f7a44;--navy-deep:#155730;--navy-bg:#e6f4ea;--navy-line:#b3dcc1;--ok:#2f6b3c;--ok-bg:#e9f3ea;--ok-line:#bedcc4;}
+html[data-theme="plum"]  {--navy:#a21d6e;--navy-deep:#7c1450;--navy-bg:#fbe8f2;--navy-line:#e8b9d4;--ok:#6d2356;--ok-bg:#f6e8f0;--ok-line:#e3bcd5;}
+html[data-theme="slate"] {--navy:#3f4f63;--navy-deep:#29384b;--navy-bg:#eef1f5;--navy-line:#c2ccd8;--ok:#34495e;--ok-bg:#eef1f5;--ok-line:#c2ccd8;}
+html[data-theme="black"] {--navy:#000000;--navy-deep:#000;--navy-bg:#f1f1f3;--navy-line:#d6d6db;--ok:#3f3f46;--ok-bg:#f1f1f3;--ok-line:#cfcfd6;}
+
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  font:15px/1.6 var(--sans); color:var(--ink); background:var(--bg);
+  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+}
+.tnum{font-feature-settings:"tnum" 1}
+.icon{width:1.15em;height:1.15em;display:inline-block;vertical-align:-.18em;color:inherit}
+
+/* ============================================================ THEME SWITCHER (canonical compact dropdown) */
+.rc-bar{
+  position:fixed;top:14px;right:18px;z-index:50;
+  display:flex;align-items:center;gap:10px;
+  background:rgba(255,255,255,.86);backdrop-filter:blur(8px);
+  border:1px solid var(--rule);border-radius:10px;padding:7px 11px;
+  box-shadow:0 1px 3px rgba(17,19,26,.08);
+}
+.rc-bar .rc-cap{font:600 9.5px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-faint)}
+.rc-theme{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--rule);border-radius:7px;
+          padding:3px 4px 3px 7px;background:var(--bg);}
+.rc-theme-sw{width:12px;height:12px;border-radius:50%;background:var(--navy);box-shadow:0 0 0 1px var(--rule);flex:none;}
+.rc-theme-sel{border:0;background:none;font:600 11px/1 var(--mono);color:var(--ink-mid);cursor:pointer;outline:none;padding:2px;}
+@media print{.rc-bar{display:none}}
+
+/* ============================================================ POSTER + BANDS */
+.poster{width:100%;max-width:100vw;overflow-x:hidden}
+.band{width:100%;padding:74px 24px;position:relative}
+.band--hero{background:var(--bg);padding-top:46px}
+.band--tint{background:var(--navy-bg)}
+.band--soft{background:var(--bg-band)}
+.band--deep{background:var(--bg-deep);color:#e9e9ee}
+.band-inner{max-width:1040px;margin:0 auto}
+
+/* scroll-reveal (motion gated by prefers-reduced-motion below) */
+.band-inner{opacity:1}
+.reveal{opacity:0;transform:translateY(18px);transition:opacity .5s ease,transform .5s ease}
+.reveal.in{opacity:1;transform:none}
+
+/* stage headers */
+.band-kicker{
+  font:600 11px/1 var(--mono);letter-spacing:.13em;text-transform:uppercase;
+  color:var(--ink-faint);display:flex;align-items:center;gap:9px;justify-content:center;
+}
+.band-kicker .k-n{color:var(--navy);font-weight:700}
+.band--deep .band-kicker{color:#9a9aa6}
+.band--deep .band-kicker .k-n{color:#7fd3a0}
+.band-rule{width:46px;height:4px;border-radius:3px;background:var(--navy);margin:13px auto 0}
+.band--deep .band-rule{background:#3fae6b}
+.band-head{
+  font:800 30px/1.18 var(--sans);letter-spacing:-.015em;text-align:center;
+  margin:16px auto 6px;max-width:760px;color:var(--ink);
+}
+.band--deep .band-head{color:#fff}
+.band-sub{
+  font:400 14.5px/1.55 var(--sans);color:var(--ink-soft);text-align:center;
+  max-width:620px;margin:0 auto 44px;
+}
+.band--deep .band-sub{color:#b7b7c2}
+
+/* ============================================================ STAT BURSTS */
+.burst-row{display:flex;gap:30px;flex-wrap:wrap;justify-content:center;align-items:flex-start}
+.stat-burst{flex:1 1 240px;min-width:220px;text-align:center;padding:6px 4px;position:relative}
+.bignum{
+  font:800 96px/.92 var(--mono);letter-spacing:-.03em;color:var(--navy-deep);
+  font-feature-settings:"tnum" 1;display:inline-flex;align-items:flex-start;gap:2px;
+}
+.bignum .u{font-size:.34em;font-weight:700;color:var(--navy);align-self:flex-end;margin-bottom:.55em}
+.bignum .pre{font-size:.42em;font-weight:700;color:var(--navy);align-self:flex-start;margin-top:.18em}
+.bignum.ok{color:var(--ok)} .bignum.risk{color:var(--risk)} .bignum.hold{color:var(--hold)}
+.band--deep .bignum{color:#fff}
+.band--deep .bignum .u,.band--deep .bignum .pre{color:#7fd3a0}
+.burst-label{
+  font:600 11px/1.3 var(--mono);letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink-faint);margin-top:14px;
+}
+.band--deep .burst-label{color:#9a9aa6}
+.burst-note{font:400 13.5px/1.5 var(--sans);color:var(--ink-soft);margin:8px auto 0;max-width:260px}
+.band--deep .burst-note{color:#b7b7c2}
+.delta{
+  display:inline-flex;align-items:center;gap:4px;margin-top:11px;
+  font:700 12px/1 var(--mono);padding:4px 9px;border-radius:6px;
+}
+.delta.up{color:var(--ok);background:var(--ok-bg)}
+.delta.down{color:var(--risk);background:var(--risk-bg)}
+.delta::before{font-size:11px}
+.delta.up::before{content:"▲"} .delta.down::before{content:"▼"}
+
+/* stat-burst is hoverable → provenance popover */
+.stat-burst.has-src{cursor:help}
+.stat-burst .burst-src{
+  position:absolute;left:50%;top:calc(100% + 8px);transform:translateX(-50%) translateY(4px);
+  width:max-content;max-width:280px;z-index:6;
+  background:var(--ink);color:#fff;border-radius:8px;padding:9px 12px;
+  font:500 11.5px/1.45 var(--sans);text-align:left;
+  opacity:0;visibility:hidden;transition:opacity .14s ease,transform .14s ease;
+  box-shadow:0 6px 22px rgba(17,19,26,.22);pointer-events:none;
+}
+.stat-burst .burst-src b{font:700 12px/1 var(--mono);color:#fff;display:block;margin-bottom:4px}
+.stat-burst .burst-src .s-src{color:#c9c9d2;display:block;margin-top:5px}
+.stat-burst .burst-src::before{
+  content:"";position:absolute;left:50%;top:-5px;transform:translateX(-50%) rotate(45deg);
+  width:10px;height:10px;background:var(--ink);
+}
+.band--deep .stat-burst .burst-src{background:#000}
+.stat-burst.has-src:hover .burst-src,.stat-burst.has-src:focus-within .burst-src{
+  opacity:1;visibility:visible;transform:translateX(-50%) translateY(0);
+}
+
+/* hero specifics */
+.hero-eyebrow{
+  font:600 11.5px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;
+  color:var(--navy);text-align:center;display:flex;gap:10px;justify-content:center;
+  align-items:center;margin-bottom:18px;
+}
+.hero-eyebrow .em-sq{width:9px;height:9px;border-radius:2px;background:var(--navy);display:inline-block}
+.hero-title{
+  font:800 56px/1.04 var(--sans);letter-spacing:-.028em;text-align:center;
+  margin:0 auto 14px;max-width:860px;color:var(--ink);
+}
+.hero-title em{font-style:normal;color:var(--navy-deep)}
+.hero-stand{
+  font:400 17px/1.55 var(--sans);color:var(--ink-soft);text-align:center;
+  max-width:660px;margin:0 auto 50px;
+}
+.hero-chips{display:flex;gap:9px;justify-content:center;flex-wrap:wrap;margin-bottom:48px}
+.chip{
+  font:600 11px/1 var(--mono);letter-spacing:.04em;padding:6px 10px;border-radius:6px;
+  background:var(--navy-bg);color:var(--navy-deep);border:1px solid var(--navy-line);
+  display:inline-flex;align-items:center;gap:6px;
+}
+.hero-divider{max-width:1040px;margin:0 auto;height:1px;background:var(--rule);margin-top:6px}
+
+/* st-badge (shared primitive) */
+.st-badge{
+  display:inline-flex;align-items:center;gap:6px;font:600 11px/1 var(--mono);
+  letter-spacing:.03em;padding:5px 9px 5px 8px;border-radius:6px;border:1px solid;
+}
+.st-badge::before{content:"";width:7px;height:7px;border-radius:50%}
+.st-ok{color:var(--ok);background:var(--ok-bg);border-color:var(--ok-line)}
+.st-ok::before{background:var(--ok)}
+.st-risk{color:var(--risk);background:var(--risk-bg);border-color:var(--risk-line)}
+.st-risk::before{background:var(--risk)}
+.st-hold{color:var(--hold);background:var(--hold-bg);border-color:var(--hold-line)}
+.st-hold::before{background:var(--hold)}
+
+/* ============================================================ PROCESS FLOW */
+.proc-flow{
+  display:flex;align-items:stretch;justify-content:center;gap:0;flex-wrap:wrap;
+  position:relative;margin-top:8px;
+}
+.proc-step{
+  flex:1 1 180px;max-width:230px;min-width:170px;text-align:center;
+  padding:0 14px;position:relative;cursor:default;
+}
+.proc-n{
+  width:54px;height:54px;border-radius:14px;background:var(--navy);color:#fff;
+  font:800 22px/1 var(--mono);display:flex;align-items:center;justify-content:center;
+  margin:0 auto 16px;box-shadow:0 1px 2px rgba(17,19,26,.12);
+  font-feature-settings:"tnum" 1;position:relative;z-index:2;transition:transform .12s ease;
+}
+.proc-step:hover .proc-n,.proc-step:focus-within .proc-n{transform:scale(1.08)}
+.proc-step:last-child .proc-n{background:var(--ok)}
+.proc-t{font:700 15px/1.3 var(--sans);color:var(--ink);margin-bottom:6px}
+.proc-d{font:400 13px/1.5 var(--sans);color:var(--ink-soft)}
+.proc-stat{
+  display:block;font:800 17px/1 var(--mono);color:var(--navy-deep);margin-top:10px;
+  font-feature-settings:"tnum" 1;
+}
+.proc-detail{
+  max-height:0;overflow:hidden;opacity:0;transition:max-height .18s ease,opacity .18s ease,margin .18s ease;
+  font:400 12px/1.5 var(--sans);color:var(--ink-mid);margin-top:0;
+}
+.proc-step:hover .proc-detail,.proc-step:focus-within .proc-detail{max-height:120px;opacity:1;margin-top:9px}
+.proc-arrow{
+  display:flex;align-items:flex-start;justify-content:center;color:var(--navy-line);
+  padding-top:14px;flex:0 0 26px;
+}
+.proc-arrow svg{width:26px;height:26px}
+/* connecting baseline behind the nodes */
+.proc-flow::before{
+  content:"";position:absolute;top:27px;left:14%;right:14%;height:3px;
+  background:var(--navy-line);border-radius:2px;z-index:0;
+}
+
+/* ============================================================ FUNNEL */
+.funnel{max-width:680px;margin:8px auto 0;display:flex;flex-direction:column;align-items:center;gap:9px}
+.funnel-row{
+  width:var(--w);min-height:56px;border-radius:11px;
+  background:var(--navy);color:#fff;
+  display:flex;align-items:center;justify-content:space-between;gap:14px;
+  padding:0 22px;position:relative;transition:transform .12s ease,box-shadow .12s ease;cursor:default;
+}
+.funnel-row:hover,.funnel-row:focus-within{transform:scale(1.015);box-shadow:0 4px 16px rgba(17,19,26,.18);z-index:3}
+.funnel-row .fn-lbl{font:700 14.5px/1.25 var(--sans)}
+.funnel-row .fn-sub{display:block;font:400 11.5px/1.2 var(--sans);opacity:.85;margin-top:3px}
+.funnel-row .fn-v{font:800 19px/1 var(--mono);font-feature-settings:"tnum" 1;white-space:nowrap}
+/* taper shades — top deep, narrowing lighter (drawn, not data-bound colour) */
+.funnel-row.s1{background:var(--navy-deep)}
+.funnel-row.s2{background:var(--navy)}
+.funnel-row.s3{background:#2f8f56}
+.funnel-row.s4{background:#41a468}
+.funnel-row.s5{background:#5cb37e}
+html[data-theme="black"] .funnel-row.s3{background:#3f3f46}
+html[data-theme="black"] .funnel-row.s4{background:#52525b}
+html[data-theme="black"] .funnel-row.s5{background:#71717a}
+.fn-drop{
+  font:700 11px/1 var(--mono);letter-spacing:.04em;color:var(--risk);
+  background:var(--risk-bg);border:1px solid var(--risk-line);
+  padding:3px 8px;border-radius:5px;margin:-4px 0 -5px;display:inline-flex;gap:5px;align-items:center;z-index:1;
+}
+.fn-drop.soft{color:var(--hold);background:var(--hold-bg);border-color:var(--hold-line)}
+/* funnel stage hover → detail panel */
+.fn-detail{
+  position:absolute;right:calc(100% + 14px);top:50%;transform:translateY(-50%) translateX(6px);
+  width:212px;z-index:7;text-align:left;
+  background:var(--ink);color:#fff;border-radius:9px;padding:11px 13px;
+  opacity:0;visibility:hidden;transition:opacity .14s ease,transform .14s ease;
+  box-shadow:0 8px 26px rgba(17,19,26,.26);pointer-events:none;
+}
+.funnel-row:hover .fn-detail,.funnel-row:focus-within .fn-detail{opacity:1;visibility:visible;transform:translateY(-50%) translateX(0)}
+.fn-detail .fd-row{display:flex;justify-content:space-between;gap:10px;font:500 11.5px/1.5 var(--sans);color:#c9c9d2}
+.fn-detail .fd-row+.fd-row{margin-top:3px}
+.fn-detail .fd-row b{font:700 11.5px/1 var(--mono);color:#fff}
+.fn-detail::after{
+  content:"";position:absolute;right:-5px;top:50%;transform:translateY(-50%) rotate(45deg);
+  width:10px;height:10px;background:var(--ink);
+}
+
+/* ============================================================ PYRAMID */
+.pyramid{max-width:560px;margin:8px auto 0;display:flex;flex-direction:column;align-items:center;gap:7px}
+.pyr-tier{
+  color:#fff;display:flex;align-items:center;justify-content:space-between;gap:14px;
+  /* horizontal padding clears the clipped diagonal so the label/value never sit under the cut */
+  padding:13px var(--padx,26px);min-height:58px;position:relative;cursor:default;
+  clip-path:polygon(var(--cut) 0, calc(100% - var(--cut)) 0, 100% 100%, 0 100%);
+  transition:filter .12s ease;
+}
+.pyr-tier:hover,.pyr-tier:focus-within{filter:brightness(1.08)}
+.pyr-tier .pt-lbl{font:700 14px/1.25 var(--sans);min-width:0}
+.pyr-tier .pt-sub{display:block;font:400 11.5px/1.2 var(--sans);opacity:.86;margin-top:2px}
+.pyr-tier .pt-v{font:800 18px/1 var(--mono);font-feature-settings:"tnum" 1;flex:none}
+/* wider upper tiers + gentler cuts + cut-clearing padding so text stays inside the visible band */
+.pyr-tier.t1{--cut:20%;--padx:46px;width:50%;background:var(--navy-deep)}
+.pyr-tier.t2{--cut:14%;--padx:40px;width:66%;background:var(--navy)}
+.pyr-tier.t3{--cut:9%; --padx:34px;width:83%;background:#37985e}
+.pyr-tier.t4{--cut:0%;  width:100%;background:#56b079}
+html[data-theme="black"] .pyr-tier.t3{background:#3f3f46}
+html[data-theme="black"] .pyr-tier.t4{background:#52525b}
+.pyr-detail{
+  position:absolute;left:calc(100% + 14px);top:50%;transform:translateY(-50%) translateX(-6px);
+  width:206px;z-index:7;text-align:left;
+  background:var(--ink);color:#fff;border-radius:9px;padding:10px 13px;
+  font:500 11.5px/1.5 var(--sans);color:#d4d4dc;
+  opacity:0;visibility:hidden;transition:opacity .14s ease,transform .14s ease;
+  box-shadow:0 8px 26px rgba(17,19,26,.26);pointer-events:none;
+}
+.pyr-tier:hover .pyr-detail,.pyr-tier:focus-within .pyr-detail{opacity:1;visibility:visible;transform:translateY(-50%) translateX(0)}
+.pyr-detail::after{
+  content:"";position:absolute;left:-5px;top:50%;transform:translateY(-50%) rotate(45deg);
+  width:10px;height:10px;background:var(--ink);
+}
+
+/* ============================================================ COMPARE (dark band) */
+.compare{display:flex;align-items:stretch;justify-content:center;gap:0;margin-top:6px;flex-wrap:wrap}
+.compare-col{
+  flex:1 1 300px;max-width:380px;min-width:260px;text-align:center;
+  padding:30px 26px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);
+  border-radius:14px;
+}
+.compare-col .cc-tag{
+  font:600 11px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;
+  color:#9a9aa6;margin-bottom:18px;display:block;
+}
+.compare-col.now .cc-tag{color:#7fd3a0}
+.compare-col .cc-num{
+  font:800 64px/.95 var(--mono);font-feature-settings:"tnum" 1;color:#dededf;letter-spacing:-.03em;
+  display:inline-flex;align-items:flex-start;gap:2px;
+}
+.compare-col .cc-num .u{font-size:.34em;font-weight:700;align-self:flex-end;margin-bottom:.55em;color:#9a9aa6}
+.compare-col.now .cc-num{color:#fff}
+.compare-col.now .cc-num .u{color:#7fd3a0}
+.compare-col .cc-cap{font:400 13px/1.45 var(--sans);color:#b7b7c2;margin:14px auto 18px;max-width:240px}
+.compare-row{
+  display:flex;justify-content:space-between;gap:12px;padding:9px 4px;
+  border-top:1px solid rgba(255,255,255,.1);font:400 13px/1.3 var(--sans);color:#c8c8d0;text-align:left;
+}
+.compare-row .cr-v{font:700 13px/1 var(--mono);font-feature-settings:"tnum" 1;color:#e9e9ee;white-space:nowrap}
+.compare-row .cr-v.up{color:#7fd3a0} .compare-row .cr-v.down{color:#e8908a}
+.compare-vs{
+  flex:0 0 64px;display:flex;align-items:center;justify-content:center;
+}
+.compare-vs .vs-chip{
+  width:48px;height:48px;border-radius:50%;border:2px solid #3fae6b;color:#7fd3a0;
+  display:flex;align-items:center;justify-content:center;font:800 13px/1 var(--mono);
+  letter-spacing:.04em;background:rgba(63,174,107,.1);
+}
+.compare-foot{
+  text-align:center;margin-top:28px;font:400 13.5px/1.5 var(--sans);color:#b7b7c2;
+  max-width:600px;margin-left:auto;margin-right:auto;
+}
+.compare-foot .st-badge{vertical-align:middle}
+
+/* ============================================================ TAKEAWAY */
+.takeaway{text-align:center}
+.takeaway .lede{
+  font:400 19px/1.5 var(--sans);color:var(--ink-mid);max-width:640px;margin:30px auto 0;
+}
+.takeaway .lede b{color:var(--ink)}
+
+/* ============================================================ FOOTER */
+.poster-foot{
+  background:var(--bg-deep);color:#9a9aa6;padding:30px 24px;
+}
+.foot-inner{
+  max-width:1040px;margin:0 auto;display:flex;justify-content:space-between;
+  align-items:flex-start;gap:30px;flex-wrap:wrap;
+}
+.foot-mark{display:flex;align-items:center;gap:10px;color:#e9e9ee;font:800 15px/1 var(--sans);letter-spacing:-.01em}
+.foot-mark .mk-sq{width:16px;height:16px;border-radius:4px;background:var(--navy)}
+.foot-mark small{display:block;font:600 10px/1.4 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:#7a7a86;margin-top:5px}
+.source-note{font:400 11.5px/1.6 var(--mono);color:#7a7a86;max-width:560px;text-align:right}
+.source-note b{color:#9a9aa6;font-weight:600}
+
+/* ============================================================ NOSCRIPT */
+.noscript-note{
+  margin:0;padding:14px 24px;background:var(--hold-bg);color:var(--hold);
+  border-bottom:1px solid var(--hold-line);text-align:center;
+  font:600 12.5px/1.5 var(--mono);letter-spacing:.02em;
+}
+
+/* ============================================================ PRINT (static snapshot) */
+@media print{
+  body{background:#fff}
+  .rc-bar,.rc-theme{display:none}
+  .reveal{opacity:1 !important;transform:none !important}
+  .band{padding:38px 18px;break-inside:avoid}
+  .band--deep,.poster-foot{background:#fff;color:#222}
+  .band--deep .band-head,.band--deep .bignum,.compare-col.now .cc-num{color:#111}
+  .band--deep .band-kicker,.band--deep .band-sub,.compare-col .cc-cap{color:#555}
+  .compare-col{border-color:#ccc;background:#fff}
+  .compare-row{border-top-color:#ddd;color:#333}
+  .compare-row .cr-v{color:#111}
+  .foot-mark,.source-note b{color:#111}
+  .source-note{color:#555}
+  /* hide all interactive popovers in the static snapshot */
+  .burst-src,.fn-detail,.pyr-detail{display:none !important}
+  .proc-detail{max-height:none;opacity:1;margin-top:9px}
+}
+/* reduced motion: no reveal animation, no count-up motion */
+@media (prefers-reduced-motion:reduce){
+  .reveal{opacity:1 !important;transform:none !important;transition:none !important}
+  .rc-dot,.funnel-row,.proc-n,.pyr-tier,.proc-detail,.stat-burst .burst-src,.fn-detail,.pyr-detail{transition:none !important}
+}
+@media (max-width:760px){
+  .hero-title{font-size:40px}
+  .bignum{font-size:66px}
+  .proc-flow::before{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     CONTENT SOURCE — the ONLY place content lives.
+     Valid instance of designs/schemas/infographic.schema.json.
+     render() builds the poster DOM from this on DOMContentLoaded.
+     ============================================================ -->
+<script type="application/json" id="report-data">
+{
+  "meta": {
+    "org": "{{ORG}}",
+    "project": "{{PROJECT}}",
+    "reportType": "State of Digital Onboarding",
+    "title": "The State of Digital Onboarding 2026",
+    "subtitle": "How 4.2 million prospective customers moved from first tap to a funded account this year — the numbers, the funnel, and where the journey still leaks.",
+    "date": "2026-06-22",
+    "author": "{{AUTHOR}}",
+    "chips": ["SURVEY N = 4,206,118", "FY2025 · 18 MARKETS", "UPDATED {{DATE}}"],
+    "theme": "green"
+  },
+  "bands": [
+    {
+      "id": "hero",
+      "kind": "hero",
+      "bg": "white",
+      "items": [
+        { "bignum": "68", "unit": "%", "label": "End-to-end completion", "note": "Applicants who reached a funded account, up from 54% a year ago.", "delta": "14 pts YoY", "deltaDir": "up", "state": "ok", "exact": "67.8% (2,750,246 of 4,206,118)", "src": "Onboarding Analytics warehouse, FY2025 funded-cohort reconciliation" },
+        { "bignum": "4", "unit": "m 51s", "label": "Median time to fund", "note": "From app open to first deposit — nearly half of last year's 9m 12s.", "delta": "−47% faster", "deltaDir": "up", "exact": "291s median (p50); p90 = 11m 38s", "src": "Event-level session timing, app-open → first-deposit" },
+        { "bignum": "22", "unit": "%", "label": "Identity-step drop-off", "note": "The single largest leak in the funnel — still the priority to fix.", "delta": "+3 pts YoY", "deltaDir": "down", "state": "hold", "exact": "22.0% of sign-ups lost at KYC/liveness (841,565)", "src": "KYC decision logs, abandonment at identity stage" }
+      ]
+    },
+    {
+      "id": "process",
+      "kind": "process",
+      "bg": "tint",
+      "kicker": "01 / THE JOURNEY",
+      "heading": "Four steps from first tap to funded",
+      "subtext": "Every onboarding now follows one streamlined path. Median minutes spent at each stage are shown below the step.",
+      "items": [
+        { "n": "1", "title": "Sign up", "desc": "Email or phone, single screen, no password required up front.", "stat": "0m 38s", "detail": "Single-field capture; progressive profiling deferred. SLA: first screen interactive < 1.2s." },
+        { "n": "2", "title": "Verify identity", "desc": "Document scan plus liveness check; auto-decision in seconds.", "stat": "2m 04s", "detail": "94% auto-approved; 6% routed to manual review (SLA 4h). Largest drop-off stage." },
+        { "n": "3", "title": "Open account", "desc": "Product selected, terms accepted, account number issued instantly.", "stat": "1m 12s", "detail": "Real-time core provisioning; IBAN issued synchronously. Terms versioned per market." },
+        { "n": "4", "title": "Fund & activate", "desc": "First deposit lands; card and app fully active.", "stat": "0m 57s", "detail": "Open-banking pull or card top-up; virtual card live on first deposit confirmation." }
+      ]
+    },
+    {
+      "id": "funnel",
+      "kind": "funnel",
+      "bg": "white",
+      "kicker": "02 / THE FUNNEL",
+      "heading": "Where the 4.2 million go",
+      "subtext": "Of everyone who opened the app, just over two-thirds reach a funded account. The widest leak is still identity verification.",
+      "items": [
+        { "label": "App opened", "sublabel": "Reached the start screen", "value": "4,206,118", "widthPct": 100 },
+        { "dropLabel": "▼ 9% abandon before sign-up", "soft": false },
+        { "label": "Sign-up completed", "sublabel": "Email or phone confirmed", "value": "3,827,567", "widthPct": 86 },
+        { "dropLabel": "▼ 22% lost at identity step", "soft": false },
+        { "label": "Identity verified", "sublabel": "Passed KYC and liveness", "value": "2,985,502", "widthPct": 68 },
+        { "dropLabel": "▼ 6% drop selecting a product", "soft": true },
+        { "label": "Account opened", "sublabel": "Number issued, terms accepted", "value": "2,806,373", "widthPct": 60 },
+        { "dropLabel": "▼ 2% never make a first deposit", "soft": true },
+        { "label": "Funded & active", "sublabel": "First deposit received", "value": "2,750,246", "widthPct": 54 }
+      ]
+    },
+    {
+      "id": "pyramid",
+      "kind": "pyramid",
+      "bg": "soft",
+      "kicker": "03 / THE VALUE LADDER",
+      "heading": "Not all funded accounts are equal",
+      "subtext": "Funded customers stratify into a value pyramid — a narrow base of premium relationships sits above a wide foundation of everyday accounts.",
+      "items": [
+        { "label": "Premium / advised", "sublabel": "Multi-product, wealth-tier", "value": "4%", "detail": "≥3 products incl. an advised/wealth mandate. ~110k accounts; 31% of deposit value." },
+        { "label": "Engaged primary", "sublabel": "Salary in, >5 txns / week", "value": "19%", "detail": "Recurring credit + card-as-primary. ~523k accounts; the growth engine." },
+        { "label": "Active everyday", "sublabel": "Regular but secondary use", "value": "41%", "detail": "Used monthly, not primary bank. ~1.13m accounts; upsell target." },
+        { "label": "Funded, low-activity", "sublabel": "Opened, lightly used", "value": "36%", "detail": "Funded but dormant < 90 days. ~990k accounts; reactivation programme." }
+      ]
+    },
+    {
+      "id": "compare",
+      "kind": "compare",
+      "bg": "deep",
+      "kicker": "04 / THEN vs NOW",
+      "heading": "Two years of compounding gains",
+      "subtext": "The same onboarding flow, measured in 2024 and again in 2026, after the streamlined identity step shipped.",
+      "items": [
+        {
+          "tag": "FY2024 · Baseline",
+          "bignum": "54", "unit": "%",
+          "caption": "Completion when onboarding ran on the legacy seven-screen flow.",
+          "rows": [
+            { "label": "Median time to fund", "value": "9m 12s" },
+            { "label": "Support contacts / 1k", "value": "38" },
+            { "label": "Cost to acquire", "value": "$41.20" }
+          ]
+        },
+        {
+          "tag": "FY2025 · Today",
+          "bignum": "68", "unit": "%",
+          "caption": "Completion on the four-step flow with instant identity decisions.",
+          "state": "ok",
+          "rows": [
+            { "label": "Median time to fund", "value": "4m 51s", "dir": "up" },
+            { "label": "Support contacts / 1k", "value": "17", "dir": "up" },
+            { "label": "Cost to acquire", "value": "$26.80", "dir": "up" }
+          ],
+          "footBadge": "+14 pts completion",
+          "footText": "A streamlined four-step journey lifted completion by a quarter while cutting acquisition cost 35%."
+        }
+      ]
+    },
+    {
+      "id": "takeaway",
+      "kind": "takeaway",
+      "bg": "white",
+      "kicker": "05 / THE TAKEAWAY",
+      "subtext": "Faster, simpler onboarding now brings in $1.4 billion in new deposits a year. Close the 22% identity-step leak and another ~850,000 accounts reach funding — the clearest growth lever for 2026.",
+      "items": [
+        { "bignum": "$1.4", "unit": "B", "label": "Deposits onboarded in FY2025", "state": "ok", "exact": "$1.41B net new deposits (FY2025, 18 markets)", "src": "Treasury deposit ledger, new-to-bank funded accounts" }
+      ]
+    }
+  ],
+  "source": {
+    "notes": [
+      "{{PROJECT}} Onboarding Analytics warehouse (event-level, FY2025); KYC decision logs; cohort funnel reconstructed from 4,206,118 sessions across 18 markets. Figures rounded.",
+      "Compiled: {{AUTHOR}} · {{DATE}} · figures illustrative / fictional."
+    ]
+  }
+}
+</script>
+
+<!-- canonical compact dropdown theme switcher (incl. mandatory Black) -->
+<div class="rc-bar">
+  <span class="rc-cap">Theme</span>
+  <label class="rc-theme" title="Brand colour">
+    <span class="rc-theme-sw" aria-hidden="true"></span>
+    <select class="rc-theme-sel" aria-label="Brand theme">
+      <option value="blue">Blue</option>
+      <option value="purple">Purple</option>
+      <option value="indigo">Indigo</option>
+      <option value="teal">Teal</option>
+      <option value="cyan">Cyan</option>
+      <option value="green">Green</option>
+      <option value="plum">Plum</option>
+      <option value="slate">Slate</option>
+      <option value="black">Black</option>
+    </select>
+  </label>
+</div>
+
+<noscript>
+  <p class="noscript-note">This infographic is rendered from inline data and needs JavaScript for the live poster, count-up and theme switching. The full numbers, funnel and sources are in the page data above.</p>
+</noscript>
+
+<div class="poster" id="poster"></div>
+
+<!-- ============================================================
+     RENDER + INTERACTIONS — reads #report-data → DOM on load.
+     ============================================================ -->
+<script>
+(function(){
+  "use strict";
+  var DATA = JSON.parse(document.getElementById('report-data').textContent);
+  var REDUCE = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // ---- tiny escaping helpers ----
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+  function bandClass(bg){ return bg==='tint'?' band--tint':bg==='soft'?' band--soft':bg==='deep'?' band--deep':''; }
+
+  // ---- numeric helpers for count-up ----
+  // parse a display string into {pre, digits, frac, suffix} so we can animate just the number.
+  function parseNum(str){
+    var s=String(str);
+    var m=s.match(/^(\D*?)([\d.,]+)(.*)$/);
+    if(!m) return null;
+    var pre=m[1], body=m[2], suf=m[3];
+    var clean=body.replace(/,/g,'');
+    var val=parseFloat(clean);
+    if(isNaN(val)) return null;
+    var hasComma=body.indexOf(',')>-1;
+    var dec=(clean.indexOf('.')>-1)?clean.split('.')[1].length:0;
+    return {pre:pre, val:val, suf:suf, grouped:hasComma, dec:dec};
+  }
+  function fmt(val, p){
+    var n=p.dec>0?val.toFixed(p.dec):String(Math.round(val));
+    if(p.grouped){
+      var parts=n.split('.'); parts[0]=parts[0].replace(/\B(?=(\d{3})+(?!\d))/g,',');
+      n=parts.join('.');
+    }
+    return p.pre+n+p.suf;
+  }
+
+  // ---- stat-burst markup (hero / stat / takeaway) ----
+  function burstHTML(st){
+    var cls='bignum tnum'+(st.state?(' '+st.state):'');
+    var p=parseNum(st.bignum);
+    // detect a leading non-digit prefix like "$" → render as .pre superscript
+    var pre='', main=st.bignum;
+    var pm=String(st.bignum).match(/^(\$|€|£)(.+)$/);
+    if(pm){ pre='<span class="pre">'+esc(pm[1])+'</span>'; main=pm[2]; }
+    var numAttr=p?(' data-count="'+ (pm?p.val:p.val) +'" data-fmt="'+esc(JSON.stringify({pre:pm?'':p.pre,suf:p.suf,grouped:p.grouped,dec:p.dec}))+'"'):'';
+    var hasSrc=(st.exact||st.src);
+    return ''+
+      '<div class="stat-burst'+(hasSrc?' has-src':'')+'"'+(hasSrc?' tabindex="0"':'')+'>'+
+        '<div class="'+cls+'">'+pre+'<span class="num"'+numAttr+'>'+esc(main)+'</span>'+(st.unit?('<span class="u">'+esc(st.unit)+'</span>'):'')+'</div>'+
+        (st.label?('<div class="burst-label">'+esc(st.label)+'</div>'):'')+
+        (st.note?('<p class="burst-note">'+esc(st.note)+'</p>'):'')+
+        (st.delta?('<span class="delta '+(st.deltaDir==='down'?'down':'up')+'">'+esc(st.delta)+'</span>'):'')+
+        (hasSrc?('<div class="burst-src" role="note">'+(st.exact?('<b>'+esc(st.exact)+'</b>'):'')+(st.src?('<span class="s-src">Source: '+esc(st.src)+'</span>'):'')+'</div>'):'')+
+      '</div>';
+  }
+
+  function stageHeader(b){
+    var h='';
+    if(b.kicker){
+      var km=b.kicker.match(/^(\S+)\s*\/?\s*(.*)$/);
+      h+='<div class="band-kicker"><span class="k-n">'+esc(km?km[1]:b.kicker)+'</span>'+(km&&km[2]?(' / '+esc(km[2])):'')+'</div>';
+      h+='<div class="band-rule"></div>';
+    }
+    if(b.heading) h+='<h2 class="band-head">'+esc(b.heading)+'</h2>';
+    if(b.subtext) h+='<p class="band-sub">'+esc(b.subtext)+'</p>';
+    return h;
+  }
+
+  // ---- per-kind body builders ----
+  function buildHero(b){
+    var m=DATA.meta;
+    var title=esc(m.title);
+    // emphasise the middle phrase if it looks like "The State of X 2026"
+    var h='';
+    h+='<div class="hero-eyebrow"><span class="em-sq"></span>'+esc(m.org)+' · '+esc(m.project)+' · '+esc(m.reportType)+'</div>';
+    h+='<h1 class="hero-title">'+title+'</h1>';
+    if(m.subtitle) h+='<p class="hero-stand">'+esc(m.subtitle)+'</p>';
+    if(m.chips&&m.chips.length){
+      h+='<div class="hero-chips">'+m.chips.map(function(c){return '<span class="chip">'+esc(c)+'</span>';}).join('')+'</div>';
+    }
+    var stats=b.stats||b.items||[];
+    h+='<div class="burst-row">'+stats.map(burstHTML).join('')+'</div>';
+    return h;
+  }
+
+  function buildStat(b){
+    var stats=b.stats||b.items||[];
+    return stageHeader(b)+'<div class="burst-row">'+stats.map(burstHTML).join('')+'</div>';
+  }
+
+  function buildProcess(b){
+    var items=b.items||[];
+    var parts=[];
+    items.forEach(function(it,i){
+      if(i>0){
+        parts.push('<div class="proc-arrow" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12h13.5M13 7l5 5-5 5"/></svg></div>');
+      }
+      parts.push(''+
+        '<div class="proc-step"'+(it.detail?' tabindex="0"':'')+'>'+
+          '<div class="proc-n tnum">'+esc(it.n)+'</div>'+
+          '<div class="proc-t">'+esc(it.title)+'</div>'+
+          '<div class="proc-d">'+esc(it.desc)+'</div>'+
+          (it.stat?('<span class="proc-stat tnum"><span class="num" data-count="'+timeToSec(it.stat)+'" data-fmt="'+esc(JSON.stringify({kind:'time'}))+'">'+esc(it.stat)+'</span></span>'):'')+
+          (it.detail?('<div class="proc-detail">'+esc(it.detail)+'</div>'):'')+
+        '</div>');
+    });
+    return stageHeader(b)+'<div class="proc-flow">'+parts.join('')+'</div>';
+  }
+
+  // time "Xm YYs" → seconds for count-up; data-fmt kind:"time" formats back
+  function timeToSec(str){
+    var m=String(str).match(/(?:(\d+)m\s*)?(\d+)s/);
+    if(!m) return 0;
+    return (parseInt(m[1]||'0',10)*60)+parseInt(m[2],10);
+  }
+  function secToTime(sec){
+    sec=Math.round(sec); var mm=Math.floor(sec/60), ss=sec%60;
+    return mm+'m '+(ss<10?'0':'')+ss+'s';
+  }
+
+  function buildFunnel(b){
+    var items=b.items||[];
+    var rows=items.filter(function(it){return it.value!=null;});
+    var top=rows.length?parseFloat(String(rows[0].value).replace(/,/g,'')):0;
+    var sIdx=0;
+    var parts=[];
+    items.forEach(function(it){
+      if(it.value!=null){
+        sIdx++;
+        var v=parseFloat(String(it.value).replace(/,/g,''));
+        var pctTop=top?Math.round(v/top*1000)/10:0;
+        var conv= (sIdx>1) ? convFromPrev(rows, sIdx-1) : 100;
+        parts.push(''+
+          '<div class="funnel-row s'+sIdx+'" style="--w:'+(it.widthPct!=null?it.widthPct:100)+'%" tabindex="0">'+
+            '<span class="fn-lbl">'+esc(it.label)+'<span class="fn-sub">'+esc(it.sublabel||'')+'</span></span>'+
+            '<span class="fn-v tnum"><span class="num" data-count="'+v+'" data-fmt="'+esc(JSON.stringify({grouped:true,dec:0}))+'">'+esc(it.value)+'</span></span>'+
+            '<div class="fn-detail" role="note">'+
+              '<div class="fd-row"><span>Exact count</span><b>'+esc(it.value)+'</b></div>'+
+              '<div class="fd-row"><span>% of top of funnel</span><b>'+pctTop+'%</b></div>'+
+              '<div class="fd-row"><span>Step conversion</span><b>'+conv+'%</b></div>'+
+            '</div>'+
+          '</div>');
+      } else if(it.dropLabel){
+        parts.push('<div class="fn-drop'+(it.soft?' soft':'')+'">'+esc(it.dropLabel)+'</div>');
+      }
+    });
+    return stageHeader(b)+'<div class="funnel">'+parts.join('')+'</div>';
+  }
+  function convFromPrev(rows, idxOneBased){
+    // idxOneBased is the position of the *previous* row in rows[] = current sIdx-1
+    var cur=rows[idxOneBased], prev=rows[idxOneBased-1];
+    if(!cur||!prev) return 100;
+    var c=parseFloat(String(cur.value).replace(/,/g,'')), p=parseFloat(String(prev.value).replace(/,/g,''));
+    return p?Math.round(c/p*1000)/10:100;
+  }
+
+  function buildPyramid(b){
+    var items=b.items||[];
+    var parts=items.map(function(it,i){
+      var t='t'+Math.min(i+1,4);
+      return ''+
+        '<div class="pyr-tier '+t+'" tabindex="0">'+
+          '<span class="pt-lbl">'+esc(it.label)+'<span class="pt-sub">'+esc(it.sublabel||'')+'</span></span>'+
+          '<span class="pt-v tnum"><span class="num" data-count="'+parseFloat(String(it.value).replace(/[^\d.]/g,''))+'" data-fmt="'+esc(JSON.stringify({suf:'%',dec:0}))+'">'+esc(it.value)+'</span></span>'+
+          (it.detail?('<div class="pyr-detail" role="note">'+esc(it.detail)+'</div>'):'')+
+        '</div>';
+    });
+    return stageHeader(b)+'<div class="pyramid">'+parts.join('')+'</div>';
+  }
+
+  function buildCompare(b){
+    var items=b.items||[];
+    function col(it,isNow){
+      var pm=String(it.bignum).match(/^(\$|€|£)(.+)$/);
+      var pre=pm?('<span class="u" style="align-self:flex-start;margin:.1em .04em 0 0">'+esc(pm[1])+'</span>'):'';
+      var main=pm?pm[2]:it.bignum;
+      var p=parseNum(main);
+      var rows=(it.rows||[]).map(function(r){
+        return '<div class="compare-row"><span>'+esc(r.label)+'</span><span class="cr-v tnum'+(r.dir?(' '+r.dir):'')+'">'+esc(r.value)+'</span></div>';
+      }).join('');
+      return ''+
+        '<div class="compare-col '+(isNow?'now':'then')+'">'+
+          '<span class="cc-tag">'+esc(it.tag)+'</span>'+
+          '<div class="cc-num tnum">'+pre+'<span class="num" data-count="'+(p?p.val:0)+'" data-fmt="'+esc(JSON.stringify({suf:p?p.suf:'',grouped:p?p.grouped:false,dec:p?p.dec:0}))+'">'+esc(main)+'</span>'+(it.unit?('<span class="u">'+esc(it.unit)+'</span>'):'')+'</div>'+
+          (it.caption?('<p class="cc-cap">'+esc(it.caption)+'</p>'):'')+
+          rows+
+        '</div>';
+    }
+    var a=items[0]||{}, c=items[1]||{};
+    var h=stageHeader(b);
+    h+='<div class="compare">'+col(a,false)+'<div class="compare-vs"><span class="vs-chip">VS</span></div>'+col(c,true)+'</div>';
+    var fb=c.footBadge||a.footBadge, ft=c.footText||a.footText;
+    if(fb||ft){
+      h+='<p class="compare-foot">'+(fb?('<span class="st-badge st-ok">'+esc(fb)+'</span> '):'')+esc(ft||'')+'</p>';
+    }
+    return h;
+  }
+
+  function buildTakeaway(b){
+    var stats=b.stats||b.items||[];
+    // header: kicker + rule only (subtext is promoted to the lede below)
+    var h='';
+    if(b.kicker){
+      var km=b.kicker.match(/^(\S+)\s*\/?\s*(.*)$/);
+      h+='<div class="band-kicker"><span class="k-n">'+esc(km?km[1]:b.kicker)+'</span>'+(km&&km[2]?(' / '+esc(km[2])):'')+'</div>';
+      h+='<div class="band-rule"></div>';
+    }
+    h+=stats.map(function(st){
+      return '<div style="max-width:420px;margin:24px auto 0">'+burstHTML(st)+'</div>';
+    }).join('');
+    if(b.subtext){
+      // escape then re-emphasise the headline money figure and account count
+      var lede=esc(b.subtext)
+        .replace(/(\$1\.4 billion in new deposits a year)/,'<b>$1</b>')
+        .replace(/(~?850,000 accounts)/,'<b>$1</b>');
+      h+='<p class="lede">'+lede+'</p>';
+    }
+    return h;
+  }
+
+  var BUILDERS={hero:buildHero,stat:buildStat,process:buildProcess,funnel:buildFunnel,pyramid:buildPyramid,compare:buildCompare,takeaway:buildTakeaway};
+
+  // ---- top-level render ----
+  function render(){
+    document.documentElement.dataset.theme = DATA.meta.theme || 'green';
+    var poster=document.getElementById('poster');
+    var html='';
+    DATA.bands.forEach(function(b){
+      var isHero=(b.kind==='hero');
+      var inner=(BUILDERS[b.kind]||function(){return '';})(b);
+      var innerWrapClass='band-inner reveal'+(b.kind==='takeaway'?' takeaway':'');
+      html+='<section class="band'+(isHero?' band--hero':'')+bandClass(b.bg)+'">'+
+              '<div class="'+innerWrapClass+'">'+inner+'</div>'+
+              (isHero?'<div class="hero-divider"></div>':'')+
+            '</section>';
+    });
+    // footer
+    var notes=(DATA.source&&DATA.source.notes)||[];
+    var noteHTML=notes.map(function(n,i){
+      var lab=/^compiled/i.test(n)?'':(i===0?'<b>Source:</b> ':'');
+      var stripped=n.replace(/^Compiled:\s*/i,'');
+      var prefix=/^compiled/i.test(n)?'<b>Compiled:</b> ':lab;
+      return prefix+esc(stripped);
+    }).join('<br>');
+    html+='<footer class="poster-foot"><div class="foot-inner">'+
+            '<div class="foot-mark"><span class="mk-sq"></span>'+esc(DATA.meta.org)+'<small>'+esc(DATA.meta.project)+' · '+esc(DATA.meta.reportType)+'</small></div>'+
+            '<p class="source-note">'+noteHTML+'</p>'+
+          '</div></footer>';
+    poster.innerHTML=html;
+  }
+
+  // ---- count-up via IntersectionObserver (reduced-motion → snap) ----
+  function animateNum(el){
+    if(el.dataset.done) return; el.dataset.done='1';
+    var target=parseFloat(el.getAttribute('data-count'));
+    var fmtSpec={}; try{ fmtSpec=JSON.parse(el.getAttribute('data-fmt')||'{}'); }catch(e){}
+    var finalText=el.textContent;
+    if(REDUCE || isNaN(target)){ el.textContent=finalText; return; }
+    var dur=1100, start=null;
+    function frame(ts){
+      if(start===null) start=ts;
+      var t=Math.min((ts-start)/dur,1);
+      var eased=1-Math.pow(1-t,3);
+      var cur=target*eased;
+      if(fmtSpec.kind==='time'){ el.textContent=secToTime(cur); }
+      else { el.textContent=fmt(cur,{pre:fmtSpec.pre||'',suf:fmtSpec.suf||'',grouped:!!fmtSpec.grouped,dec:fmtSpec.dec||0}); }
+      if(t<1) requestAnimationFrame(frame);
+      else el.textContent=finalText; // guarantee exact final formatting
+    }
+    requestAnimationFrame(frame);
+  }
+
+  function wireInteractions(){
+    var nums=[].slice.call(document.querySelectorAll('.num[data-count]'));
+    var reveals=[].slice.call(document.querySelectorAll('.reveal'));
+
+    if(!('IntersectionObserver' in window)){
+      reveals.forEach(function(r){r.classList.add('in');});
+      nums.forEach(animateNum);
+      return;
+    }
+    var io=new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if(!en.isIntersecting) return;
+        var el=en.target;
+        if(el.classList.contains('reveal')) el.classList.add('in');
+        // animate any numbers inside a revealed band
+        [].slice.call(el.querySelectorAll('.num[data-count]')).forEach(animateNum);
+        io.unobserve(el);
+      });
+    },{threshold:0.18, rootMargin:'0px 0px -8% 0px'});
+    reveals.forEach(function(r){ io.observe(r); });
+  }
+
+  function wireThemeSwitch(){
+    var rcSel = document.querySelector('.rc-theme-sel');
+    if(rcSel){
+      rcSel.value = document.documentElement.dataset.theme || 'green';
+      rcSel.addEventListener('change', function(){ document.documentElement.dataset.theme = rcSel.value; });
+    }
+  }
+
+  function init(){ render(); wireInteractions(); wireThemeSwitch(); }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="indigo">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1440">
+<title>{{PROJECT}} — Delivery Roadmap</title>
+
+<!-- ============================================================
+     DATA — the ONLY content source. Validates against
+     designs/schemas/timeline-roadmap.schema.json. The body below
+     is rendered from this JSON by render() on DOMContentLoaded.
+     ============================================================ -->
+<script type="application/json" id="report-data">
+{
+  "meta": {
+    "org": "{{ORG}}",
+    "project": "{{PROJECT}}",
+    "reportType": "Platform delivery roadmap",
+    "title": "Core Banking Platform — Programme Roadmap",
+    "subtitle": "Six-quarter delivery plan across five parallel workstreams. Bars show scheduled work with current status; diamonds mark milestones and go/no-go gates. The dashed line marks today.",
+    "date": "2026-06-22",
+    "author": "{{AUTHOR}}",
+    "theme": "indigo"
+  },
+  "periods": [
+    { "key": "q1-fy26", "label": "Q1 FY26", "sublabel": "Apr–Jun" },
+    { "key": "q2-fy26", "label": "Q2 FY26", "sublabel": "Jul–Sep" },
+    { "key": "q3-fy26", "label": "Q3 FY26", "sublabel": "Oct–Dec" },
+    { "key": "q4-fy26", "label": "Q4 FY26", "sublabel": "Jan–Mar" },
+    { "key": "q1-fy27", "label": "Q1 FY27", "sublabel": "Apr–Jun" },
+    { "key": "q2-fy27", "label": "Q2 FY27", "sublabel": "Jul–Sep" }
+  ],
+  "swimlanes": [
+    { "id": "platform", "name": "Platform Core",         "owner": "K. Nakamura", "index": "L1", "icon": "process" },
+    { "id": "data",     "name": "Data & Migration",      "owner": "A. Petrov",   "index": "L2", "icon": "data" },
+    { "id": "security", "name": "Security & Compliance", "owner": "M. Oyelaran", "index": "L3", "icon": "status" },
+    { "id": "infra",    "name": "Infrastructure",        "owner": "R. Santos",   "index": "L4", "icon": "infra" },
+    { "id": "change",   "name": "Change & Adoption",     "owner": "L. Dubois",   "index": "L5", "icon": "people" }
+  ],
+  "bars": [
+    { "lane": "platform", "startPeriod": "q1-fy26", "endPeriod": "q2-fy26", "label": "Core ledger build",         "status": "ok",      "progress": 85, "solid": true },
+    { "lane": "platform", "startPeriod": "q3-fy26", "endPeriod": "q4-fy26", "label": "Services hardening",        "status": "ok",      "progress": 40 },
+    { "lane": "platform", "startPeriod": "q1-fy27", "endPeriod": "q2-fy27", "label": "Multi-region rollout",      "status": "planned" },
+    { "lane": "data",     "startPeriod": "q1-fy26", "endPeriod": "q3-fy26", "label": "Schema & pipelines",        "status": "ok",      "progress": 70, "row": 1 },
+    { "lane": "data",     "startPeriod": "q2-fy26", "endPeriod": "q4-fy26", "label": "Legacy data migration",     "status": "risk",    "progress": 30, "row": 2 },
+    { "lane": "data",     "startPeriod": "q1-fy27", "endPeriod": "q1-fy27", "label": "Backfill",                  "status": "planned", "row": 2 },
+    { "lane": "security", "startPeriod": "q2-fy26", "endPeriod": "q3-fy26", "label": "Controls & IAM",            "status": "ok",      "progress": 55 },
+    { "lane": "security", "startPeriod": "q4-fy26", "endPeriod": "q4-fy26", "label": "Pen-test",                  "status": "risk" },
+    { "lane": "security", "startPeriod": "q1-fy27", "endPeriod": "q2-fy27", "label": "Continuous compliance",     "status": "ok" },
+    { "lane": "infra",    "startPeriod": "q1-fy26", "endPeriod": "q1-fy26", "label": "Provision",                 "status": "ok",      "progress": 100 },
+    { "lane": "infra",    "startPeriod": "q2-fy26", "endPeriod": "q4-fy26", "label": "Autoscale & observability", "status": "ok",      "progress": 60 },
+    { "lane": "infra",    "startPeriod": "q4-fy26", "endPeriod": "q2-fy27", "label": "DR & multi-AZ failover",    "status": "planned" },
+    { "lane": "change",   "startPeriod": "q2-fy26", "endPeriod": "q3-fy26", "label": "Training & enablement",     "status": "hold" },
+    { "lane": "change",   "startPeriod": "q4-fy26", "endPeriod": "q1-fy27", "label": "Pilot rollout",             "status": "ok",      "progress": 20 },
+    { "lane": "change",   "startPeriod": "q2-fy27", "endPeriod": "q2-fy27", "label": "Hypercare",                 "status": "planned" }
+  ],
+  "milestones": [
+    { "lane": "platform", "period": "q4-fy26", "label": "GA core",     "status": "ok",   "atEnd": true },
+    { "lane": "data",     "period": "q4-fy26", "label": "Data freeze", "status": "risk", "row": 1 },
+    { "lane": "security", "period": "q1-fy27", "label": "Audit gate",  "status": "ok",   "atEnd": true },
+    { "lane": "change",   "period": "q2-fy27", "label": "Go-live",     "status": "ok",   "atEnd": true }
+  ],
+  "gates": [
+    { "period": "q1-fy26", "targetDate": "2026-06-30", "label": "Core ledger code-complete", "sublabel": "Feature freeze for the ledger service",         "lane": "platform", "dependency": "—",                        "status": "ok",   "statusLabel": "Passed" },
+    { "period": "q3-fy26", "targetDate": "2026-09-30", "label": "Data freeze",               "sublabel": "Source systems frozen for final migration cut", "lane": "data",     "dependency": "Legacy migration at risk", "status": "risk", "statusLabel": "At risk" },
+    { "period": "q4-fy26", "targetDate": "2026-12-15", "label": "Security audit gate",       "sublabel": "External pen-test sign-off — release blocker",  "lane": "security", "dependency": "Pen-test remediation",     "status": "risk", "statusLabel": "Pending" },
+    { "period": "q4-fy26", "targetDate": "2027-01-20", "label": "GA — core platform",        "sublabel": "General availability of core banking services", "lane": "platform", "dependency": "Audit gate, DR readiness", "status": "hold", "statusLabel": "Conditional" },
+    { "period": "q1-fy27", "targetDate": "2027-04-10", "label": "Production go-live",        "sublabel": "First cohort cutover to the new platform",      "lane": "change",   "dependency": "Pilot results, GA",        "status": "hold", "statusLabel": "Planned" },
+    { "period": "q2-fy27", "targetDate": "2027-08-31", "label": "Multi-region complete",     "sublabel": "Active-active across two regions",              "lane": "infra",    "dependency": "Go-live stable",           "status": "ok",   "statusLabel": "On track" }
+  ],
+  "today": { "period": "q3-fy26", "fraction": 0.6 },
+  "phases": [
+    { "startPeriod": "q1-fy26", "endPeriod": "q1-fy26", "name": "Discovery",      "sublabel": "Q1 FY26",    "alt": false },
+    { "startPeriod": "q2-fy26", "endPeriod": "q3-fy26", "name": "Build",          "sublabel": "Q2–Q3 FY26", "alt": true  },
+    { "startPeriod": "q4-fy26", "endPeriod": "q4-fy26", "name": "Harden",         "sublabel": "Q4 FY26",    "alt": false },
+    { "startPeriod": "q1-fy27", "endPeriod": "q2-fy27", "name": "Launch & Scale", "sublabel": "FY27",       "alt": true  }
+  ]
+}
+</script>
+
+<style>
+/* ============================================================
+   TIMELINE / ROADMAP  —  horizontal gantt planner
+   Inherits family DNA from _FOUNDATION.md. Default theme here: INDIGO.
+   Self-contained: inline CSS + inline SVG + system fonts. No external requests.
+   ============================================================ */
+
+/* ---- 1. Tokens (Purple = family default in :root; INDIGO applied on <html>) ---- */
+:root{
+  --bg:#fff; --bg-band:#f6f6f8; --bg-subtle:#fafafb; --bg-deep:#15131a;
+  --rule:#dcdce2; --rule-soft:#ebebef;
+  --ink:#11131a; --ink-mid:#33363f; --ink-soft:#5a5e68; --ink-faint:#868b95;
+  --navy:#a100ff; --navy-deep:#7a00c2; --navy-bg:#f3e8ff; --navy-line:#d9bef5;
+  --ok:#5a2f8a; --ok-bg:#efe8f5; --ok-line:#d0b5e0;
+  --risk:#b3261e; --risk-bg:#fbeceb; --risk-line:#edc7c4;
+  --hold:#8a6d00; --hold-bg:#fbf3da; --hold-line:#e7d8a4;
+  --mono:ui-monospace,"JetBrains Mono","SFMono-Regular",Menlo,Consolas,monospace;
+  --sans:-apple-system,"Segoe UI",system-ui,Roboto,"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic UI","Apple SD Gothic Neo","Malgun Gothic","PingFang SC","Microsoft YaHei","Noto Sans CJK JP","Noto Sans CJK KR","Noto Sans CJK SC","Noto Sans JP","Noto Sans KR","Noto Sans SC","Noto Sans",sans-serif;
+  /* planner geometry (re-set by render from the data) */
+  --lane-w:212px;        /* sticky lane-rail width */
+  --track-h:58px;        /* swimlane row height    */
+  --cols:6;              /* number of time periods  */
+  --col-w:128px;         /* per-period column width (zoom adjusts this) */
+}
+/* theme swaps — all 9 brand presets (only the 7 brand/ok values change) */
+html[data-theme="blue"]{   --navy:#0b5fd4; --navy-deep:#0842a0; --navy-bg:#e8f1fc; --navy-line:#bcd6f5; --ok:#1a4f9c; --ok-bg:#e9f0fa; --ok-line:#b7cdea; }
+html[data-theme="purple"]{ --navy:#a100ff; --navy-deep:#7a00c2; --navy-bg:#f3e8ff; --navy-line:#d9bef5; --ok:#5a2f8a; --ok-bg:#efe8f5; --ok-line:#d0b5e0; }
+html[data-theme="indigo"]{ --navy:#4338ca; --navy-deep:#312c92; --navy-bg:#ebebfb; --navy-line:#c7c3f0; --ok:#3730a3; --ok-bg:#ebeaf7; --ok-line:#c5c2ea; }
+html[data-theme="teal"]{   --navy:#0e7c86; --navy-deep:#095861; --navy-bg:#e0f3f4; --navy-line:#a9dade; --ok:#0f5d54; --ok-bg:#e3f3ef; --ok-line:#b3ddd4; }
+html[data-theme="cyan"]{   --navy:#0891b2; --navy-deep:#0e6f88; --navy-bg:#e2f4f9; --navy-line:#abdde9; --ok:#0e6b7a; --ok-bg:#e4f3f4; --ok-line:#b0dde2; }
+html[data-theme="green"]{  --navy:#1f7a44; --navy-deep:#155730; --navy-bg:#e6f4ea; --navy-line:#b3dcc1; --ok:#2f6b3c; --ok-bg:#e9f3ea; --ok-line:#bedcc4; }
+html[data-theme="plum"]{   --navy:#a21d6e; --navy-deep:#7c1450; --navy-bg:#fbe8f2; --navy-line:#e8b9d4; --ok:#6d2356; --ok-bg:#f6e8f0; --ok-line:#e3bcd5; }
+html[data-theme="slate"]{  --navy:#3f4f63; --navy-deep:#29384b; --navy-bg:#eef1f5; --navy-line:#c2ccd8; --ok:#34495e; --ok-bg:#eef1f5; --ok-line:#c2ccd8; }
+html[data-theme="black"]{  --navy:#000000; --navy-deep:#000000; --navy-bg:#f1f1f3; --navy-line:#d6d6db; --ok:#3f3f46; --ok-bg:#f1f1f3; --ok-line:#cfcfd6; }
+
+*{ box-sizing:border-box; }
+html,body{ margin:0; }
+body{
+  font:13px/1.6 var(--sans); color:var(--ink);
+  background:var(--bg-band);
+  -webkit-font-smoothing:antialiased;
+}
+/* PC-wide: centred wide container (no ≤1280px cap) */
+.wrap{ max-width:1680px; margin:0 auto; padding:22px 40px 60px; }
+.icon{ width:1.15em; height:1.15em; display:inline-block; vertical-align:-.18em; color:inherit; }
+.mono{ font-family:var(--mono); font-feature-settings:"tnum" 1; }
+
+/* ---- 2. Flat header (NOT a sticky article bar) ---- */
+.r-head{
+  background:var(--bg); border:1px solid var(--rule); border-radius:12px;
+  padding:16px 20px 14px; margin-bottom:16px;
+  box-shadow:0 1px 2px rgba(17,19,26,.045);
+}
+.r-head .topline{ display:flex; align-items:flex-start; gap:10px; flex-wrap:wrap; }
+.wordmark{ display:flex; align-items:center; gap:8px; font-weight:800; letter-spacing:-.01em; }
+.wordmark .sq{ width:15px; height:15px; border-radius:4px; background:var(--navy); display:inline-block; }
+.wordmark .org{ color:var(--ink); }
+.wordmark .sep{ color:var(--ink-faint); font-weight:600; }
+.wordmark .proj{ color:var(--navy-deep); }
+.eyebrow{ font:10px/1 var(--mono); letter-spacing:.12em; text-transform:uppercase; color:var(--ink-faint); }
+.r-head h1{ font-size:25px; font-weight:800; letter-spacing:-.02em; margin:9px 0 2px; }
+.r-head .standfirst{ color:var(--ink-mid); font-size:13px; max-width:84ch; margin:0; }
+.head-meta{ margin-left:auto; text-align:right; display:flex; flex-direction:column; align-items:flex-end; gap:2px; }
+.head-meta .k{ font:9.5px/1.3 var(--mono); letter-spacing:.1em; text-transform:uppercase; color:var(--ink-faint); }
+.head-meta .v{ font:13px/1.45 var(--mono); font-weight:700; color:var(--ink); }
+
+/* theme switcher (MANDATORY, canonical dropdown per _DATA_DRIVEN §3) */
+.rc-theme{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--rule);border-radius:7px;padding:3px 4px 3px 7px;background:var(--bg);}
+.rc-theme-sw{width:12px;height:12px;border-radius:50%;background:var(--navy);box-shadow:0 0 0 1px var(--rule);flex:none;}
+.rc-theme-sel{border:0;background:none;font:600 11px/1 var(--mono);color:var(--ink-mid);cursor:pointer;outline:none;padding:2px;}
+@media print{.rc-theme{display:none;}}
+
+/* legend chips */
+.legend{ display:flex; align-items:center; gap:7px 14px; flex-wrap:wrap; margin-top:13px; padding-top:12px; border-top:1px solid var(--rule-soft); }
+.legend .lg-title{ font:9.5px/1 var(--mono); letter-spacing:.12em; text-transform:uppercase; color:var(--ink-faint); margin-right:2px; }
+.lg{ display:inline-flex; align-items:center; gap:6px; font-size:11.5px; color:var(--ink-mid); }
+.lg .sw{ width:22px; height:11px; border-radius:4px; border:1px solid; }
+.lg .sw.ok{ background:var(--navy-bg); border-color:var(--navy-line); }
+.lg .dot{ width:9px; height:9px; border-radius:50%; display:inline-block; }
+.lg.ok .dot{ background:var(--navy); }
+.lg.risk .dot{ background:var(--risk); }
+.lg.hold .dot{ background:var(--hold); }
+.lg .di{ width:11px; height:11px; transform:rotate(45deg); border-radius:2px; background:var(--navy); display:inline-block; }
+.lg .di.hollow{ background:var(--bg); border:1.6px solid var(--navy); }
+.lg .ghost{ width:22px; height:11px; border-radius:4px; border:1.4px dashed var(--navy-line); background:repeating-linear-gradient(135deg,transparent 0 3px,var(--navy-bg) 3px 6px); }
+
+/* ---- 2b. Control toolbar (filters / zoom / jump-to-today) ---- */
+.toolbar{
+  background:var(--bg); border:1px solid var(--rule); border-radius:12px;
+  box-shadow:0 1px 2px rgba(17,19,26,.045);
+  padding:11px 16px; margin-bottom:14px;
+  display:flex; align-items:center; gap:10px 18px; flex-wrap:wrap;
+}
+.tb-group{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.tb-label{ font:9.5px/1 var(--mono); letter-spacing:.1em; text-transform:uppercase; color:var(--ink-faint); }
+.tb-sep{ width:1px; align-self:stretch; background:var(--rule-soft); }
+.tb-spacer{ margin-left:auto; }
+
+/* filter chip (shared primitive look) */
+.fchip{
+  display:inline-flex; align-items:center; gap:6px; cursor:pointer;
+  font:11px/1 var(--sans); font-weight:700; color:var(--ink-mid);
+  background:var(--bg); border:1px solid var(--rule); border-radius:6px;
+  padding:5px 9px 5px 8px; white-space:nowrap; user-select:none;
+  transition:background .12s ease, color .12s ease, border-color .12s ease, opacity .12s ease;
+}
+.fchip .fdot{ width:9px; height:9px; border-radius:50%; flex:0 0 auto; }
+.fchip .fdi{ width:9px; height:9px; transform:rotate(45deg); border-radius:2px; flex:0 0 auto; }
+.fchip:hover{ border-color:var(--ink-faint); }
+.fchip[aria-pressed="false"]{ opacity:.42; background:var(--bg-subtle); }
+/* status chip dot colours */
+.fchip.f-ok      .fdot{ background:var(--navy); }
+.fchip.f-risk    .fdot{ background:var(--risk); }
+.fchip.f-hold    .fdot{ background:var(--hold); }
+.fchip.f-planned .fdot{ background:repeating-linear-gradient(135deg,var(--navy-line) 0 2px,transparent 2px 4px); border:1px dashed var(--navy-line); }
+.fchip[aria-pressed="true"].f-ok{      background:var(--navy-bg); color:var(--navy-deep); border-color:var(--navy-line); }
+.fchip[aria-pressed="true"].f-risk{    background:var(--risk-bg); color:var(--risk); border-color:var(--risk-line); }
+.fchip[aria-pressed="true"].f-hold{    background:var(--hold-bg); color:var(--hold); border-color:var(--hold-line); }
+/* lane chip uses a tiny index tag */
+.fchip .lidx{ font:9px/1 var(--mono); font-weight:700; color:#fff; background:var(--ink-soft); border-radius:4px; padding:2px 4px; letter-spacing:.04em; }
+.fchip[aria-pressed="true"].f-lane{ background:var(--navy-bg); color:var(--navy-deep); border-color:var(--navy-line); }
+.fchip[aria-pressed="true"].f-lane .lidx{ background:var(--navy); }
+
+/* plain button (jump-to-today, reset, zoom) */
+.btn{
+  display:inline-flex; align-items:center; gap:6px; cursor:pointer;
+  font:11px/1 var(--sans); font-weight:700; color:var(--navy-deep);
+  background:var(--navy-bg); border:1px solid var(--navy-line); border-radius:6px;
+  padding:6px 10px; white-space:nowrap;
+  transition:background .12s ease, color .12s ease;
+}
+.btn:hover{ background:var(--navy); color:#fff; border-color:var(--navy-deep); }
+.btn:hover .icon{ color:#fff; }
+.btn .icon{ width:13px; height:13px; color:var(--navy-deep); }
+.btn.ghost-btn{ background:var(--bg); color:var(--ink-mid); border-color:var(--rule); }
+.btn.ghost-btn:hover{ background:var(--bg-subtle); color:var(--ink); border-color:var(--ink-faint); }
+.btn.ghost-btn .icon{ color:var(--ink-soft); }
+.btn[disabled]{ opacity:.4; cursor:default; }
+.btn[disabled]:hover{ background:var(--navy-bg); color:var(--navy-deep); border-color:var(--navy-line); }
+
+.seg{ display:inline-flex; border:1px solid var(--rule); border-radius:6px; overflow:hidden; }
+.seg button{
+  font:11px/1 var(--mono); font-weight:700; letter-spacing:.04em; color:var(--ink-mid);
+  background:var(--bg); border:0; border-left:1px solid var(--rule); padding:6px 9px; cursor:pointer;
+}
+.seg button:first-child{ border-left:0; }
+.seg button[aria-pressed="true"]{ background:var(--navy); color:#fff; }
+.zoomval{ font:10px/1 var(--mono); color:var(--ink-faint); min-width:34px; text-align:center; }
+
+/* ---- 3. The planner canvas ---- */
+.roadmap{
+  background:var(--bg); border:1px solid var(--rule); border-radius:12px;
+  box-shadow:0 1px 2px rgba(17,19,26,.045);
+  overflow-x:auto;            /* horizontal scroll inside the full-width frame */
+  position:relative;
+}
+.grid{
+  display:grid;
+  grid-template-columns:var(--lane-w) repeat(var(--cols),var(--col-w));
+  min-width:920px;
+  position:relative;
+}
+
+/* time axis (sticky top) */
+.time-axis{ display:contents; }
+.ax-corner{
+  grid-column:1; position:sticky; top:0; left:0; z-index:6;
+  background:var(--bg); border-bottom:2px solid var(--navy); border-right:1px solid var(--rule);
+  padding:10px 14px;
+}
+.ax-corner .k{ font:9px/1.2 var(--mono); letter-spacing:.1em; text-transform:uppercase; color:var(--ink-faint); }
+.ax-corner .v{ font-size:12px; font-weight:800; color:var(--ink); }
+.tick{
+  position:sticky; top:0; z-index:5;
+  background:var(--bg); border-bottom:2px solid var(--navy);
+  border-left:1px solid var(--rule-soft);
+  padding:9px 12px 8px; text-align:left;
+}
+.tick .qn{ font:11px/1.1 var(--mono); font-weight:800; letter-spacing:.04em; color:var(--navy-deep); text-transform:uppercase; }
+.tick .qd{ font:9.5px/1.3 var(--mono); letter-spacing:.04em; color:var(--ink-faint); margin-top:2px; }
+.tick .tick-sub{ display:flex; gap:4px; margin-top:6px; }
+.tick .tick-sub span{ flex:1; height:3px; border-radius:2px; background:var(--rule-soft); }
+
+/* vertical column rules carried down behind the lanes */
+.col-rules{ position:absolute; inset:0; display:grid; grid-template-columns:var(--lane-w) repeat(var(--cols),var(--col-w)); pointer-events:none; z-index:0; }
+.col-rules > i{ border-left:1px solid var(--rule-soft); }
+.col-rules > i:first-child{ border-left:0; }
+.col-rules > i:nth-child(2){ border-left:1px solid var(--rule); }
+
+/* swimlane */
+.swimlane{ display:contents; }
+.swimlane.lane-hidden{ display:none; }
+.lane-head{
+  grid-column:1; position:sticky; left:0; z-index:4;
+  background:var(--bg); border-right:1px solid var(--rule); border-top:1px solid var(--rule-soft);
+  padding:9px 14px; display:flex; flex-direction:column; justify-content:center;
+  height:var(--track-h);
+}
+.swimlane.alt-row .lane-head{ background:var(--bg-subtle); }
+.lane-head .ln-top{ display:flex; align-items:center; gap:7px; }
+.lane-head .ln-idx{ font:9px/1 var(--mono); font-weight:700; color:#fff; background:var(--navy); border-radius:4px; padding:3px 5px; letter-spacing:.04em; }
+.lane-head .ln-ic{ color:var(--navy-deep); display:inline-flex; }
+.lane-head .ln-ic .icon{ width:15px; height:15px; }
+.lane-head .ln-name{ font-size:13px; font-weight:700; color:var(--ink); letter-spacing:-.01em; }
+.lane-head .ln-meta{ font:10px/1.3 var(--mono); color:var(--ink-faint); letter-spacing:.02em; margin-top:3px; padding-left:1px; }
+
+/* the lane track = a sub-grid placed across the time columns */
+.track{
+  grid-column:2 / calc(var(--cols) + 2);
+  border-top:1px solid var(--rule-soft);
+  height:var(--track-h);
+  position:relative; z-index:1;
+  display:grid;
+  grid-template-columns:repeat(var(--cols),var(--col-w));
+  grid-auto-rows:1fr;
+  align-items:center;
+  padding:6px 0;
+}
+.swimlane.alt-row .track{ background:var(--bg-subtle); }
+/* two-row tracks for stacked bars */
+.track.dual{ grid-template-rows:1fr 1fr; row-gap:5px; }
+
+/* ---- gantt bars ---- */
+.gbar{
+  align-self:center;
+  height:25px; border-radius:8px;
+  display:flex; align-items:center; gap:6px;
+  padding:0 10px; margin:0 4px;
+  font-size:11.5px; font-weight:700; letter-spacing:-.005em;
+  white-space:nowrap; overflow:hidden;
+  border:1px solid; position:relative;
+  box-shadow:0 1px 2px rgba(17,19,26,.05);
+  cursor:default;
+  transition:opacity .12s ease, box-shadow .12s ease, transform .12s ease, filter .12s ease;
+}
+.gbar:hover{ box-shadow:0 2px 6px rgba(17,19,26,.16); filter:brightness(1.02); z-index:4; }
+.gbar.dim{ opacity:.16; box-shadow:none; filter:none; }
+.gbar .gb-label{ overflow:hidden; text-overflow:ellipsis; }
+.gbar .gb-tag{ font:9px/1 var(--mono); font-weight:700; letter-spacing:.04em; opacity:.72; margin-left:auto; }
+/* progress sliver */
+.gbar .gb-pct{ position:absolute; left:0; top:0; bottom:0; border-radius:8px 0 0 8px; opacity:.5; z-index:-1; }
+
+.gbar.st-ok{ background:var(--navy-bg); border-color:var(--navy-line); color:var(--navy-deep); }
+.gbar.st-ok .gb-pct{ background:var(--navy-line); }
+.gbar.st-risk{ background:var(--risk-bg); border-color:var(--risk-line); color:var(--risk); }
+.gbar.st-risk .gb-pct{ background:var(--risk-line); }
+.gbar.st-hold{ background:var(--hold-bg); border-color:var(--hold-line); color:var(--hold); }
+.gbar.st-hold .gb-pct{ background:var(--hold-line); }
+/* solid emphasis bar (key path) */
+.gbar.solid.st-ok{ background:var(--navy); border-color:var(--navy-deep); color:#fff; }
+.gbar.solid.st-ok .gb-tag{ opacity:.85; }
+.gbar.solid.st-ok .gb-pct{ background:rgba(255,255,255,.28); }
+/* future / planned ghost */
+.gbar.ghost{ background:repeating-linear-gradient(135deg,transparent 0 4px,var(--navy-bg) 4px 8px); border:1.4px dashed var(--navy-line); color:var(--navy-deep); box-shadow:none; }
+
+/* ---- milestone diamonds ---- */
+.milestone{
+  justify-self:start; align-self:center;
+  display:inline-flex; align-items:center; gap:6px;
+  margin-left:-7px; position:relative; z-index:2;
+  cursor:default;
+  transition:opacity .12s ease;
+}
+.milestone.at-end{ justify-self:end; margin-left:0; margin-right:-7px; flex-direction:row-reverse; }
+.milestone.dim{ opacity:.16; }
+.milestone .di{
+  width:14px; height:14px; transform:rotate(45deg); border-radius:3px;
+  background:var(--navy); border:1.5px solid var(--navy-deep);
+  display:inline-flex; align-items:center; justify-content:center; flex:0 0 auto;
+  box-shadow:0 1px 2px rgba(17,19,26,.15);
+  transition:transform .12s ease;
+}
+.milestone:hover .di{ transform:rotate(45deg) scale(1.14); }
+.milestone .di::after{ content:""; width:4px; height:4px; background:#fff; border-radius:1px; transform:rotate(-45deg); }
+.milestone .ms-cap{ font:9.5px/1.1 var(--mono); font-weight:700; letter-spacing:.03em; color:var(--ink); background:var(--bg); padding:2px 5px; border-radius:5px; border:1px solid var(--rule); white-space:nowrap; }
+.milestone.st-risk .di{ background:var(--risk); border-color:#7e1a14; }
+.milestone.st-risk .ms-cap{ color:var(--risk); border-color:var(--risk-line); }
+.milestone.st-hold .di{ background:var(--hold); border-color:#5e4a00; }
+.milestone.st-hold .ms-cap{ color:var(--hold); border-color:var(--hold-line); }
+.milestone.gate .di{ background:var(--bg); border:2px solid var(--navy-deep); }
+.milestone.gate .di::after{ background:var(--navy-deep); width:5px; height:5px; }
+
+/* ---- today line (vertical overlay) — left set from data by render() ---- */
+.today-line{
+  position:absolute; top:0; bottom:0; width:0;
+  border-left:2px dashed var(--navy);
+  z-index:3; pointer-events:none;
+}
+.today-line .flag{
+  position:absolute; top:33px; left:50%; transform:translateX(-50%);  /* sit in the time-axis band (over the decorative tick dashes, below the Q-labels) so the flag never covers the first lane's bar text */
+  background:var(--navy); color:#fff; font:9px/1 var(--mono); font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+  padding:4px 7px; border-radius:5px; white-space:nowrap;
+  box-shadow:0 1px 3px rgba(17,19,26,.2);
+}
+.today-line .flag::after{ content:""; position:absolute; left:50%; top:100%; transform:translateX(-50%); border:4px solid transparent; border-top-color:var(--navy); }
+
+/* ---- phase band (overlay strip under the grid) ---- */
+.phase-band{
+  display:grid; grid-template-columns:var(--lane-w) repeat(var(--cols),var(--col-w));
+  min-width:920px; border-top:1px solid var(--rule);
+  background:var(--bg-subtle);
+}
+.phase-band .pb-rail{ grid-column:1; padding:8px 14px; border-right:1px solid var(--rule); display:flex; align-items:center; gap:6px; position:sticky; left:0; background:var(--bg-subtle); z-index:2; }
+.phase-band .pb-rail .k{ font:9px/1.1 var(--mono); letter-spacing:.1em; text-transform:uppercase; color:var(--ink-faint); }
+.phase{
+  margin:7px 4px; border-radius:7px; padding:6px 11px;
+  background:var(--navy-bg); border:1px solid var(--navy-line);
+  display:flex; flex-direction:column; gap:1px;
+}
+.phase .pn{ font:10px/1.15 var(--mono); font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:var(--navy-deep); }
+.phase .pr{ font:9.5px/1.2 var(--mono); color:var(--ink-soft); }
+.phase.alt{ background:var(--bg-band); border-color:var(--rule); }
+.phase.alt .pn{ color:var(--ink-mid); }
+
+/* ---- tooltip (bar hover) ---- */
+#tip{
+  position:fixed; z-index:50; pointer-events:none; opacity:0;
+  max-width:280px; transform:translateY(2px);
+  background:var(--bg-deep); color:#ececed; border-radius:10px;
+  padding:9px 11px; box-shadow:0 6px 22px rgba(17,19,26,.32);
+  transition:opacity .1s ease;
+}
+#tip.on{ opacity:1; }
+#tip .tt-h{ font-size:12px; font-weight:800; color:#fff; letter-spacing:-.01em; margin-bottom:5px; }
+#tip .tt-row{ display:flex; gap:10px; align-items:baseline; font-size:11px; color:#c5c6cc; }
+#tip .tt-row + .tt-row{ margin-top:2px; }
+#tip .tt-k{ font:9px/1.3 var(--mono); letter-spacing:.1em; text-transform:uppercase; color:#9a9ba3; min-width:58px; }
+#tip .tt-v{ font-family:var(--mono); font-feature-settings:"tnum" 1; color:#fff; font-weight:600; }
+#tip .tt-badge{ display:inline-flex; align-items:center; gap:5px; font:10px/1 var(--mono); font-weight:700; }
+#tip .tt-badge::before{ content:""; width:7px; height:7px; border-radius:50%; }
+#tip .tt-badge.s-ok::before{ background:var(--navy); }
+#tip .tt-badge.s-risk::before{ background:var(--risk); }
+#tip .tt-badge.s-hold::before{ background:var(--hold); }
+#tip .tt-badge.s-planned::before{ background:#9a9ba3; }
+/* mini progress meter inside the tooltip */
+#tip .tt-meter{ height:5px; border-radius:3px; background:rgba(255,255,255,.16); margin-top:6px; overflow:hidden; }
+#tip .tt-meter > i{ display:block; height:100%; background:#fff; border-radius:3px; }
+
+/* ---- 4. Gate / milestone ledger (shared data-table) ---- */
+.section-label{ display:flex; align-items:center; gap:9px; margin:22px 0 11px; }
+.section-label .icon{ width:18px; height:18px; color:var(--navy-deep); }
+.section-label h2{ font-size:16px; font-weight:800; letter-spacing:-.01em; margin:0; }
+.section-label .meta{ margin-left:auto; font:10px/1 var(--mono); letter-spacing:.08em; text-transform:uppercase; color:var(--ink-faint); }
+
+.panel{ background:var(--bg); border:1px solid var(--rule); border-radius:12px; box-shadow:0 1px 2px rgba(17,19,26,.045); overflow:hidden; }
+table.gate-table{ width:100%; border-collapse:collapse; font-size:12.5px; }
+.gate-table thead th{
+  text-align:left; font:9.5px/1.3 var(--mono); letter-spacing:.08em; text-transform:uppercase;
+  color:var(--ink-faint); font-weight:700; padding:11px 14px; border-bottom:2px solid var(--ink);
+  background:var(--bg);
+}
+.gate-table tbody td{ padding:10px 14px; border-bottom:1px solid var(--rule-soft); vertical-align:top; color:var(--ink-mid); }
+.gate-table tbody tr:nth-child(even){ background:var(--bg-subtle); }
+.gate-table tbody tr:hover{ background:var(--navy-bg); }
+.gate-table tbody tr.row-hidden{ display:none; }
+.gate-table td.c-date{ font-family:var(--mono); font-feature-settings:"tnum" 1; white-space:nowrap; color:var(--ink); font-weight:600; }
+.gate-table td.c-gate{ color:var(--ink); font-weight:700; }
+.gate-table td.c-gate .sub{ display:block; font-weight:400; color:var(--ink-soft); font-size:11.5px; }
+.chip{ display:inline-block; font:10px/1 var(--mono); font-weight:700; background:var(--navy-bg); color:var(--navy-deep); border-radius:5px; padding:3px 6px; letter-spacing:.02em; }
+
+/* status badge (shared primitive) */
+.st-badge{ display:inline-flex; align-items:center; gap:6px; font:11px/1 var(--sans); font-weight:700; border:1px solid; border-radius:6px; padding:4px 9px 4px 8px; white-space:nowrap; }
+.st-badge::before{ content:""; width:7px; height:7px; border-radius:50%; }
+.st-badge.st-ok{ color:var(--navy-deep); background:var(--navy-bg); border-color:var(--navy-line); }
+.st-badge.st-ok::before{ background:var(--navy); }
+.st-badge.st-risk{ color:var(--risk); background:var(--risk-bg); border-color:var(--risk-line); }
+.st-badge.st-risk::before{ background:var(--risk); }
+.st-badge.st-hold{ color:var(--hold); background:var(--hold-bg); border-color:var(--hold-line); }
+.st-badge.st-hold::before{ background:var(--hold); }
+
+/* ---- 5. Footer (dark band) ---- */
+.r-foot{
+  margin-top:24px; background:var(--bg-deep); color:#cfd0d6; border-radius:12px;
+  padding:16px 20px; display:flex; align-items:center; gap:14px; flex-wrap:wrap;
+  font:10.5px/1.5 var(--mono); letter-spacing:.06em; text-transform:uppercase;
+}
+.r-foot .fm{ display:flex; align-items:center; gap:8px; font-weight:700; color:#fff; }
+.r-foot .fm .sq{ width:13px; height:13px; border-radius:3px; background:var(--navy); display:inline-block; }
+.r-foot .sep{ opacity:.4; }
+.r-foot .spacer{ margin-left:auto; }
+
+/* noscript notice */
+.noscript-note{
+  background:var(--hold-bg); border:1px solid var(--hold-line); color:var(--hold);
+  border-radius:12px; padding:14px 18px; margin-bottom:16px; font-size:13px; font-weight:600;
+}
+
+/* ---- print: static, complete snapshot; hide controls ---- */
+@media print{
+  body{ background:#fff; }
+  .wrap{ max-width:none; padding:0; }
+  .toolbar{ display:none !important; }
+  .roadmap{ overflow:visible; box-shadow:none; }
+  .gbar.dim, .milestone.dim{ opacity:1 !important; }      /* expand to full snapshot */
+  .gate-table tbody tr.row-hidden{ display:table-row !important; }
+  .swimlane.lane-hidden{ display:contents !important; }
+  #tip{ display:none !important; }
+  .r-foot{ background:#fff; color:#555; border:1px solid var(--rule); }
+  .r-foot .fm{ color:#000; }
+}
+</style>
+</head>
+<body>
+<div class="wrap" id="root">
+  <noscript>
+    <div class="noscript-note">
+      This roadmap is data-driven and renders from an embedded dataset using JavaScript.
+      Enable JavaScript to view the interactive planner (filters, tooltips, jump-to-today, live theming).
+      The underlying plan data is present in the page source under <code>#report-data</code>.
+    </div>
+  </noscript>
+</div>
+
+<!-- floating tooltip (populated on bar hover) -->
+<div id="tip" role="tooltip" aria-hidden="true"></div>
+
+<script>
+/* ============================================================
+   RENDER + INTERACTIONS — reads #report-data → DOM on load.
+   Bars are PLACED from data via grid-column (no hand-authored
+   positions). The today-line position is COMPUTED from data.
+   Vanilla JS, no libraries.
+   ============================================================ */
+(function(){
+  "use strict";
+
+  var DATA = JSON.parse(document.getElementById('report-data').textContent);
+
+  /* ---- icon set (house SVGs, inline) ---- */
+  var ICONS = {
+    process: '<path d="M12 7.5 6 16.5M12 7.5 18 16.5M7.5 18.5H16.5"/><rect x="10" y="3.5" width="4" height="4" rx="1.2" fill="currentColor" stroke="none"/><rect x="3.5" y="16.5" width="4" height="4" rx="1.2" fill="currentColor" stroke="none"/><rect x="16.5" y="16.5" width="4" height="4" rx="1.2" fill="currentColor" stroke="none"/>',
+    data: '<path d="M4 4V20H20"/><rect x="6.75" y="12" width="3" height="8" rx="1.2"/><rect x="11.5" y="8" width="3" height="12" rx="1.2"/><rect x="16.25" y="14.5" width="3" height="5.5" rx="1.2"/>',
+    status: '<path d="M12 3.25 19 5.75v5.45c0 4.4-3 7.6-7 8.8-4-1.2-7-4.4-7-8.8V5.75Z"/><path d="M9 12l2.2 2.2L15.2 9.6"/>',
+    infra: '<rect x="4" y="4.5" width="16" height="6" rx="2"/><rect x="4" y="13.5" width="16" height="6" rx="2"/><rect x="6.6" y="6.7" width="3.4" height="1.6" rx="0.8" fill="currentColor" stroke="none"/><rect x="6.6" y="15.7" width="3.4" height="1.6" rx="0.8" fill="currentColor" stroke="none"/>',
+    people: '<path d="M6.5 3.5H13l4.5 4.5V20a.5.5 0 0 1-.5.5H6.5a.5.5 0 0 1-.5-.5V4a.5.5 0 0 1 .5-.5Z"/><path d="M13 3.5V7.5a.5.5 0 0 0 .5.5H17.5"/><path d="M9 12.5H15M9 15.5H15M9 18H12.5"/>',
+    time: '<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>'
+  };
+  function svg(key, cls){
+    var body = ICONS[key] || ICONS.process;
+    return '<svg class="icon'+(cls?' '+cls:'')+'" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">'+body+'</svg>';
+  }
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+  function el(tag, attrs, html){
+    var n = document.createElement(tag);
+    if(attrs) for(var k in attrs){ if(attrs[k]!=null) n.setAttribute(k, attrs[k]); }
+    if(html!=null) n.innerHTML = html;
+    return n;
+  }
+
+  /* ---- index maps + helpers ---- */
+  var periodIdx = {};                       /* key -> 0-based position */
+  DATA.periods.forEach(function(p,i){ periodIdx[p.key] = i; });
+  var laneById = {};
+  DATA.swimlanes.forEach(function(l){ laneById[l.id] = l; });
+  var NCOLS = DATA.periods.length;
+
+  /* grid-column start/end (1-based within the track sub-grid). end is exclusive. */
+  function colStart(key){ return periodIdx[key] + 1; }
+  function colEndExclusive(key){ return periodIdx[key] + 2; }
+
+  var STATUS_TEXT = { ok:'On track', risk:'At risk', hold:'On hold', planned:'Planned' };
+  var STATUS_TAGLABEL = { risk:'RISK', hold:'HOLD', planned:'PLAN' };
+
+  /* ---- build a state model of which bars belong to which lane/row ---- */
+  function barsForLane(id){ return DATA.bars.filter(function(b){ return b.lane===id; }); }
+  function milestonesForLane(id){ return (DATA.milestones||[]).filter(function(m){ return m.lane===id; }); }
+  function laneIsDual(id){
+    return barsForLane(id).some(function(b){ return (b.row||1)===2; }) ||
+           milestonesForLane(id).some(function(m){ return (m.row||1)===2; });
+  }
+  function laneIndexLabel(l, i){ return l.index || ('L'+(i+1)); }
+
+  /* ============================================================
+     RENDER
+     ============================================================ */
+  function render(){
+    var m = DATA.meta || {};
+    document.documentElement.setAttribute('data-theme', m.theme || 'indigo');
+    document.title = (m.project||'{{PROJECT}}') + ' — Delivery Roadmap';
+    document.documentElement.style.setProperty('--cols', NCOLS);
+
+    var root = document.getElementById('root');
+    /* keep the <noscript> at the top, append rendered chrome after it */
+
+    /* ---------- HEADER ---------- */
+    var planSpan = DATA.periods[0].label + ' → ' + DATA.periods[NCOLS-1].label;
+    var head = el('header', {'class':'r-head'});
+    head.innerHTML =
+      '<div class="topline">'+
+        '<div>'+
+          '<div class="eyebrow">Delivery roadmap · '+esc(m.reportType||'{{REPORT_TYPE}}')+'</div>'+
+          '<div class="wordmark" style="margin-top:5px">'+
+            '<span class="sq"></span>'+
+            '<span class="org">'+esc(m.org||'{{ORG}}')+'</span><span class="sep">/</span><span class="proj">'+esc(m.project||'{{PROJECT}}')+'</span>'+
+          '</div>'+
+        '</div>'+
+        '<div class="head-meta">'+
+          '<div class="k">Plan period</div><div class="v">'+esc(planSpan)+'</div>'+
+          '<div class="k" style="margin-top:6px">As of</div><div class="v">'+esc(m.date||'{{DATE}}')+'</div>'+
+          themeSwitcherHTML()+
+        '</div>'+
+      '</div>'+
+      '<h1>'+esc(m.title||'Programme Roadmap')+'</h1>'+
+      (m.subtitle ? '<p class="standfirst">'+esc(m.subtitle)+'</p>' : '')+
+      legendHTML();
+    root.appendChild(head);
+
+    /* ---------- TOOLBAR (controls) ---------- */
+    root.appendChild(buildToolbar());
+
+    /* ---------- ROADMAP CANVAS ---------- */
+    var road = el('section', {'class':'roadmap','aria-label':'Programme gantt roadmap'});
+    var grid = el('div', {'class':'grid'});
+
+    /* vertical column rules */
+    var rules = el('div', {'class':'col-rules','aria-hidden':'true'});
+    for(var r=0;r<NCOLS+1;r++) rules.appendChild(el('i'));
+    grid.appendChild(rules);
+
+    /* time axis */
+    var axis = el('div', {'class':'time-axis'});
+    var corner = el('div', {'class':'ax-corner'});
+    corner.innerHTML = '<div class="k">Workstream</div><div class="v">'+DATA.swimlanes.length+' lanes</div>';
+    axis.appendChild(corner);
+    DATA.periods.forEach(function(p, i){
+      var t = el('div', {'class':'tick', 'style':'grid-column:'+(i+2)});
+      t.innerHTML = '<div class="qn">'+esc(p.label)+'</div>'+
+                    (p.sublabel ? '<div class="qd">'+esc(p.sublabel)+'</div>' : '')+
+                    '<div class="tick-sub"><span></span><span></span><span></span></div>';
+      axis.appendChild(t);
+    });
+    grid.appendChild(axis);
+
+    /* today line — POSITION COMPUTED FROM DATA (no magic number) */
+    grid.appendChild(buildTodayLine());
+
+    /* swimlanes */
+    DATA.swimlanes.forEach(function(lane, li){
+      grid.appendChild(buildSwimlane(lane, li));
+    });
+
+    road.appendChild(grid);
+
+    /* phase band */
+    if(DATA.phases && DATA.phases.length){
+      road.appendChild(buildPhaseBand());
+    }
+    root.appendChild(road);
+
+    /* ---------- GATE LEDGER ---------- */
+    if(DATA.gates && DATA.gates.length){
+      root.appendChild(buildGateSectionLabel());
+      root.appendChild(buildGateTable());
+    }
+
+    /* ---------- FOOTER ---------- */
+    root.appendChild(buildFooter());
+  }
+
+  function themeSwitcherHTML(){
+    var themeHtml = '<label class="rc-theme" title="Brand colour"><span class="rc-theme-sw" aria-hidden="true"></span><select class="rc-theme-sel" aria-label="Brand theme"><option value="blue">Blue</option><option value="purple">Purple</option><option value="indigo">Indigo</option><option value="teal">Teal</option><option value="cyan">Cyan</option><option value="green">Green</option><option value="plum">Plum</option><option value="slate">Slate</option><option value="black">Black</option></select></label>';
+    return themeHtml;
+  }
+
+  function legendHTML(){
+    return '<div class="legend">'+
+      '<span class="lg-title">Legend</span>'+
+      '<span class="lg ok"><span class="sw ok"></span> On&nbsp;track</span>'+
+      '<span class="lg risk"><span class="sw" style="background:var(--risk-bg);border-color:var(--risk-line)"></span> At&nbsp;risk</span>'+
+      '<span class="lg hold"><span class="sw" style="background:var(--hold-bg);border-color:var(--hold-line)"></span> On&nbsp;hold</span>'+
+      '<span class="lg"><span class="ghost"></span> Planned</span>'+
+      '<span class="lg"><span class="di"></span> Milestone</span>'+
+      '<span class="lg"><span class="di hollow"></span> Go/no-go&nbsp;gate</span>'+
+    '</div>';
+  }
+
+  function buildToolbar(){
+    var tb = el('div', {'class':'toolbar','role':'group','aria-label':'roadmap controls'});
+
+    /* jump-to-today */
+    var jt = el('div', {'class':'tb-group'});
+    jt.innerHTML = '<span class="tb-label">View</span>';
+    var btnToday = el('button', {'class':'btn','id':'jumpToday','type':'button'},
+      svg('time')+'<span>Jump to today</span>');
+    jt.appendChild(btnToday);
+    var btnReset = el('button', {'class':'btn ghost-btn','id':'resetBtn','type':'button'},
+      '<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12a7.5 7.5 0 1 0 2.3-5.4M4.5 4.5V8.5H8.5"/></svg>'+
+      '<span>Reset</span>');
+    jt.appendChild(btnReset);
+    tb.appendChild(jt);
+
+    tb.appendChild(el('div',{'class':'tb-sep'}));
+
+    /* status filter */
+    var sf = el('div', {'class':'tb-group','id':'statusFilter'});
+    sf.innerHTML = '<span class="tb-label">Status</span>';
+    [['ok','On track'],['risk','At risk'],['hold','On hold'],['planned','Planned']].forEach(function(s){
+      var c = el('button', {'class':'fchip f-'+s[0],'type':'button','data-status':s[0],'aria-pressed':'true'},
+        '<span class="fdot"></span>'+esc(s[1]));
+      sf.appendChild(c);
+    });
+    tb.appendChild(sf);
+
+    tb.appendChild(el('div',{'class':'tb-sep'}));
+
+    /* lane toggle */
+    var lf = el('div', {'class':'tb-group','id':'laneFilter'});
+    lf.innerHTML = '<span class="tb-label">Lanes</span>';
+    DATA.swimlanes.forEach(function(lane, i){
+      var c = el('button', {'class':'fchip f-lane','type':'button','data-lane':lane.id,'aria-pressed':'true'},
+        '<span class="lidx">'+esc(laneIndexLabel(lane,i))+'</span>'+esc(lane.name));
+      lf.appendChild(c);
+    });
+    tb.appendChild(lf);
+
+    /* zoom (optional date-range / column width) */
+    var zoomWrap = el('div', {'class':'tb-group tb-spacer','id':'zoomCtl'});
+    zoomWrap.innerHTML =
+      '<span class="tb-label">Zoom</span>'+
+      '<div class="seg" role="group" aria-label="column width">'+
+        '<button type="button" data-zoom="out" aria-label="zoom out">−</button>'+
+        '<button type="button" data-zoom="in" aria-label="zoom in">+</button>'+
+      '</div>'+
+      '<span class="zoomval" id="zoomVal">100%</span>';
+    tb.appendChild(zoomWrap);
+
+    return tb;
+  }
+
+  function buildTodayLine(){
+    var t = DATA.today;
+    var line = el('div', {'class':'today-line'});
+    if(t && periodIdx[t.period]!=null){
+      var f = Math.max(0, Math.min(1, t.fraction));
+      var within = periodIdx[t.period] + f;   /* columns into the time area */
+      /* left = lane rail + (within / NCOLS) of the remaining track width */
+      line.style.left = 'calc(var(--lane-w) + (100% - var(--lane-w)) * ('+within+' / '+NCOLS+'))';
+      line.setAttribute('data-frac', within / NCOLS);
+      line.innerHTML = '<span class="flag">Today · '+esc((DATA.meta&&DATA.meta.date)||'{{DATE}}')+'</span>';
+    } else {
+      line.style.display = 'none';
+    }
+    return line;
+  }
+
+  function buildSwimlane(lane, li){
+    var sw = el('div', {'class':'swimlane'+(li%2===1?' alt-row':''),'data-lane':lane.id});
+
+    var head = el('div', {'class':'lane-head'});
+    head.innerHTML =
+      '<div class="ln-top">'+
+        '<span class="ln-idx">'+esc(laneIndexLabel(lane,li))+'</span>'+
+        '<span class="ln-ic">'+svg(lane.icon||'process')+'</span>'+
+        '<span class="ln-name">'+esc(lane.name)+'</span>'+
+      '</div>'+
+      (lane.owner ? '<div class="ln-meta">OWNER&nbsp;'+esc(lane.owner.toUpperCase())+'</div>' : '');
+    sw.appendChild(head);
+
+    var dual = laneIsDual(lane.id);
+    var track = el('div', {'class':'track'+(dual?' dual':'')});
+
+    /* bars */
+    barsForLane(lane.id).forEach(function(b){
+      track.appendChild(buildBar(b, lane));
+    });
+    /* milestones */
+    milestonesForLane(lane.id).forEach(function(ms){
+      track.appendChild(buildMilestone(ms));
+    });
+
+    sw.appendChild(track);
+    return sw;
+  }
+
+  function buildBar(b, lane){
+    var planned = b.status === 'planned';
+    var cls = 'gbar';
+    if(planned){ cls += ' ghost'; }
+    else { cls += ' st-' + b.status; }
+    if(b.solid && b.status==='ok'){ cls += ' solid'; }
+
+    var gc = colStart(b.startPeriod) + ' / ' + colEndExclusive(b.endPeriod);
+    var attrs = {
+      'class':cls,
+      'style':'grid-column:'+gc+(b.row?(';grid-row:'+b.row):''),
+      'data-lane':b.lane, 'data-status':b.status, 'tabindex':'0'
+    };
+    var bar = el('div', attrs);
+
+    var tag = '';
+    if(typeof b.progress === 'number'){ tag = b.progress + '%'; }
+    else if(STATUS_TAGLABEL[b.status]){ tag = STATUS_TAGLABEL[b.status]; }
+
+    var inner = '<span class="gb-label">'+esc(b.label)+'</span>';
+    if(tag) inner += '<span class="gb-tag">'+esc(tag)+'</span>';
+    if(typeof b.progress === 'number'){
+      inner += '<span class="gb-pct" style="width:'+Math.max(0,Math.min(100,b.progress))+'%"></span>';
+    }
+    bar.innerHTML = inner;
+
+    /* tooltip payload */
+    var startP = DATA.periods[periodIdx[b.startPeriod]];
+    var endP   = DATA.periods[periodIdx[b.endPeriod]];
+    bar._tip = {
+      head: b.label,
+      lane: lane ? lane.name : b.lane,
+      span: startP.label + (b.startPeriod===b.endPeriod ? '' : ' – ' + endP.label),
+      status: b.status,
+      progress: (typeof b.progress === 'number') ? b.progress : null
+    };
+    return bar;
+  }
+
+  function buildMilestone(ms){
+    var isGate = false; /* canvas milestones; gates live in the ledger */
+    var cls = 'milestone st-'+(ms.status||'ok');
+    if(ms.atEnd) cls += ' at-end';
+    var gc;
+    if(ms.atEnd){ gc = colEndExclusive(ms.period) - 1 + ' / ' + colEndExclusive(ms.period); }
+    else { gc = colStart(ms.period) + ' / ' + (colStart(ms.period)+1); }
+    var node = el('div', {'class':cls,'style':'grid-column:'+gc+(ms.row?(';grid-row:'+ms.row):''),'data-lane':ms.lane,'data-status':ms.status});
+    node.innerHTML = '<span class="di"></span><span class="ms-cap">'+esc(ms.label)+'</span>';
+    return node;
+  }
+
+  function buildPhaseBand(){
+    var band = el('div', {'class':'phase-band'});
+    var rail = el('div', {'class':'pb-rail'});
+    rail.innerHTML = '<span class="k">Phase</span>';
+    band.appendChild(rail);
+    DATA.phases.forEach(function(ph){
+      var gc = (colStart(ph.startPeriod)+1) + ' / ' + (colEndExclusive(ph.endPeriod)+1);
+      var p = el('div', {'class':'phase'+(ph.alt?' alt':''),'style':'grid-column:'+gc});
+      p.innerHTML = '<span class="pn">'+esc(ph.name)+'</span>'+
+                    (ph.sublabel ? '<span class="pr">'+esc(ph.sublabel)+'</span>' : '');
+      band.appendChild(p);
+    });
+    return band;
+  }
+
+  function buildGateSectionLabel(){
+    var s = el('div', {'class':'section-label'});
+    s.innerHTML =
+      '<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M8.3 12.4l2.5 2.5 4.9-5.3"/></svg>'+
+      '<h2>Milestones &amp; go/no-go gates</h2>'+
+      '<span class="meta" id="gateCount">'+DATA.gates.length+' entries</span>';
+    return s;
+  }
+
+  function buildGateTable(){
+    var panel = el('div', {'class':'panel'});
+    var rows = '';
+    DATA.gates.forEach(function(g){
+      var lane = laneById[g.lane];
+      var laneIx = lane ? (lane.index || '') : '';
+      var laneNm = lane ? lane.name : g.lane;
+      var chip = (laneIx ? laneIx+'·' : '') + laneNm;
+      var statusLabel = g.statusLabel || STATUS_TEXT[g.status] || g.status;
+      rows +=
+        '<tr data-status="'+esc(g.status)+'" data-lane="'+esc(g.lane)+'">'+
+          '<td class="c-date">'+esc(g.targetDate || (DATA.periods[periodIdx[g.period]]||{}).label || g.period)+'</td>'+
+          '<td class="c-gate">'+esc(g.label)+(g.sublabel?'<span class="sub">'+esc(g.sublabel)+'</span>':'')+'</td>'+
+          '<td><span class="chip">'+esc(chip)+'</span></td>'+
+          '<td>'+esc(g.dependency || '—')+'</td>'+
+          '<td><span class="st-badge st-'+esc(g.status)+'">'+esc(statusLabel)+'</span></td>'+
+        '</tr>';
+    });
+    panel.innerHTML =
+      '<table class="gate-table"><thead><tr>'+
+        '<th style="width:104px">Target</th>'+
+        '<th style="width:30%">Milestone / gate</th>'+
+        '<th>Workstream</th>'+
+        '<th>Dependency</th>'+
+        '<th style="width:128px">Decision</th>'+
+      '</tr></thead><tbody>'+rows+'</tbody></table>';
+    return panel;
+  }
+
+  function buildFooter(){
+    var m = DATA.meta || {};
+    var f = el('footer', {'class':'r-foot'});
+    f.innerHTML =
+      '<span class="fm"><span class="sq"></span>'+esc(m.org||'{{ORG}}')+'</span>'+
+      '<span class="sep">|</span>'+
+      '<span>'+esc(m.project||'{{PROJECT}}')+' · Delivery Roadmap</span>'+
+      '<span class="sep">|</span>'+
+      '<span>Prepared by '+esc(m.author||'{{AUTHOR}}')+'</span>'+
+      '<span class="spacer"></span>'+
+      '<span>As of '+esc(m.date||'{{DATE}}')+'</span>'+
+      '<span class="sep">|</span>'+
+      '<span>Confidential</span>';
+    return f;
+  }
+
+  /* ============================================================
+     INTERACTIONS
+     ============================================================ */
+  /* live filter state */
+  var statusOn = { ok:true, risk:true, hold:true, planned:true };
+  var laneOn = {};
+  DATA.swimlanes.forEach(function(l){ laneOn[l.id] = true; });
+  var zoomPct = 100;
+
+  function applyFilters(){
+    /* bars + canvas milestones: dim when status filtered out */
+    document.querySelectorAll('.gbar[data-status]').forEach(function(b){
+      b.classList.toggle('dim', !statusOn[b.getAttribute('data-status')]);
+    });
+    document.querySelectorAll('.milestone[data-status]').forEach(function(m){
+      m.classList.toggle('dim', !statusOn[m.getAttribute('data-status')]);
+    });
+    /* lanes: hide whole swimlane */
+    document.querySelectorAll('.swimlane[data-lane]').forEach(function(sw){
+      sw.classList.toggle('lane-hidden', !laneOn[sw.getAttribute('data-lane')]);
+    });
+    /* ledger rows: hide when status OR lane filtered out */
+    var visible = 0;
+    document.querySelectorAll('.gate-table tbody tr').forEach(function(tr){
+      var hide = !statusOn[tr.getAttribute('data-status')] || !laneOn[tr.getAttribute('data-lane')];
+      tr.classList.toggle('row-hidden', hide);
+      if(!hide) visible++;
+    });
+    var gc = document.getElementById('gateCount');
+    if(gc) gc.textContent = visible + (visible===1?' entry':' entries');
+  }
+
+  function wireThemeSwitch(){
+    var rcSel = document.querySelector('.rc-theme-sel');
+    if (rcSel) {
+      rcSel.value = document.documentElement.dataset.theme || 'indigo';
+      rcSel.addEventListener('change', () => { document.documentElement.dataset.theme = rcSel.value; });
+    }
+  }
+
+  function wireFilters(){
+    document.querySelectorAll('#statusFilter .fchip').forEach(function(c){
+      c.addEventListener('click', function(){
+        var s = c.getAttribute('data-status');
+        statusOn[s] = !statusOn[s];
+        c.setAttribute('aria-pressed', statusOn[s] ? 'true' : 'false');
+        applyFilters();
+      });
+    });
+    document.querySelectorAll('#laneFilter .fchip').forEach(function(c){
+      c.addEventListener('click', function(){
+        var id = c.getAttribute('data-lane');
+        laneOn[id] = !laneOn[id];
+        c.setAttribute('aria-pressed', laneOn[id] ? 'true' : 'false');
+        applyFilters();
+      });
+    });
+  }
+
+  function wireReset(){
+    var btn = document.getElementById('resetBtn');
+    if(!btn) return;
+    btn.addEventListener('click', function(){
+      Object.keys(statusOn).forEach(function(k){ statusOn[k]=true; });
+      Object.keys(laneOn).forEach(function(k){ laneOn[k]=true; });
+      document.querySelectorAll('#statusFilter .fchip, #laneFilter .fchip').forEach(function(c){
+        c.setAttribute('aria-pressed','true');
+      });
+      setZoom(100);
+      applyFilters();
+    });
+  }
+
+  function wireJumpToday(){
+    var btn = document.getElementById('jumpToday');
+    var road = document.querySelector('.roadmap');
+    var line = document.querySelector('.today-line');
+    if(!btn || !road || !line || line.style.display==='none'){ if(btn) btn.setAttribute('disabled',''); return; }
+    btn.addEventListener('click', function(){
+      var frac = parseFloat(line.getAttribute('data-frac')) || 0;
+      var laneW = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--lane-w')) || 212;
+      var trackW = road.scrollWidth - laneW;
+      var target = laneW + trackW * frac;             /* px of the today line within content */
+      var dest = target - (road.clientWidth / 2);     /* centre it */
+      road.scrollTo({ left: Math.max(0, dest), behavior:'smooth' });
+    });
+  }
+
+  /* fitBase = per-column px width that fills the frame at 100%; zoom scales from it.
+     (columns are fixed var(--col-w), so the grid overflows → horizontal scroll when zoomed in,
+      instead of 1fr stretching to swallow the zoom.) */
+  var fitBase = 128;
+  function computeFit(){
+    var road = document.querySelector('.roadmap');
+    var cols = (DATA.periods && DATA.periods.length) || 6;
+    var laneW = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--lane-w')) || 212;
+    if(road && cols){
+      var avail = road.clientWidth - laneW - 2;   /* minus frame border */
+      if(avail > 0) fitBase = Math.max(112, Math.floor(avail / cols));
+    }
+  }
+  function setZoom(pct){
+    zoomPct = Math.max(70, Math.min(220, Math.round(pct)));
+    document.documentElement.style.setProperty('--col-w', Math.round(fitBase * zoomPct/100) + 'px');
+    var v = document.getElementById('zoomVal');
+    if(v) v.textContent = zoomPct + '%';
+  }
+  function wireZoom(){
+    document.querySelectorAll('#zoomCtl [data-zoom]').forEach(function(b){
+      b.addEventListener('click', function(){
+        setZoom(zoomPct + (b.getAttribute('data-zoom')==='in' ? 15 : -15));
+      });
+    });
+    /* re-fit the 100% base to the new frame width on resize, keeping the current zoom % */
+    var lastW = window.innerWidth;
+    window.addEventListener('resize', function(){
+      if(Math.abs(window.innerWidth - lastW) < 8) return;
+      lastW = window.innerWidth; computeFit(); setZoom(zoomPct);
+    });
+  }
+
+  /* ---- bar hover tooltip ---- */
+  function wireTooltip(){
+    var tip = document.getElementById('tip');
+    function show(bar, ev){
+      var d = bar._tip; if(!d) return;
+      var meter = (d.progress!=null) ?
+        '<div class="tt-meter"><i style="width:'+d.progress+'%"></i></div>' : '';
+      var progRow = (d.progress!=null) ?
+        '<div class="tt-row"><span class="tt-k">Progress</span><span class="tt-v">'+d.progress+'%</span></div>' : '';
+      tip.innerHTML =
+        '<div class="tt-h">'+esc(d.head)+'</div>'+
+        '<div class="tt-row"><span class="tt-k">Lane</span><span class="tt-v">'+esc(d.lane)+'</span></div>'+
+        '<div class="tt-row"><span class="tt-k">Schedule</span><span class="tt-v">'+esc(d.span)+'</span></div>'+
+        '<div class="tt-row"><span class="tt-k">Status</span><span class="tt-badge s-'+esc(d.status)+'">'+esc(STATUS_TEXT[d.status]||d.status)+'</span></div>'+
+        progRow + meter;
+      tip.classList.add('on'); tip.setAttribute('aria-hidden','false');
+      place(ev);
+    }
+    function place(ev){
+      var pad = 14, w = tip.offsetWidth, h = tip.offsetHeight;
+      var x = ev.clientX + pad, y = ev.clientY + pad;
+      if(x + w > window.innerWidth - 8) x = ev.clientX - w - pad;
+      if(y + h > window.innerHeight - 8) y = ev.clientY - h - pad;
+      tip.style.left = Math.max(8,x) + 'px';
+      tip.style.top  = Math.max(8,y) + 'px';
+    }
+    function hide(){ tip.classList.remove('on'); tip.setAttribute('aria-hidden','true'); }
+
+    document.querySelectorAll('.gbar').forEach(function(bar){
+      bar.addEventListener('mouseenter', function(ev){ show(bar, ev); });
+      bar.addEventListener('mousemove', place);
+      bar.addEventListener('mouseleave', hide);
+      bar.addEventListener('focus', function(){
+        var rc = bar.getBoundingClientRect();
+        show(bar, { clientX: rc.left + rc.width/2, clientY: rc.top });
+      });
+      bar.addEventListener('blur', hide);
+    });
+  }
+
+  /* ============================================================
+     BOOT
+     ============================================================ */
+  function boot(){
+    render();
+    computeFit();           /* size columns to fill the frame at 100% before wiring zoom */
+    setZoom(100);
+    wireThemeSwitch();
+    wireFilters();
+    wireReset();
+    wireJumpToday();
+    wireZoom();
+    wireTooltip();
+    applyFilters();
+  }
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', boot);
+  } else { boot(); }
+})();
+</script>
+</body>
+</html>

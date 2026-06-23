@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="purple">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>{{REPORT_TYPE}} — A/B experiment readout · {{PROJECT}}</title>
+<style>
+/* ============================================================
+   EXPERIMENT-READOUT  ·  controlled (A/B) experiment results readout
+   Hypothesis header → hero PRIMARY-metric result (control vs variant, uplift %, CI,
+   significance verdict) → secondary-metrics table → per-segment breakdown.
+   Default theme: Purple.  Self-contained: system fonts + inline SVG, no external requests.
+   Data-driven: body rendered from #report-data; controls re-render / recompute the readout.
+   ============================================================ */
+:root{
+  /* surfaces */
+  --bg:#fff; --bg-band:#f6f6f8; --bg-subtle:#fafafb; --bg-deep:#15131a;
+  --rule:#dcdce2; --rule-soft:#ebebef;
+  /* ink */
+  --ink:#11131a; --ink-mid:#33363f; --ink-soft:#5a5e68; --ink-faint:#868b95;
+  /* brand accent — overridden per theme below (Purple = :root default) */
+  --navy:#a100ff; --navy-deep:#7a00c2; --navy-bg:#f3e8ff; --navy-line:#d9bef5;
+  --ok:#5a2f8a; --ok-bg:#efe8f5; --ok-line:#d0b5e0;
+  /* semantic states — CONSTANT across themes */
+  --risk:#b3261e; --risk-bg:#fbeceb; --risk-line:#edc7c4;
+  --hold:#8a6d00; --hold-bg:#fbf3da; --hold-line:#e7d8a4;
+  /* type stacks */
+  --mono:ui-monospace,"JetBrains Mono","SFMono-Regular",Menlo,Consolas,monospace;
+  --sans:-apple-system,"Segoe UI",system-ui,Roboto,"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic UI","Apple SD Gothic Neo","Malgun Gothic","PingFang SC","Microsoft YaHei","Noto Sans CJK JP","Noto Sans CJK KR","Noto Sans CJK SC","Noto Sans JP","Noto Sans KR","Noto Sans SC","Noto Sans",sans-serif;
+}
+/* ---- theme swaps (only the 7 accent values change; risk/hold/neutrals stay) ---- */
+html[data-theme="blue"]{   --navy:#0b5fd4; --navy-deep:#0842a0; --navy-bg:#e8f1fc; --navy-line:#bcd6f5; --ok:#1a4f9c; --ok-bg:#e9f0fa; --ok-line:#b7cdea; }
+html[data-theme="purple"]{ --navy:#a100ff; --navy-deep:#7a00c2; --navy-bg:#f3e8ff; --navy-line:#d9bef5; --ok:#5a2f8a; --ok-bg:#efe8f5; --ok-line:#d0b5e0; }
+html[data-theme="indigo"]{ --navy:#4338ca; --navy-deep:#312c92; --navy-bg:#ebebfb; --navy-line:#c7c3f0; --ok:#3730a3; --ok-bg:#ebeaf7; --ok-line:#c5c2ea; }
+html[data-theme="teal"]{   --navy:#0e7c86; --navy-deep:#095861; --navy-bg:#e0f3f4; --navy-line:#a9dade; --ok:#0f5d54; --ok-bg:#e3f3ef; --ok-line:#b3ddd4; }
+html[data-theme="cyan"]{   --navy:#0891b2; --navy-deep:#0e6f88; --navy-bg:#e2f4f9; --navy-line:#abdde9; --ok:#0e6b7a; --ok-bg:#e4f3f4; --ok-line:#b0dde2; }
+html[data-theme="green"]{  --navy:#1f7a44; --navy-deep:#155730; --navy-bg:#e6f4ea; --navy-line:#b3dcc1; --ok:#2f6b3c; --ok-bg:#e9f3ea; --ok-line:#bedcc4; }
+html[data-theme="plum"]{   --navy:#a21d6e; --navy-deep:#7c1450; --navy-bg:#fbe8f2; --navy-line:#e8b9d4; --ok:#6d2356; --ok-bg:#f6e8f0; --ok-line:#e3bcd5; }
+html[data-theme="slate"]{  --navy:#3f4f63; --navy-deep:#29384b; --navy-bg:#eef1f5; --navy-line:#c2ccd8; --ok:#34495e; --ok-bg:#eef1f5; --ok-line:#c2ccd8; }
+html[data-theme="black"]{  --navy:#000000; --navy-deep:#000; --navy-bg:#f1f1f3; --navy-line:#d6d6db; --ok:#3f3f46; --ok-bg:#f1f1f3; --ok-line:#cfcfd6; }
+
+*{ box-sizing:border-box; }
+html,body{ margin:0; }
+body{
+  font:13px/1.6 var(--sans); color:var(--ink); background:var(--bg-band);
+  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+}
+.icon{ width:1.15em; height:1.15em; display:inline-block; vertical-align:-.18em; color:inherit; flex:none; }
+.icon-sm{ width:14px; height:14px; }
+.icon-lg{ width:20px; height:20px; }
+.tnum{ font-feature-settings:"tnum" 1; font-variant-numeric:tabular-nums; }
+.noscript{ margin:40px auto; max-width:760px; padding:14px 18px; background:var(--hold-bg); border:1px solid var(--hold-line); border-radius:10px; color:var(--hold); font-weight:600; }
+
+/* ============================================================ PAGE FRAME (centred, NOT full-bleed app shell) */
+.wrap{ max-width:1500px; margin:0 auto; padding:24px 40px 56px; }
+
+/* ============================================================ HYPOTHESIS HEADER (the distinct chrome) */
+.xp-head{
+  background:var(--bg); border:1px solid var(--rule); border-radius:14px;
+  box-shadow:0 1px 2px rgba(17,19,26,.045); overflow:hidden; margin-bottom:16px;
+}
+.xp-head .top{ display:flex; align-items:flex-start; justify-content:space-between; gap:24px; padding:18px 22px 14px; }
+.eyebrow{ font:600 10px/1 var(--mono); letter-spacing:.16em; text-transform:uppercase; color:var(--ink-faint); display:inline-flex; align-items:center; gap:7px; }
+.eyebrow .icon{ width:13px; height:13px; color:var(--navy); }
+.xp-title{ margin:9px 0 6px; font-weight:800; font-size:25px; letter-spacing:-.012em; color:var(--ink); }
+.standfirst{ margin:0; font-size:13.5px; color:var(--ink-soft); max-width:78ch; }
+.wordmark{ display:flex; align-items:center; gap:9px; font-weight:800; font-size:13px; letter-spacing:-.01em; color:var(--ink); white-space:nowrap; }
+.wordmark .mark{ width:20px; height:20px; border-radius:5px; background:var(--navy); color:#fff; display:grid; place-items:center; }
+.wordmark .mark .icon{ width:13px; height:13px; }
+.wordmark .sep{ color:var(--rule); font-weight:400; }
+.wordmark .proj{ color:var(--ink-soft); font-weight:600; }
+.mast-meta{ text-align:right; }
+.mast-meta .date{ display:block; margin-top:5px; font:600 10.5px/1 var(--mono); letter-spacing:.04em; color:var(--ink-faint); text-transform:uppercase; }
+
+/* hypothesis statement strip */
+.hypo{ display:flex; align-items:flex-start; gap:12px; padding:14px 22px; background:var(--navy-bg); border-top:1px solid var(--navy-line); }
+.hypo .hmark{ width:30px; height:30px; flex:none; border-radius:8px; background:var(--bg); color:var(--navy); display:grid; place-items:center; border:1px solid var(--navy-line); }
+.hypo .hmark .icon{ width:18px; height:18px; }
+.hypo .hbody{ min-width:0; }
+.hypo .hlab{ font:700 9.5px/1 var(--mono); letter-spacing:.13em; text-transform:uppercase; color:var(--navy-deep); }
+.hypo .htext{ margin-top:4px; font-weight:600; font-size:13.5px; color:var(--ink); line-height:1.5; max-width:104ch; }
+
+/* experiment facts row */
+.facts{ display:flex; flex-wrap:wrap; gap:0; border-top:1px solid var(--rule); }
+.fact{ flex:1 1 0; min-width:140px; padding:11px 22px; border-right:1px solid var(--rule-soft); }
+.fact:last-child{ border-right:0; }
+.fact .k{ font:600 9px/1 var(--mono); letter-spacing:.1em; text-transform:uppercase; color:var(--ink-faint); }
+.fact .v{ margin-top:5px; font-weight:700; font-size:13px; color:var(--ink-mid); }
+.fact .v .icon{ width:13px; height:13px; color:var(--ink-soft); }
+
+/* shared status badge primitive */
+.st-badge{ display:inline-flex; align-items:center; gap:6px; white-space:nowrap; font:600 11px/1 var(--sans); border:1px solid; border-radius:6px; padding:5px 9px; }
+.st-badge::before{ content:""; width:7px; height:7px; border-radius:50%; flex:none; }
+.st-ok{ color:var(--ok); background:var(--ok-bg); border-color:var(--ok-line); } .st-ok::before{ background:var(--ok); }
+.st-risk{ color:var(--risk); background:var(--risk-bg); border-color:var(--risk-line); } .st-risk::before{ background:var(--risk); }
+.st-hold{ color:var(--hold); background:var(--hold-bg); border-color:var(--hold-line); } .st-hold::before{ background:var(--hold); }
+.st-badge.lg{ font-size:12px; padding:6px 11px; }
+
+/* ============================================================ CONTROL BAR (sticky readout controls — NOT a search toolbar) */
+.xp-bar{
+  position:sticky; top:0; z-index:60;
+  display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+  padding:9px 13px; margin-bottom:16px;
+  background:rgba(255,255,255,.92); backdrop-filter:saturate(180%) blur(6px);
+  border:1px solid var(--rule); border-radius:11px; box-shadow:0 1px 3px rgba(17,19,26,.05);
+}
+.bar-group{ display:flex; align-items:center; gap:7px; }
+.bar-group + .bar-group{ padding-left:12px; border-left:1px solid var(--rule); }
+.bar-group.right{ margin-left:auto; }
+.bar-label{ font:600 9.5px/1 var(--mono); letter-spacing:.12em; text-transform:uppercase; color:var(--ink-faint); }
+
+/* segment chips (recompute the readout for a slice) */
+.seg-chips{ display:flex; gap:7px; flex-wrap:wrap; }
+.seg-chip{
+  display:inline-flex; align-items:center; gap:6px; cursor:pointer;
+  font:600 11.5px/1 var(--sans); color:var(--ink-mid);
+  background:var(--bg); border:1px solid var(--rule); border-radius:6px; padding:6px 10px;
+}
+.seg-chip:hover{ border-color:var(--navy-line); }
+.seg-chip .ct{ font:700 9.5px/1 var(--mono); color:var(--ink-faint); }
+.seg-chip[aria-pressed="true"]{ background:var(--navy); border-color:var(--navy-deep); color:#fff; }
+.seg-chip[aria-pressed="true"] .ct{ color:#fff; opacity:.85; }
+
+/* variant pills (show/hide an arm) */
+.var-pills{ display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+.var-pill{
+  display:inline-flex; align-items:center; gap:6px; cursor:pointer;
+  font:600 11px/1 var(--sans); color:var(--ink-mid);
+  background:var(--bg); border:1px solid var(--rule); border-radius:6px; padding:5px 9px;
+}
+.var-pill .sw{ width:8px; height:8px; border-radius:2px; background:var(--navy); }
+.var-pill.is-control .sw{ background:var(--ink-soft); }
+.var-pill[aria-pressed="false"]{ color:var(--ink-faint); text-decoration:line-through; background:var(--bg-band); }
+.var-pill[aria-pressed="false"] .sw{ background:var(--ink-faint); }
+.var-pill[disabled]{ cursor:not-allowed; opacity:.65; }
+
+/* toggle switch (significance highlight) */
+.toggle{ display:inline-flex; align-items:center; gap:8px; cursor:pointer; font:600 11.5px/1 var(--sans); color:var(--ink-mid); user-select:none; }
+.toggle .track{ width:32px; height:18px; border-radius:9px; background:var(--rule); border:1px solid var(--rule); position:relative; transition:background .14s,border-color .14s; flex:none; }
+.toggle .track::after{ content:""; position:absolute; top:1px; left:1px; width:14px; height:14px; border-radius:50%; background:#fff; box-shadow:0 1px 2px rgba(17,19,26,.25); transition:transform .14s; }
+.toggle input{ position:absolute; opacity:0; width:0; height:0; }
+.toggle input:checked + .track{ background:var(--navy); border-color:var(--navy-deep); }
+.toggle input:checked + .track::after{ transform:translateX(14px); }
+.toggle input:focus-visible + .track{ box-shadow:0 0 0 3px var(--navy-bg); }
+
+/* reset button */
+.tbtn{
+  display:inline-flex; align-items:center; gap:6px; cursor:pointer;
+  font:600 11.5px/1 var(--sans); color:var(--ink-mid);
+  background:var(--bg); border:1px solid var(--rule); border-radius:7px; padding:7px 10px;
+}
+.tbtn:hover{ border-color:var(--navy-line); }
+.tbtn .icon{ color:var(--ink-soft); }
+
+/* theme switcher (canonical .rc-theme) */
+.rc-theme{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--rule);border-radius:7px;padding:3px 4px 3px 7px;background:var(--bg);}
+.rc-theme-sw{width:12px;height:12px;border-radius:50%;background:var(--navy);box-shadow:0 0 0 1px var(--rule);flex:none;}
+.rc-theme-sel{border:0;background:none;font:600 11px/1 var(--mono);color:var(--ink-mid);cursor:pointer;outline:none;padding:2px;}
+@media print{.rc-theme{display:none;}}
+
+/* ============================================================ HERO — primary-metric result */
+.hero{
+  background:var(--bg); border:1px solid var(--rule); border-radius:14px;
+  box-shadow:0 1px 2px rgba(17,19,26,.045); margin-bottom:18px; overflow:hidden;
+}
+.hero-head{ display:flex; align-items:center; gap:10px; padding:13px 20px; border-bottom:1px solid var(--rule-soft); background:var(--bg-band); }
+.hero-head .hicon{ color:var(--navy); }
+.hero-head .htitle{ font-weight:800; font-size:14.5px; color:var(--ink); }
+.hero-head .hmeta{ font:600 10.5px/1 var(--mono); letter-spacing:.04em; color:var(--ink-faint); }
+.hero-head .seg-note{ margin-left:auto; font:600 10.5px/1.3 var(--mono); letter-spacing:.04em; color:var(--navy-deep); background:var(--navy-bg); border:1px solid var(--navy-line); border-radius:6px; padding:5px 9px; }
+.hero-grid{ display:grid; grid-template-columns:1.15fr 1px 1.3fr; gap:0; }
+
+/* left: control vs variant value cards */
+.hero-left{ padding:20px 22px; }
+.hl-lab{ font:700 9.5px/1 var(--mono); letter-spacing:.12em; text-transform:uppercase; color:var(--ink-faint); margin-bottom:13px; }
+.val-row{ display:flex; flex-direction:column; gap:11px; }
+.valcard{
+  position:relative; display:flex; align-items:baseline; gap:14px;
+  padding:13px 15px; border:1px solid var(--rule); border-radius:11px; background:var(--bg-subtle);
+  cursor:default; transition:border-color .12s, background .12s;
+}
+.valcard:hover{ border-color:var(--navy-line); background:var(--navy-bg); }
+.valcard.is-control{ background:var(--bg); }
+.valcard.is-control:hover{ background:var(--bg-band); border-color:var(--rule); }
+.valcard .vc-name{ flex:1; min-width:0; }
+.valcard .vc-tag{ font:700 8.5px/1 var(--mono); letter-spacing:.1em; text-transform:uppercase; color:var(--ink-faint); }
+.valcard.is-win .vc-tag{ color:var(--ok); }
+.valcard .vc-arm{ display:block; margin-top:4px; font-weight:700; font-size:13.5px; color:var(--ink); }
+.valcard .vc-users{ display:block; margin-top:2px; font:600 10px/1 var(--mono); color:var(--ink-faint); }
+.valcard .vc-num{ font:800 34px/1 var(--mono); letter-spacing:-.01em; color:var(--ink); }
+.valcard.is-win .vc-num{ color:var(--ok); }
+.valcard .vc-unit{ font:600 13px/1 var(--mono); color:var(--ink-faint); margin-left:3px; }
+.valcard .vc-ci{ display:block; margin-top:4px; text-align:right; font:600 10px/1 var(--mono); color:var(--ink-faint); }
+.valcard .vc-bar{ position:absolute; left:0; bottom:0; height:3px; background:var(--navy); border-bottom-left-radius:11px; transition:width .25s ease; }
+.valcard.is-control .vc-bar{ background:var(--ink-faint); }
+
+.hero-div{ background:var(--rule-soft); }
+
+/* right: uplift + CI + verdict */
+.hero-right{ padding:20px 22px; display:flex; flex-direction:column; }
+.uplift-lab{ font:700 9.5px/1 var(--mono); letter-spacing:.12em; text-transform:uppercase; color:var(--ink-faint); margin-bottom:8px; }
+.uplift-big{ display:flex; align-items:baseline; gap:10px; }
+.uplift-num{ font:800 46px/1 var(--mono); letter-spacing:-.02em; }
+.uplift-num.up{ color:var(--ok); } .uplift-num.down{ color:var(--risk); } .uplift-num.flat{ color:var(--ink-mid); }
+.uplift-dir{ display:inline-flex; align-items:center; gap:5px; font:700 12px/1 var(--mono); letter-spacing:.04em; text-transform:uppercase; }
+.uplift-dir.up{ color:var(--ok); } .uplift-dir.down{ color:var(--risk); } .uplift-dir.flat{ color:var(--ink-faint); }
+.uplift-dir .icon{ width:16px; height:16px; }
+.uplift-sub{ margin-top:7px; font:600 11.5px/1.4 var(--mono); color:var(--ink-soft); }
+.uplift-sub b{ color:var(--ink); }
+
+/* CI bar visual */
+.ci-wrap{ margin-top:16px; }
+.ci-scale{ position:relative; height:52px; margin:6px 4px 0; }
+.ci-zero{ position:absolute; top:0; bottom:22px; width:1.5px; background:var(--ink-soft); }
+.ci-zero::after{ content:"0"; position:absolute; bottom:-13px; left:50%; transform:translateX(-50%); font:600 9px/1 var(--mono); color:var(--ink-faint); }
+.ci-track{ position:absolute; top:14px; left:0; right:0; height:4px; border-radius:2px; background:var(--rule-soft); }
+.ci-band{ position:absolute; top:9px; height:14px; border-radius:7px; background:var(--navy-bg); border:1px solid var(--navy-line); }
+.ci-band.sig{ background:var(--ok-bg); border-color:var(--ok-line); }
+.ci-band.neg{ background:var(--risk-bg); border-color:var(--risk-line); }
+.ci-point{ position:absolute; top:11px; width:10px; height:10px; border-radius:50%; background:var(--navy); border:2px solid var(--bg); transform:translateX(-50%); }
+.ci-band.sig + .ci-point, .ci-point.sig{ background:var(--ok); }
+.ci-point.neg{ background:var(--risk); }
+.ci-ends{ display:flex; justify-content:space-between; margin-top:9px; font:600 9.5px/1 var(--mono); color:var(--ink-faint); }
+
+/* verdict block */
+.verdict{ margin-top:auto; padding-top:16px; }
+.verdict-in{ display:flex; gap:12px; align-items:flex-start; padding:13px 15px; border-radius:11px; border:1px solid; }
+.verdict-in.ok{ background:var(--ok-bg); border-color:var(--ok-line); }
+.verdict-in.risk{ background:var(--risk-bg); border-color:var(--risk-line); }
+.verdict-in.hold{ background:var(--hold-bg); border-color:var(--hold-line); }
+.verdict-in .vmark{ width:30px; height:30px; flex:none; border-radius:8px; display:grid; place-items:center; background:rgba(255,255,255,.55); }
+.verdict-in.ok .vmark{ color:var(--ok); } .verdict-in.risk .vmark{ color:var(--risk); } .verdict-in.hold .vmark{ color:var(--hold); }
+.verdict-in .vmark .icon{ width:18px; height:18px; }
+.verdict-in h3{ margin:0 0 3px; font-weight:800; font-size:13px; }
+.verdict-in.ok h3{ color:var(--ok); } .verdict-in.risk h3{ color:var(--risk); } .verdict-in.hold h3{ color:var(--hold); }
+.verdict-in p{ margin:0; font-size:12px; color:var(--ink-mid); line-height:1.55; }
+.verdict-in code{ font:700 11.5px/1 var(--mono); color:var(--ink); }
+
+/* ============================================================ SECONDARY METRICS TABLE */
+.sec{ background:var(--bg); border:1px solid var(--rule); border-radius:14px; box-shadow:0 1px 2px rgba(17,19,26,.045); overflow:hidden; margin-bottom:18px; }
+.sec-head{ display:flex; align-items:center; gap:10px; padding:13px 20px; border-bottom:1px solid var(--rule-soft); background:var(--bg-band); }
+.sec-head .hicon{ color:var(--navy); }
+.sec-head .htitle{ font-weight:800; font-size:14.5px; color:var(--ink); }
+.sec-head .hmeta{ font:600 10.5px/1 var(--mono); color:var(--ink-faint); }
+.sec-head .leg{ margin-left:auto; display:flex; gap:12px; align-items:center; font:600 10px/1 var(--mono); color:var(--ink-faint); }
+.sec-head .leg i{ display:inline-flex; align-items:center; gap:5px; }
+.sec-head .leg .dot{ width:8px; height:8px; border-radius:50%; }
+.sec-scroll{ overflow-x:auto; }
+table.mtab{ border-collapse:separate; border-spacing:0; width:100%; }
+.mtab thead th{
+  position:sticky; top:0; background:var(--bg); z-index:5; text-align:right; vertical-align:bottom;
+  border-bottom:2px solid var(--ink); padding:11px 16px;
+  font:700 9.5px/1.3 var(--mono); letter-spacing:.07em; text-transform:uppercase; color:var(--ink-faint); cursor:pointer; user-select:none; white-space:nowrap;
+}
+.mtab thead th.col-metric{ text-align:left; width:30%; }
+.mtab thead th .sarrow{ display:inline-block; width:12px; color:var(--navy); opacity:0; }
+.mtab thead th[aria-sort="ascending"] .sarrow,.mtab thead th[aria-sort="descending"] .sarrow{ opacity:1; }
+.mtab thead th:hover{ color:var(--ink-mid); }
+.mtab tbody td{ border-bottom:1px solid var(--rule-soft); padding:12px 16px; text-align:right; vertical-align:middle; }
+.mtab tbody tr:hover{ background:var(--navy-bg); }
+.mtab tbody tr.is-primary{ background:var(--bg-subtle); }
+.mtab tbody tr.is-primary:hover{ background:var(--navy-bg); }
+.mtab td.c-metric{ text-align:left; }
+.m-name{ font-weight:700; font-size:12.5px; color:var(--ink); }
+.m-name .pin{ display:inline-flex; align-items:center; gap:4px; margin-left:7px; font:700 8px/1 var(--mono); letter-spacing:.08em; text-transform:uppercase; color:var(--navy-deep); background:var(--navy-bg); border:1px solid var(--navy-line); border-radius:4px; padding:2px 5px; vertical-align:1px; cursor:pointer; }
+.m-name .pin .icon{ width:9px; height:9px; }
+.m-dir{ display:block; margin-top:3px; font:600 9.5px/1 var(--mono); letter-spacing:.04em; text-transform:uppercase; color:var(--ink-faint); }
+.m-val{ font:700 13px/1 var(--mono); color:var(--ink-mid); }
+.m-val.ctl{ color:var(--ink); }
+.m-uplift{ display:inline-flex; align-items:center; gap:4px; font:800 13px/1 var(--mono); }
+.m-uplift.up{ color:var(--ok); } .m-uplift.down{ color:var(--risk); } .m-uplift.flat{ color:var(--ink-faint); }
+.m-uplift .icon{ width:13px; height:13px; }
+.m-p{ font:700 12px/1 var(--mono); color:var(--ink-mid); }
+.m-sig{ display:inline-flex; align-items:center; gap:5px; font:700 9.5px/1 var(--mono); letter-spacing:.06em; text-transform:uppercase; padding:4px 7px; border-radius:5px; border:1px solid; }
+.m-sig.yes{ color:var(--ok); background:var(--ok-bg); border-color:var(--ok-line); }
+.m-sig.no{ color:var(--ink-faint); background:var(--bg-band); border-color:var(--rule); }
+.m-sig .icon{ width:11px; height:11px; }
+/* significance highlight mode: dim non-significant rows, ring the significant ones */
+.mtab.sig-hl tbody tr[data-sig="0"]{ opacity:.5; }
+.mtab.sig-hl tbody tr[data-sig="1"] td:first-child{ box-shadow:inset 3px 0 0 var(--ok); }
+.cell-dash{ color:var(--rule); font-family:var(--mono); }
+
+/* ============================================================ PER-SEGMENT BREAKDOWN */
+.segs{ background:var(--bg); border:1px solid var(--rule); border-radius:14px; box-shadow:0 1px 2px rgba(17,19,26,.045); overflow:hidden; }
+.segs-head{ display:flex; align-items:center; gap:10px; padding:13px 20px; border-bottom:1px solid var(--rule-soft); background:var(--bg-band); }
+.segs-head .hicon{ color:var(--navy); }
+.segs-head .htitle{ font-weight:800; font-size:14.5px; color:var(--ink); }
+.segs-head .hmeta{ font:600 10.5px/1 var(--mono); color:var(--ink-faint); }
+.seg-rows{ padding:6px 0; }
+.seg-row{ display:grid; grid-template-columns:200px 1fr; gap:0; border-bottom:1px solid var(--rule-soft); cursor:pointer; }
+.seg-row:last-child{ border-bottom:0; }
+.seg-row:hover{ background:var(--bg-subtle); }
+.seg-row.active{ background:var(--navy-bg); }
+.seg-row .seg-id{ padding:14px 20px; border-right:1px solid var(--rule-soft); }
+.seg-row.active .seg-id{ border-right-color:var(--navy-line); }
+.seg-id .sn{ font-weight:700; font-size:13px; color:var(--ink); display:flex; align-items:center; gap:8px; }
+.seg-id .sn .dot{ width:8px; height:8px; border-radius:50%; background:var(--ink-faint); flex:none; }
+.seg-row.active .seg-id .sn .dot{ background:var(--navy); }
+.seg-id .ss{ display:block; margin-top:3px; font:600 10px/1 var(--mono); color:var(--ink-faint); }
+.seg-metrics{ display:flex; flex-wrap:wrap; gap:10px; padding:13px 20px; align-items:stretch; }
+.seg-m{ flex:1 1 150px; min-width:150px; padding:9px 12px; border:1px solid var(--rule); border-radius:10px; background:var(--bg-subtle); }
+.seg-m .smk{ font:600 9px/1 var(--mono); letter-spacing:.07em; text-transform:uppercase; color:var(--ink-faint); }
+.seg-m .smrow{ display:flex; align-items:baseline; justify-content:space-between; gap:8px; margin-top:6px; }
+.seg-m .smu{ display:inline-flex; align-items:center; gap:4px; font:800 16px/1 var(--mono); }
+.seg-m .smu.up{ color:var(--ok); } .seg-m .smu.down{ color:var(--risk); } .seg-m .smu.flat{ color:var(--ink-faint); }
+.seg-m .smu .icon{ width:13px; height:13px; }
+.seg-m .smsig{ font:700 8px/1 var(--mono); letter-spacing:.06em; text-transform:uppercase; padding:3px 5px; border-radius:4px; border:1px solid; white-space:nowrap; }
+.seg-m .smsig.yes{ color:var(--ok); background:var(--ok-bg); border-color:var(--ok-line); }
+.seg-m .smsig.no{ color:var(--ink-faint); background:var(--bg-band); border-color:var(--rule); }
+.seg-m .smvals{ display:block; margin-top:6px; font:600 10px/1 var(--mono); color:var(--ink-soft); }
+
+/* ============================================================ HOVER POPOVER (exact value + CI) */
+.cell-tip{
+  position:fixed; z-index:120; left:0; top:0; max-width:280px; pointer-events:none;
+  opacity:0; transform:translateY(3px); transition:opacity .12s, transform .12s;
+  background:var(--bg-deep); color:#e9eaee; border-radius:9px; padding:10px 12px; box-shadow:0 6px 22px rgba(17,19,26,.32);
+}
+.cell-tip.on{ opacity:1; transform:translateY(0); }
+.cell-tip .tip-arm{ font:700 8.5px/1 var(--mono); letter-spacing:.12em; text-transform:uppercase; color:#9aa0ad; margin-bottom:5px; }
+.cell-tip .tip-title{ font:700 12px/1.3 var(--sans); color:#fff; }
+.cell-tip .tip-val{ margin-top:4px; font:800 16px/1.1 var(--mono); color:#fff; }
+.cell-tip .tip-detail{ margin-top:7px; padding-top:7px; border-top:1px solid rgba(255,255,255,.16); font:600 10.5px/1.5 var(--mono); color:#c4c8d2; white-space:pre-line; }
+
+/* ============================================================ FOOTER */
+.foot{ margin-top:24px; display:flex; align-items:center; gap:16px; padding:13px 18px; background:var(--bg-deep); border-radius:12px; color:#cdd0d8; font:600 10px/1.4 var(--mono); letter-spacing:.06em; text-transform:uppercase; }
+.foot .icon{ color:#9aa0ad; }
+.foot .sp{ flex:1; }
+.foot .wm{ display:inline-flex; align-items:center; gap:7px; color:#e9eaee; }
+.foot .wm .sq{ width:10px; height:10px; border-radius:2px; background:var(--navy); }
+
+/* ============================================================ PRINT — static, complete snapshot */
+@media print{
+  body{ background:#fff; }
+  .wrap{ max-width:none; padding:0; }
+  .xp-bar, .cell-tip, .m-name .pin{ display:none !important; }
+  .hero, .sec, .segs, .xp-head{ box-shadow:none; break-inside:avoid; }
+  .mtab thead th{ position:static; }
+  .mtab.sig-hl tbody tr[data-sig="0"]{ opacity:1; }
+  .seg-row{ break-inside:avoid; }
+  .ci-band, .ci-point, .vc-bar, .verdict-in, .m-sig.yes{ -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  .foot{ background:#fff; color:#000; border:1px solid var(--rule); }
+  .foot .wm .sq{ background:#000; }
+  @page{ margin:12mm; }
+}
+</style>
+</head>
+<body>
+
+<!-- ============ THE ONLY CONTENT SOURCE ============ -->
+<script type="application/json" id="report-data">
+{
+  "meta": {
+    "org": "{{ORG}}",
+    "project": "{{PROJECT}}",
+    "reportType": "Experiment readout",
+    "title": "Checkout — single-page vs stepped flow",
+    "subtitle": "Six-week split test of a single-page checkout against the current three-step flow, measured on completion, revenue per session and support contacts.",
+    "date": "2026-06-22",
+    "author": "{{AUTHOR}}",
+    "theme": "purple"
+  },
+  "experiment": {
+    "hypothesis": "Collapsing the three-step checkout into a single page will lift checkout completion without reducing revenue per session or raising support contacts.",
+    "owner": "Growth Experimentation",
+    "platform": "Web + iOS",
+    "start": "2026-04-28",
+    "end": "2026-06-09",
+    "status": "shipped",
+    "primaryMetric": "completion",
+    "alphaPct": 5
+  },
+  "variants": [
+    { "id": "control", "name": "Control (stepped)", "isControl": true, "allocationPct": 50, "users": 48210 },
+    { "id": "single", "name": "Single-page", "allocationPct": 50, "users": 47980 }
+  ],
+  "metrics": [
+    {
+      "key": "completion", "label": "Checkout completion rate", "unit": "%", "format": "percent", "betterWhen": "high", "primary": true,
+      "byVariant": {
+        "control": { "value": 62.4, "ciLow": 61.8, "ciHigh": 63.0 },
+        "single": { "value": 67.1, "ciLow": 66.5, "ciHigh": 67.7 }
+      },
+      "upliftVsControlPct": 7.5, "pValue": 0.0008, "significant": true
+    },
+    {
+      "key": "rps", "label": "Revenue per session", "unit": "$", "format": "currency", "betterWhen": "high",
+      "byVariant": {
+        "control": { "value": 18.40, "ciLow": 17.95, "ciHigh": 18.85 },
+        "single": { "value": 19.05, "ciLow": 18.58, "ciHigh": 19.52 }
+      },
+      "upliftVsControlPct": 3.5, "pValue": 0.041, "significant": true
+    },
+    {
+      "key": "aov", "label": "Average order value", "unit": "$", "format": "currency", "betterWhen": "high",
+      "byVariant": {
+        "control": { "value": 74.20, "ciLow": 72.6, "ciHigh": 75.8 },
+        "single": { "value": 73.10, "ciLow": 71.4, "ciHigh": 74.8 }
+      },
+      "upliftVsControlPct": -1.5, "pValue": 0.214, "significant": false
+    },
+    {
+      "key": "time", "label": "Time to complete", "unit": "s", "format": "duration", "betterWhen": "low",
+      "byVariant": {
+        "control": { "value": 96.0, "ciLow": 93.0, "ciHigh": 99.0 },
+        "single": { "value": 71.0, "ciLow": 68.5, "ciHigh": 73.5 }
+      },
+      "upliftVsControlPct": -26.0, "pValue": 0.0002, "significant": true
+    },
+    {
+      "key": "support", "label": "Support contacts", "unit": "/1k orders", "format": "number", "betterWhen": "low",
+      "byVariant": {
+        "control": { "value": 8.2, "ciLow": 7.4, "ciHigh": 9.0 },
+        "single": { "value": 8.6, "ciLow": 7.7, "ciHigh": 9.5 }
+      },
+      "upliftVsControlPct": 4.9, "pValue": 0.36, "significant": false
+    }
+  ],
+  "segments": [
+    {
+      "key": "new", "label": "New users", "sharePct": 41,
+      "metrics": [
+        { "key": "completion", "byVariant": { "control": { "value": 54.0, "ciLow": 53.1, "ciHigh": 54.9 }, "single": { "value": 61.8, "ciLow": 60.9, "ciHigh": 62.7 } }, "upliftVsControlPct": 14.4, "pValue": 0.0001, "significant": true },
+        { "key": "rps", "byVariant": { "control": { "value": 14.10 }, "single": { "value": 15.40 } }, "upliftVsControlPct": 9.2, "pValue": 0.012, "significant": true },
+        { "key": "aov", "byVariant": { "control": { "value": 68.0 }, "single": { "value": 67.2 } }, "upliftVsControlPct": -1.2, "pValue": 0.41, "significant": false }
+      ]
+    },
+    {
+      "key": "returning", "label": "Returning users", "sharePct": 59,
+      "metrics": [
+        { "key": "completion", "byVariant": { "control": { "value": 68.3, "ciLow": 67.6, "ciHigh": 69.0 }, "single": { "value": 70.8, "ciLow": 70.1, "ciHigh": 71.5 } }, "upliftVsControlPct": 3.7, "pValue": 0.058, "significant": false },
+        { "key": "rps", "byVariant": { "control": { "value": 21.40 }, "single": { "value": 21.60 } }, "upliftVsControlPct": 0.9, "pValue": 0.62, "significant": false }
+      ]
+    },
+    {
+      "key": "mobile", "label": "Mobile", "sharePct": 64,
+      "metrics": [
+        { "key": "completion", "byVariant": { "control": { "value": 58.1, "ciLow": 57.3, "ciHigh": 58.9 }, "single": { "value": 65.9, "ciLow": 65.1, "ciHigh": 66.7 } }, "upliftVsControlPct": 13.4, "pValue": 0.0003, "significant": true },
+        { "key": "time", "byVariant": { "control": { "value": 108.0 }, "single": { "value": 74.0 } }, "upliftVsControlPct": -31.5, "pValue": 0.0001, "significant": true }
+      ]
+    }
+  ]
+}
+</script>
+
+<noscript><div class="noscript">This experiment readout renders its results from embedded JSON via JavaScript. Enable JavaScript to view the primary-metric result, the secondary-metrics table and the per-segment breakdown.</div></noscript>
+
+<div class="wrap" id="wrap" hidden>
+
+  <!-- ===== hypothesis header (distinct chrome) ===== -->
+  <header class="xp-head">
+    <div class="top">
+      <div class="lead">
+        <span class="eyebrow" id="mEyebrow"></span>
+        <h1 class="xp-title" id="mTitle"></h1>
+        <p class="standfirst" id="mSub"></p>
+      </div>
+      <div class="mast-meta">
+        <span class="wordmark">
+          <span class="mark"><svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 3.5H14.5"/><path d="M12 3.5V10.5L17 19.5H7L12 10.5"/><path d="M8.5 16H15.5"/></svg></span>
+          <span id="mOrg"></span> <span class="sep">/</span> <span class="proj" id="mProj"></span>
+        </span>
+        <span class="date" id="mDate"></span>
+        <div style="margin-top:9px" id="statusMount"></div>
+      </div>
+    </div>
+    <div class="hypo">
+      <span class="hmark"><svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3.5H7a.5.5 0 0 0-.5.5v16a.5.5 0 0 0 .5.5h10a.5.5 0 0 0 .5-.5V8.5L13.5 3.5H8Z"/><path d="M13.5 3.5V8H17.5"/><path d="M10 12.5C10 11 11 10 12 10C13 10 14 11 14 12C14 13 12 13.5 12 14.5"/><rect x="11" y="16" width="2" height="2" rx="0.8" fill="currentColor" stroke="none"/></svg></span>
+      <div class="hbody">
+        <div class="hlab">Hypothesis</div>
+        <div class="htext" id="hypoText"></div>
+      </div>
+    </div>
+    <div class="facts" id="factsRow"></div>
+  </header>
+
+  <!-- ===== control bar (sticky) ===== -->
+  <div class="xp-bar">
+    <div class="bar-group">
+      <span class="bar-label">Segment</span>
+      <span class="seg-chips" id="segChips"></span>
+    </div>
+    <div class="bar-group">
+      <span class="bar-label">Variants</span>
+      <span class="var-pills" id="varPills"></span>
+    </div>
+    <div class="bar-group right">
+      <label class="toggle" title="Dim metrics that did not reach significance and mark the ones that did">
+        <input type="checkbox" id="sigHl"><span class="track"></span>Highlight significant
+      </label>
+      <button class="tbtn" id="resetBtn" type="button">
+        <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12a7 7 0 1 1 2.05 4.95"/><path d="M5 8.5V12h3.5"/></svg>
+        Reset
+      </button>
+      <label class="rc-theme" id="rcTheme" title="Brand colour">
+        <span class="rc-theme-sw" aria-hidden="true"></span>
+        <select class="rc-theme-sel" aria-label="Brand theme">
+          <option value="blue">Blue</option>
+          <option value="purple">Purple</option>
+          <option value="indigo">Indigo</option>
+          <option value="teal">Teal</option>
+          <option value="cyan">Cyan</option>
+          <option value="green">Green</option>
+          <option value="plum">Plum</option>
+          <option value="slate">Slate</option>
+          <option value="black">Black</option>
+        </select>
+      </label>
+    </div>
+  </div>
+
+  <!-- ===== hero: primary-metric result ===== -->
+  <section class="hero" id="heroMount"></section>
+
+  <!-- ===== secondary metrics ===== -->
+  <section class="sec">
+    <div class="sec-head">
+      <span class="hicon"><svg class="icon icon-lg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4V20H20"/><rect x="5.5" y="13" width="2.5" height="7" rx="1.2"/><rect x="8.5" y="9" width="2.5" height="11" rx="1.2"/><rect x="12" y="14" width="2.5" height="6" rx="1.2"/><rect x="15" y="10.5" width="2.5" height="9.5" rx="1.2"/></svg></span>
+      <span class="htitle">Secondary metrics</span>
+      <span class="hmeta" id="secMeta"></span>
+      <span class="leg">
+        <i><span class="dot" style="background:var(--ok)"></span>significant</i>
+        <i><span class="dot" style="background:var(--ink-faint)"></span>not significant</i>
+      </span>
+    </div>
+    <div class="sec-scroll">
+      <table class="mtab" id="mtab">
+        <thead><tr id="mtabHead"></tr></thead>
+        <tbody id="mtabBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ===== per-segment breakdown ===== -->
+  <section class="segs" id="segsMount" hidden>
+    <div class="segs-head">
+      <span class="hicon"><svg class="icon icon-lg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7.5" r="3"/><path d="M2 21c0-3.31 3.13-6 7-6s7 2.69 7 6"/><circle cx="18" cy="8" r="2.5"/><path d="M16 21c0-2.76 1.12-5 4-5"/></svg></span>
+      <span class="htitle">Per-segment breakdown</span>
+      <span class="hmeta">primary metric uplift per audience slice — click a row to focus the readout</span>
+    </div>
+    <div class="seg-rows" id="segRows"></div>
+  </section>
+
+  <!-- footer -->
+  <footer class="foot">
+    <svg class="icon icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 3.5H14.5"/><path d="M12 3.5V10.5L17 19.5H7L12 10.5"/><path d="M8.5 16H15.5"/></svg>
+    <span id="fMeta"></span>
+    <span class="sp"></span>
+    <span id="fVerdict"></span>
+    <span class="wm"><span class="sq"></span><span id="fOrg"></span></span>
+  </footer>
+</div>
+
+<script>
+/* ============================================================
+   Experiment-readout — single inline script.
+   Reads #report-data → renders hypothesis header, hero primary-metric result,
+   secondary table and per-segment breakdown → wires interactions.
+   Data-driven: segment filter recomputes from segment numbers; the hero metric
+   can be re-focused; variants show/hide; significance verdict derives from p<alpha.
+   ============================================================ */
+(function(){
+  "use strict";
+
+  const DATA = JSON.parse(document.getElementById('report-data').textContent);
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+  /* ---- inline house icons (24x24, stroke=currentColor, 1.75) ---- */
+  const I = {
+    trendUp:'<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 17 9 11l4 4 7.5-8"/><path d="M15 7h5.5v5.5"/></svg>',
+    trendDown:'<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 7 9 13l4-4 7.5 8"/><path d="M15 17h5.5v-5.5"/></svg>',
+    delta:'<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4 4 18h16Z"/></svg>',
+    target:'<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5.5"/><circle cx="12" cy="12" r="2"/></svg>',
+    verified:'<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.5l2.25 1.75H17l.5 2.75 2.25 1.75-1 2.5.5 2.75-2.5.75-1.5 2.25L12 17l-3.25.25-1.5-2.25-2.5-.75.5-2.75-1-2.5L6.5 7 7 4.25h2.75Z"/><path d="M9 12.2l2 2 3.5-4"/></svg>',
+    shieldAlert:'<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.25 19 5.75v5.45c0 4.4-3 7.6-7 8.8-4-1.2-7-4.4-7-8.8V5.75Z"/><path d="M12 9v4.5"/><rect x="10.75" y="15.25" width="2.5" height="2.5" rx="1.2" fill="currentColor" stroke="none"/></svg>',
+    clock:'<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3.5 3"/></svg>',
+    check:'<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M8.3 12.4l2.5 2.5 4.9-5.3"/></svg>',
+    cross:'<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M9 9l6 6M15 9l-6 6"/></svg>',
+    flat:'<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/></svg>',
+    pin:'<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2"/></svg>',
+    cal:'<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15.5" rx="2"/><path d="M3.5 9.5h17M8 3.5v3M16 3.5v3"/></svg>',
+    users:'<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7.5" r="3"/><path d="M2 21c0-3.31 3.13-6 7-6s7 2.69 7 6"/><circle cx="18" cy="8" r="2.5"/><path d="M16 21c0-2.76 1.12-5 4-5"/></svg>',
+    person:'<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"/><path d="M5 21c0-3.87 3.13-7 7-7s7 3.13 7 7"/></svg>',
+    split:'<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6 20V10a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v10"/><path d="M12 4v8"/><rect x="10.6" y="2.6" width="2.8" height="2.8" rx="1" fill="currentColor" stroke="none"/></svg>'
+  };
+
+  const m = DATA.meta, xp = DATA.experiment;
+  const alpha = (typeof xp.alphaPct === 'number' ? xp.alphaPct : 5) / 100;
+
+  /* ---- variants: control first ---- */
+  const variants = DATA.variants.slice();
+  const control = variants.find(v => v.isControl) || variants[0];
+  const others  = variants.filter(v => v.id !== control.id);
+  const ordered = [control, ...others];
+  const vName   = id => (variants.find(v => v.id === id) || {}).name || id;
+
+  /* ---- state ---- */
+  const hidden  = new Set();                 // hidden (non-control) variant ids
+  let segKey    = '__all';                   // '__all' or a segment key
+  let primaryKey= (DATA.metrics.find(x => x.primary) || DATA.metrics[0]).key;
+  let sigHl     = false;
+  let sortKey   = 'default', sortDir = 'desc';
+
+  const visOthers = () => others.filter(v => !hidden.has(v.id));
+
+  /* ============================================================ DATA HELPERS
+     The readout is recomputed for the active segment: a segment overrides a
+     metric's per-variant numbers (and uplift/p) for the slice it covers; metrics
+     not overridden fall back to the all-users numbers, so the maths stays honest. */
+  function segOverride(metricKey){
+    if (segKey === '__all') return null;
+    const seg = (DATA.segments || []).find(s => s.key === segKey); if (!seg) return null;
+    return (seg.metrics || []).find(mm => mm.key === metricKey) || null;
+  }
+  // resolved metric view for the active segment: { byVariant, uplift, pValue, significant, hasSeg }
+  function metricView(metric, vid){
+    const ov = segOverride(metric.key);
+    const src = (ov && ov.byVariant) ? ov.byVariant : metric.byVariant;
+    const cell = src[vid];
+    return cell || null;
+  }
+  function metricStats(metric){
+    const ov = segOverride(metric.key);
+    const src = (ov && ov.byVariant) ? ov.byVariant : metric.byVariant;
+    const ctl = src[control.id];
+    // headline non-control variant = first VISIBLE other (fallback first other)
+    const head = (visOthers()[0] || others[0]);
+    const va = head ? src[head.id] : null;
+    let uplift = (ov && typeof ov.upliftVsControlPct === 'number') ? ov.upliftVsControlPct
+               : (!ov && typeof metric.upliftVsControlPct === 'number') ? metric.upliftVsControlPct
+               : (ctl && va && ctl.value !== 0) ? ((va.value - ctl.value) / Math.abs(ctl.value)) * 100
+               : null;
+    const pValue = ov ? (typeof ov.pValue === 'number' ? ov.pValue : null)
+                      : (typeof metric.pValue === 'number' ? metric.pValue : null);
+    let sig = ov ? ov.significant : metric.significant;
+    if (sig === undefined || sig === null) sig = (pValue !== null) ? (pValue < alpha) : null;
+    return { ctl, va, headVar: head, uplift, pValue, significant: sig, hasSeg: !!ov };
+  }
+  // "good" = improvement in the metric's preferred direction
+  function isGood(metric, uplift){
+    if (uplift === null || uplift === 0) return null;
+    const up = uplift > 0;
+    return (metric.betterWhen === 'low') ? !up : up;
+  }
+  function fmtVal(metric, v){
+    if (v === null || v === undefined || v.value === null || v.value === undefined) return '—';
+    const n = v.value, f = metric.format || 'number';
+    const num = Math.abs(n) >= 100 ? n.toLocaleString(undefined,{maximumFractionDigits:1})
+                                   : n.toLocaleString(undefined,{maximumFractionDigits:2});
+    if (f === 'currency') return (metric.unit || '$') + num;
+    if (f === 'percent')  return num + (metric.unit || '%');
+    if (f === 'duration') return num + (metric.unit || 's');
+    return num + (metric.unit ? ' ' + metric.unit : '');
+  }
+  function fmtCI(metric, v){
+    if (!v || v.ciLow === undefined || v.ciHigh === undefined) return null;
+    const lo = fmtVal(metric, { value: v.ciLow }), hi = fmtVal(metric, { value: v.ciHigh });
+    return '95% CI ' + lo + ' – ' + hi;
+  }
+  const sgn = n => (n > 0 ? '+' : '') + n.toFixed(1);
+  const dirClass = good => good === null ? 'flat' : (good ? 'up' : 'down');
+  const dirIcon  = (uplift, good) => good === null ? I.flat : (uplift > 0 ? I.trendUp : I.trendDown);
+
+  /* ============================================================ HEADER / FOOTER text */
+  document.getElementById('mEyebrow').innerHTML = `${I.split}${esc(m.reportType || '')}`;
+  document.getElementById('mTitle').textContent = m.title || '';
+  document.getElementById('mSub').textContent   = m.subtitle || '';
+  document.getElementById('mOrg').textContent   = m.org || '';
+  document.getElementById('mProj').textContent  = m.project || '';
+  document.getElementById('mDate').textContent  = m.date || '';
+  document.getElementById('fOrg').textContent   = m.org || '';
+  document.getElementById('fMeta').textContent  = [m.reportType, 'generated ' + (m.date||'')].filter(Boolean).join(' · ');
+  document.getElementById('hypoText').textContent = xp.hypothesis || '';
+
+  /* status pill — tone derives from experiment.status */
+  function statusBadge(){
+    const s = (xp.status || '').toLowerCase();
+    const map = {
+      running:      { cls:'st-hold', ic:I.clock,       txt:'Running' },
+      shipped:      { cls:'st-ok',   ic:I.verified,    txt:'Shipped' },
+      inconclusive: { cls:'st-risk', ic:I.shieldAlert, txt:'Inconclusive' },
+      stopped:      { cls:'st-risk', ic:I.shieldAlert, txt:'Stopped' }
+    };
+    const d = map[s] || { cls:'st-hold', ic:I.clock, txt: xp.status || '—' };
+    return `<span class="st-badge lg ${d.cls}">${d.ic}${esc(d.txt)}</span>`;
+  }
+  document.getElementById('statusMount').innerHTML = statusBadge();
+
+  /* facts row */
+  function factsHTML(){
+    const totUsers = variants.reduce((a,v)=> a + (v.users||0), 0);
+    const split = variants.map(v => (v.allocationPct!=null ? v.allocationPct : '?')).join(' / ');
+    const pm = DATA.metrics.find(x => x.key === primaryKey) || {};
+    const f = [];
+    if (xp.start || xp.end) f.push(['Window', `${I.cal}<span class="tnum">${esc(xp.start||'?')}</span> → <span class="tnum">${esc(xp.end||'now')}</span>`]);
+    f.push(['Variants', `${variants.length} arms · split ${esc(split)}`]);
+    if (totUsers) f.push(['Exposed', `${I.users}<span class="tnum">${totUsers.toLocaleString()}</span> users`]);
+    f.push(['Primary metric', `${I.target}${esc(pm.label || primaryKey)}`]);
+    f.push(['Significance', `<span class="tnum">α = ${(alpha*100)}%</span> · p &lt; ${alpha}`]);
+    if (xp.owner) f.push(['Owner', esc(xp.owner)]);
+    return f.map(([k,v]) => `<div class="fact"><div class="k">${esc(k)}</div><div class="v">${v}</div></div>`).join('');
+  }
+
+  /* ============================================================ HERO — primary metric result */
+  function renderHero(){
+    const metric = DATA.metrics.find(x => x.key === primaryKey) || DATA.metrics[0];
+    const st = metricStats(metric);
+    const head = st.headVar;
+    const segLabel = segKey === '__all' ? null : ((DATA.segments||[]).find(s=>s.key===segKey)||{}).label;
+
+    /* value cards: control + each visible other; bar width scaled to the max value shown */
+    const cardVars = [control, ...visOthers()];
+    const vals = cardVars.map(v => (metricView(metric, v.id)||{}).value).filter(x => x!=null);
+    const maxV = vals.length ? Math.max(...vals.map(Math.abs)) : 1;
+    const winnerId = (st.uplift!==null && isGood(metric, st.uplift)) ? (head && head.id) : null;
+
+    const cards = cardVars.map(v => {
+      const cell = metricView(metric, v.id);
+      const isCtl = v.id === control.id;
+      const isWin = (v.id === winnerId);
+      const w = cell && cell.value!=null ? Math.max(4, Math.min(100, (Math.abs(cell.value)/maxV)*100)) : 0;
+      const ci = fmtCI(metric, cell);
+      return `<div class="valcard${isCtl?' is-control':''}${isWin?' is-win':''}"
+           data-tip-arm="${esc(v.name)}" data-tip-title="${esc(metric.label)}${segLabel?' · '+esc(segLabel):''}"
+           data-tip-val="${esc(fmtVal(metric, cell))}" data-tip-detail="${esc((ci||'point estimate') + (isCtl?'\nbaseline (control)':(isWin?'\nleading variant':'')))}">
+        <div class="vc-name">
+          <span class="vc-tag">${isCtl?'Control':'Variant'}${isWin?' · winner':''}</span>
+          <span class="vc-arm">${esc(v.name)}</span>
+          ${v.users!=null?`<span class="vc-users tnum">${v.users.toLocaleString()} users</span>`:''}
+        </div>
+        <div style="text-align:right">
+          <span class="vc-num tnum">${esc(fmtNumOnly(metric, cell))}<span class="vc-unit">${esc(unitOnly(metric))}</span></span>
+          ${ci?`<span class="vc-ci tnum">${esc(ci)}</span>`:''}
+        </div>
+        <span class="vc-bar" style="width:${w}%"></span>
+      </div>`;
+    }).join('');
+
+    /* uplift */
+    const good = isGood(metric, st.uplift);
+    const dcls = dirClass(good);
+    const upTxt = st.uplift===null ? '—' : sgn(st.uplift) + '%';
+    const dirTxt = st.uplift===null ? 'No change' : (st.uplift>0 ? 'Increase' : (st.uplift<0?'Decrease':'No change'));
+
+    /* CI bar for the headline variant's uplift (relative): map [-mag, +mag] → 0..100 with 0 centred */
+    let ciVisual = '';
+    if (st.uplift !== null){
+      const cell = head ? metricView(metric, head.id) : null;
+      const ctlCell = metricView(metric, control.id);
+      // relative CI bounds if both endpoints + control midpoint exist, else use point only
+      let loP = null, hiP = null;
+      if (cell && ctlCell && ctlCell.value && cell.ciLow!=null && cell.ciHigh!=null){
+        loP = ((cell.ciLow  - ctlCell.value)/Math.abs(ctlCell.value))*100;
+        hiP = ((cell.ciHigh - ctlCell.value)/Math.abs(ctlCell.value))*100;
+      }
+      const pts = [st.uplift, loP, hiP].filter(x => x!=null);
+      const mag = Math.max(2, ...pts.map(Math.abs)) * 1.15;
+      const map = x => ((x + mag) / (2*mag)) * 100;
+      const sigCls = st.significant ? (good ? 'sig' : 'neg') : '';
+      const ptCls  = st.significant ? (good ? 'sig' : 'neg') : '';
+      const band = (loP!=null && hiP!=null)
+        ? `<span class="ci-band ${sigCls}" style="left:${map(Math.min(loP,hiP))}%;width:${Math.abs(map(hiP)-map(loP))}%"></span>`
+        : '';
+      ciVisual = `<div class="ci-wrap">
+        <div class="uplift-lab">Uplift confidence interval${loP!=null?' (relative)':''}</div>
+        <div class="ci-scale">
+          <span class="ci-track"></span>
+          ${band}
+          <span class="ci-zero"></span>
+          <span class="ci-point ${ptCls}" style="left:${map(st.uplift)}%"></span>
+        </div>
+        <div class="ci-ends"><span>${loP!=null?sgn(loP)+'%':'—'}</span><span>${hiP!=null?sgn(hiP)+'%':'—'}</span></div>
+      </div>`;
+    }
+
+    /* verdict — derived from p-value vs alpha + experiment status */
+    const v = verdict(metric, st);
+
+    const segNote = segLabel ? `<span class="seg-note">${I.person} Segment: ${esc(segLabel)}</span>` : '';
+    const headName = head ? esc(head.name) : '—';
+
+    document.getElementById('heroMount').innerHTML = `
+      <div class="hero-head">
+        <span class="hicon"><svg class="icon icon-lg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5.5"/><circle cx="12" cy="12" r="2"/><path d="M19.5 4.5 16 8M19.5 4.5H16M19.5 4.5V8"/></svg></span>
+        <span class="htitle">Primary metric — ${esc(metric.label)}</span>
+        <span class="hmeta">${esc(headName)} vs ${esc(control.name)}</span>
+        ${segNote}
+      </div>
+      <div class="hero-grid">
+        <div class="hero-left">
+          <div class="hl-lab">Result by arm</div>
+          <div class="val-row">${cards}</div>
+        </div>
+        <div class="hero-div"></div>
+        <div class="hero-right">
+          <div class="uplift-lab">Uplift vs control · ${esc(headName)}</div>
+          <div class="uplift-big">
+            <span class="uplift-num ${dcls} tnum">${esc(upTxt)}</span>
+            <span class="uplift-dir ${dcls}">${dirIcon(st.uplift, good)}${esc(dirTxt)}</span>
+          </div>
+          <div class="uplift-sub">${st.pValue!=null?`p-value <b class="tnum">${fmtP(st.pValue)}</b> · ${st.significant?'significant':'not significant'} at α=${alpha*100}%`:'p-value not reported'}</div>
+          ${ciVisual}
+          <div class="verdict">
+            <div class="verdict-in ${v.tone}">
+              <span class="vmark">${v.icon}</span>
+              <div><h3>${esc(v.head)}</h3><p>${v.body}</p></div>
+            </div>
+          </div>
+        </div>
+      </div>`;
+    document.getElementById('fVerdict').textContent = v.foot;
+  }
+  function fmtNumOnly(metric, v){
+    if (!v || v.value==null) return '—';
+    const n = v.value;
+    const num = Math.abs(n) >= 100 ? n.toLocaleString(undefined,{maximumFractionDigits:1})
+                                   : n.toLocaleString(undefined,{maximumFractionDigits:2});
+    return (metric.format==='currency' ? (metric.unit||'$') : '') + num;
+  }
+  function unitOnly(metric){
+    if (metric.format==='currency') return '';
+    if (metric.format==='percent')  return metric.unit||'%';
+    if (metric.format==='duration') return metric.unit||'s';
+    return metric.unit||'';
+  }
+  function fmtP(p){ return p < 0.001 ? '<0.001' : p.toFixed(3); }
+
+  /* ---- verdict derivation (the science, from the data) ---- */
+  function verdict(metric, st){
+    const good = isGood(metric, st.uplift);
+    const sig  = st.significant;
+    const status = (xp.status||'').toLowerCase();
+    const up = st.uplift===null ? '—' : sgn(st.uplift)+'%';
+    const pTxt = st.pValue!=null ? `p ${st.pValue<0.001?'<0.001':'= '+st.pValue.toFixed(3)}` : 'p n/a';
+    if (sig === true && good === true)
+      return { tone:'ok', icon:I.verified, head:'Significant win', foot:'Verdict · significant win',
+        body:`The variant moves <b>${esc(metric.label)}</b> by <code>${esc(up)}</code> in the right direction and clears significance (${pTxt} &lt; α=${alpha*100}%). Safe to ship on this metric.` };
+    if (sig === true && good === false)
+      return { tone:'risk', icon:I.shieldAlert, head:'Significant regression', foot:'Verdict · significant regression',
+        body:`The variant moves <b>${esc(metric.label)}</b> by <code>${esc(up)}</code> the wrong way and the change is significant (${pTxt}). Do not ship — investigate the regression.` };
+    if (sig === false)
+      return { tone:'hold', icon:I.clock, head:'Inconclusive', foot:'Verdict · inconclusive',
+        body:`The <code>${esc(up)}</code> change on <b>${esc(metric.label)}</b> did not reach significance (${pTxt} ≥ α=${alpha*100}%). ${status==='running'?'Keep collecting — the interval still straddles zero.':'Treat as no detected effect.'}` };
+    return { tone:'hold', icon:I.clock, head:'No significance data', foot:'Verdict · pending',
+      body:`No p-value is reported for <b>${esc(metric.label)}</b>, so significance cannot be asserted from the data.` };
+  }
+
+  /* ============================================================ SECONDARY METRICS TABLE */
+  function renderTable(){
+    const secondaries = DATA.metrics.filter(x => x.key !== primaryKey);
+    document.getElementById('secMeta').textContent = `${secondaries.length} metrics · vs ${control.name}` + (segKey!=='__all' ? ` · ${((DATA.segments||[]).find(s=>s.key===segKey)||{}).label}` : '');
+
+    // header: Metric | <control value> | <each visible other value> | Uplift | p-value | Significant?
+    const cols = [
+      { key:'metric', label:'Metric', sort:false },
+      { key:'__ctl', label:control.name + ' (ctl)', sort:true },
+      ...visOthers().map(v => ({ key:'val:'+v.id, label:v.name, sort:true })),
+      { key:'uplift', label:'Uplift', sort:true },
+      { key:'p', label:'p-value', sort:true },
+      { key:'sig', label:'Significant?', sort:true }
+    ];
+    document.getElementById('mtabHead').innerHTML = cols.map(c => {
+      const cls = c.key==='metric' ? 'col-metric' : '';
+      const aria = (sortKey===c.key) ? ` aria-sort="${sortDir==='asc'?'ascending':'descending'}"` : '';
+      const arrow = c.sort ? `<span class="sarrow">${sortDir==='asc'?'▲':'▼'}</span>` : '';
+      return `<th class="${cls}" data-sort="${c.sort?esc(c.key):''}"${aria}>${esc(c.label)} ${arrow}</th>`;
+    }).join('');
+
+    // rows (one per secondary metric) → compute stats, then sort
+    let rows = secondaries.map(metric => {
+      const st = metricStats(metric);
+      const good = isGood(metric, st.uplift);
+      return { metric, st, good };
+    });
+    rows = sortRows(rows);
+
+    document.getElementById('mtabBody').innerHTML = rows.map(({metric, st, good}) => {
+      const dcls = dirClass(good);
+      const segLabel = segKey==='__all' ? '' : ' · ' + (((DATA.segments||[]).find(s=>s.key===segKey)||{}).label||'');
+      const ctlCell = metricView(metric, control.id);
+      const ctlTd = `<td><span class="m-val ctl tnum"
+          data-tip-arm="${esc(control.name)}" data-tip-title="${esc(metric.label)}${esc(segLabel)}" data-tip-val="${esc(fmtVal(metric,ctlCell))}" data-tip-detail="${esc(fmtCI(metric,ctlCell)||'baseline (control)')}">${esc(fmtVal(metric, ctlCell))}</span></td>`;
+      const otherTds = visOthers().map(v => {
+        const cell = metricView(metric, v.id);
+        return `<td><span class="m-val tnum"
+          data-tip-arm="${esc(v.name)}" data-tip-title="${esc(metric.label)}${esc(segLabel)}" data-tip-val="${esc(fmtVal(metric,cell))}" data-tip-detail="${esc(fmtCI(metric,cell)||'point estimate')}">${esc(fmtVal(metric, cell))}</span></td>`;
+      }).join('');
+      const upTd = st.uplift===null ? `<td><span class="cell-dash">—</span></td>`
+        : `<td><span class="m-uplift ${dcls}">${dirIcon(st.uplift,good)}${esc(sgn(st.uplift))}%</span></td>`;
+      const pTd = `<td><span class="m-p tnum">${st.pValue!=null?esc(fmtP(st.pValue)):'—'}</span></td>`;
+      const sigYes = st.significant === true;
+      const sigTd = st.significant===null
+        ? `<td><span class="m-sig no">n/a</span></td>`
+        : `<td><span class="m-sig ${sigYes?'yes':'no'}">${sigYes?I.check:I.cross}${sigYes?'Yes':'No'}</span></td>`;
+      return `<tr data-sig="${sigYes?1:0}">
+        <td class="c-metric"><span class="m-name">${esc(metric.label)}</span><span class="m-dir">better when ${esc(metric.betterWhen||'high')} · click to make hero</span></td>
+        ${ctlTd}${otherTds}${upTd}${pTd}${sigTd}
+      </tr>`;
+    }).join('');
+    // store metric key on each row for click-to-focus + sorting handlers
+    document.querySelectorAll('#mtabBody tr').forEach((tr, i) => { tr.dataset.key = rows[i].metric.key; });
+    document.getElementById('mtab').classList.toggle('sig-hl', sigHl);
+  }
+
+  function sortRows(rows){
+    if (sortKey === 'default') return rows;
+    const dir = sortDir==='asc' ? 1 : -1;
+    const keyOf = ({metric, st}) => {
+      if (sortKey === 'uplift') return st.uplift==null ? -Infinity : (metric.betterWhen==='low' ? -st.uplift : st.uplift);
+      if (sortKey === 'p')      return st.pValue==null ? Infinity : st.pValue;
+      if (sortKey === 'sig')    return st.significant===true ? 1 : 0;
+      if (sortKey === '__ctl')  { const c = metricView(metric, control.id); return c?c.value:-Infinity; }
+      if (sortKey.startsWith('val:')){ const c = metricView(metric, sortKey.slice(4)); return c?c.value:-Infinity; }
+      return 0;
+    };
+    return rows.slice().sort((a,b)=>{ const x=keyOf(a), y=keyOf(b); return x<y?-dir:(x>y?dir:0); });
+  }
+
+  /* ============================================================ PER-SEGMENT BREAKDOWN */
+  function renderSegments(){
+    const segs = DATA.segments || [];
+    const mount = document.getElementById('segsMount');
+    if (!segs.length){ mount.hidden = true; return; }
+    mount.hidden = false;
+    const primary = DATA.metrics.find(x => x.key === primaryKey) || DATA.metrics[0];
+
+    // "All users" pseudo-row + one row per segment; each shows up to 3 metric mini-cards
+    const allRow = segRowHTML({ key:'__all', label:'All users', sharePct:100 }, true);
+    const rows = segs.map(s => segRowHTML(s, false)).join('');
+    document.getElementById('segRows').innerHTML = allRow + rows;
+  }
+  function segRowHTML(seg, isAll){
+    const active = (seg.key === segKey);
+    // which metrics to show: the segment's overridden metrics (or, for All, primary + first 2 secondaries)
+    let keys;
+    if (isAll){ keys = [primaryKey, ...DATA.metrics.filter(x=>x.key!==primaryKey).map(x=>x.key)].slice(0,3); }
+    else { keys = (seg.metrics||[]).map(mm => mm.key).slice(0,3); }
+    const cards = keys.map(k => {
+      const metric = DATA.metrics.find(x => x.key === k); if (!metric) return '';
+      const st = segStatsFor(seg, metric, isAll);
+      const good = isGood(metric, st.uplift);
+      const dcls = dirClass(good);
+      const sigYes = st.significant===true;
+      const ctlV = st.ctl ? fmtVal(metric, st.ctl) : '—';
+      const varV = st.va ? fmtVal(metric, st.va) : '—';
+      return `<div class="seg-m">
+        <div class="smk">${esc(metric.label)}${metric.key===primaryKey?' · primary':''}</div>
+        <div class="smrow">
+          <span class="smu ${dcls}">${st.uplift!=null?dirIcon(st.uplift,good):''}${st.uplift!=null?esc(sgn(st.uplift))+'%':'—'}</span>
+          <span class="smsig ${sigYes?'yes':'no'}">${st.significant===null?'n/a':(sigYes?'sig':'n.s.')}</span>
+        </div>
+        <span class="smvals tnum">${esc(ctlV)} → ${esc(varV)}</span>
+      </div>`;
+    }).join('');
+    const share = seg.sharePct!=null ? `${seg.sharePct}% of traffic` : '';
+    return `<div class="seg-row${active?' active':''}" data-seg="${esc(seg.key)}" role="button" tabindex="0">
+      <div class="seg-id">
+        <span class="sn"><span class="dot"></span>${esc(seg.label)}</span>
+        <span class="ss tnum">${esc(share)}</span>
+      </div>
+      <div class="seg-metrics">${cards || '<span class="cell-dash">no metric overrides for this slice</span>'}</div>
+    </div>`;
+  }
+  // stats for one metric within a specific segment object (independent of the active segKey)
+  function segStatsFor(seg, metric, isAll){
+    const src = isAll ? metric.byVariant
+                      : (((seg.metrics||[]).find(mm=>mm.key===metric.key)||{}).byVariant || metric.byVariant);
+    const ov  = isAll ? null : ((seg.metrics||[]).find(mm=>mm.key===metric.key)||null);
+    const ctl = src[control.id];
+    const head = others[0];
+    const va = head ? src[head.id] : null;
+    let uplift = (ov && typeof ov.upliftVsControlPct === 'number') ? ov.upliftVsControlPct
+               : (isAll && typeof metric.upliftVsControlPct === 'number') ? metric.upliftVsControlPct
+               : (ctl && va && ctl.value!==0) ? ((va.value-ctl.value)/Math.abs(ctl.value))*100 : null;
+    const pValue = ov ? (typeof ov.pValue==='number'?ov.pValue:null) : (typeof metric.pValue==='number'?metric.pValue:null);
+    let sig = ov ? ov.significant : (isAll ? metric.significant : null);
+    if (sig===undefined||sig===null) sig = (pValue!==null) ? (pValue<alpha) : null;
+    return { ctl, va, uplift, pValue, significant:sig };
+  }
+
+  /* ============================================================ CONTROLS (built once) */
+  function buildControls(){
+    // segment chips ("All users" + each segment)
+    const segs = DATA.segments || [];
+    const chips = [`<button class="seg-chip" data-seg="__all" aria-pressed="true" type="button">All users <span class="ct tnum">100%</span></button>`]
+      .concat(segs.map(s => `<button class="seg-chip" data-seg="${esc(s.key)}" aria-pressed="false" type="button">${esc(s.label)} ${s.sharePct!=null?`<span class="ct tnum">${s.sharePct}%</span>`:''}</button>`));
+    document.getElementById('segChips').innerHTML = chips.join('');
+
+    // variant pills (control is pinned/disabled; others toggle)
+    document.getElementById('varPills').innerHTML = ordered.map(v =>
+      `<button class="var-pill${v.id===control.id?' is-control':''}" data-var="${esc(v.id)}" aria-pressed="true" type="button" ${v.id===control.id?'disabled title="Control is always shown"':''}><span class="sw"></span>${esc(v.name)}${v.id===control.id?' · ctl':''}</button>`
+    ).join('');
+  }
+  function syncControls(){
+    document.querySelectorAll('#segChips .seg-chip').forEach(c =>
+      c.setAttribute('aria-pressed', String(c.dataset.seg === segKey)));
+    document.querySelectorAll('#varPills .var-pill').forEach(p => {
+      if (p.dataset.var === control.id) return;
+      p.setAttribute('aria-pressed', String(!hidden.has(p.dataset.var)));
+    });
+  }
+
+  /* ============================================================ MASTER RENDER */
+  function render(){
+    document.getElementById('factsRow').innerHTML = factsHTML();
+    renderHero();
+    renderTable();
+    renderSegments();
+    syncControls();
+  }
+
+  /* ---- interactions ---- */
+  // segment chips → recompute readout from the slice
+  document.getElementById('segChips').addEventListener('click', e => {
+    const chip = e.target.closest('.seg-chip'); if (!chip) return;
+    segKey = chip.dataset.seg; render();
+  });
+  // variant pills → show/hide an arm (control locked); keep ≥1 other visible
+  document.getElementById('varPills').addEventListener('click', e => {
+    const pill = e.target.closest('.var-pill'); if (!pill || pill.dataset.var === control.id) return;
+    const id = pill.dataset.var;
+    if (hidden.has(id)) hidden.delete(id);
+    else { if (visOthers().length <= 1) return; hidden.add(id); }
+    render();
+  });
+  // significance highlight toggle
+  document.getElementById('sigHl').addEventListener('change', e => { sigHl = e.target.checked; document.getElementById('mtab').classList.toggle('sig-hl', sigHl); });
+  // table: click a metric row → make it the hero (re-focus); click a sortable header → sort
+  document.getElementById('mtabBody').addEventListener('click', e => {
+    const tr = e.target.closest('tr'); if (!tr || !tr.dataset.key) return;
+    primaryKey = tr.dataset.key; render();
+    document.getElementById('heroMount').scrollIntoView({ behavior:'smooth', block:'center' });
+  });
+  document.getElementById('mtabHead').addEventListener('click', e => {
+    const th = e.target.closest('th[data-sort]'); if (!th || !th.dataset.sort) return;
+    const k = th.dataset.sort;
+    if (sortKey === k) sortDir = (sortDir==='asc'?'desc':'asc');
+    else { sortKey = k; sortDir = (k==='p') ? 'asc' : 'desc'; }   // p-value defaults low-first
+    renderTable();
+  });
+  // per-segment rows → set the active segment (mirrors the chips)
+  document.getElementById('segRows').addEventListener('click', e => {
+    const row = e.target.closest('.seg-row'); if (!row) return;
+    segKey = row.dataset.seg; render();
+    document.querySelector('.xp-bar').scrollIntoView({ behavior:'smooth', block:'start' });
+  });
+  document.getElementById('segRows').addEventListener('keydown', e => {
+    if (e.key!=='Enter' && e.key!==' ') return;
+    const row = e.target.closest('.seg-row'); if (!row) return;
+    e.preventDefault(); segKey = row.dataset.seg; render();
+  });
+  // reset
+  document.getElementById('resetBtn').addEventListener('click', () => {
+    hidden.clear(); segKey='__all'; sigHl=false; sortKey='default'; sortDir='desc';
+    primaryKey = (DATA.metrics.find(x=>x.primary)||DATA.metrics[0]).key;
+    document.getElementById('sigHl').checked = false;
+    render();
+  });
+
+  /* ---- theme switcher (canonical .rc-theme dropdown) ---- */
+  const rcSel = document.querySelector('.rc-theme-sel');
+  if(rcSel){
+    rcSel.value = document.documentElement.dataset.theme || 'blue';
+    rcSel.addEventListener('change', () => { document.documentElement.dataset.theme = rcSel.value; });
+  }
+
+  /* ============================================================ HOVER POPOVER (exact value + CI)
+     One floating popover, delegated on the wrap (survives re-render, no per-cell listeners). */
+  const tip = document.createElement('div'); tip.className = 'cell-tip'; tip.setAttribute('role','tooltip');
+  tip.innerHTML = `<div class="tip-arm"></div><div class="tip-title"></div><div class="tip-val"></div><div class="tip-detail"></div>`;
+  document.body.appendChild(tip);
+  const tArm = tip.querySelector('.tip-arm'), tTitle = tip.querySelector('.tip-title'),
+        tVal = tip.querySelector('.tip-val'), tDetail = tip.querySelector('.tip-detail');
+  let tipEl = null;
+  function placeTip(e){
+    const pad = 14, w = tip.offsetWidth, h = tip.offsetHeight;
+    let x = e.clientX + pad, y = e.clientY + pad;
+    if (x + w > window.innerWidth - 8)  x = e.clientX - pad - w;
+    if (y + h > window.innerHeight - 8) y = e.clientY - pad - h;
+    tip.style.left = Math.max(8, x) + 'px'; tip.style.top = Math.max(8, y) + 'px';
+  }
+  const wrapEl = document.getElementById('wrap');
+  wrapEl.addEventListener('mouseover', e => {
+    const el = e.target.closest('[data-tip-val]'); if (!el || el === tipEl) return;
+    tipEl = el;
+    tArm.textContent   = el.dataset.tipArm || '';
+    tTitle.textContent = el.dataset.tipTitle || '';
+    tVal.textContent   = el.dataset.tipVal || '';
+    tDetail.textContent= el.dataset.tipDetail || '';
+    tDetail.style.display = el.dataset.tipDetail ? 'block' : 'none';
+    tip.classList.add('on'); placeTip(e);
+  });
+  wrapEl.addEventListener('mousemove', e => { if (tipEl) placeTip(e); });
+  wrapEl.addEventListener('mouseout', e => {
+    if (!tipEl) return;
+    const to = e.relatedTarget;
+    if (to && tipEl.contains(to)) return;
+    tip.classList.remove('on'); tipEl = null;
+  });
+
+  /* ---- init ---- */
+  document.documentElement.dataset.theme = m.theme || 'purple';
+  if(rcSel) rcSel.value = m.theme || 'purple';
+  buildControls();
+  render();
+  document.getElementById('wrap').hidden = false;
+})();
+</script>
+</body>
+</html>

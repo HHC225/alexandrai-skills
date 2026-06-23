@@ -1,0 +1,137 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://genesis.local/html_report_design/schemas/leaderboard.schema.json",
+  "title": "Ranked leaderboard report",
+  "description": "Data contract for the leaderboard format: a RANKED LEADERBOARD where rank position, a value bar, a tier band and period movement are the whole point. Entries are ranked rows (rank badge #1…, name, a value bar scaled to the leading value, a tier band such as Gold/Contender/…, a movement arrow ▲▼/— vs the previous period, and secondary stats), with the top three lifted onto a podium. One or more switchable metrics let the reader re-rank and recolour the board against a different number (betterWhen high or low). This is a STANDINGS table — NOT a generic sortable record grid (data-register), NOT an areas x criteria graded scorecard, NOT a feature/option comparison. Renders to a PC-wide (~1400px), themeable, interactive HTML leaderboard. The sample's #report-data is a valid instance of this schema.",
+  "type": "object",
+  "required": ["meta", "metric", "tiers", "entries"],
+  "additionalProperties": false,
+  "properties": {
+    "meta": {
+      "type": "object",
+      "description": "Shared report chrome (org / project / title / theme). Brand-neutral: keep {{ORG}} / {{PROJECT}} / {{AUTHOR}} placeholders unless real values are supplied.",
+      "required": ["org", "project", "reportType", "title", "date", "theme"],
+      "additionalProperties": false,
+      "properties": {
+        "org": { "type": "string", "description": "Organisation name or {{ORG}} placeholder.", "default": "{{ORG}}" },
+        "project": { "type": "string", "description": "Project / programme name or {{PROJECT}} placeholder.", "default": "{{PROJECT}}" },
+        "reportType": { "type": "string", "description": "Eyebrow label shown above the title, e.g. 'Quarterly standings' or {{REPORT_TYPE}}." },
+        "title": { "type": "string", "description": "Main leaderboard title, e.g. 'Delivery squad standings'." },
+        "subtitle": { "type": "string", "description": "Optional one-line standfirst describing what is ranked and over what period." },
+        "date": { "type": "string", "description": "ISO date the standings were produced (YYYY-MM-DD).", "format": "date" },
+        "author": { "type": "string", "description": "Owning team / compiler or {{AUTHOR}} placeholder.", "default": "{{AUTHOR}}" },
+        "period": { "type": "string", "description": "Optional label for the period these standings cover, e.g. 'Q2 2026' or 'Sprint 41'." },
+        "prevPeriod": { "type": "string", "description": "Optional label for the previous period the movement (rank delta + prev value) is measured against, e.g. 'Q1 2026'." },
+        "theme": {
+          "type": "string",
+          "description": "Initial brand theme; applied as <html data-theme>. The in-report 9-dot switcher (Black mandatory) can change it live.",
+          "enum": ["blue", "purple", "indigo", "teal", "cyan", "green", "plum", "slate", "black"],
+          "default": "cyan"
+        }
+      }
+    },
+    "metric": {
+      "$ref": "#/$defs/metric",
+      "description": "The DEFAULT ranking metric — the number the board is sorted and coloured by on load. Must also appear in metrics[] when metrics[] is supplied (it is the initially-selected one)."
+    },
+    "metrics": {
+      "type": "array",
+      "description": "Optional list of switchable ranking metrics for the metric selector. Each entry carries a value for every metric key here under entries[].stats (or, for the default metric, entries[].value). Switching the metric re-ranks and recolours the board. If omitted, only `metric` is offered. Include `metric` itself as one of these.",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/metric" }
+    },
+    "tiers": {
+      "type": "array",
+      "description": "Tier bands from BEST to worst (render/legend order follows the array). An entry is assigned the first tier whose `min` its CURRENT-METRIC value meets or exceeds, after the board is ranked by that metric (for betterWhen:'low' metrics the template maps so the leading values still land in the top tier). Tiers colour the rank badge, the tier label and group dividers; bands should tile the value range without gaps.",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "required": ["label", "min"],
+        "additionalProperties": false,
+        "properties": {
+          "label": { "type": "string", "description": "Tier name shown on the badge, the row and the tier filter, e.g. 'Gold', 'Contender', 'Challenger'." },
+          "min": { "type": "number", "description": "Inclusive lower bound (on the DEFAULT metric's scale) for membership of this band. An entry joins the highest band whose min it meets or exceeds. Bands are evaluated relative to the active metric's range when a different metric is selected." },
+          "tone": { "type": "string", "description": "Optional semantic tone for the band's accent: 'ok' (cleared/top), 'risk' (bordeaux/bottom), 'hold' (amber/middle), 'brand' (neutral brand accent — the default).", "enum": ["ok", "risk", "hold", "brand"] }
+        }
+      }
+    },
+    "entries": {
+      "type": "array",
+      "description": "The ranked competitors — one ranked row each, and the top three onto the podium. Each carries the primary `value` (on the default metric), an optional previous-period `prev` for the movement arrow, and optional `stats` holding both the secondary stats shown on the row and the values for any other switchable metrics.",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "value"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "description": "Stable unique key for the entry (used for sort/filter/search/highlight state), e.g. 'sq-aurora'." },
+          "name": { "type": "string", "description": "Entry display name shown on the podium and row, e.g. 'Squad Aurora'." },
+          "detail": { "type": "string", "description": "Optional short qualifier shown under the name (e.g. region, division, captain) and revealed in the hover detail." },
+          "icon": { "type": "string", "description": "Optional house icon key for the entry mark (falls back to a generic crest): 'team', 'user', 'finance', 'data', 'process', 'security', 'generic'.", "enum": ["team", "user", "finance", "data", "process", "security", "generic"] },
+          "value": { "type": "number", "description": "The entry's value on the DEFAULT metric. Drives the rank, the value bar (scaled to the leading value) and the tier when the default metric is active." },
+          "prev": { "type": "number", "description": "Optional value on the default metric in the previous period, used to derive the value delta. Combined with prevRank to render the movement." },
+          "prevRank": { "type": "integer", "description": "Optional rank the entry held in the previous period; powers the movement arrow (▲ up / ▼ down / — held) and the 'places moved' count. If omitted the row shows 'NEW'.", "minimum": 1 },
+          "stats": {
+            "type": "object",
+            "description": "Optional secondary stats AND the values for the other switchable metrics. Keys for metrics listed in metrics[] (other than the default) MUST be present here as numbers so the board can re-rank when that metric is selected. Additional descriptive keys (e.g. 'wins', 'streak') are shown as the row's secondary stat chips. Values may be number or string.",
+            "additionalProperties": { "type": ["number", "string"] }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "metric": {
+      "type": "object",
+      "required": ["key", "label", "betterWhen"],
+      "additionalProperties": false,
+      "properties": {
+        "key": { "type": "string", "description": "Stable metric key. The default metric reads each entry's top-level `value`; every other metric reads entries[].stats[key]." },
+        "label": { "type": "string", "description": "Human metric name shown in the selector and as the value-column header, e.g. 'Points', 'Throughput'." },
+        "unit": { "type": "string", "description": "Optional unit suffix appended to displayed values, e.g. 'pts', '%', 'ms', '/100'." },
+        "betterWhen": { "type": "string", "description": "Ranking direction: 'high' = larger is better (descending board), 'low' = smaller is better (e.g. defects, latency — ascending board). Drives sort order, bar scaling and tier assignment.", "enum": ["high", "low"], "default": "high" }
+      }
+    }
+  },
+  "examples": [
+    {
+      "meta": {
+        "org": "{{ORG}}",
+        "project": "{{PROJECT}}",
+        "reportType": "{{REPORT_TYPE}}",
+        "title": "Delivery squad standings",
+        "subtitle": "Quarterly performance standings across the twelve delivery squads, ranked on a composite delivery score.",
+        "date": "2026-06-22",
+        "author": "{{AUTHOR}}",
+        "period": "Q2 2026",
+        "prevPeriod": "Q1 2026",
+        "theme": "cyan"
+      },
+      "metric": { "key": "score", "label": "Delivery score", "unit": "pts", "betterWhen": "high" },
+      "metrics": [
+        { "key": "score", "label": "Delivery score", "unit": "pts", "betterWhen": "high" },
+        { "key": "throughput", "label": "Throughput", "unit": "/sprint", "betterWhen": "high" },
+        { "key": "escapes", "label": "Escaped defects", "unit": "", "betterWhen": "low" }
+      ],
+      "tiers": [
+        { "label": "Gold", "min": 850, "tone": "ok" },
+        { "label": "Contender", "min": 720, "tone": "brand" },
+        { "label": "Challenger", "min": 0, "tone": "hold" }
+      ],
+      "entries": [
+        { "id": "sq-aurora", "name": "Squad Aurora", "detail": "Payments · Lead: A. Reyes", "icon": "team", "value": 928, "prev": 871, "prevRank": 2, "stats": { "throughput": 47, "escapes": 3, "wins": 9, "streak": "W4" } },
+        { "id": "sq-borealis", "name": "Squad Borealis", "detail": "Core ledger · Lead: M. Tan", "icon": "team", "value": 910, "prev": 933, "prevRank": 1, "stats": { "throughput": 44, "escapes": 5, "wins": 8, "streak": "L1" } },
+        { "id": "sq-cinder", "name": "Squad Cinder", "detail": "Identity · Lead: K. Owusu", "icon": "team", "value": 884, "prev": 802, "prevRank": 5, "stats": { "throughput": 51, "escapes": 4, "wins": 8, "streak": "W3" } },
+        { "id": "sq-delta", "name": "Squad Delta", "detail": "Channels · Lead: J. Becker", "icon": "team", "value": 861, "prev": 858, "prevRank": 4, "stats": { "throughput": 39, "escapes": 6, "wins": 7, "streak": "W1" } },
+        { "id": "sq-ember", "name": "Squad Ember", "detail": "Data platform · Lead: S. Imai", "icon": "team", "value": 838, "prev": 864, "prevRank": 3, "stats": { "throughput": 41, "escapes": 7, "wins": 7, "streak": "L2" } },
+        { "id": "sq-frost", "name": "Squad Frost", "detail": "Risk engine · Lead: P. Novak", "icon": "team", "value": 796, "prev": 744, "prevRank": 8, "stats": { "throughput": 36, "escapes": 5, "wins": 6, "streak": "W2" } },
+        { "id": "sq-glade", "name": "Squad Glade", "detail": "Onboarding · Lead: R. Costa", "icon": "team", "value": 771, "prev": 779, "prevRank": 6, "stats": { "throughput": 33, "escapes": 8, "wins": 6, "streak": "L1" } },
+        { "id": "sq-halo", "name": "Squad Halo", "detail": "Cards · Lead: D. Singh", "icon": "team", "value": 748, "prev": 769, "prevRank": 7, "stats": { "throughput": 31, "escapes": 9, "wins": 5, "streak": "L3" } },
+        { "id": "sq-iris", "name": "Squad Iris", "detail": "Comms · Lead: L. Haas", "icon": "team", "value": 712, "prev": 668, "prevRank": 10, "stats": { "throughput": 29, "escapes": 7, "wins": 5, "streak": "W1" } },
+        { "id": "sq-jet", "name": "Squad Jet", "detail": "Lending · Lead: T. Mori", "icon": "team", "value": 689, "prev": 701, "prevRank": 9, "stats": { "throughput": 27, "escapes": 11, "wins": 4, "streak": "L1" } },
+        { "id": "sq-kite", "name": "Squad Kite", "detail": "Treasury · Lead: B. Quartey", "icon": "team", "value": 654, "prevRank": 11, "stats": { "throughput": 24, "escapes": 12, "wins": 3, "streak": "L4" } },
+        { "id": "sq-lumen", "name": "Squad Lumen", "detail": "Reporting · Lead: E. Vogt", "icon": "team", "value": 618, "stats": { "throughput": 22, "escapes": 14, "wins": 3, "streak": "W1" } }
+      ]
+    }
+  ]
+}

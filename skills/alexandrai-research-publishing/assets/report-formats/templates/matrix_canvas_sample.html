@@ -1,0 +1,966 @@
+<!doctype html>
+<html lang="en" data-theme="indigo">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1440">
+<title>{{PROJECT}} — Strategy Framework Canvas</title>
+<style>
+/* ============================================================
+   SHARED FOUNDATION TOKENS  (per _FOUNDATION.md §1)
+   :root = Purple default; data-theme overrides swap 7 values.
+   This document ships data-theme="indigo".
+   ============================================================ */
+:root{
+  /* surfaces */
+  --bg:#fff; --bg-band:#f6f6f8; --bg-subtle:#fafafb; --bg-deep:#15131a;
+  --rule:#dcdce2; --rule-soft:#ebebef;
+  /* ink */
+  --ink:#11131a; --ink-mid:#33363f; --ink-soft:#5a5e68; --ink-faint:#868b95;
+  /* brand accent (Purple default) */
+  --navy:#a100ff; --navy-deep:#7a00c2; --navy-bg:#f3e8ff; --navy-line:#d9bef5;
+  /* cleared / approved */
+  --ok:#5a2f8a; --ok-bg:#efe8f5; --ok-line:#d0b5e0;
+  /* semantic states — CONSTANT across all themes */
+  --risk:#b3261e; --risk-bg:#fbeceb; --risk-line:#edc7c4;
+  --hold:#8a6d00; --hold-bg:#fbf3da; --hold-line:#e7d8a4;
+  /* type stacks */
+  --mono:ui-monospace,"JetBrains Mono","SFMono-Regular",Menlo,Consolas,monospace;
+  --sans:-apple-system,"Segoe UI",system-ui,Roboto,"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic UI","Apple SD Gothic Neo","Malgun Gothic","PingFang SC","Microsoft YaHei","Noto Sans CJK JP","Noto Sans CJK KR","Noto Sans CJK SC","Noto Sans JP","Noto Sans KR","Noto Sans SC","Noto Sans",sans-serif;
+}
+html[data-theme="blue"]{ --navy:#0b5fd4; --navy-deep:#0842a0; --navy-bg:#e8f1fc; --navy-line:#bcd6f5; --ok:#1a4f9c; --ok-bg:#e9f0fa; --ok-line:#b7cdea; }
+html[data-theme="purple"]{ --navy:#a100ff; --navy-deep:#7a00c2; --navy-bg:#f3e8ff; --navy-line:#d9bef5; --ok:#5a2f8a; --ok-bg:#efe8f5; --ok-line:#d0b5e0; }
+html[data-theme="indigo"]{ --navy:#4338ca; --navy-deep:#312c92; --navy-bg:#ebebfb; --navy-line:#c7c3f0; --ok:#3730a3; --ok-bg:#ebeaf7; --ok-line:#c5c2ea; }
+html[data-theme="teal"]{ --navy:#0e7c86; --navy-deep:#095861; --navy-bg:#e0f3f4; --navy-line:#a9dade; --ok:#0f5d54; --ok-bg:#e3f3ef; --ok-line:#b3ddd4; }
+html[data-theme="cyan"]{ --navy:#0891b2; --navy-deep:#0e6f88; --navy-bg:#e2f4f9; --navy-line:#abdde9; --ok:#0e6b7a; --ok-bg:#e4f3f4; --ok-line:#b0dde2; }
+html[data-theme="green"]{ --navy:#1f7a44; --navy-deep:#155730; --navy-bg:#e6f4ea; --navy-line:#b3dcc1; --ok:#2f6b3c; --ok-bg:#e9f3ea; --ok-line:#bedcc4; }
+html[data-theme="plum"]{ --navy:#a21d6e; --navy-deep:#7c1450; --navy-bg:#fbe8f2; --navy-line:#e8b9d4; --ok:#6d2356; --ok-bg:#f6e8f0; --ok-line:#e3bcd5; }
+html[data-theme="slate"]{ --navy:#3f4f63; --navy-deep:#29384b; --navy-bg:#eef1f5; --navy-line:#c2ccd8; --ok:#34495e; --ok-bg:#eef1f5; --ok-line:#c2ccd8; }
+html[data-theme="black"]{ --navy:#000000; --navy-deep:#000; --navy-bg:#f1f1f3; --navy-line:#d6d6db; --ok:#3f3f46; --ok-bg:#f1f1f3; --ok-line:#cfcfd6; }
+
+*{ box-sizing:border-box; }
+html,body{ margin:0; }
+body{
+  font:13px/1.6 var(--sans); color:var(--ink); background:var(--bg-band);
+  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+}
+h1,h2,h3,h4,p{ margin:0; }
+.tnum{ font-feature-settings:"tnum" 1; }
+.mono{ font-family:var(--mono); }
+
+/* icon sizing (house SVGs, currentColor) */
+.icon{ width:1.15em; height:1.15em; display:inline-block; vertical-align:-.18em; color:inherit; }
+.icon-lg{ width:18px; height:18px; }
+
+/* ---- shared primitives ---- */
+.st-badge{
+  display:inline-flex; align-items:center; gap:6px; font:600 10.5px/1 var(--mono);
+  letter-spacing:.04em; text-transform:uppercase; padding:4px 8px 4px 7px;
+  border:1px solid var(--rule); border-radius:6px; background:var(--bg); white-space:nowrap;
+}
+.st-badge::before{ content:""; width:7px; height:7px; border-radius:50%; background:var(--ink-faint); }
+.st-ok{ color:var(--ok); border-color:var(--ok-line); background:var(--ok-bg); }
+.st-ok::before{ background:var(--ok); }
+.st-risk{ color:var(--risk); border-color:var(--risk-line); background:var(--risk-bg); }
+.st-risk::before{ background:var(--risk); }
+.st-hold{ color:var(--hold); border-color:var(--hold-line); background:var(--hold-bg); }
+.st-hold::before{ background:var(--hold); }
+.mini-dot{ display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--ink-faint); flex:none; }
+.mini-dot.is-ok{ background:var(--ok); } .mini-dot.is-risk{ background:var(--risk); } .mini-dot.is-hold{ background:var(--hold); }
+.chip{
+  display:inline-flex; align-items:center; gap:5px; font:500 11px/1 var(--mono); letter-spacing:.02em;
+  color:var(--navy-deep); background:var(--navy-bg); border:1px solid var(--navy-line);
+  border-radius:6px; padding:5px 8px; white-space:nowrap;
+}
+
+/* canonical theme switcher (.rc-theme — compact dropdown per _DATA_DRIVEN.md §3) */
+.rc-theme{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--rule);border-radius:7px;
+          padding:3px 4px 3px 7px;background:var(--bg);}
+.rc-theme-sw{width:12px;height:12px;border-radius:50%;background:var(--navy);box-shadow:0 0 0 1px var(--rule);flex:none;}
+.rc-theme-sel{border:0;background:none;font:600 11px/1 var(--mono);color:var(--ink-mid);cursor:pointer;outline:none;padding:2px;}
+
+/* JS-off notice */
+.noscript{ max-width:1180px; margin:18px auto 0; padding:13px 18px; background:var(--hold-bg);
+  border:1px solid var(--hold-line); border-radius:10px; color:var(--hold); font-weight:600; }
+
+/* ============================================================
+   CANVAS BOARD CHROME  (the distinct format silhouette)
+   ============================================================ */
+.canvas{ max-width:1440px; margin:0 auto; padding:22px 40px 0; }
+
+.canvas-head{
+  background:var(--bg); border:1px solid var(--rule); border-radius:12px;
+  box-shadow:0 1px 2px rgba(17,19,26,.045);
+  padding:16px 20px; display:grid; grid-template-columns:1fr auto; gap:14px 22px; align-items:center;
+}
+.ch-left{ min-width:0; }
+.eyebrow{ font:600 10px/1 var(--mono); letter-spacing:.14em; text-transform:uppercase; color:var(--ink-faint); margin-bottom:8px; }
+.canvas-title{ font:800 23px/1.12 var(--sans); letter-spacing:-.01em; color:var(--ink); display:flex; align-items:center; gap:10px; }
+.canvas-title .markmini{ color:var(--navy); display:inline-flex; }
+.canvas-title .markmini svg{ width:22px; height:22px; }
+.frame-chips{ display:flex; flex-wrap:wrap; gap:8px; margin-top:11px; }
+.frame-chip{
+  display:inline-flex; align-items:center; gap:6px; font:600 10.5px/1 var(--mono); letter-spacing:.05em;
+  text-transform:uppercase; color:var(--navy-deep); background:var(--navy-bg);
+  border:1px solid var(--navy-line); border-radius:6px; padding:5px 9px;
+}
+.frame-chip .n{ color:var(--ink-faint); }
+.ch-right{ display:flex; flex-direction:column; align-items:flex-end; gap:11px; }
+.asof{ font:600 10.5px/1 var(--mono); letter-spacing:.06em; text-transform:uppercase; color:var(--ink-soft); display:flex; align-items:center; gap:12px; }
+.legend{ display:flex; gap:14px; align-items:center; padding:8px 12px; border:1px solid var(--rule); border-radius:8px; background:var(--bg-subtle); }
+.legend-item{ display:inline-flex; align-items:center; gap:6px; font:600 10px/1 var(--mono); letter-spacing:.05em; text-transform:uppercase; color:var(--ink-mid); }
+
+/* frame shell shared by every framework panel */
+.frame{
+  background:var(--bg); border:1px solid var(--rule); border-radius:12px;
+  box-shadow:0 1px 2px rgba(17,19,26,.045); margin-top:18px; overflow:hidden;
+}
+.frame-head{
+  display:flex; align-items:center; gap:10px; padding:13px 18px; border-bottom:1px solid var(--rule-soft);
+  background:var(--bg-subtle);
+}
+.frame-head .fh-ico{ color:var(--navy); display:inline-flex; }
+.frame-head h2{ font:800 15px/1.2 var(--sans); letter-spacing:-.005em; color:var(--ink); }
+.frame-head .fh-sub{ font:500 11.5px/1.3 var(--sans); color:var(--ink-soft); margin-left:2px; }
+.frame-head .fh-tag{ margin-left:auto; display:flex; align-items:center; gap:10px; }
+
+/* a small ghost button used by filter-reset + focus controls */
+.ghost-btn{
+  font:600 10px/1 var(--mono); letter-spacing:.05em; text-transform:uppercase; color:var(--ink-soft);
+  border:1px solid var(--rule); border-radius:6px; background:var(--bg); padding:5px 9px; cursor:pointer;
+}
+.ghost-btn:hover{ color:var(--navy-deep); border-color:var(--navy-line); background:var(--navy-bg); }
+.ghost-btn[hidden]{ display:none; }
+
+/* ============================================================
+   FRAME 1 — the 2×2 plotted plane  (.matrix)
+   ============================================================ */
+.matrix-wrap{ padding:20px 22px 22px; }
+/* legend chips that filter quadrants */
+.q-legend{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px; }
+.q-chip{
+  display:inline-flex; align-items:center; gap:7px; font:600 10px/1 var(--mono); letter-spacing:.05em;
+  text-transform:uppercase; color:var(--ink-mid); background:var(--bg); border:1px solid var(--rule);
+  border-radius:7px; padding:6px 10px; cursor:pointer; transition:background .14s, border-color .14s, color .14s;
+}
+.q-chip .qc-sw{ width:9px; height:9px; border-radius:3px; flex:none; background:var(--ink-faint); }
+.q-chip[data-wash="ok"] .qc-sw{ background:var(--ok); }
+.q-chip[data-wash="hold"] .qc-sw{ background:var(--hold); }
+.q-chip[data-wash="risk"] .qc-sw{ background:var(--risk); }
+.q-chip[data-wash="navy"] .qc-sw{ background:var(--navy); }
+.q-chip .qc-n{ color:var(--ink-faint); }
+.q-chip:hover{ border-color:var(--navy-line); }
+.q-chip[aria-pressed="true"]{ color:var(--navy-deep); background:var(--navy-bg); border-color:var(--navy-line); }
+
+/* grid: y-axis gutter | plane ; with x-axis row beneath */
+.matrix{
+  display:grid;
+  grid-template-columns:46px 1fr;
+  grid-template-rows:1fr 46px;
+  gap:0; min-height:640px;   /* taller plane: high-y items clear the corner quadrant labels (no overlap/clip) */
+}
+.axis-y{
+  grid-column:1; grid-row:1; position:relative;
+  display:flex; align-items:center; justify-content:center;
+}
+.axis-y .axis-title{
+  font:700 10px/1 var(--mono); letter-spacing:.14em; text-transform:uppercase; color:var(--navy-deep);
+  writing-mode:vertical-rl; transform:rotate(180deg); white-space:nowrap;
+}
+.axis-y .axis-hi, .axis-y .axis-lo{
+  position:absolute; left:0; right:0; text-align:center;
+  font:600 9.5px/1 var(--mono); letter-spacing:.08em; text-transform:uppercase; color:var(--ink-faint);
+}
+.axis-y .axis-hi{ top:2px; } .axis-y .axis-lo{ bottom:2px; }
+.axis-y .axis-arrow{ position:absolute; top:14px; left:50%; transform:translateX(-50%); color:var(--navy-line); }
+
+/* the plotting plane */
+.matrix-plane{
+  grid-column:2; grid-row:1; position:relative;
+  border:1px solid var(--rule); border-radius:12px; overflow:hidden;
+  background:
+    linear-gradient(var(--rule-soft) 1px, transparent 1px) 0 0/100% 25% ,
+    linear-gradient(90deg, var(--rule-soft) 1px, transparent 1px) 0 0/25% 100% ;
+}
+/* the four labelled quadrant regions */
+.quadrant{ position:absolute; width:50%; height:50%; padding:11px 13px; transition:background .14s, opacity .14s; }
+.q-tl{ top:0; left:0; } .q-tr{ top:0; left:50%; }
+.q-bl{ top:50%; left:0; } .q-br{ top:50%; left:50%; }
+.quadrant.wash-ok{ background:color-mix(in srgb, var(--ok-bg) 62%, transparent); }
+.quadrant.wash-hold{ background:color-mix(in srgb, var(--hold-bg) 60%, transparent); }
+.quadrant.wash-risk{ background:color-mix(in srgb, var(--risk-bg) 58%, transparent); }
+.quadrant.wash-navy{ background:color-mix(in srgb, var(--navy-bg) 70%, transparent); }
+.quad-head{ pointer-events:none; }
+.quad-name{ font:800 12.5px/1.15 var(--sans); color:var(--ink); letter-spacing:-.005em; }
+.q-tr .quad-head, .q-br .quad-head{ text-align:right; }
+.quad-sub{ font:600 9.5px/1.2 var(--mono); letter-spacing:.06em; text-transform:uppercase; color:var(--ink-faint); margin-top:3px; }
+/* quadrant becomes a clickable focus target */
+.quadrant{ cursor:pointer; }
+.quadrant::after{
+  content:""; position:absolute; inset:0; border:2px solid transparent; border-radius:2px;
+  pointer-events:none; transition:border-color .14s;
+}
+.matrix-plane.q-focus .quadrant:not(.is-focus){ background:transparent; }
+.quadrant.is-focus::after{ border-color:var(--navy); }
+
+/* the centre cross-hair (drawn over washes, under items) */
+.crosshair-v, .crosshair-h{ position:absolute; background:var(--ink-soft); opacity:.5; pointer-events:none; }
+.crosshair-v{ left:50%; top:0; bottom:0; width:1.5px; transform:translateX(-50%); }
+.crosshair-h{ top:50%; left:0; right:0; height:1.5px; transform:translateY(-50%); }
+
+/* plotted items: positioned by --x (left%) and --y (top%, already inverted to 100-y by render) */
+.plot-item{
+  position:absolute; left:calc(var(--x) * 1%); top:calc(var(--y) * 1%);
+  transform:translate(-50%,-50%); display:flex; align-items:center; gap:7px; z-index:3;
+  --c:var(--ink-soft); --cl:var(--rule); --cb:var(--bg);
+  transition:opacity .14s, filter .14s;
+}
+.plot-item.is-ok{ --c:var(--ok); --cl:var(--ok-line); --cb:var(--ok-bg); }
+.plot-item.is-hold{ --c:var(--hold); --cl:var(--hold-line); --cb:var(--hold-bg); }
+.plot-item.is-risk{ --c:var(--risk); --cl:var(--risk-line); --cb:var(--risk-bg); }
+.plot-dot{
+  width:24px; height:24px; border-radius:8px; flex:none;
+  display:inline-flex; align-items:center; justify-content:center;
+  font:800 11px/1 var(--mono); color:#fff; background:var(--c);
+  box-shadow:0 1px 3px rgba(17,19,26,.22); border:2px solid var(--cb);
+  transition:transform .12s, box-shadow .12s;
+}
+.plot-label{
+  font:600 11px/1.15 var(--sans); color:var(--ink); background:var(--cb);
+  border:1px solid var(--cl); border-radius:6px; padding:3px 7px; white-space:nowrap;
+  box-shadow:0 1px 2px rgba(17,19,26,.06);
+}
+.plot-item.flip{ flex-direction:row-reverse; }
+/* headline item rendered as a mini-card rather than a bare dot.
+   Cards are tall, so they are anchored just BELOW their plotted point (top edge near
+   the point) instead of straddling it — this keeps the card body out of the corner
+   quadrant-label strip, so the label text is never covered/clipped by a card. */
+.plot-item--card{ gap:0; transform:translate(-50%,-8%); }
+.plot-item--card.is-hi{ z-index:6; }
+.plot-item--card .pcard{
+  background:var(--cb); border:1px solid var(--cl); border-left:3px solid var(--c);
+  border-radius:9px; padding:7px 10px; box-shadow:0 1px 3px rgba(17,19,26,.12); max-width:158px;
+}
+.pcard .pc-top{ display:flex; align-items:center; gap:6px; }
+.pcard .pc-n{ font:800 10px/1 var(--mono); color:#fff; background:var(--c); border-radius:4px; padding:2px 4px; }
+.pcard .pc-name{ font:700 11.5px/1.2 var(--sans); color:var(--ink); }
+.pcard .pc-meta{ font:500 10px/1.25 var(--mono); letter-spacing:.02em; color:var(--ink-soft); margin-top:4px; }
+/* bubble sizing (third metric) */
+.plot-item.bubble .plot-dot{ width:var(--d); height:var(--d); border-radius:30%; font-size:10px; }
+
+/* interaction states: hover / sync-highlight, dim, quadrant-focus */
+.plot-item{ cursor:pointer; }
+.plot-item.is-hi .plot-dot{ transform:scale(1.18); box-shadow:0 2px 8px rgba(17,19,26,.32); }
+.plot-item.is-hi .plot-label, .plot-item.is-hi .pcard{ border-color:var(--c); }
+.plot-item.is-dim{ opacity:.18; filter:grayscale(.55); }
+.plot-item.is-hi{ z-index:6; }
+
+/* hover detail popover (built once, positioned by JS) */
+.plot-pop{
+  position:absolute; z-index:20; min-width:184px; max-width:236px;
+  background:var(--bg); border:1px solid var(--cl,var(--rule)); border-radius:10px;
+  box-shadow:0 6px 22px rgba(17,19,26,.18); padding:11px 13px; pointer-events:none;
+  opacity:0; transform:translateY(4px); transition:opacity .12s, transform .12s;
+}
+.plot-pop.show{ opacity:1; transform:translateY(0); }
+.plot-pop .pp-top{ display:flex; align-items:center; gap:7px; margin-bottom:7px; }
+.plot-pop .pp-n{ font:800 10px/1 var(--mono); color:#fff; background:var(--c,var(--ink-soft)); border-radius:4px; padding:3px 5px; }
+.plot-pop .pp-name{ font:800 12.5px/1.2 var(--sans); color:var(--ink); }
+.plot-pop .pp-row{ display:flex; gap:8px; font:500 11px/1.5 var(--mono); color:var(--ink-mid); }
+.plot-pop .pp-row .k{ color:var(--ink-faint); min-width:54px; }
+.plot-pop .pp-meta{ font:500 10.5px/1.4 var(--mono); color:var(--ink-soft); margin-top:5px; padding-top:6px; border-top:1px solid var(--rule-soft); }
+.plot-pop .pp-quad{ display:inline-flex; align-items:center; gap:5px; font:600 9.5px/1 var(--mono); letter-spacing:.05em; text-transform:uppercase; color:var(--navy-deep); margin-top:7px; }
+.plot-pop .pp-quad .qd{ width:8px; height:8px; border-radius:3px; background:var(--c,var(--ink-faint)); }
+
+/* x-axis row */
+.axis-x{
+  grid-column:2; grid-row:2; position:relative; display:flex; align-items:center; justify-content:center;
+}
+.axis-x .axis-title{ font:700 10px/1 var(--mono); letter-spacing:.14em; text-transform:uppercase; color:var(--navy-deep); }
+.axis-x .axis-lo, .axis-x .axis-hi{
+  position:absolute; top:50%; transform:translateY(-50%);
+  font:600 9.5px/1 var(--mono); letter-spacing:.08em; text-transform:uppercase; color:var(--ink-faint);
+}
+.axis-x .axis-lo{ left:4px; } .axis-x .axis-hi{ right:4px; display:flex; align-items:center; gap:5px; }
+.axis-x .axis-arrow{ color:var(--navy-line); }
+
+/* roster strip under the plane */
+.roster{ display:grid; grid-template-columns:repeat(2,1fr); gap:6px 26px; margin-top:18px; padding-top:14px; border-top:1px solid var(--rule-soft); }
+.roster-item{ display:flex; align-items:center; gap:8px; font-size:11.5px; color:var(--ink-mid);
+  padding:3px 6px; border-radius:6px; cursor:pointer; transition:background .14s, opacity .14s; }
+.roster-item .rn{ font:800 10px/1 var(--mono); color:#fff; border-radius:4px; padding:2px 5px; flex:none; }
+.rn.is-ok{ background:var(--ok); } .rn.is-hold{ background:var(--hold); } .rn.is-risk{ background:var(--risk); }
+.roster-item .rspan{ margin-left:auto; font:500 10.5px/1 var(--mono); color:var(--ink-faint); }
+.roster-item.is-hi{ background:var(--navy-bg); }
+.roster-item.is-dim{ opacity:.3; }
+
+/* ============================================================
+   FRAME ROW — SWOT  +  Lean canvas, side by side
+   ============================================================ */
+.frame-row{ display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-top:18px; }
+@media (max-width:1180px){ .frame-row{ grid-template-columns:1fr; } }
+
+/* SWOT four-pane */
+.swot{ display:grid; grid-template-columns:1fr 1fr; gap:0; }
+.swot-pane{ padding:14px 16px; border-right:1px solid var(--rule-soft); border-bottom:1px solid var(--rule-soft);
+  cursor:pointer; transition:background .14s, opacity .14s; }
+.swot-pane:nth-child(2n){ border-right:0; }
+.swot-pane:nth-child(n+3){ border-bottom:0; }
+.swot-pane.is-s{ background:color-mix(in srgb, var(--ok-bg) 50%, var(--bg)); }
+.swot-pane.is-o{ background:color-mix(in srgb, var(--navy-bg) 46%, var(--bg)); }
+.swot-pane.is-w{ background:color-mix(in srgb, var(--hold-bg) 46%, var(--bg)); }
+.swot-pane.is-t{ background:color-mix(in srgb, var(--risk-bg) 44%, var(--bg)); }
+.swot-head{ display:flex; align-items:center; gap:8px; margin-bottom:9px; }
+.swot-head .sh-ico{ display:inline-flex; }
+.is-s .sh-ico{ color:var(--ok); } .is-o .sh-ico{ color:var(--navy-deep); }
+.is-w .sh-ico{ color:var(--hold); } .is-t .sh-ico{ color:var(--risk); }
+.swot-head .sh-t{ font:800 12px/1 var(--mono); letter-spacing:.08em; text-transform:uppercase; color:var(--ink); }
+.swot-head .sh-n{ margin-left:auto; font:700 10px/1 var(--mono); color:var(--ink-faint); }
+.swot-head .sh-x{ font:700 9.5px/1 var(--mono); letter-spacing:.06em; text-transform:uppercase; color:var(--ink-faint); }
+.swot-list{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:7px; }
+.swot-point{ display:flex; gap:7px; font-size:11.5px; line-height:1.4; color:var(--ink-mid); }
+.swot-point::before{ content:""; width:6px; height:6px; border-radius:2px; background:var(--ink-faint); margin-top:5px; flex:none; }
+.is-s .swot-point::before{ background:var(--ok); } .is-o .swot-point::before{ background:var(--navy-deep); }
+.is-w .swot-point::before{ background:var(--hold); } .is-t .swot-point::before{ background:var(--risk); }
+/* SWOT pane expand / focus */
+.swot.has-focus .swot-pane:not(.is-open){ opacity:.34; }
+.swot-pane.is-open{ background:var(--bg); box-shadow:inset 0 0 0 2px var(--navy-line); }
+
+/* Lean / business-model canvas grid */
+.canvas-grid{
+  display:grid; grid-template-columns:repeat(3,1fr); grid-auto-rows:minmax(78px,auto);
+  gap:0;
+}
+.canvas-cell{
+  grid-column:span var(--col,1); grid-row:span var(--row,1);
+  padding:12px 14px; border-right:1px solid var(--rule-soft); border-bottom:1px solid var(--rule-soft);
+}
+.canvas-cell.accent{ background:color-mix(in srgb, var(--navy-bg) 55%, var(--bg)); }
+.cell-label{ display:flex; align-items:center; gap:6px; font:700 9.5px/1.1 var(--mono); letter-spacing:.08em; text-transform:uppercase; color:var(--navy-deep); margin-bottom:8px; }
+.cell-label .cl-ico{ color:var(--navy); display:inline-flex; }
+.cell-body{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:5px; }
+.cell-body li{ display:flex; gap:6px; font-size:11.5px; line-height:1.4; color:var(--ink-mid); }
+.cell-body li::before{ content:""; width:5px; height:5px; border-radius:2px; background:var(--navy-line); margin-top:5px; flex:none; }
+.cell-body li .mini-dot{ margin-top:3px; }
+
+/* ---- footer ---- */
+.foot{
+  margin-top:22px; background:var(--bg-deep); color:#d7d6dd;
+  border-radius:12px 12px 0 0; padding:16px 24px; display:flex; align-items:center; gap:16px; flex-wrap:wrap;
+}
+.foot .wm{ display:flex; align-items:center; gap:9px; font:800 13px/1 var(--sans); color:#fff; }
+.foot .wm .sq{ width:14px; height:14px; border-radius:4px; background:var(--navy); }
+.foot .fmeta{ font:600 10px/1.5 var(--mono); letter-spacing:.06em; text-transform:uppercase; color:#9a99a4; }
+.foot .fright{ margin-left:auto; font:600 10px/1.5 var(--mono); letter-spacing:.06em; text-transform:uppercase; color:#9a99a4; text-align:right; }
+
+/* ---- reduced motion ---- */
+@media (prefers-reduced-motion: reduce){
+  *{ transition:none !important; }
+  .plot-item.is-hi .plot-dot{ transform:none; }
+}
+
+/* ---- print : static, complete snapshot; hide controls ---- */
+@media print{
+  body{ background:#fff; }
+  .canvas{ max-width:none; padding:0; }
+  .rc-theme, .ghost-btn, .q-legend, .plot-pop{ display:none !important; }
+  .frame, .canvas-head{ box-shadow:none; break-inside:avoid; }
+  .frame-row{ break-inside:avoid; }
+  /* expand everything: no dim, no focus isolation */
+  .plot-item.is-dim, .roster-item.is-dim{ opacity:1 !important; filter:none !important; }
+  .matrix-plane.q-focus .quadrant:not(.is-focus){ background:revert; }
+  .swot.has-focus .swot-pane:not(.is-open){ opacity:1 !important; }
+  .foot{ background:#fff; color:#000; border-top:1px solid var(--rule); border-radius:0; }
+  .foot .fmeta, .foot .fright{ color:#555; }
+  .foot .wm{ color:#000; }
+}
+</style>
+</head>
+<body>
+<main class="canvas" id="board" hidden>
+
+  <!-- ============== CANVAS HEAD ============== -->
+  <header class="canvas-head">
+    <div class="ch-left">
+      <div class="eyebrow" id="chEyebrow">Strategy Workshop · {{REPORT_TYPE}}</div>
+      <h1 class="canvas-title">
+        <span class="markmini" aria-hidden="true">
+          <!-- four-pane mark (house style: stroke 1.75, squared node) -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3.5" y="3.5" width="17" height="17" rx="2.5"/>
+            <path d="M12 3.5V20.5M3.5 12H20.5"/>
+            <rect x="14.5" y="6" width="3.5" height="3.5" rx="1.2" fill="currentColor" stroke="none"/>
+          </svg>
+        </span>
+        <span id="chTitle">{{PROJECT}} · Strategy Framework Canvas</span>
+      </h1>
+      <div class="frame-chips">
+        <span class="frame-chip"><span class="n">01</span> Effort × Impact 2×2</span>
+        <span class="frame-chip"><span class="n">02</span> SWOT</span>
+        <span class="frame-chip"><span class="n">03</span> Lean Canvas</span>
+      </div>
+    </div>
+    <div class="ch-right">
+      <div class="asof">
+        <span class="mono" id="chAsof">as of {{DATE}}</span>
+        <label class="rc-theme" title="Brand colour">
+          <span class="rc-theme-sw" aria-hidden="true"></span>
+          <select class="rc-theme-sel" aria-label="Brand theme">
+            <option value="blue">Blue</option>
+            <option value="purple">Purple</option>
+            <option value="indigo">Indigo</option>
+            <option value="teal">Teal</option>
+            <option value="cyan">Cyan</option>
+            <option value="green">Green</option>
+            <option value="plum">Plum</option>
+            <option value="slate">Slate</option>
+            <option value="black">Black</option>
+          </select>
+        </label>
+      </div>
+      <div class="legend" aria-label="Legend">
+        <span class="legend-item"><span class="mini-dot is-ok"></span>Proceed</span>
+        <span class="legend-item"><span class="mini-dot is-hold"></span>Watch / refine</span>
+        <span class="legend-item"><span class="mini-dot is-risk"></span>Defer / drop</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ============== FRAME 01 — 2×2 PLOTTED PLANE (hero) ============== -->
+  <section class="frame" aria-label="Effort versus Impact prioritisation matrix">
+    <div class="frame-head">
+      <span class="fh-ico" aria-hidden="true">
+        <svg class="icon icon-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 4V20H20"/>
+          <path d="M4 12H20M12 4V20"/>
+          <rect x="6.4" y="6.4" width="3.4" height="3.4" rx="1.2" fill="currentColor" stroke="none"/>
+        </svg>
+      </span>
+      <h2 id="mxTitle">Effort &times; Impact</h2>
+      <span class="fh-sub" id="mxSub">Initiative prioritisation</span>
+      <span class="fh-tag">
+        <button class="ghost-btn" id="mxReset" hidden>Clear focus</button>
+        <span class="st-badge st-ok" id="mxCount">0 plotted</span>
+      </span>
+    </div>
+
+    <div class="matrix-wrap">
+      <!-- quadrant filter chips (built by render) -->
+      <div class="q-legend" id="qLegend" role="group" aria-label="Filter by quadrant"></div>
+
+      <div class="matrix">
+
+        <!-- Y axis -->
+        <div class="axis-y">
+          <span class="axis-hi" id="ayHi">High</span>
+          <span class="axis-arrow" aria-hidden="true">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5.5V18.5M7 10l5-5 5 5"/></svg>
+          </span>
+          <span class="axis-title" id="ayTitle">Business Impact</span>
+          <span class="axis-lo" id="ayLo">Low</span>
+        </div>
+
+        <!-- the plane (items / quadrants injected by render) -->
+        <div class="matrix-plane" id="plane">
+          <!-- centre cross-hair -->
+          <span class="crosshair-v" aria-hidden="true"></span>
+          <span class="crosshair-h" aria-hidden="true"></span>
+        </div>
+
+        <!-- X axis -->
+        <div class="axis-x">
+          <span class="axis-lo" id="axLo">Low</span>
+          <span class="axis-title" id="axTitle">Delivery Effort &rarr;</span>
+          <span class="axis-hi" id="axHi">High
+            <span class="axis-arrow" aria-hidden="true">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5.5 12H18.5M14 7l5 5-5 5"/></svg>
+            </span>
+          </span>
+        </div>
+      </div>
+
+      <!-- roster strip (built by render) -->
+      <div class="roster" id="roster"></div>
+    </div>
+  </section>
+
+  <!-- ============== FRAME ROW — SWOT + LEAN CANVAS ============== -->
+  <div class="frame-row" id="frameRow"></div>
+
+  <!-- ============== FOOTER ============== -->
+  <footer class="foot">
+    <div class="wm"><span class="sq" aria-hidden="true"></span><span id="ftOrg">{{ORG}}</span></div>
+    <div class="fmeta" id="ftMeta">{{REPORT_TYPE}} · Strategy Framework Canvas<br>Prepared by {{AUTHOR}} · {{DATE}}</div>
+    <div class="fright">Confidential — internal planning use only<br>Frameworks: Effort&times;Impact · SWOT · Lean Canvas</div>
+  </footer>
+</main>
+
+<noscript>
+  <div class="noscript">This strategy canvas renders its 2&times;2 plane, SWOT panes and Lean Canvas from embedded JSON via JavaScript. Enable JavaScript to view, filter and explore the board.</div>
+</noscript>
+
+<!-- ============== DATA (valid instance of schemas/matrix-canvas.schema.json) ============== -->
+<script type="application/json" id="report-data">
+{
+  "meta": {
+    "org": "{{ORG}}",
+    "project": "{{PROJECT}}",
+    "reportType": "Strategy Workshop",
+    "title": "SME Lending Launch — Strategy Canvas",
+    "subtitle": "Effort × Impact · SWOT · Lean Canvas — Q2 FY26 planning session",
+    "date": "2026-06-22",
+    "author": "{{AUTHOR}}",
+    "theme": "indigo"
+  },
+  "matrix": {
+    "axisX": { "title": "Delivery Effort", "lowLabel": "Low", "highLabel": "High" },
+    "axisY": { "title": "Business Impact", "lowLabel": "Low", "highLabel": "High" },
+    "quadrants": [
+      { "key": "q-tl", "label": "Quick wins",      "sublabel": "Low effort · High impact",  "wash": "ok"   },
+      { "key": "q-tr", "label": "Major bets",      "sublabel": "High effort · High impact", "wash": "navy" },
+      { "key": "q-bl", "label": "Fill-ins",        "sublabel": "Low effort · Low impact",   "wash": "hold" },
+      { "key": "q-br", "label": "Thankless tasks", "sublabel": "High effort · Low impact",  "wash": "risk" }
+    ],
+    "items": [
+      { "id": "1",  "label": "Same-day credit decision",     "x": 30, "y": 88, "status": "ok",   "card": true, "meta": "Effort 3 · Impact 9 · ~4 mo · £0.8M" },
+      { "id": "2",  "label": "Open-banking data pull",       "x": 22, "y": 75, "status": "ok"   },
+      { "id": "3",  "label": "In-app upsell to depositors",  "x": 16, "y": 60, "status": "ok",   "flip": true },
+      { "id": "4",  "label": "SME portal redesign",          "x": 72, "y": 84, "status": "hold", "card": true, "meta": "Effort 8 · Impact 9 · ~8 mo · £1.4M" },
+      { "id": "5",  "label": "Affordability model v2",       "x": 64, "y": 70, "status": "hold" },
+      { "id": "6",  "label": "KYC vendor integration",       "x": 76, "y": 56, "status": "hold", "flip": true },
+      { "id": "7",  "label": "Dark-mode UI pass",            "x": 22, "y": 28, "status": "ok"   },
+      { "id": "8",  "label": "Email-template refresh",       "x": 13, "y": 16, "status": "ok",   "flip": true },
+      { "id": "9",  "label": "Branch terminal replacement",  "x": 82, "y": 22, "status": "risk", "card": true, "meta": "Effort 9 · Impact 2 · ~12 mo · £2.1M" },
+      { "id": "10", "label": "Manual AML review automation", "x": 78, "y": 36, "status": "risk", "flip": true }
+    ]
+  },
+  "swot": {
+    "title": "SWOT",
+    "subtitle": "Internal & external position",
+    "strengths": [
+      "Owned core-banking ledger + deposit base = cheaper funding cost",
+      "Existing SME depositor base as a warm audience",
+      "Regulated entity with lending approval already in place"
+    ],
+    "weaknesses": [
+      "No credit-decisioning IP — model must be built or bought",
+      "Legacy loan-origination system is hard to extend",
+      "Limited data-science headcount in FY26",
+      "Onboarding drop-off of 38% at the KYC step"
+    ],
+    "opportunities": [
+      "Open-banking mandate opens partner distribution",
+      "SME lending under-served in two regions",
+      "Embedded-finance API as a new revenue line"
+    ],
+    "threats": [
+      "Neobank entrants with 0-fee accounts",
+      "Rising compliance cost (AML / DPIA)",
+      "Cloud-cost inflation squeezing unit margin"
+    ]
+  },
+  "canvas": {
+    "title": "Lean Canvas",
+    "subtitle": "SME lending launch",
+    "cells": [
+      { "key": "problem",    "title": "Problem",          "items": ["SME credit decisions take 11 days", "Manual document collection"] },
+      { "key": "value-prop", "title": "Unique value prop", "accent": true, "items": ["Same-day SME credit, fully digital", "Decision in < 4 hours"] },
+      { "key": "solution",   "title": "Solution",          "items": ["Open-banking data pull", "Automated affordability model"] },
+      { "key": "channels",   "title": "Channels",          "items": ["In-app upsell to depositors", "Accountancy-software partners"] },
+      { "key": "metrics",    "title": "Key metrics",       "items": ["Approved-loan TTV", "Default rate < 2.5%"] },
+      { "key": "advantage",  "title": "Unfair advantage",  "accent": true, "items": ["Owned ledger + deposit base = cheaper funding"] },
+      { "key": "cost",       "title": "Cost structure",    "span": 2, "items": ["Model build & risk team · cloud compute · KYC vendor calls · loan-loss provision"] },
+      { "key": "revenue",    "title": "Revenue streams",   "items": ["Net interest margin", "Origination & servicing fee"] }
+    ]
+  }
+}
+</script>
+
+<script>
+/* ============================================================
+   Data-driven render + interactions  (vanilla JS, no libs).
+   JS renders the DOM from #report-data; print prints the
+   rendered snapshot. The board is hidden until first render.
+   ============================================================ */
+(function(){
+  "use strict";
+  var DATA = {};
+  try { DATA = JSON.parse(document.getElementById('report-data').textContent); }
+  catch(e){ console.error('report-data parse failed', e); return; }
+
+  var m       = DATA.meta || {};
+  var matrix  = DATA.matrix || {};
+  var quads   = matrix.quadrants || [];
+  var items   = matrix.items || [];
+
+  var WASH = { ok:'wash-ok', hold:'wash-hold', risk:'wash-risk', navy:'wash-navy' };
+  var QUAD_LABEL = {};   // key -> label
+  quads.forEach(function(q){ QUAD_LABEL[q.key] = q; });
+
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g, function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function el(tag, cls){ var n=document.createElement(tag); if(cls) n.className=cls; return n; }
+
+  /* item -> quadrant key from its x/y (schema: y up, x right; split at 50) */
+  function quadOf(it){
+    var hiY = it.y >= 50, hiX = it.x >= 50;
+    if(hiY && !hiX) return 'q-tl';
+    if(hiY &&  hiX) return 'q-tr';
+    if(!hiY && !hiX) return 'q-bl';
+    return 'q-br';
+  }
+
+  /* ---------- FRAME 01 : the 2×2 plane ---------- */
+  var plane = document.getElementById('plane');
+
+  function renderQuadrants(){
+    quads.forEach(function(q){
+      var d = el('div', 'quadrant ' + q.key + ' ' + (WASH[q.wash] || 'wash-ok'));
+      d.dataset.quad = q.key;
+      var head = el('div','quad-head');
+      var nm = el('div','quad-name'); nm.textContent = q.label; head.appendChild(nm);
+      if(q.sublabel){ var sub = el('div','quad-sub'); sub.textContent = q.sublabel; head.appendChild(sub); }
+      d.appendChild(head);
+      plane.appendChild(d);
+    });
+  }
+
+  function renderItems(){
+    items.forEach(function(it){
+      var node = el('div', 'plot-item is-' + (it.status||'ok') + (it.card?' plot-item--card':'') + (it.flip?' flip':''));
+      node.dataset.id = it.id;
+      node.dataset.quad = quadOf(it);
+      /* P0 FIX: schema y is "up" (0=bottom,100=top); CSS top is from the top.
+         Invert so high-y sits at the TOP of the plane.  top = 100 - y. */
+      node.style.setProperty('--x', it.x);
+      node.style.setProperty('--y', (100 - it.y));
+      node.setAttribute('tabindex','0');
+      node.setAttribute('aria-label', it.label + ' — ' + (QUAD_LABEL[node.dataset.quad] ? QUAD_LABEL[node.dataset.quad].label : ''));
+
+      if(it.card){
+        var card = el('div','pcard');
+        var top  = el('div','pc-top');
+        var n = el('span','pc-n'); n.textContent = it.id; top.appendChild(n);
+        var nm = el('span','pc-name'); nm.textContent = it.label; top.appendChild(nm);
+        card.appendChild(top);
+        if(it.meta){ var meta = el('div','pc-meta tnum'); meta.textContent = it.meta; card.appendChild(meta); }
+        node.appendChild(card);
+      } else {
+        var dot = el('span','plot-dot'); dot.textContent = it.id; node.appendChild(dot);
+        var lab = el('span','plot-label'); lab.textContent = it.label; node.appendChild(lab);
+      }
+      plane.appendChild(node);
+    });
+  }
+
+  /* quadrant filter chips */
+  function renderLegend(){
+    var box = document.getElementById('qLegend');
+    quads.forEach(function(q){
+      var n = items.filter(function(it){ return quadOf(it)===q.key; }).length;
+      var chip = el('button','q-chip');
+      chip.type='button'; chip.dataset.quad = q.key; chip.dataset.wash = q.wash || 'ok';
+      chip.setAttribute('aria-pressed','false');
+      chip.innerHTML = '<span class="qc-sw"></span>' + esc(q.label) + ' <span class="qc-n">' + n + '</span>';
+      box.appendChild(chip);
+    });
+  }
+
+  /* roster strip mirrors the items, sorted by quadrant reading order then id */
+  function renderRoster(){
+    var box = document.getElementById('roster');
+    var order = { 'q-tl':0, 'q-tr':1, 'q-bl':2, 'q-br':3 };
+    var rows = items.slice().sort(function(a,b){
+      var qa = order[quadOf(a)], qb = order[quadOf(b)];
+      if(qa!==qb) return qa-qb;
+      return (parseInt(a.id,10)||0) - (parseInt(b.id,10)||0);
+    });
+    rows.forEach(function(it){
+      var q = quadOf(it);
+      var row = el('div','roster-item'); row.dataset.id = it.id; row.dataset.quad = q;
+      row.setAttribute('tabindex','0');
+      row.innerHTML =
+        '<span class="rn is-'+esc(it.status||'ok')+'">'+esc(it.id)+'</span> '+
+        esc(it.label)+
+        ' <span class="rspan">'+esc(QUAD_LABEL[q]?QUAD_LABEL[q].label:'')+'</span>';
+      box.appendChild(row);
+    });
+  }
+
+  /* ---------- FRAME ROW : SWOT + Lean canvas ---------- */
+  var SW = [
+    { cls:'is-s', t:'Strengths',     n:'S', key:'strengths',
+      ico:'<path d="M12 3.25 19 5.75v5.45c0 4.4-3 7.6-7 8.8-4-1.2-7-4.4-7-8.8V5.75Z"/><path d="M9 12l2.2 2.2L15.2 9.6"/>' },
+    { cls:'is-w', t:'Weaknesses',    n:'W', key:'weaknesses',
+      ico:'<path d="M12 4.5 21 19.5H3Z"/><path d="M12 10V14"/><rect x="10.6" y="16" width="2.8" height="2.8" rx="1.2" fill="currentColor" stroke="none"/>' },
+    { cls:'is-o', t:'Opportunities', n:'O', key:'opportunities',
+      ico:'<path d="M4 14V20H20"/><path d="M5 15l5-5 3 3 6-7"/><rect x="17.2" y="4.4" width="3.4" height="3.4" rx="1.2" fill="currentColor" stroke="none"/>' },
+    { cls:'is-t', t:'Threats',       n:'T', key:'threats',
+      ico:'<path d="M12 3.25 19 5.75v5.45c0 4.4-3 7.6-7 8.8-4-1.2-7-4.4-7-8.8V5.75Z"/><path d="M12 8.5V12.5"/><rect x="10.6" y="14.4" width="2.8" height="2.8" rx="1.2" fill="currentColor" stroke="none"/>' }
+  ];
+
+  function frameHead(icoPaths, title, sub){
+    return ''+
+      '<div class="frame-head">'+
+        '<span class="fh-ico" aria-hidden="true"><svg class="icon icon-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">'+icoPaths+'</svg></span>'+
+        '<h2>'+esc(title)+'</h2>'+
+        (sub?'<span class="fh-sub">'+esc(sub)+'</span>':'')+
+      '</div>';
+  }
+
+  function renderSwot(){
+    var s = DATA.swot; if(!s) return;
+    var sec = el('section','frame'); sec.setAttribute('aria-label','SWOT analysis');
+    var html = frameHead('<rect x="3.5" y="3.5" width="17" height="17" rx="2.5"/><path d="M12 3.5V20.5M3.5 12H20.5"/>', s.title||'SWOT', s.subtitle||'');
+    html += '<div class="swot" id="swot">';
+    SW.forEach(function(p){
+      var pts = (s[p.key]||[]);
+      html += '<div class="swot-pane '+p.cls+'" data-pane="'+p.key+'" tabindex="0">'+
+        '<div class="swot-head">'+
+          '<span class="sh-ico" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">'+p.ico+'</svg></span>'+
+          '<span class="sh-t">'+esc(p.t)+'</span>'+
+          '<span class="sh-n">'+p.n+'</span>'+
+          '<span class="sh-x" hidden>Close</span>'+
+        '</div>'+
+        '<ul class="swot-list">'+
+          pts.map(function(x){ return '<li class="swot-point">'+esc(x)+'</li>'; }).join('')+
+        '</ul>'+
+      '</div>';
+    });
+    html += '</div>';
+    sec.innerHTML = html;
+    document.getElementById('frameRow').appendChild(sec);
+  }
+
+  function renderCanvas(){
+    var c = DATA.canvas; if(!c) return;
+    var sec = el('section','frame'); sec.setAttribute('aria-label','Lean canvas');
+    var html = frameHead('<rect x="3.5" y="4" width="17" height="16" rx="2"/><path d="M3.5 9.5H20.5M9.5 9.5V20M14.5 9.5V20"/>', c.title||'Lean Canvas', c.subtitle||'');
+    html += '<div class="canvas-grid">';
+    (c.cells||[]).forEach(function(cell){
+      var style = '';
+      if(cell.span && cell.span>1) style += '--col:'+cell.span+';';
+      if(cell.rowSpan && cell.rowSpan>1) style += '--row:'+cell.rowSpan+';';
+      html += '<div class="canvas-cell'+(cell.accent?' accent':'')+'"'+(style?' style="'+style+'"':'')+'>'+
+        '<div class="cell-label"><span class="cl-ico" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2.5"/><path d="M8.5 12l2.4 2.4 4.6-5"/></svg></span> '+esc(cell.title)+'</div>'+
+        '<ul class="cell-body">'+
+          (cell.items||[]).map(function(x){ return '<li>'+esc(x)+'</li>'; }).join('')+
+        '</ul>'+
+      '</div>';
+    });
+    html += '</div>';
+    sec.innerHTML = html;
+    document.getElementById('frameRow').appendChild(sec);
+  }
+
+  /* ---------- chrome text ---------- */
+  function renderChrome(){
+    if(m.reportType) document.getElementById('chEyebrow').textContent = 'Strategy Workshop · ' + m.reportType;
+    document.getElementById('chTitle').textContent = (m.project||'{{PROJECT}}') + (m.title?(' · '+m.title):' · Strategy Framework Canvas');
+    var asof = (m.subtitle ? m.subtitle + ' · ' : '') + 'as of ' + (m.date||'{{DATE}}');
+    document.getElementById('chAsof').textContent = asof;
+    document.getElementById('ftOrg').textContent = m.org || '{{ORG}}';
+    document.getElementById('ftMeta').innerHTML = esc((m.reportType||'{{REPORT_TYPE}}')) + ' · Strategy Framework Canvas<br>Prepared by ' + esc(m.author||'{{AUTHOR}}') + ' · ' + esc(m.date||'{{DATE}}');
+
+    if(matrix.axisX){
+      document.getElementById('axTitle').innerHTML = esc(matrix.axisX.title||'Effort') + ' &rarr;';
+      document.getElementById('axLo').textContent = matrix.axisX.lowLabel||'Low';
+      document.getElementById('axHi').childNodes[0].nodeValue = (matrix.axisX.highLabel||'High') + ' ';
+    }
+    if(matrix.axisY){
+      document.getElementById('ayTitle').textContent = matrix.axisY.title||'Impact';
+      document.getElementById('ayLo').textContent = matrix.axisY.lowLabel||'Low';
+      document.getElementById('ayHi').textContent = matrix.axisY.highLabel||'High';
+    }
+    var qw = items.filter(function(it){ return quadOf(it)==='q-tl'; }).length;
+    document.getElementById('mxCount').textContent = items.length + ' plotted · ' + qw + ' quick wins';
+    document.getElementById('mxSub').textContent = 'Initiative prioritisation · ' + items.length + ' candidates';
+  }
+
+  /* ---------- the master render ---------- */
+  function render(){
+    renderChrome();
+    renderQuadrants();
+    renderItems();
+    renderLegend();
+    renderRoster();
+    renderSwot();
+    renderCanvas();
+  }
+
+  /* ============================================================
+     INTERACTIONS
+     ============================================================ */
+  var activeQuad = null;                 // current quadrant focus (null = none)
+  var pop = null;                        // hover detail popover element
+
+  function planeItems(){ return plane.querySelectorAll('.plot-item'); }
+  function rosterRows(){ return document.querySelectorAll('.roster-item'); }
+  function itemById(id){ return DATA.matrix.items.filter(function(x){ return String(x.id)===String(id); })[0]; }
+
+  /* ---- roster ⇄ plane hover-sync + hover detail popover ---- */
+  function highlight(id, on){
+    planeItems().forEach(function(n){ n.classList.toggle('is-hi', on && n.dataset.id===id); });
+    rosterRows().forEach(function(r){ r.classList.toggle('is-hi', on && r.dataset.id===id); });
+  }
+
+  function buildPop(){
+    pop = el('div','plot-pop');
+    pop.id = 'plotPop';
+    plane.appendChild(pop);
+  }
+
+  function showPop(node){
+    var id = node.dataset.id, it = itemById(id); if(!it) return;
+    var qk = node.dataset.quad, q = QUAD_LABEL[qk];
+    pop.className = 'plot-pop is-' + (it.status||'ok');
+    pop.innerHTML =
+      '<div class="pp-top"><span class="pp-n">'+esc(it.id)+'</span><span class="pp-name">'+esc(it.label)+'</span></div>'+
+      '<div class="pp-row"><span class="k">Effort</span><span>'+esc(it.x)+' / 100</span></div>'+
+      '<div class="pp-row"><span class="k">Impact</span><span>'+esc(it.y)+' / 100</span></div>'+
+      '<div class="pp-row"><span class="k">Status</span><span>'+esc((it.status||'ok').toUpperCase())+'</span></div>'+
+      (it.meta?'<div class="pp-meta">'+esc(it.meta)+'</div>':'')+
+      (q?'<div class="pp-quad"><span class="qd"></span>'+esc(q.label)+'</div>':'');
+    /* position near the node, clamped to the plane */
+    var pr = plane.getBoundingClientRect();
+    var nr = node.getBoundingClientRect();
+    var x = (nr.left - pr.left) + nr.width/2 + 14;
+    var y = (nr.top  - pr.top)  + nr.height/2 + 12;
+    pop.style.left='0'; pop.style.top='0'; pop.classList.add('show');  // measure
+    var pw = pop.offsetWidth, ph = pop.offsetHeight;
+    if(x + pw > pr.width - 6)  x = (nr.left - pr.left) + nr.width/2 - pw - 14;
+    if(x < 6) x = 6;
+    if(y + ph > pr.height - 6) y = pr.height - ph - 6;
+    if(y < 6) y = 6;
+    pop.style.left = x+'px'; pop.style.top = y+'px';
+  }
+  function hidePop(){ if(pop) pop.classList.remove('show'); }
+
+  /* ---- quadrant filter / focus ---- */
+  function applyFocus(){
+    var on = !!activeQuad;
+    plane.classList.toggle('q-focus', on);
+    plane.querySelectorAll('.quadrant').forEach(function(qd){
+      qd.classList.toggle('is-focus', on && qd.dataset.quad===activeQuad);
+    });
+    planeItems().forEach(function(n){
+      n.classList.toggle('is-dim', on && n.dataset.quad!==activeQuad);
+    });
+    rosterRows().forEach(function(r){
+      r.classList.toggle('is-dim', on && r.dataset.quad!==activeQuad);
+    });
+    document.querySelectorAll('.q-chip').forEach(function(c){
+      c.setAttribute('aria-pressed', String(on && c.dataset.quad===activeQuad));
+    });
+    document.getElementById('mxReset').hidden = !on;
+  }
+  function setQuad(key){
+    activeQuad = (activeQuad===key) ? null : key;   // toggle off if same
+    hidePop();
+    applyFocus();
+  }
+
+  function wireInteractions(){
+    buildPop();
+
+    /* plane: hover/focus → highlight + detail popover */
+    plane.addEventListener('mouseover', function(e){
+      var n = e.target.closest('.plot-item'); if(!n) return;
+      highlight(n.dataset.id, true); showPop(n);
+    });
+    plane.addEventListener('mouseout', function(e){
+      var n = e.target.closest('.plot-item'); if(!n) return;
+      highlight(n.dataset.id, false); hidePop();
+    });
+    plane.addEventListener('focusin', function(e){
+      var n = e.target.closest('.plot-item'); if(!n) return;
+      highlight(n.dataset.id, true); showPop(n);
+    });
+    plane.addEventListener('focusout', function(e){
+      var n = e.target.closest('.plot-item'); if(!n) return;
+      highlight(n.dataset.id, false); hidePop();
+    });
+    /* clicking an item focuses its quadrant */
+    plane.addEventListener('click', function(e){
+      var item = e.target.closest('.plot-item');
+      if(item){ setQuad(item.dataset.quad); return; }
+      var qd = e.target.closest('.quadrant');
+      if(qd){ setQuad(qd.dataset.quad); }
+    });
+
+    /* roster → plane hover-sync */
+    var rosterBox = document.getElementById('roster');
+    rosterBox.addEventListener('mouseover', function(e){
+      var r = e.target.closest('.roster-item'); if(r) highlight(r.dataset.id, true);
+    });
+    rosterBox.addEventListener('mouseout', function(e){
+      var r = e.target.closest('.roster-item'); if(r) highlight(r.dataset.id, false);
+    });
+    rosterBox.addEventListener('focusin', function(e){
+      var r = e.target.closest('.roster-item'); if(r) highlight(r.dataset.id, true);
+    });
+    rosterBox.addEventListener('focusout', function(e){
+      var r = e.target.closest('.roster-item'); if(r) highlight(r.dataset.id, false);
+    });
+    rosterBox.addEventListener('click', function(e){
+      var r = e.target.closest('.roster-item'); if(r) setQuad(r.dataset.quad);
+    });
+
+    /* quadrant filter chips */
+    document.getElementById('qLegend').addEventListener('click', function(e){
+      var c = e.target.closest('.q-chip'); if(c) setQuad(c.dataset.quad);
+    });
+
+    /* clear-focus button */
+    document.getElementById('mxReset').addEventListener('click', function(){
+      activeQuad = null; applyFocus();
+    });
+
+    /* SWOT pane expand / focus (event-delegated on the row container) */
+    document.getElementById('frameRow').addEventListener('click', function(e){
+      var pane = e.target.closest('.swot-pane'); if(!pane) return;
+      var swot = pane.parentNode;
+      var wasOpen = pane.classList.contains('is-open');
+      swot.querySelectorAll('.swot-pane').forEach(function(p){
+        p.classList.remove('is-open');
+        var x = p.querySelector('.sh-x'); if(x) x.hidden = true;
+      });
+      if(!wasOpen){
+        pane.classList.add('is-open'); swot.classList.add('has-focus');
+        var x = pane.querySelector('.sh-x'); if(x) x.hidden = false;
+      } else {
+        swot.classList.remove('has-focus');
+      }
+    });
+
+    /* Esc clears any focus state */
+    document.addEventListener('keydown', function(e){
+      if(e.key!=='Escape') return;
+      activeQuad = null; applyFocus(); hidePop();
+      document.querySelectorAll('.swot').forEach(function(s){ s.classList.remove('has-focus'); });
+      document.querySelectorAll('.swot-pane.is-open').forEach(function(p){
+        p.classList.remove('is-open');
+        var x = p.querySelector('.sh-x'); if(x) x.hidden = true;
+      });
+    });
+  }
+
+  /* ---- theme switcher (canonical .rc-theme dropdown) ---- */
+  function wireThemeSwitch(){
+    var rcSel = document.querySelector('.rc-theme-sel');
+    if (rcSel) {
+      var init = m.theme || 'indigo';
+      document.documentElement.dataset.theme = init;
+      rcSel.value = init;
+      rcSel.addEventListener('change', function(){ document.documentElement.dataset.theme = rcSel.value; });
+    }
+  }
+
+  /* ---- boot ---- */
+  render();
+  wireInteractions();
+  wireThemeSwitch();
+  document.getElementById('board').hidden = false;
+})();
+</script>
+</body>
+</html>

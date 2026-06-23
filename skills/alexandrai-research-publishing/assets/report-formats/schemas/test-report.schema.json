@@ -1,0 +1,207 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://genesis.local/html_report_design/schemas/test-report.schema.json",
+  "title": "Test execution report",
+  "description": "Data contract for the test-report format: a test-runner console. The page is a full-width app shell — a top run summary band (run selector + environment chip + result donut + big pass-rate %, totals, duration), a left collapsible suite tree (each suite row carries a slim pass/fail/skip stacked mini-bar), and a center case table for the selected suite (status badge, case name, duration, owner, a last-N-runs sparkline, tags) with status-filter chips, search, and sortable columns. A case row expands into a failure-detail panel (error message, mono stack trace, per-step status, attachment names). Per-run case results live in cases[].results keyed by run id; the donut, pass-rate, suite roll-ups and totals are COMPUTED from the active run's results — never hard-coded. Renders to a self-contained, interactive, themeable, PC-wide HTML console. The sample's embedded #report-data is a valid instance of this schema.",
+  "type": "object",
+  "required": ["meta", "runs", "activeRunId", "suites", "cases"],
+  "additionalProperties": false,
+  "properties": {
+    "meta": {
+      "type": "object",
+      "description": "Shared report chrome (org / project / title / theme). Brand-neutral: keep {{ORG}} / {{PROJECT}} / {{AUTHOR}} placeholders unless real values are supplied.",
+      "required": ["org", "project", "reportType", "title", "date", "theme"],
+      "additionalProperties": false,
+      "properties": {
+        "org": { "type": "string", "description": "Organisation name or {{ORG}} placeholder.", "default": "{{ORG}}" },
+        "project": { "type": "string", "description": "Project / programme name or {{PROJECT}} placeholder.", "default": "{{PROJECT}}" },
+        "reportType": { "type": "string", "description": "Eyebrow label shown in the summary band, e.g. 'Test execution' or {{REPORT_TYPE}}." },
+        "title": { "type": "string", "description": "Console title, e.g. 'Test Execution Report'." },
+        "subtitle": { "type": "string", "description": "Optional one-line sub-title / pipeline or service context." },
+        "date": { "type": "string", "description": "ISO date the report was generated (YYYY-MM-DD).", "format": "date" },
+        "author": { "type": "string", "description": "Author / owning team or {{AUTHOR}} placeholder.", "default": "{{AUTHOR}}" },
+        "theme": {
+          "type": "string",
+          "description": "Initial brand theme; applied as <html data-theme>. Test-report default is 'green'.",
+          "enum": ["blue", "purple", "indigo", "teal", "cyan", "green", "plum", "slate", "black"],
+          "default": "green"
+        }
+      }
+    },
+    "runs": {
+      "type": "array",
+      "description": "The execution runs the report can switch between. Ship at least two so the run selector is meaningful. Each run is a distinct pipeline execution; per-case outcomes for the run are stored under cases[].results[run.id].",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "env", "startedAt", "finishedAt", "durationMs"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "description": "Stable run identifier, e.g. 'run-1042'. Used as the key into cases[].results." },
+          "label": { "type": "string", "description": "Optional human label shown in the run selector, e.g. 'Run #1042'. Falls back to id." },
+          "env": { "type": "string", "description": "Environment / pipeline the run executed in, e.g. 'CI · staging' or 'ap-northeast-1'. Shown as a chip in the summary band." },
+          "branch": { "type": "string", "description": "Optional VCS branch or tag the run executed against, e.g. 'release/4.18' or 'main@a1b2c3d'." },
+          "trigger": { "type": "string", "description": "Optional trigger note, e.g. 'merge-queue', 'nightly', 'manual'." },
+          "startedAt": { "type": "string", "description": "ISO-8601 start timestamp of the run." },
+          "finishedAt": { "type": "string", "description": "ISO-8601 finish timestamp of the run." },
+          "durationMs": { "type": "integer", "description": "Total wall-clock duration of the run in milliseconds (may exceed the sum of case durations due to parallelism).", "minimum": 0 }
+        }
+      }
+    },
+    "activeRunId": {
+      "type": "string",
+      "description": "The run.id selected on load. The summary band, donut, pass-rate, suite roll-ups and case statuses all render from this run's results until the user picks another run."
+    },
+    "statuses": {
+      "type": "object",
+      "description": "Optional display labels for the four case statuses. Defaults: pass='Passed', fail='Failed', skip='Skipped', flaky='Flaky'. Colour mapping is fixed by the foundation (pass=--ok, fail=--risk, skip=neutral, flaky=--hold) and is NOT configurable.",
+      "additionalProperties": false,
+      "properties": {
+        "pass": { "type": "string", "default": "Passed" },
+        "fail": { "type": "string", "default": "Failed" },
+        "skip": { "type": "string", "default": "Skipped" },
+        "flaky": { "type": "string", "default": "Flaky" }
+      }
+    },
+    "suites": {
+      "type": "array",
+      "description": "The suite tree as a flat node list with optional parentId references (a suite with no parentId is a root). The renderer builds the collapsible tree; pass/fail/skip/flaky roll-ups per suite are COMPUTED from the cases that belong to the suite and all its descendant suites — do not store counts here. There is also an implicit 'All' root the tree offers above the explicit roots.",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "name"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "description": "Stable suite identifier referenced by cases[].suiteId and by child suites' parentId, e.g. 'api'." },
+          "name": { "type": "string", "description": "Display name of the suite / subsuite, e.g. 'API' or 'Auth endpoints'." },
+          "parentId": { "type": "string", "description": "Optional id of the parent suite; omit / null for a root suite. Must reference an existing suite id." }
+        }
+      }
+    },
+    "cases": {
+      "type": "array",
+      "description": "Every test case across all suites. Each case belongs to exactly one suite (suiteId) and carries a per-run results map plus a recent run-history sparkline. Suite roll-ups, the donut and pass-rate are derived from cases[].results[activeRunId].",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "suiteId", "name", "results"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "description": "Stable case identifier, e.g. 'tc-auth-001'." },
+          "suiteId": { "type": "string", "description": "id of the owning suite (must reference an existing suite). The case rolls up into that suite and its ancestors." },
+          "name": { "type": "string", "description": "Human-readable case title, e.g. 'rejects expired access token'." },
+          "owner": { "type": "string", "description": "Optional owner / author handle, e.g. '@a.lee' or a team name." },
+          "tags": {
+            "type": "array",
+            "description": "Optional free-form labels rendered as mono chips (e.g. 'smoke', 'p0', 'auth', 'slow'). Brand-neutral.",
+            "items": { "type": "string" }
+          },
+          "history": {
+            "type": "array",
+            "description": "Recent outcomes of THIS case across the last N runs (oldest → newest), rendered as the tiny last-N-runs sparkline of ok/risk/neutral squares. Independent of the runs[] array so a long tail can be shown compactly. Use only pass/fail/skip here (flaky collapses to its dominant outcome in history).",
+            "items": { "type": "string", "enum": ["pass", "fail", "skip"] }
+          },
+          "results": {
+            "type": "object",
+            "description": "Per-run outcome for this case, keyed by run.id. Every run.id in runs[] SHOULD have an entry; a missing entry renders as 'skip' (not executed in that run). At minimum the activeRunId must be present.",
+            "minProperties": 1,
+            "additionalProperties": {
+              "type": "object",
+              "description": "This case's outcome in one specific run.",
+              "required": ["status"],
+              "additionalProperties": false,
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "description": "Outcome of the case in this run. pass=--ok, fail=--risk, skip=neutral/--ink-faint, flaky=--hold (passed on retry).",
+                  "enum": ["pass", "fail", "skip", "flaky"]
+                },
+                "durationMs": { "type": "integer", "description": "Wall-clock duration of this case in this run, in milliseconds. 0 / omitted for skipped cases.", "minimum": 0 },
+                "retries": { "type": "integer", "description": "Optional retry count in this run; > 0 typically accompanies a 'flaky' status.", "minimum": 0 },
+                "failure": {
+                  "type": "object",
+                  "description": "Failure drill-down for this run's result; present when status is 'fail' or 'flaky'. Rendered in the expandable failure-detail panel under the case row.",
+                  "required": ["message"],
+                  "additionalProperties": false,
+                  "properties": {
+                    "message": { "type": "string", "description": "Short human-readable failure / assertion message shown at the top of the detail panel." },
+                    "stack": { "type": "string", "description": "Optional raw stack trace / log excerpt, rendered verbatim in a dark mono block. Newlines preserved." },
+                    "steps": {
+                      "type": "array",
+                      "description": "Optional ordered step list with a per-step status, showing where in the scenario the case stopped.",
+                      "items": {
+                        "type": "object",
+                        "required": ["name", "status"],
+                        "additionalProperties": false,
+                        "properties": {
+                          "name": { "type": "string", "description": "Step description, e.g. 'POST /v1/transfers with expired token'." },
+                          "status": { "type": "string", "description": "Per-step outcome. pass=--ok, fail=--risk, skip=neutral.", "enum": ["pass", "fail", "skip"] },
+                          "durationMs": { "type": "integer", "description": "Optional per-step duration in milliseconds.", "minimum": 0 }
+                        }
+                      }
+                    },
+                    "attachments": {
+                      "type": "array",
+                      "description": "Attachment REFERENCES only — names / labels of artefacts (screenshots, logs, HARs). NO external URLs or files are loaded; these render as inert mono chips.",
+                      "items": {
+                        "type": "object",
+                        "required": ["name"],
+                        "additionalProperties": false,
+                        "properties": {
+                          "name": { "type": "string", "description": "Artefact file name or label, e.g. 'response.json' or 'screenshot-final.png'." },
+                          "kind": { "type": "string", "description": "Optional artefact kind for the icon hint.", "enum": ["log", "image", "trace", "data", "video", "other"] }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "meta": {
+        "org": "{{ORG}}",
+        "project": "{{PROJECT}}",
+        "reportType": "Test execution",
+        "title": "Test Execution Report",
+        "subtitle": "payments-platform · CI regression suite",
+        "date": "2026-06-22",
+        "author": "{{AUTHOR}}",
+        "theme": "green"
+      },
+      "runs": [
+        { "id": "run-1042", "label": "Run #1042", "env": "CI · staging", "branch": "release/4.18", "trigger": "merge-queue", "startedAt": "2026-06-22T08:31:04Z", "finishedAt": "2026-06-22T08:43:58Z", "durationMs": 774000 },
+        { "id": "run-1041", "label": "Run #1041", "env": "CI · staging", "branch": "main@9f3a1c2", "trigger": "nightly", "startedAt": "2026-06-21T23:02:11Z", "finishedAt": "2026-06-21T23:14:40Z", "durationMs": 749000 }
+      ],
+      "activeRunId": "run-1042",
+      "suites": [
+        { "id": "api", "name": "API" },
+        { "id": "api-auth", "name": "Auth endpoints", "parentId": "api" },
+        { "id": "e2e", "name": "E2E" }
+      ],
+      "cases": [
+        {
+          "id": "tc-auth-001", "suiteId": "api-auth", "name": "rejects expired access token", "owner": "@a.lee", "tags": ["smoke", "p0", "auth"],
+          "history": ["pass", "pass", "fail", "pass", "pass", "pass"],
+          "results": {
+            "run-1042": { "status": "pass", "durationMs": 184 },
+            "run-1041": { "status": "fail", "durationMs": 203, "failure": { "message": "expected 401 but got 200", "stack": "AssertionError: expected 401 but got 200\n    at auth.spec.ts:64:18", "steps": [ { "name": "POST /v1/session with expired token", "status": "pass" }, { "name": "assert response.status === 401", "status": "fail" } ], "attachments": [ { "name": "response.json", "kind": "data" } ] } }
+          }
+        },
+        {
+          "id": "tc-e2e-014", "suiteId": "e2e", "name": "user completes a transfer end to end", "owner": "@m.tan", "tags": ["e2e", "p1", "slow"],
+          "history": ["fail", "fail", "pass", "fail", "fail"],
+          "results": {
+            "run-1042": { "status": "fail", "durationMs": 9120, "failure": { "message": "Timed out waiting for selector '[data-test=receipt]'", "stack": "TimeoutError: waiting for selector `[data-test=receipt]` failed: 8000ms exceeded\n    at transfer.e2e.ts:142:22", "steps": [ { "name": "log in as test user", "status": "pass" }, { "name": "submit transfer form", "status": "pass" }, { "name": "await receipt screen", "status": "fail" } ], "attachments": [ { "name": "screenshot-final.png", "kind": "image" }, { "name": "trace.zip", "kind": "trace" } ] } },
+            "run-1041": { "status": "fail", "durationMs": 9050, "failure": { "message": "Timed out waiting for selector '[data-test=receipt]'" } }
+          }
+        }
+      ]
+    }
+  ]
+}

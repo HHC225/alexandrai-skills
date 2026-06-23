@@ -1,0 +1,177 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://genesis.example/schemas/financial-statement.schema.json",
+  "title": "Financial statement report",
+  "description": "Data contract for the financial-statement format: a formal, ruled, hierarchical accounting statement (P&L / balance sheet / cash flow / ledger) rendered as a centred print-grade sheet with a statement masthead, ruled line-item rows (indented hierarchy, subtotal/total rules), right-aligned tabular-number period columns, and a variance column. The sample's #report-data is a valid instance of this schema and is the canonical example.",
+  "type": "object",
+  "required": ["meta", "statementType", "currency", "periods", "lines"],
+  "additionalProperties": false,
+  "properties": {
+    "meta": {
+      "type": "object",
+      "description": "Shared report metadata block (identical across all formats). Brand-neutral: keep {{ORG}}/{{PROJECT}} placeholders unless real values are supplied.",
+      "required": ["org", "project", "reportType", "title", "date", "theme"],
+      "additionalProperties": false,
+      "properties": {
+        "org": { "type": "string", "description": "Reporting entity / organisation. Use the literal placeholder \"{{ORG}}\" when brand-neutral.", "examples": ["{{ORG}}"] },
+        "project": { "type": "string", "description": "Project or reporting unit. Use \"{{PROJECT}}\" when brand-neutral.", "examples": ["{{PROJECT}}"] },
+        "reportType": { "type": "string", "description": "Machine label for the deliverable kind.", "examples": ["financial-statement"] },
+        "title": { "type": "string", "description": "Statement title shown as the largest type on the page (the .fs-title).", "examples": ["Consolidated Statement of Profit or Loss"] },
+        "subtitle": { "type": "string", "description": "Optional one-line standfirst under the title." },
+        "date": { "type": "string", "description": "Issue / generation date (ISO yyyy-mm-dd). Rendered in footer + signoff.", "examples": ["2026-06-22"] },
+        "author": { "type": "string", "description": "Preparer / author. Use \"{{AUTHOR}}\" when brand-neutral.", "examples": ["{{AUTHOR}}"] },
+        "theme": {
+          "type": "string",
+          "description": "Initial brand theme applied as <html data-theme>. Default for this format is \"blue\".",
+          "enum": ["blue", "purple", "indigo", "teal", "cyan", "green", "plum", "slate"],
+          "default": "blue"
+        }
+      }
+    },
+    "statementType": {
+      "type": "string",
+      "description": "Which standard accounting statement this is. Drives title vocabulary and the common-size base (revenue for pl; total assets for balance; net cash for cashflow).",
+      "enum": ["pl", "balance", "cashflow"]
+    },
+    "currency": {
+      "type": "object",
+      "description": "Currency, unit, basis of preparation, and statement status shown in the masthead caption row.",
+      "required": ["code", "symbol", "unit", "status"],
+      "additionalProperties": false,
+      "properties": {
+        "code": { "type": "string", "description": "ISO currency code.", "examples": ["USD", "JPY", "EUR"] },
+        "symbol": { "type": "string", "description": "Display symbol prefixed to figures.", "examples": ["$", "¥", "€"] },
+        "unit": { "type": "string", "description": "Scale the figures are expressed in (shown as \"Figures in …\").", "examples": ["thousands", "millions", "units"] },
+        "basis": { "type": "string", "description": "Basis of preparation note for the caption.", "examples": ["Accrual basis · IFRS", "Cash basis", "US GAAP"] },
+        "status": {
+          "type": "string",
+          "description": "Statement status badge: draft -> hold colour; final/audited -> ok colour.",
+          "enum": ["draft", "final", "audited"]
+        }
+      }
+    },
+    "periods": {
+      "type": "array",
+      "description": "Ordered reporting-period columns (newest first by convention). Each becomes a right-aligned tabular-number column with a per-period show/hide toggle.",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["key", "label"],
+        "additionalProperties": false,
+        "properties": {
+          "key": { "type": "string", "description": "Stable period key referenced by every line's values map and by variance.", "examples": ["fy26", "fy25", "fy24"] },
+          "label": { "type": "string", "description": "Column header label.", "examples": ["FY2026", "FY2025", "FY2024"] }
+        }
+      }
+    },
+    "lines": {
+      "type": "array",
+      "description": "The statement rows, in display order. Sections, line items, subtotals, and totals together form the ruled ledger; the renderer applies ruling and indentation from kind/level.",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "label", "level", "kind"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "description": "Unique row id (used for parent links, the common-size base, and note anchors).", "examples": ["rev", "rev_subscriptions", "gross_profit", "net_income"] },
+          "label": { "type": "string", "description": "Account / line description shown in the sticky first column.", "examples": ["Subscription revenue", "Gross profit", "Net income"] },
+          "level": { "type": "integer", "description": "Indent depth 0..n; drives left padding of the label. Headers are usually level 0; nested items 1..n.", "minimum": 0, "maximum": 6 },
+          "kind": {
+            "type": "string",
+            "description": "Row role controlling ruling and behaviour: header = section band (no figures, collapses its group); item = ordinary line item; subtotal = rule above + semibold; total = heavy rule above and double underline below.",
+            "enum": ["item", "subtotal", "total", "header"]
+          },
+          "values": {
+            "type": "object",
+            "description": "Period-keyed figures: { periodKey -> number }. Negative numbers are costs/outflows; the renderer can parenthesise + colour them. Omit for header rows.",
+            "additionalProperties": { "type": "number" },
+            "examples": [{ "fy26": 48210, "fy25": 41880, "fy24": 35120 }]
+          },
+          "parent": { "type": "string", "description": "Optional id of the section-header row this line belongs to; lets that header collapse its children while keeping the subtotal visible." },
+          "note": { "type": "string", "description": "Optional footnote id (matches a footnotes[].id); rendered as a superscript marker on the label." },
+          "emphasis": { "type": "boolean", "description": "If true, render the row bold even when it is an ordinary item (e.g. a headline KPI line)." }
+        }
+      }
+    },
+    "variance": {
+      "type": "object",
+      "description": "Optional variance column comparing two periods. The column can be toggled on/off and switched between absolute and percentage.",
+      "required": ["basePeriod", "comparePeriod"],
+      "additionalProperties": false,
+      "properties": {
+        "basePeriod": { "type": "string", "description": "Period key used as the baseline (the 'from' period).", "examples": ["fy25"] },
+        "comparePeriod": { "type": "string", "description": "Period key compared against the baseline (the 'to' period); variance = compare - base.", "examples": ["fy26"] },
+        "defaultMode": { "type": "string", "description": "Initial variance display mode.", "enum": ["abs", "pct"], "default": "abs" },
+        "show": { "type": "boolean", "description": "Whether the variance column is visible initially.", "default": true }
+      }
+    },
+    "commonSize": {
+      "type": "object",
+      "description": "Optional common-size configuration: the base line every figure is divided by when the common-size toggle is on (e.g. total revenue for a P&L, total assets for a balance sheet).",
+      "required": ["baseLineId"],
+      "additionalProperties": false,
+      "properties": {
+        "baseLineId": { "type": "string", "description": "id of the line used as the 100% base.", "examples": ["rev_total"] },
+        "label": { "type": "string", "description": "Human label for the base (shown in the common-size control).", "examples": ["% of total revenue"] }
+      }
+    },
+    "footnotes": {
+      "type": "array",
+      "description": "Optional numbered notes referenced by line items via lines[].note.",
+      "items": {
+        "type": "object",
+        "required": ["id", "text"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "description": "Note id referenced by a line's note field.", "examples": ["n1", "n2"] },
+          "text": { "type": "string", "description": "Note body." }
+        }
+      }
+    },
+    "signoff": {
+      "type": "object",
+      "description": "Optional sign-off block giving the signed-document feel (Prepared by / Reviewed by / Date).",
+      "additionalProperties": false,
+      "properties": {
+        "preparedBy": { "type": "string", "examples": ["{{AUTHOR}}"] },
+        "reviewedBy": { "type": "string", "examples": ["Group Controller"] },
+        "note": { "type": "string", "description": "Optional closing note, e.g. 'Subject to audit.'" }
+      }
+    }
+  },
+  "examples": [
+    {
+      "meta": {
+        "org": "{{ORG}}",
+        "project": "{{PROJECT}}",
+        "reportType": "financial-statement",
+        "title": "Consolidated Statement of Profit or Loss",
+        "subtitle": "For the financial years ended 31 March",
+        "date": "2026-06-22",
+        "author": "{{AUTHOR}}",
+        "theme": "blue"
+      },
+      "statementType": "pl",
+      "currency": { "code": "USD", "symbol": "$", "unit": "thousands", "basis": "Accrual basis · IFRS", "status": "draft" },
+      "periods": [
+        { "key": "fy26", "label": "FY2026" },
+        { "key": "fy25", "label": "FY2025" },
+        { "key": "fy24", "label": "FY2024" }
+      ],
+      "variance": { "basePeriod": "fy25", "comparePeriod": "fy26", "defaultMode": "abs", "show": true },
+      "commonSize": { "baseLineId": "rev_total", "label": "% of total revenue" },
+      "lines": [
+        { "id": "rev", "label": "Revenue", "level": 0, "kind": "header" },
+        { "id": "rev_sub", "label": "Subscription services", "level": 1, "kind": "item", "parent": "rev", "values": { "fy26": 48210, "fy25": 41880, "fy24": 35120 }, "note": "n1" },
+        { "id": "rev_txn", "label": "Transaction & interchange fees", "level": 1, "kind": "item", "parent": "rev", "values": { "fy26": 19640, "fy25": 17420, "fy24": 15030 } },
+        { "id": "rev_total", "label": "Total revenue", "level": 0, "kind": "subtotal", "values": { "fy26": 67850, "fy25": 59300, "fy24": 50150 } },
+        { "id": "gross_profit", "label": "Gross profit", "level": 0, "kind": "subtotal", "values": { "fy26": 44680, "fy25": 38120, "fy24": 31460 } },
+        { "id": "net_income", "label": "Net income", "level": 0, "kind": "total", "emphasis": true, "values": { "fy26": 12940, "fy25": 9760, "fy24": 6480 } }
+      ],
+      "footnotes": [
+        { "id": "n1", "text": "Subscription revenue is recognised rateably over the contract term (ASC 606 / IFRS 15)." }
+      ],
+      "signoff": { "preparedBy": "{{AUTHOR}}", "reviewedBy": "Group Controller", "note": "Draft — subject to audit." }
+    }
+  ]
+}

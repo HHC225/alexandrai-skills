@@ -1,0 +1,126 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://html-report-design/schemas/bracket.schema.json",
+  "title": "Tournament bracket report",
+  "description": "Data contract for the bracket format: a knockout / single-or-double-elimination tournament laid out as rounds in columns converging left-to-right to a single champion. Each match is a card holding two competitor rows (seed, name, score) with the winner row highlighted and the loser dimmed; SVG connector elbows link each match's winner to its next-round match. The renderer reads exactly these fields, lays out the rounds, computes connector geometry at render time (never from the data), and wires match-click → detail panel, highlight-a-competitor's-path, pick-a-winner → live advance, pan/zoom, and a round filter. The champion is COMPUTED from the final match's winner — it is not a data field. The sample's #report-data is the canonical instance of this schema.",
+  "type": "object",
+  "required": ["meta", "format", "rounds", "matches"],
+  "additionalProperties": false,
+  "properties": {
+    "meta": {
+      "type": "object",
+      "description": "Shared report chrome metadata (brand-neutral). org/project stay as {{…}} placeholders unless real values are supplied.",
+      "required": ["org", "project", "reportType", "title", "theme"],
+      "additionalProperties": false,
+      "properties": {
+        "org": { "type": "string", "description": "Owning organisation. Keep the literal placeholder {{ORG}} when brand-neutral.", "examples": ["{{ORG}}"] },
+        "project": { "type": "string", "description": "Project / programme name. Keep the literal placeholder {{PROJECT}} when brand-neutral.", "examples": ["{{PROJECT}}"] },
+        "reportType": { "type": "string", "description": "Short label for the kind of knockout (e.g. 'Vendor Bake-off', 'Design Competition', 'Hackathon', 'Cup').", "examples": ["Vendor Bake-off"] },
+        "title": { "type": "string", "description": "Title shown in the toolbar.", "examples": ["Core-Platform Vendor Cup 2026"] },
+        "subtitle": { "type": "string", "description": "Optional one-line standfirst / scope note shown beside the title.", "examples": ["16 vendors · single elimination · scored 0–100"] },
+        "date": { "type": "string", "description": "As-of date (ISO yyyy-mm-dd or display string).", "examples": ["2026-06-22"] },
+        "author": { "type": "string", "description": "Preparer. Keep the literal placeholder {{AUTHOR}} when brand-neutral.", "examples": ["{{AUTHOR}}"] },
+        "theme": { "type": "string", "description": "Initial brand theme; sets <html data-theme>. Default for this format is plum.", "enum": ["blue", "purple", "indigo", "teal", "cyan", "green", "plum", "slate", "black"], "default": "plum" }
+      }
+    },
+    "format": {
+      "type": "string",
+      "description": "Elimination format. 'single' (default) = one bracket, one loss eliminates. 'double' = an upper (winners) bracket plus a lower (consolation / losers) bracket whose matches carry bracket:'lower'; the renderer lays the lower bracket as a second band below the upper bracket. The sample is single-elim, but the schema and renderer must not break for double.",
+      "enum": ["single", "double"],
+      "default": "single"
+    },
+    "scoreUnit": {
+      "type": "string",
+      "description": "Optional short label describing what a match score means (shown in the detail panel and tooltips), e.g. 'pts', 'goals', 'votes'. Purely cosmetic.",
+      "examples": ["pts"]
+    },
+    "rounds": {
+      "type": "array",
+      "description": "The knockout rounds, ordered from the first round (lowest order, left-most column) to the final (highest order, right-most column). For a 16-competitor single-elim bracket this is Round of 16 → Quarterfinals → Semifinals → Final. Each round becomes one column of match cards.",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "order"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "description": "Stable unique round id, referenced by matches[].roundId.", "examples": ["r16", "qf", "sf", "final"] },
+          "name": { "type": "string", "description": "Display name of the round (column header).", "examples": ["Round of 16", "Quarterfinals", "Semifinals", "Final"] },
+          "order": { "type": "integer", "description": "Left-to-right column position; 0 = first round (left-most), increasing toward the final (right-most). Determines column order regardless of array order.", "examples": [0, 1, 2, 3] },
+          "bracket": { "type": "string", "description": "Which bracket band this round belongs to in a double-elim layout. Omit or 'upper' for single-elim and the winners bracket; 'lower' places the round in the consolation band beneath.", "enum": ["upper", "lower"], "default": "upper" }
+        }
+      }
+    },
+    "matches": {
+      "type": "array",
+      "description": "Every match in the tournament. Each match belongs to a round (roundId) and holds two competitor sides a and b. A match's winner advances along feedsInto to its next-round match; the renderer draws a connector elbow from the winner side to that next match. The single match in the final round determines the champion (no separate champion field). 'scheduled' matches (no winner yet) expose a pick-a-winner control that advances a side LIVE; reset restores the data.",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "roundId", "slot", "a", "b", "status"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "description": "Stable unique match id (DOM key; target of other matches' feedsInto).", "examples": ["m-r16-1", "m-final"] },
+          "roundId": { "type": "string", "description": "The id of the round (column) this match sits in.", "examples": ["r16"] },
+          "slot": { "type": "integer", "description": "Vertical position of this match within its round column, 0-based top-to-bottom. Drives vertical placement so that each pair of matches converges into one match in the next round (next-round slot = floor(slot/2)). Connector geometry is computed from layout, never from pixels in the data.", "examples": [0, 1, 2, 3] },
+          "a": { "$ref": "#/$defs/side", "description": "The top competitor row of the match card." },
+          "b": { "$ref": "#/$defs/side", "description": "The bottom competitor row of the match card." },
+          "winner": { "type": "string", "description": "Which side won ('a' or 'b'). Required when status is 'done'; omit for 'live'/'scheduled'. The winning row is highlighted with the accent; the losing row is dimmed.", "enum": ["a", "b"] },
+          "status": { "type": "string", "description": "Match state. 'done' = decided (winner set, scores final). 'live' = in progress (scores may be partial, no winner yet). 'scheduled' = not started (no scores/winner; gets a pick-a-winner control to advance a side live).", "enum": ["done", "live", "scheduled"] },
+          "feedsInto": { "type": "string", "description": "The id of the next-round match this match's winner advances into. Omit for the final (its winner is the champion). The renderer draws the connector elbow to this match and, when a winner is picked, seeds that next match's a or b side (by slot parity) with the advancing competitor.", "examples": ["m-qf-1"] },
+          "time": { "type": "string", "description": "Optional scheduled / played date-time shown in the detail panel.", "examples": ["2026-06-18 14:00"] },
+          "venue": { "type": "string", "description": "Optional venue / stage / track label shown in the detail panel.", "examples": ["Stage A — Evaluation Lab"] },
+          "note": { "type": "string", "description": "Optional short note about the match (decision rationale, headline) for the detail panel.", "examples": ["Won on TCO and security score; latency tie broken by p99."] }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "side": {
+      "type": "object",
+      "description": "One competitor entry on a side of a match. A side may be 'empty' (no name yet) when it is fed by an undecided earlier match — the renderer shows a placeholder until a winner is picked upstream.",
+      "additionalProperties": false,
+      "properties": {
+        "seed": { "type": "integer", "description": "The competitor's seeding number (1 = top seed). Shown as a small mono seed chip. Omit for placeholder/empty sides.", "minimum": 1, "examples": [1, 16] },
+        "name": { "type": "string", "description": "Competitor / team / option name. Omit (or empty) for a side still awaiting an upstream winner.", "examples": ["Nimbus Core", "Atlas Ledger"] },
+        "score": { "type": "number", "description": "This side's score in the match. Present for 'done' (final) and may be present for 'live' (partial); omit for 'scheduled'.", "examples": [87, 72] },
+        "detail": { "type": "string", "description": "Optional one-line descriptor (region, stack, group) shown in the detail panel and the highlight path.", "examples": ["Group A · cloud-native"] }
+      }
+    }
+  },
+  "examples": [
+    {
+      "meta": {
+        "org": "{{ORG}}",
+        "project": "{{PROJECT}}",
+        "reportType": "Vendor Bake-off",
+        "title": "Core-Platform Vendor Cup 2026",
+        "subtitle": "16 vendors · single elimination · scored 0–100",
+        "date": "2026-06-22",
+        "author": "{{AUTHOR}}",
+        "theme": "plum"
+      },
+      "format": "single",
+      "scoreUnit": "pts",
+      "rounds": [
+        { "id": "r16", "name": "Round of 16", "order": 0 },
+        { "id": "qf", "name": "Quarterfinals", "order": 1 },
+        { "id": "sf", "name": "Semifinals", "order": 2 },
+        { "id": "final", "name": "Final", "order": 3 }
+      ],
+      "matches": [
+        { "id": "m-r16-1", "roundId": "r16", "slot": 0, "status": "done", "winner": "a", "feedsInto": "m-qf-1",
+          "a": { "seed": 1, "name": "Nimbus Core", "score": 87, "detail": "cloud-native ledger" },
+          "b": { "seed": 16, "name": "Beacon Stack", "score": 54, "detail": "monolith-first" },
+          "time": "2026-06-16 09:00", "venue": "Stage A — Evaluation Lab", "note": "Top seed cruised on TCO and security." },
+        { "id": "m-qf-1", "roundId": "qf", "slot": 0, "status": "scheduled", "feedsInto": "m-sf-1",
+          "a": { "seed": 1, "name": "Nimbus Core", "detail": "cloud-native ledger" },
+          "b": {},
+          "time": "2026-06-19 09:00", "venue": "Stage A — Evaluation Lab" },
+        { "id": "m-sf-1", "roundId": "sf", "slot": 0, "status": "scheduled", "feedsInto": "m-final",
+          "a": {}, "b": {}, "time": "2026-06-21 10:00", "venue": "Main Hall" },
+        { "id": "m-final", "roundId": "final", "slot": 0, "status": "scheduled",
+          "a": {}, "b": {}, "time": "2026-06-22 15:00", "venue": "Main Hall — Final" }
+      ]
+    }
+  ]
+}

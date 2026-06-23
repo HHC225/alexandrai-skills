@@ -1,0 +1,329 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://genesis.local/html_report_design/schemas/data-register.schema.json",
+  "title": "Data register report",
+  "description": "Data contract for the data-register format: a full-bleed enterprise data-grid application for catalogues built for lookup, filter, sort, and drill-down. Structure: a sticky app bar with result count, a sticky toolbar (search, status chips, column-toggle, sort), an optional left facet rail, and one dense sortable/filterable grid table whose rows open into key/value detail drawers. Prose is near-zero. Default theme: Slate. The sample's DATA array is a valid set of row instances of this schema.",
+  "type": "object",
+  "required": ["meta", "columns", "rows"],
+  "additionalProperties": false,
+  "properties": {
+    "meta": {
+      "type": "object",
+      "description": "Shared report chrome (org / project / title / theme). Brand-neutral: keep {{ORG}} / {{PROJECT}} / {{AUTHOR}} placeholders unless real values are supplied.",
+      "required": ["org", "project", "reportType", "title", "date", "theme"],
+      "additionalProperties": false,
+      "properties": {
+        "org": { "type": "string", "description": "Organisation name or {{ORG}} placeholder.", "default": "{{ORG}}" },
+        "project": { "type": "string", "description": "Project / programme name or {{PROJECT}} placeholder.", "default": "{{PROJECT}}" },
+        "reportType": { "type": "string", "description": "Register type label shown in the app bar, e.g. 'Third-party risk register', 'Requirements inventory', or {{REPORT_TYPE}}." },
+        "title": { "type": "string", "description": "Register title displayed in the app bar, e.g. 'Vendor risk & control register'." },
+        "subtitle": { "type": "string", "description": "Optional one-line context note shown in the app bar or toolbar." },
+        "date": { "type": "string", "description": "ISO date the register was generated or last refreshed (YYYY-MM-DD).", "format": "date" },
+        "author": { "type": "string", "description": "Author / owning team or {{AUTHOR}} placeholder.", "default": "{{AUTHOR}}" },
+        "theme": {
+          "type": "string",
+          "description": "Initial brand theme; applied as <html data-theme>. Data-register default is 'slate'.",
+          "enum": ["blue", "purple", "indigo", "teal", "cyan", "green", "plum", "slate", "black"],
+          "default": "slate"
+        }
+      }
+    },
+    "columns": {
+      "type": "array",
+      "description": "Column definitions for the grid table header. Render order is left-to-right. The leading disclosure column is always injected automatically; do not include it here.",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["key", "label", "type"],
+        "additionalProperties": false,
+        "properties": {
+          "key": { "type": "string", "description": "Stable unique field key that corresponds to the matching property in every row object." },
+          "label": { "type": "string", "description": "Column header label shown in the <thead> (mono uppercase)." },
+          "type": {
+            "type": "string",
+            "description": "Data type used for sort and alignment. 'text' = string sort, left-align; 'num' = numeric sort, right-align (tnum mono); 'date' = ISO date sort, left-align; 'status' = rendered as st-badge (ok/risk/hold), string sort.",
+            "enum": ["text", "num", "date", "status"]
+          },
+          "sortable": { "type": "boolean", "description": "If true (default), this column is click-sortable with an asc/desc caret.", "default": true },
+          "hidden": { "type": "boolean", "description": "If true, column is hidden on initial load (user can show it via the column-toggle menu).", "default": false },
+          "width": { "type": "string", "description": "Optional CSS min-width hint for the column, e.g. '120px', '200px'. Renderer may ignore if the table needs to flex." }
+        }
+      }
+    },
+    "facets": {
+      "type": "array",
+      "description": "Optional left facet rail groups. Each facet group provides checkbox filters that narrow the visible rows. The renderer derives option counts from the rows automatically; the options listed here supply the display labels and canonical values.",
+      "items": {
+        "type": "object",
+        "required": ["key", "label", "options"],
+        "additionalProperties": false,
+        "properties": {
+          "key": { "type": "string", "description": "Row field key this facet filters on (must match a column key or a row field)." },
+          "label": { "type": "string", "description": "Facet group heading, e.g. 'Domain', 'Criticality tier', 'Control owner'." },
+          "options": {
+            "type": "array",
+            "description": "Available facet option values (display label + canonical value).",
+            "items": {
+              "type": "object",
+              "required": ["value"],
+              "additionalProperties": false,
+              "properties": {
+                "value": { "type": "string", "description": "Canonical value that must match the row field exactly for this facet to apply." },
+                "label": { "type": "string", "description": "Optional display label shown in the facet list. Defaults to value if omitted." }
+              }
+            }
+          }
+        }
+      }
+    },
+    "rows": {
+      "type": "array",
+      "description": "The register records. Each row object must contain a value for every column key defined in `columns`. It also carries `status` (for the status column and chip filter) and optionally a `detail` object that populates the drill-down drawer.",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "status"],
+        "additionalProperties": true,
+        "properties": {
+          "id": { "type": "string", "description": "Stable unique row identifier displayed in the leading reference column (e.g. 'VR-001', 'REQ-042')." },
+          "status": {
+            "type": "string",
+            "description": "Semantic health / completion state of this record. Drives the st-badge colouring and the status-chip filter.",
+            "enum": ["ok", "hold", "risk"]
+          },
+          "detail": {
+            "type": "object",
+            "description": "Optional drill-down drawer content shown when the disclosure toggle opens the row. Contains a key/value grid plus reference chip links.",
+            "additionalProperties": false,
+            "properties": {
+              "heading": { "type": "string", "description": "Optional bold heading line inside the drawer (e.g. vendor + control name)." },
+              "notes": {
+                "type": "array",
+                "description": "Short prose notes rendered in the drawer (e.g. Finding, Required action). Each note has a lead label and body text.",
+                "items": {
+                  "type": "object",
+                  "required": ["lead", "text"],
+                  "additionalProperties": false,
+                  "properties": {
+                    "lead": { "type": "string", "description": "Bold lead label, e.g. 'Finding', 'Required action'." },
+                    "text": { "type": "string", "description": "Note body text (1–3 sentences)." }
+                  }
+                }
+              },
+              "kv": {
+                "type": "array",
+                "description": "Key/value pairs rendered as a compact grid in the drawer, e.g. {k:'Service', v:'Primary IaaS hosting'}.",
+                "items": {
+                  "type": "object",
+                  "required": ["k", "v"],
+                  "additionalProperties": false,
+                  "properties": {
+                    "k": { "type": "string", "description": "Field label." },
+                    "v": { "type": "string", "description": "Field value." }
+                  }
+                }
+              },
+              "refs": {
+                "type": "array",
+                "description": "Reference chip links rendered in the drawer footer (e.g. contract refs, audit refs, compliance certs). Each chip has a label and an optional icon category.",
+                "items": {
+                  "type": "object",
+                  "required": ["label"],
+                  "additionalProperties": false,
+                  "properties": {
+                    "label": { "type": "string", "description": "Ref chip display text, e.g. 'MSA-2241', 'RA-CLD-07'." },
+                    "icon": {
+                      "type": "string",
+                      "description": "Optional icon category key for the chip. Data-register-relevant categories: 'data' (catalogue, table), 'status' (shield, check), 'nav' (link, external), 'legal-governance' (document, audit, contract).",
+                      "enum": ["data", "status", "nav", "legal-governance"]
+                    },
+                    "href": { "type": "string", "description": "Optional URL; if present the chip renders as a link." }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "meta": {
+        "org": "{{ORG}}",
+        "project": "{{PROJECT}}",
+        "reportType": "Third-party risk register",
+        "title": "Vendor risk & control register",
+        "subtitle": "Q2 2026 assessment — 24 vendor relationships",
+        "date": "2026-06-22",
+        "author": "{{AUTHOR}}",
+        "theme": "slate"
+      },
+      "columns": [
+        { "key": "id",       "label": "Ref",            "type": "text",   "sortable": true,  "width": "90px" },
+        { "key": "status",   "label": "Status",         "type": "status", "sortable": true,  "width": "110px" },
+        { "key": "ctrl",     "label": "Vendor & control","type": "text",  "sortable": true,  "width": "260px" },
+        { "key": "dom",      "label": "Domain",         "type": "text",   "sortable": true,  "width": "140px" },
+        { "key": "lhd",      "label": "Lhd",            "type": "num",    "sortable": true,  "width": "60px" },
+        { "key": "imp",      "label": "Imp",            "type": "num",    "sortable": true,  "width": "60px" },
+        { "key": "score",    "label": "Score",          "type": "num",    "sortable": true,  "width": "70px" },
+        { "key": "owner",    "label": "Owner",          "type": "text",   "sortable": true,  "width": "110px" },
+        { "key": "rev",      "label": "Review",         "type": "date",   "sortable": true,  "width": "100px" }
+      ],
+      "facets": [
+        {
+          "key": "dom",
+          "label": "Domain",
+          "options": [
+            { "value": "Cloud",    "label": "Cloud / IaaS" },
+            { "value": "Data",     "label": "Data / Analytics" },
+            { "value": "Payments", "label": "Payments" },
+            { "value": "Identity", "label": "Identity / Access" },
+            { "value": "Comms",    "label": "Comms / Messaging" },
+            { "value": "BizApp",   "label": "Business apps" }
+          ]
+        },
+        {
+          "key": "tier",
+          "label": "Criticality tier",
+          "options": [
+            { "value": "Tier 1", "label": "Tier 1 — Critical" },
+            { "value": "Tier 2", "label": "Tier 2 — Important" },
+            { "value": "Tier 3", "label": "Tier 3 — Standard" }
+          ]
+        },
+        {
+          "key": "owner",
+          "label": "Control owner",
+          "options": [
+            { "value": "A. Reyes" },
+            { "value": "M. Tan" },
+            { "value": "K. Owusu" },
+            { "value": "J. Becker" }
+          ]
+        }
+      ],
+      "rows": [
+        {
+          "id": "VR-001",
+          "status": "risk",
+          "ctrl": "Northwind Cloud — Data residency & encryption attestation",
+          "dom": "Cloud",
+          "tier": "Tier 1",
+          "lhd": 4, "imp": 5, "score": 20,
+          "owner": "A. Reyes",
+          "rev": "2026-07-03",
+          "detail": {
+            "heading": "Northwind Cloud — Data residency & encryption attestation",
+            "notes": [
+              { "lead": "Finding",         "text": "Encryption-at-rest attestation lapsed at the sub-processor used for backup storage; the residency clause is not yet reflected in the renewed order form." },
+              { "lead": "Required action", "text": "Obtain refreshed sub-processor attestation and execute the residency addendum before the prod failover test." }
+            ],
+            "kv": [
+              { "k": "Service",      "v": "Primary IaaS hosting (prod region eu-c-1)" },
+              { "k": "Criticality",  "v": "Tier 1" },
+              { "k": "Attestation",  "v": "SOC 2 Type II — exception noted" },
+              { "k": "Contract",     "v": "MSA-2241" },
+              { "k": "Annual spend", "v": "$1.84M / yr" },
+              { "k": "Next review",  "v": "2026-07-03" }
+            ],
+            "refs": [
+              { "label": "MSA-2241",  "icon": "legal-governance" },
+              { "label": "RA-CLD-07", "icon": "legal-governance" },
+              { "label": "NW-SOC2",   "icon": "status" }
+            ]
+          }
+        },
+        {
+          "id": "VR-002",
+          "status": "risk",
+          "ctrl": "Helios Pay — PCI-DSS scope & tokenisation boundary",
+          "dom": "Payments",
+          "tier": "Tier 1",
+          "lhd": 4, "imp": 5, "score": 20,
+          "owner": "M. Tan",
+          "rev": "2026-06-28",
+          "detail": {
+            "heading": "Helios Pay — PCI-DSS scope & tokenisation boundary",
+            "notes": [
+              { "lead": "Finding",         "text": "Tokenisation boundary diagram is out of date after the gateway migration; CDE scope cannot be confirmed for the new settlement path." },
+              { "lead": "Required action", "text": "Re-baseline the CDE data-flow and request an interim AOC covering the migrated settlement endpoint." }
+            ],
+            "kv": [
+              { "k": "Service",      "v": "Card acquiring & tokenisation gateway" },
+              { "k": "Criticality",  "v": "Tier 1" },
+              { "k": "Attestation",  "v": "PCI-DSS AOC — under re-validation" },
+              { "k": "Contract",     "v": "MSA-2188" },
+              { "k": "Annual spend", "v": "$2.10M / yr" },
+              { "k": "Next review",  "v": "2026-06-28" }
+            ],
+            "refs": [
+              { "label": "AOC-2026",  "icon": "legal-governance" },
+              { "label": "RA-PAY-02", "icon": "legal-governance" },
+              { "label": "PCI-SCOPE", "icon": "status" }
+            ]
+          }
+        },
+        {
+          "id": "VR-003",
+          "status": "hold",
+          "ctrl": "Meridian Analytics — Sub-processor disclosure & DPA",
+          "dom": "Data",
+          "tier": "Tier 2",
+          "lhd": 3, "imp": 4, "score": 12,
+          "owner": "K. Owusu",
+          "rev": "2026-08-12",
+          "detail": {
+            "heading": "Meridian Analytics — Sub-processor disclosure & DPA",
+            "notes": [
+              { "lead": "Finding",         "text": "New ML sub-processor added without 30-day notice; DPA Schedule 3 not yet countersigned." },
+              { "lead": "Required action", "text": "Countersign updated DPA schedule and confirm the sub-processor inherits equivalent controls." }
+            ],
+            "kv": [
+              { "k": "Service",      "v": "Customer analytics & segmentation" },
+              { "k": "Criticality",  "v": "Tier 2" },
+              { "k": "Attestation",  "v": "ISO 27001 — valid" },
+              { "k": "Contract",     "v": "MSA-2305" },
+              { "k": "Annual spend", "v": "$640K / yr" },
+              { "k": "Next review",  "v": "2026-08-12" }
+            ],
+            "refs": [
+              { "label": "DPA-2305",  "icon": "legal-governance" },
+              { "label": "RA-DAT-11", "icon": "legal-governance" }
+            ]
+          }
+        },
+        {
+          "id": "VR-004",
+          "status": "ok",
+          "ctrl": "Atlas Identity — SSO / SCIM provisioning review",
+          "dom": "Identity",
+          "tier": "Tier 1",
+          "lhd": 2, "imp": 4, "score": 8,
+          "owner": "J. Becker",
+          "rev": "2026-09-30",
+          "detail": {
+            "heading": "Atlas Identity — SSO / SCIM provisioning review",
+            "notes": [
+              { "lead": "Finding",         "text": "Quarterly access recertification completed; no orphaned admin entitlements detected." },
+              { "lead": "Required action", "text": "No action — residual risk formally accepted by 2nd-Line Risk for the period." }
+            ],
+            "kv": [
+              { "k": "Service",      "v": "Workforce SSO & directory sync" },
+              { "k": "Criticality",  "v": "Tier 1" },
+              { "k": "Attestation",  "v": "SOC 2 Type II — clean" },
+              { "k": "Contract",     "v": "MSA-2099" },
+              { "k": "Annual spend", "v": "$410K / yr" },
+              { "k": "Next review",  "v": "2026-09-30" }
+            ],
+            "refs": [
+              { "label": "RECERT-Q2",  "icon": "legal-governance" },
+              { "label": "RA-IDN-04",  "icon": "legal-governance" },
+              { "label": "ATLAS-SOC2", "icon": "status" }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

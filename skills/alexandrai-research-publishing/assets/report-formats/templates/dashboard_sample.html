@@ -1,0 +1,1346 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="blue">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>{{PROJECT}} · Operations Console — {{ORG}}</title>
+
+<!-- ============================================================
+     DATA-DRIVEN: the ONLY content source. render() builds the DOM
+     from this JSON; it is a valid instance of
+     designs/schemas/dashboard.schema.json. Time-range data lives
+     under data.ranges so the range chips actually re-scope.
+     ============================================================ -->
+<script type="application/json" id="report-data">
+{
+  "meta": {
+    "org": "{{ORG}}",
+    "project": "{{PROJECT}}",
+    "reportType": "Platform Reliability",
+    "title": "Operations Console",
+    "subtitle": "Platform reliability · on-call view",
+    "date": "2026-06-22",
+    "author": "{{AUTHOR}}",
+    "environment": "PROD · ap-northeast-1",
+    "theme": "blue"
+  },
+  "navItems": [
+    { "id": "overview",   "label": "Overview",       "icon": "nav",    "active": true },
+    { "id": "services",   "label": "Services",        "icon": "infra" },
+    { "id": "throughput", "label": "Throughput",      "icon": "data" },
+    { "id": "infra",      "label": "Infrastructure",  "icon": "infra" },
+    { "id": "alerts",     "label": "Alerts",          "icon": "status" },
+    { "id": "incidents",  "label": "Incidents",       "icon": "status" },
+    { "id": "deploys",    "label": "Deploys",         "icon": "data" }
+  ],
+  "kpis": [
+    { "id": "availability", "label": "Availability", "value": "99.982", "unit": "%",    "delta": "+0.014", "trend": "up",   "state": "neutral", "sloLabel": "SLO 99.95", "icon": "status", "spark": [76,80,79,86,84,90,89,94] },
+    { "id": "rps",          "label": "Req / sec",    "value": "18.4",   "unit": "k",     "delta": "+6.2%",  "trend": "up",   "state": "neutral",                          "icon": "data",   "spark": [62,65,64,72,70,78,76,88] },
+    { "id": "latency_p95",  "label": "p95 latency",  "value": "214",    "unit": "ms",    "delta": "+11.3%", "trend": "down", "state": "hold",    "sloLabel": "budget 200", "icon": "time",   "spark": [44,48,46,58,62,66,70,76] },
+    { "id": "error_rate",   "label": "Error rate",   "value": "0.42",   "unit": "%",     "delta": "+0.27",  "trend": "down", "state": "risk",    "sloLabel": "SLO 0.20",   "icon": "status", "spark": [12,18,22,30,42,55,68,84] },
+    { "id": "hosts",        "label": "Hosts up",     "value": "142",    "unit": "/144",  "delta": "2 draining", "trend": "flat","state": "neutral","sloLabel": "3 zones",    "icon": "infra",  "spark": [98,98,97,97,98,98,97,98] },
+    { "id": "deploys",      "label": "Deploys 6h",   "value": "9",                       "delta": "8 ok",   "trend": "up",   "state": "neutral", "sloLabel": "1 rolled back","icon": "data",  "spark": [10,20,30,40,55,70,85,100] }
+  ],
+  "widgets": [
+    {
+      "id": "error-budget", "type": "gauge", "title": "Error budget", "span": 3, "meta": "30d",
+      "data": {
+        "value": 63, "max": 100, "unit": "%", "state": "hold", "label": "63% remaining",
+        "cap": "remaining",
+        "foot": [
+          { "label": "Burn 1h", "value": "1.8×", "state": "neutral" },
+          { "label": "Burn 6h", "value": "3.4×", "state": "hold" }
+        ]
+      }
+    },
+    {
+      "id": "throughput", "type": "barchart", "title": "Requests / 5xx by hour", "span": 5, "meta": "req · 5xx",
+      "data": {
+        "orientation": "vertical",
+        "series": [
+          { "id": "req", "label": "req", "color": "navy" },
+          { "id": "err", "label": "5xx", "color": "risk" }
+        ],
+        "bars": [
+          { "label": "03", "value": 11900, "err": 71,  "max": 22000, "state": "ok" },
+          { "label": "04", "value": 9800,  "err": 58,  "max": 22000, "state": "ok" },
+          { "label": "05", "value": 10600, "err": 64,  "max": 22000, "state": "ok" },
+          { "label": "06", "value": 13700, "err": 96,  "max": 22000, "state": "ok" },
+          { "label": "07", "value": 16200, "err": 130, "max": 22000, "state": "ok" },
+          { "label": "08", "value": 18900, "err": 181, "max": 22000, "state": "ok" },
+          { "label": "09", "value": 21400, "err": 412, "max": 22000, "state": "risk" },
+          { "label": "10", "value": 8800,  "err": 0,   "max": 22000, "state": "proj" }
+        ]
+      }
+    },
+    {
+      "id": "error-trend", "type": "linechart", "title": "Error rate trend", "span": 4, "meta": "6h",
+      "data": {
+        "unit": "%", "slo": 0.20, "sloLabel": "SLO 0.20%",
+        "series": [
+          { "id": "rate", "label": "5xx %", "color": "risk", "values": [0.08,0.10,0.09,0.14,0.12,0.17,0.19,0.21,0.28,0.33,0.39,0.42] }
+        ],
+        "labels": ["09:00","09:30","10:00","10:30","11:00","11:30","12:00","12:30","13:00","13:30","14:00","14:30"]
+      }
+    },
+    {
+      "id": "service-health", "type": "statlist", "title": "Service health", "span": 5, "meta": "14 services",
+      "data": {
+        "rows": [
+          { "label": "api-gateway",  "sub": "edge · 6 pods",   "status": "ok",   "p95": "42ms",  "err": "0.01%", "stateLabel": "Healthy" },
+          { "label": "auth-service", "sub": "core · 8 pods",   "status": "ok",   "p95": "58ms",  "err": "0.03%", "stateLabel": "Healthy" },
+          { "label": "payments-api", "sub": "core · 5/6 pods", "status": "hold", "p95": "311ms", "err": "0.18%", "stateLabel": "Degraded" },
+          { "label": "ledger-writer","sub": "core · 4/6 pods", "status": "risk", "p95": "874ms", "err": "1.4%",  "stateLabel": "Critical" },
+          { "label": "notif-worker", "sub": "async · 4 pods",  "status": "ok",   "p95": "—",     "err": "0.02%", "stateLabel": "Healthy" },
+          { "label": "search-index", "sub": "data · 2 nodes",  "status": "hold", "p95": "126ms", "err": "0.07%", "stateLabel": "Draining" }
+        ]
+      }
+    },
+    {
+      "id": "latency-by-svc", "type": "barchart", "title": "p95 latency by service", "span": 4, "meta": "ms · budget 200",
+      "data": {
+        "orientation": "horizontal", "unit": "ms", "budget": 200,
+        "bars": [
+          { "label": "api-gateway",  "value": 42,  "max": 900, "state": "ok" },
+          { "label": "auth-service", "value": 58,  "max": 900, "state": "ok" },
+          { "label": "search-index", "value": 126, "max": 900, "state": "ok" },
+          { "label": "payments-api", "value": 311, "max": 900, "state": "hold" },
+          { "label": "ledger-writer","value": 874, "max": 900, "state": "risk" }
+        ]
+      }
+    },
+    {
+      "id": "saturation", "type": "gauge", "title": "Saturation", "span": 3, "meta": "cluster",
+      "data": {
+        "rings": [
+          { "label": "CPU",    "value": 62, "max": 100, "unit": "%", "state": "ok",   "note": "avg · peak 81%" },
+          { "label": "Memory", "value": 79, "max": 100, "unit": "%", "state": "hold", "note": "avg · near limit" }
+        ]
+      }
+    },
+    {
+      "id": "pipelines", "type": "statlist", "title": "Pipelines & queues", "span": 5, "meta": "stream",
+      "data": {
+        "layout": "minirow",
+        "cells": [
+          { "label": "DB pool",   "value": "186", "unit": "/200", "delta": "healthy", "trend": "up",   "state": "ok" },
+          { "label": "Kafka lag", "value": "4.2k",                "delta": "rising",  "trend": "down", "state": "hold" },
+          { "label": "Jobs/min",  "value": "3,420",               "delta": "stable",  "trend": "flat", "state": "ok" },
+          { "label": "Cache hit", "value": "96.4", "unit": "%",   "delta": "+0.8",    "trend": "up",   "state": "ok" }
+        ]
+      }
+    },
+    {
+      "id": "active-incidents", "type": "table", "title": "Active incidents", "span": 7, "meta": "3 OPEN",
+      "data": {
+        "columns": [
+          { "key": "id",      "label": "ID" },
+          { "key": "summary", "label": "Service / summary" },
+          { "key": "sev",     "label": "Sev" },
+          { "key": "age",     "label": "Age",   "numeric": true },
+          { "key": "owner",   "label": "Owner" },
+          { "key": "state",   "label": "State" }
+        ],
+        "rows": [
+          { "id": "INC-2041", "service": "ledger-writer", "summary": "elevated 5xx · pod OOMKilled ×3",    "sev": "SEV-1", "sevState": "risk", "age": "38m",   "ageMin": 38,  "owner": "@h.cho",    "state": "Mitigating",    "status": "risk", "detail": "ledger-writer 5xx surged at 09:04 after 3 OOMKilled events. Memory limit raised to 2Gi and 2 pods recreated; 5xx falling. Cause: hot-loop on retry of a poisoned ledger event." },
+          { "id": "INC-2039", "service": "payments-api",  "summary": "p95 over budget · downstream slow",   "sev": "SEV-2", "sevState": "hold", "age": "1h12m", "ageMin": 72,  "owner": "@m.tan",    "state": "Investigating", "status": "hold", "detail": "payments-api p95 311ms vs 200ms budget. Downstream ledger-writer latency is the dominant contributor; expected to recover as INC-2041 mitigates." },
+          { "id": "INC-2036", "service": "search-index",  "summary": "node drain · rebalancing shards",     "sev": "SEV-3", "sevState": "hold", "age": "3h05m", "ageMin": 185, "owner": "@platform", "state": "Monitoring",    "status": "hold", "detail": "search-index node drained for the node-pool rollout; shard rebalancing in progress. No customer impact; p95 within range." },
+          { "id": "CHG-8821", "service": "api-gateway",   "summary": "deploy v4.18.2 · canary 25%→100%",     "sev": "OK",    "sevState": "ok",   "age": "22m",   "ageMin": 22,  "owner": "@release",  "state": "Stable",        "status": "ok",   "detail": "api-gateway v4.18.2 promoted from 25% canary to 100% at 14:08. Error rate and p95 flat through the rollout." },
+          { "id": "CHG-8819", "service": "notif-worker",  "summary": "deploy v2.9.0 · rolled back (timeout)", "sev": "Failed","sevState": "risk", "age": "2h41m", "ageMin": 161, "owner": "@release",  "state": "Reverted",      "status": "ok",   "detail": "notif-worker v2.9.0 rolled back after readiness-probe timeouts on 3 of 4 pods. Previous version restored; queue drained to baseline." }
+        ],
+        "_comment": "kpiRanges drives the topbar time-range control (15m..7d). It lives in this widget's free-form data because the schema's top-level forbids extra keys; the schema-required default KPI set is the top-level 'kpis' (the 6h window).",
+        "kpiRanges": {
+          "default": "6h",
+          "items": [
+            {
+              "id": "15m", "label": "15m",
+              "kpis": [
+                { "id": "availability", "value": "99.991", "unit": "%",   "delta": "+0.002", "trend": "up",   "state": "neutral", "sloLabel": "SLO 99.95", "spark": [88,90,89,92,91,94,95,97], "detail": "rolling 15-minute window · 1 of 14 services degraded" },
+                { "id": "rps",          "value": "19.1",   "unit": "k",   "delta": "+1.1%",  "trend": "up",   "state": "neutral",                          "spark": [70,72,71,78,80,84,86,92], "detail": "instantaneous request rate across the edge fleet" },
+                { "id": "latency_p95",  "value": "207",    "unit": "ms",  "delta": "+2.4%",  "trend": "down", "state": "hold",   "sloLabel": "budget 200", "spark": [40,44,42,55,58,62,66,70], "detail": "p95 over budget by 7ms · payments-api dominant contributor" },
+                { "id": "error_rate",   "value": "0.51",   "unit": "%",   "delta": "+0.09",  "trend": "down", "state": "risk",   "sloLabel": "SLO 0.20",   "spark": [20,24,30,40,52,60,72,84], "detail": "ledger-writer 5xx spike · breaching SLO by 0.31pt" },
+                { "id": "hosts",        "value": "142",    "unit": "/144","delta": "2 draining","trend": "flat","state": "neutral","sloLabel": "3 zones",   "spark": [99,99,98,98,99,99,98,99], "detail": "2 hosts draining for node rollout · all 3 zones healthy" },
+                { "id": "deploys",      "value": "2", "label": "Deploys 15m", "delta": "2 ok", "trend": "up", "state": "neutral", "sloLabel": "0 rolled back", "spark": [10,10,20,20,40,40,80,100], "detail": "2 deploys in the last 15m · both stable on canary" }
+              ]
+            },
+            {
+              "id": "1h", "label": "1h",
+              "kpis": [
+                { "id": "availability", "value": "99.987", "unit": "%",   "delta": "+0.009", "trend": "up",   "state": "neutral", "sloLabel": "SLO 99.95", "spark": [80,84,83,88,87,90,92,95], "detail": "rolling 1-hour window · availability comfortably above SLO" },
+                { "id": "rps",          "value": "18.8",   "unit": "k",   "delta": "+4.0%",  "trend": "up",   "state": "neutral",                          "spark": [66,68,67,74,76,80,82,90], "detail": "1-hour mean request rate · steady climb into peak" },
+                { "id": "latency_p95",  "value": "211",    "unit": "ms",  "delta": "+7.1%",  "trend": "down", "state": "hold",   "sloLabel": "budget 200", "spark": [42,46,44,57,60,64,68,72], "detail": "p95 11ms over budget · downstream payments dependency slow" },
+                { "id": "error_rate",   "value": "0.47",   "unit": "%",   "delta": "+0.21",  "trend": "down", "state": "risk",   "sloLabel": "SLO 0.20",   "spark": [18,22,28,38,50,58,70,82], "detail": "error rate breaching for ~38m · INC-2041 active" },
+                { "id": "hosts",        "value": "142",    "unit": "/144","delta": "2 draining","trend": "flat","state": "neutral","sloLabel": "3 zones",   "spark": [99,98,98,97,98,99,98,98], "detail": "node rollout draining 2 hosts · capacity headroom intact" },
+                { "id": "deploys",      "value": "4", "label": "Deploys 1h", "delta": "4 ok", "trend": "up", "state": "neutral", "sloLabel": "0 rolled back", "spark": [10,20,20,40,60,60,80,100], "detail": "4 deploys this hour · all promoted to 100%" }
+              ]
+            },
+            {
+              "id": "6h", "label": "6h",
+              "kpis": [
+                { "id": "availability", "value": "99.982", "unit": "%",   "delta": "+0.014", "trend": "up",   "state": "neutral", "sloLabel": "SLO 99.95", "spark": [76,80,79,86,84,90,89,94], "detail": "6-hour window · availability +0.014 vs prior window" },
+                { "id": "rps",          "value": "18.4",   "unit": "k",   "delta": "+6.2%",  "trend": "up",   "state": "neutral",                          "spark": [62,65,64,72,70,78,76,88], "detail": "6-hour mean · traffic +6.2% on the day-over-day curve" },
+                { "id": "latency_p95",  "value": "214",    "unit": "ms",  "delta": "+11.3%", "trend": "down", "state": "hold",   "sloLabel": "budget 200", "spark": [44,48,46,58,62,66,70,76], "detail": "p95 214ms vs 200ms budget · sustained over the window" },
+                { "id": "error_rate",   "value": "0.42",   "unit": "%",   "delta": "+0.27",  "trend": "down", "state": "risk",   "sloLabel": "SLO 0.20",   "spark": [12,18,22,30,42,55,68,84], "detail": "error rate 2.1× SLO · ledger-writer OOMKilled ×3" },
+                { "id": "hosts",        "value": "142",    "unit": "/144","delta": "2 draining","trend": "flat","state": "neutral","sloLabel": "3 zones",   "spark": [98,98,97,97,98,98,97,98], "detail": "142 of 144 hosts in rotation · 2 draining for rollout" },
+                { "id": "deploys",      "value": "9", "label": "Deploys 6h", "delta": "8 ok", "trend": "up", "state": "neutral", "sloLabel": "1 rolled back", "spark": [10,20,30,40,55,70,85,100], "detail": "9 deploys in 6h · 8 stable, notif-worker rolled back" }
+              ]
+            },
+            {
+              "id": "24h", "label": "24h",
+              "kpis": [
+                { "id": "availability", "value": "99.961", "unit": "%",   "delta": "+0.001", "trend": "flat", "state": "neutral", "sloLabel": "SLO 99.95", "spark": [70,74,68,80,72,86,78,90], "detail": "24-hour window · availability just above SLO floor" },
+                { "id": "rps",          "value": "16.2",   "unit": "k",   "delta": "+2.8%",  "trend": "up",   "state": "neutral",                          "spark": [55,60,52,68,58,74,64,82], "detail": "24-hour mean · includes overnight trough" },
+                { "id": "latency_p95",  "value": "229",    "unit": "ms",  "delta": "+18.6%", "trend": "down", "state": "risk",   "sloLabel": "budget 200", "spark": [46,52,48,60,66,70,74,82], "detail": "p95 29ms over budget · two breaching peaks in 24h" },
+                { "id": "error_rate",   "value": "0.38",   "unit": "%",   "delta": "+0.19",  "trend": "down", "state": "risk",   "sloLabel": "SLO 0.20",   "spark": [14,20,18,28,40,48,60,76], "detail": "24-hour error rate · breaching since ~06:00" },
+                { "id": "hosts",        "value": "141",    "unit": "/144","delta": "3 cycled","trend": "flat","state": "neutral", "sloLabel": "3 zones",   "spark": [97,96,98,95,97,96,98,97], "detail": "3 hosts cycled over 24h · self-healed automatically" },
+                { "id": "deploys",      "value": "23", "label": "Deploys 24h", "delta": "21 ok", "trend": "up", "state": "neutral", "sloLabel": "2 rolled back", "spark": [10,25,35,45,55,70,85,100], "detail": "23 deploys in 24h · 21 stable, 2 rolled back" }
+              ]
+            },
+            {
+              "id": "7d", "label": "7d",
+              "kpis": [
+                { "id": "availability", "value": "99.948", "unit": "%",   "delta": "−0.002", "trend": "down", "state": "hold",   "sloLabel": "SLO 99.95", "spark": [66,70,62,74,68,80,72,84], "detail": "7-day window · 0.002 under the SLO target" },
+                { "id": "rps",          "value": "15.1",   "unit": "k",   "delta": "+9.4%",  "trend": "up",   "state": "neutral",                          "spark": [48,54,50,62,56,70,64,80], "detail": "7-day mean · week-over-week traffic +9.4%" },
+                { "id": "latency_p95",  "value": "238",    "unit": "ms",  "delta": "+21.0%", "trend": "down", "state": "risk",   "sloLabel": "budget 200", "spark": [50,56,52,64,68,72,76,84], "detail": "p95 38ms over budget on the 7-day trend" },
+                { "id": "error_rate",   "value": "0.31",   "unit": "%",   "delta": "+0.11",  "trend": "down", "state": "risk",   "sloLabel": "SLO 0.20",   "spark": [16,22,20,30,36,44,54,70], "detail": "7-day error rate · above SLO on 4 of 7 days" },
+                { "id": "hosts",        "value": "140",    "unit": "/144","delta": "8 cycled","trend": "flat","state": "neutral", "sloLabel": "3 zones",   "spark": [95,94,96,93,95,94,96,95], "detail": "8 hosts cycled over the week · steady fleet size" },
+                { "id": "deploys",      "value": "146", "label": "Deploys 7d", "delta": "138 ok", "trend": "up", "state": "neutral", "sloLabel": "8 rolled back", "spark": [10,25,40,50,60,75,88,100], "detail": "146 deploys this week · 138 stable, 8 rolled back" }
+              ]
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
+</script>
+
+<style>
+/* ============================================================
+   DASHBOARD — monitoring / operations console
+   Inherits the family DNA from designs/_FOUNDATION.md.
+   Default theme: Blue (shipped in :root). Self-contained.
+   Content is rendered from #report-data by render() below.
+   ============================================================ */
+
+/* ---- 1. tokens (Blue is the default for this format) ---- */
+:root{
+  /* surfaces */
+  --bg:#fff; --bg-band:#f6f6f8; --bg-subtle:#fafafb; --bg-deep:#15131a;
+  --rule:#dcdce2; --rule-soft:#ebebef;
+  /* ink */
+  --ink:#11131a; --ink-mid:#33363f; --ink-soft:#5a5e68; --ink-faint:#868b95;
+  /* brand accent — BLUE default */
+  --navy:#0b5fd4; --navy-deep:#0842a0; --navy-bg:#e8f1fc; --navy-line:#bcd6f5;
+  /* cleared / approved */
+  --ok:#1a4f9c; --ok-bg:#e9f0fa; --ok-line:#b7cdea;
+  /* semantic states — CONSTANT across themes */
+  --risk:#b3261e; --risk-bg:#fbeceb; --risk-line:#edc7c4;
+  --hold:#8a6d00; --hold-bg:#fbf3da; --hold-line:#e7d8a4;
+  /* type stacks */
+  --mono:ui-monospace,"JetBrains Mono","SFMono-Regular",Menlo,Consolas,monospace;
+  --sans:-apple-system,"Segoe UI",system-ui,Roboto,"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic UI","Apple SD Gothic Neo","Malgun Gothic","PingFang SC","Microsoft YaHei","Noto Sans CJK JP","Noto Sans CJK KR","Noto Sans CJK SC","Noto Sans JP","Noto Sans KR","Noto Sans SC","Noto Sans",sans-serif;
+  /* console geometry */
+  --rail:64px;
+  --shadow:0 1px 2px rgba(17,19,26,.045);
+  --shadow-rail:0 1px 3px rgba(17,19,26,.05);
+}
+/* alternate theme swaps (all 9 per _FOUNDATION §1 / _DATA_DRIVEN §3 — Black mandatory) */
+html[data-theme="blue"]{   --navy:#0b5fd4; --navy-deep:#0842a0; --navy-bg:#e8f1fc; --navy-line:#bcd6f5; --ok:#1a4f9c; --ok-bg:#e9f0fa; --ok-line:#b7cdea; }
+html[data-theme="purple"]{ --navy:#a100ff; --navy-deep:#7a00c2; --navy-bg:#f3e8ff; --navy-line:#d9bef5; --ok:#5a2f8a; --ok-bg:#efe8f5; --ok-line:#d0b5e0; }
+html[data-theme="indigo"]{ --navy:#4338ca; --navy-deep:#312c92; --navy-bg:#ebebfb; --navy-line:#c7c3f0; --ok:#3730a3; --ok-bg:#ebeaf7; --ok-line:#c5c2ea; }
+html[data-theme="teal"]{   --navy:#0e7c86; --navy-deep:#095861; --navy-bg:#e0f3f4; --navy-line:#a9dade; --ok:#0f5d54; --ok-bg:#e3f3ef; --ok-line:#b3ddd4; }
+html[data-theme="cyan"]{   --navy:#0891b2; --navy-deep:#0e6f88; --navy-bg:#e2f4f9; --navy-line:#abdde9; --ok:#0e6b7a; --ok-bg:#e4f3f4; --ok-line:#b0dde2; }
+html[data-theme="green"]{  --navy:#1f7a44; --navy-deep:#155730; --navy-bg:#e6f4ea; --navy-line:#b3dcc1; --ok:#2f6b3c; --ok-bg:#e9f3ea; --ok-line:#bedcc4; }
+html[data-theme="plum"]{   --navy:#a21d6e; --navy-deep:#7c1450; --navy-bg:#fbe8f2; --navy-line:#e8b9d4; --ok:#6d2356; --ok-bg:#f6e8f0; --ok-line:#e3bcd5; }
+html[data-theme="slate"]{  --navy:#3f4f63; --navy-deep:#29384b; --navy-bg:#eef1f5; --navy-line:#c2ccd8; --ok:#34495e; --ok-bg:#eef1f5; --ok-line:#c2ccd8; }
+html[data-theme="black"]{  --navy:#000000; --navy-deep:#000000; --navy-bg:#f1f1f3; --navy-line:#d6d6db; --ok:#3f3f46; --ok-bg:#f1f1f3; --ok-line:#cfcfd6; }
+
+*{ box-sizing:border-box; }
+html,body{ margin:0; }
+body{
+  font:13px/1.6 var(--sans); color:var(--ink);
+  background:var(--bg-band);
+  -webkit-font-smoothing:antialiased;
+}
+.tnum{ font-feature-settings:"tnum" 1; font-variant-numeric:tabular-nums; }
+
+/* ---- icons ---- */
+.icon{ width:1.15em; height:1.15em; display:inline-block; vertical-align:-.18em; color:inherit; }
+.icon-lg{ width:22px; height:22px; }
+
+/* ---- shared primitives: status badge / dot / chip ---- */
+.st-badge{
+  display:inline-flex; align-items:center; gap:.4em;
+  font:600 11px/1 var(--sans); padding:4px 8px 4px 7px; border-radius:6px;
+  border:1px solid var(--rule); color:var(--ink-mid); background:var(--bg);
+  white-space:nowrap;
+}
+.st-badge::before{ content:""; width:7px; height:7px; border-radius:50%; background:var(--ink-faint); }
+.st-ok{ color:var(--ok); background:var(--ok-bg); border-color:var(--ok-line); }
+.st-ok::before{ background:var(--ok); }
+.st-risk{ color:var(--risk); background:var(--risk-bg); border-color:var(--risk-line); }
+.st-risk::before{ background:var(--risk); }
+.st-hold{ color:var(--hold); background:var(--hold-bg); border-color:var(--hold-line); }
+.st-hold::before{ background:var(--hold); }
+.mini-dot{ display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--ink-faint); vertical-align:-1px; }
+.mini-dot.ok{ background:var(--ok); } .mini-dot.risk{ background:var(--risk); } .mini-dot.hold{ background:var(--hold); }
+.chip{
+  display:inline-flex; align-items:center; gap:.35em;
+  font:600 10.5px/1 var(--mono); letter-spacing:.02em;
+  padding:3px 7px; border-radius:6px;
+  background:var(--navy-bg); color:var(--navy-deep); border:1px solid var(--navy-line);
+}
+.muted{ color:var(--ink-faint); }
+.mlabel{ font:600 10px/1.4 var(--mono); letter-spacing:.1em; text-transform:uppercase; color:var(--ink-faint); }
+
+/* ---- noscript banner ---- */
+.noscript-note{
+  margin:0; padding:14px 22px; background:var(--hold-bg); color:var(--hold);
+  border-bottom:1px solid var(--hold-line); font:600 12.5px/1.5 var(--sans);
+}
+.noscript-note code{ font:600 11.5px/1 var(--mono); }
+
+/* ============================================================
+   2. CONSOLE SHELL — fixed left icon rail + main column
+   ============================================================ */
+.console{
+  display:grid;
+  grid-template-columns:var(--rail) 1fr;
+  min-height:100vh;
+}
+
+/* ---- left icon NAV RAIL (the signature) ---- */
+.navrail{
+  position:fixed; top:0; left:0; bottom:0; width:var(--rail);
+  background:var(--bg-deep);
+  display:flex; flex-direction:column; align-items:center;
+  padding:12px 0 14px; gap:4px; z-index:30;
+  box-shadow:var(--shadow-rail);
+}
+.rail-mark{
+  width:36px; height:36px; border-radius:10px;
+  background:var(--navy); color:#fff;
+  display:grid; place-items:center; margin-bottom:14px;
+  font:800 15px/1 var(--sans); letter-spacing:-.02em;
+  box-shadow:0 1px 0 rgba(255,255,255,.12) inset;
+}
+.nav-btn{
+  position:relative; width:42px; height:42px; border-radius:10px;
+  display:grid; place-items:center; color:#a7adba;
+  border:0; background:transparent; cursor:pointer; margin:1px 0;
+}
+.nav-btn .icon{ width:21px; height:21px; }
+.nav-btn:hover{ color:#fff; background:rgba(255,255,255,.07); }
+.nav-btn.is-active{ color:#fff; background:rgba(255,255,255,.16); }
+.nav-btn.is-active::before{
+  content:""; position:absolute; left:-12px; top:9px; bottom:9px; width:3px;
+  border-radius:0 3px 3px 0; background:var(--navy);
+}
+/* tooltip on hover */
+.nav-btn[data-tip]:hover::after{
+  content:attr(data-tip); position:absolute; left:48px; top:50%; transform:translateY(-50%);
+  background:#000; color:#fff; font:600 11px/1 var(--sans); white-space:nowrap;
+  padding:6px 9px; border-radius:6px; z-index:40; box-shadow:var(--shadow);
+}
+.nav-spacer{ flex:1 1 auto; }
+.nav-status{
+  width:34px; height:34px; border-radius:50%;
+  display:grid; place-items:center; margin-top:6px;
+  background:#23202b; color:#cfd3db; font:700 11px/1 var(--sans);
+  border:1px solid #34303d; position:relative;
+}
+.nav-status::after{
+  content:""; position:absolute; right:-1px; bottom:-1px; width:10px; height:10px;
+  border-radius:50%; background:var(--ok); border:2px solid var(--bg-deep);
+}
+
+/* ---- MAIN column ---- */
+.main{
+  grid-column:2; min-width:0;
+  display:flex; flex-direction:column;
+}
+
+/* ---- thin TOPBAR ---- */
+.topbar{
+  position:sticky; top:0; z-index:20;
+  display:flex; align-items:center; gap:14px;
+  background:rgba(255,255,255,.92); backdrop-filter:saturate(1.2) blur(4px);
+  border-bottom:1px solid var(--rule);
+  padding:11px 22px;
+}
+.tb-title{ font:800 15px/1.1 var(--sans); letter-spacing:-.01em; }
+.tb-title b{ color:var(--navy-deep); }
+.tb-sub{ font:600 11px/1 var(--mono); letter-spacing:.04em; color:var(--ink-faint); margin-top:3px; }
+.tb-spacer{ flex:1 1 auto; }
+.live-dot{ display:inline-flex; align-items:center; gap:6px; font:600 11.5px/1 var(--sans); color:var(--ink-mid); cursor:default; }
+.live-dot::before{
+  content:""; width:8px; height:8px; border-radius:50%; background:var(--ok);
+  box-shadow:0 0 0 0 rgba(26,79,156,.5); animation:pulse 2.4s ease-out infinite;
+}
+.live-dot.is-paused::before{ animation:none; background:var(--ink-faint); }
+@keyframes pulse{ 0%{ box-shadow:0 0 0 0 rgba(26,79,156,.45);} 70%{ box-shadow:0 0 0 7px rgba(26,79,156,0);} 100%{ box-shadow:0 0 0 0 rgba(26,79,156,0);} }
+.env-chip{
+  font:700 10.5px/1 var(--mono); letter-spacing:.06em; text-transform:uppercase;
+  padding:5px 9px; border-radius:6px; background:var(--bg-deep); color:#fff;
+}
+.range{ display:inline-flex; border:1px solid var(--rule); border-radius:8px; overflow:hidden; }
+.range button{
+  border:0; background:var(--bg); cursor:pointer;
+  font:600 11px/1 var(--mono); letter-spacing:.04em; color:var(--ink-soft);
+  padding:6px 10px; border-right:1px solid var(--rule-soft); transition:background .12s,color .12s;
+}
+.range button:last-child{ border-right:0; }
+.range button:hover{ background:var(--navy-bg); color:var(--navy-deep); }
+.range button.on{ background:var(--navy); color:#fff; }
+.range button.on:hover{ background:var(--navy); color:#fff; }
+.clock{ font:600 12px/1 var(--mono); color:var(--ink-mid); letter-spacing:.03em; }
+
+/* breach-only filter toggle */
+.tb-toggle{
+  display:inline-flex; align-items:center; gap:7px; cursor:pointer;
+  font:600 11px/1 var(--sans); color:var(--ink-soft); user-select:none;
+  padding:5px 9px; border:1px solid var(--rule); border-radius:8px; background:var(--bg); transition:background .12s,color .12s,border-color .12s;
+}
+.tb-toggle:hover{ border-color:var(--navy-line); color:var(--ink-mid); }
+.tb-toggle .sw-track{ width:30px; height:16px; border-radius:9px; background:var(--rule); position:relative; transition:background .15s; flex:none; }
+.tb-toggle .sw-track::after{ content:""; position:absolute; top:2px; left:2px; width:12px; height:12px; border-radius:50%; background:#fff; box-shadow:0 1px 2px rgba(0,0,0,.2); transition:left .15s; }
+.tb-toggle.on{ color:var(--navy-deep); border-color:var(--navy-line); background:var(--navy-bg); }
+.tb-toggle.on .sw-track{ background:var(--navy); }
+.tb-toggle.on .sw-track::after{ left:16px; }
+
+/* theme switcher (MANDATORY, canonical dropdown per _DATA_DRIVEN §3) */
+.rc-theme{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--rule);border-radius:7px;padding:3px 4px 3px 7px;background:var(--bg);}
+.rc-theme-sw{width:12px;height:12px;border-radius:50%;background:var(--navy);box-shadow:0 0 0 1px var(--rule);flex:none;}
+.rc-theme-sel{border:0;background:none;font:600 11px/1 var(--mono);color:var(--ink-mid);cursor:pointer;outline:none;padding:2px;}
+@media print{.rc-theme{display:none;}}
+
+/* ============================================================
+   3. KPI BAND — headline stat tiles
+   ============================================================ */
+.kpi-band{
+  display:grid; grid-template-columns:repeat(6,1fr); gap:14px;
+  padding:18px 22px 4px;
+}
+.kpi-tile{
+  background:var(--bg); border:1px solid var(--rule); border-radius:12px;
+  padding:13px 14px 12px; box-shadow:var(--shadow);
+  display:flex; flex-direction:column; gap:7px; position:relative; overflow:visible;
+  cursor:pointer; transition:border-color .12s, box-shadow .12s, opacity .15s;
+}
+.kpi-tile:hover{ border-color:var(--navy-line); box-shadow:0 2px 8px rgba(17,19,26,.08); }
+.kpi-tile:focus-visible{ outline:2px solid var(--navy); outline-offset:2px; }
+.kpi-tile .kpi-label{ display:flex; align-items:center; gap:6px; }
+.kpi-tile .kpi-label .icon{ color:var(--navy); width:14px; height:14px; }
+.kpi-num{ font:800 31px/1 var(--mono); letter-spacing:-.02em; color:var(--ink); }
+.kpi-num small{ font:700 14px/1 var(--mono); color:var(--ink-faint); letter-spacing:0; }
+.kpi-foot{ display:flex; align-items:center; justify-content:space-between; gap:8px; }
+.delta{ display:inline-flex; align-items:center; gap:3px; font:700 11.5px/1 var(--mono); }
+.delta.up{ color:var(--ok); } .delta.down{ color:var(--risk); } .delta.flat{ color:var(--ink-faint); }
+.delta .icon{ width:13px; height:13px; }
+.kpi-tile.is-risk{ border-color:var(--risk-line); }
+.kpi-tile.is-risk::after{ content:""; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--risk); border-radius:12px 0 0 12px; }
+.kpi-tile.is-hold{ border-color:var(--hold-line); }
+.kpi-tile.is-hold::after{ content:""; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--hold); border-radius:12px 0 0 12px; }
+/* hover-detail popover on a KPI tile (spark + SLO + over/under) */
+.kpi-pop{
+  position:absolute; left:10px; right:10px; top:calc(100% + 6px); z-index:25;
+  background:var(--bg); border:1px solid var(--rule); border-radius:10px;
+  box-shadow:0 6px 20px rgba(17,19,26,.16); padding:10px 12px;
+  opacity:0; visibility:hidden; transform:translateY(-4px); transition:opacity .14s, transform .14s, visibility .14s;
+  pointer-events:none;
+}
+.kpi-tile:hover .kpi-pop, .kpi-tile:focus-within .kpi-pop{ opacity:1; visibility:visible; transform:translateY(0); }
+.kpi-pop .kp-spark{ width:100%; height:34px; display:block; margin-bottom:7px; }
+.kpi-pop .kp-spark .l{ fill:none; stroke:var(--navy); stroke-width:1.75; stroke-linecap:round; stroke-linejoin:round; }
+.kpi-pop .kp-spark .a{ fill:var(--navy-bg); }
+.kpi-pop p{ margin:0 0 5px; font:600 11px/1.45 var(--sans); color:var(--ink-mid); }
+.kpi-pop .kp-meta{ display:flex; justify-content:space-between; gap:8px; font:600 10px/1.3 var(--mono); letter-spacing:.04em; text-transform:uppercase; color:var(--ink-faint); }
+.kpi-pop .kp-meta b{ color:var(--ink); }
+/* dimmed-when-not-breaching (breach-only filter) */
+.dim-out{ opacity:.32; filter:saturate(.55); }
+
+/* ============================================================
+   4. WIDGET GRID
+   ============================================================ */
+.widget-grid{
+  display:grid; grid-template-columns:repeat(12,1fr); gap:16px;
+  padding:14px 22px 22px;
+}
+.widget{
+  grid-column:span var(--span,4);
+  background:var(--bg); border:1px solid var(--rule); border-radius:12px;
+  box-shadow:var(--shadow); display:flex; flex-direction:column;
+  min-width:0; overflow:visible;
+}
+.widget-head{
+  display:flex; align-items:center; gap:9px;
+  padding:11px 14px 9px; border-bottom:1px solid var(--rule-soft);
+}
+.w-title{ display:flex; align-items:center; gap:7px; font:700 12.5px/1.1 var(--sans); color:var(--ink); }
+.w-title .icon{ color:var(--navy); width:15px; height:15px; }
+.w-meta{ margin-left:auto; }
+/* clickable legend → series toggle */
+.legend{ display:inline-flex; gap:8px; align-items:center; }
+.legend button{
+  display:inline-flex; align-items:center; gap:4px; cursor:pointer;
+  font:600 10px/1 var(--mono); letter-spacing:.04em; color:var(--ink-soft);
+  border:1px solid var(--rule); background:var(--bg); border-radius:6px; padding:3px 7px;
+  transition:opacity .12s, border-color .12s;
+}
+.legend button:hover{ border-color:var(--navy-line); }
+.legend button i{ width:8px; height:8px; border-radius:2px; display:inline-block; }
+.legend button.off{ opacity:.4; }
+.legend button.off i{ background:var(--ink-faint) !important; }
+.widget-body{ padding:14px; flex:1 1 auto; position:relative; }
+
+/* shared chart tooltip (exact value + series + bucket) */
+.chart-tip{
+  position:fixed; z-index:60; pointer-events:none;
+  background:#000; color:#fff; border-radius:7px; padding:7px 9px;
+  font:600 11px/1.4 var(--sans); white-space:nowrap; box-shadow:0 4px 14px rgba(0,0,0,.3);
+  opacity:0; transition:opacity .1s; transform:translate(-50%,-100%);
+}
+.chart-tip.show{ opacity:1; }
+.chart-tip .ct-h{ font:700 10px/1.3 var(--mono); letter-spacing:.06em; text-transform:uppercase; color:#cfd3db; margin-bottom:3px; }
+.chart-tip .ct-row{ display:flex; align-items:center; gap:6px; }
+.chart-tip .ct-row i{ width:8px; height:8px; border-radius:2px; flex:none; }
+.chart-tip .ct-row b{ font:700 11.5px/1 var(--mono); }
+
+/* ---- 4a. GAUGE (semicircular SVG arc) ---- */
+.gauge-wrap{ display:flex; flex-direction:column; align-items:center; gap:2px; }
+.gauge{ position:relative; width:170px; height:104px; cursor:default; }
+.gauge svg{ display:block; width:170px; height:104px; }
+.gauge-track{ stroke:var(--rule); }
+.gauge-fill{ stroke:var(--ok); stroke-linecap:round; transition:stroke-dashoffset .6s ease; }
+.gauge.hold .gauge-fill{ stroke:var(--hold); }
+.gauge.risk .gauge-fill{ stroke:var(--risk); }
+.gauge-center{ position:absolute; left:0; right:0; bottom:2px; text-align:center; }
+.gauge-val{ font:800 30px/1 var(--mono); letter-spacing:-.02em; }
+.gauge-val small{ font:700 13px/1 var(--mono); color:var(--ink-faint); }
+.gauge-cap{ font:600 10px/1.4 var(--mono); letter-spacing:.1em; text-transform:uppercase; color:var(--ink-faint); margin-top:1px; }
+.gauge-scale{ display:flex; justify-content:space-between; width:150px; margin-top:2px; font:600 9.5px/1 var(--mono); color:var(--ink-faint); }
+.gauge-foot{ display:flex; justify-content:center; gap:14px; margin-top:9px; padding-top:9px; border-top:1px solid var(--rule-soft); width:100%; }
+.gauge-foot div{ text-align:center; }
+.gauge-foot b{ display:block; font:800 15px/1.2 var(--mono); }
+
+/* ---- ring gauge (donut) for small KPI widgets ---- */
+.ring-row{ display:flex; align-items:center; gap:14px; }
+.ring{ width:78px; height:78px; flex:none; position:relative; cursor:default; }
+.ring svg{ transform:rotate(-90deg); }
+.ring-track{ stroke:var(--rule); } .ring-fill{ stroke:var(--ok); stroke-linecap:round; transition:stroke-dashoffset .6s ease; }
+.ring.hold .ring-fill{ stroke:var(--hold); } .ring.risk .ring-fill{ stroke:var(--risk); }
+.ring-num{ position:absolute; inset:0; display:grid; place-items:center; font:800 18px/1 var(--mono); }
+.ring-meta .mlabel{ margin-bottom:5px; }
+.ring-meta p{ margin:0; font:600 12px/1.5 var(--sans); color:var(--ink-mid); }
+.ring-meta p b{ color:var(--ink); }
+
+/* ---- 4b. BAR mini-chart (vertical) ---- */
+.barmini{ display:flex; align-items:flex-end; gap:10px; height:128px; padding-top:6px; }
+.bm-col{ flex:1 1 0; display:flex; flex-direction:column; align-items:center; gap:6px; height:100%; justify-content:flex-end; min-width:0; cursor:default; }
+.bm-stack{ width:100%; max-width:30px; display:flex; flex-direction:column; justify-content:flex-end; height:100%; }
+.bm-bar{
+  width:100%; border-radius:5px 5px 3px 3px;
+  background:var(--navy); height:var(--h,40%);
+  position:relative; transition:height .35s ease, opacity .12s;
+}
+.bm-bar.ok{ background:var(--ok); } .bm-bar.hold{ background:var(--hold); } .bm-bar.risk{ background:var(--risk); }
+.bm-bar.dim{ background:var(--navy-line); }
+/* the 5xx overlay segment sits on top of the req bar */
+.bm-err{ width:100%; border-radius:5px 5px 0 0; background:var(--risk); height:var(--he,0%); transition:height .35s ease, opacity .12s; }
+.bm-col.series-off .bm-err{ opacity:0; height:0 !important; }
+.bm-col.req-off .bm-bar{ opacity:.12; }
+.bm-col:hover .bm-bar{ filter:brightness(1.06); }
+.bm-x{ font:600 9.5px/1 var(--mono); color:var(--ink-faint); letter-spacing:.02em; white-space:nowrap; }
+.bm-base{ height:1px; background:var(--rule); margin-top:-1px; }
+
+/* ---- horizontal bar rows (latency by service) ---- */
+.bar-row{ display:grid; grid-template-columns:88px 1fr 52px; align-items:center; gap:10px; margin-bottom:9px; cursor:default; }
+.bar-row:last-child{ margin-bottom:0; }
+.bar-label{ font:600 11.5px/1.2 var(--sans); color:var(--ink-mid); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.bar-track{ height:9px; border-radius:5px; background:var(--bg-band); border:1px solid var(--rule-soft); overflow:hidden; position:relative; }
+.bar-fill{ height:100%; border-radius:5px; background:var(--navy); width:var(--w,40%); transition:width .35s ease, filter .12s; }
+.bar-fill.ok{ background:var(--ok); } .bar-fill.hold{ background:var(--hold); } .bar-fill.risk{ background:var(--risk); }
+.bar-row:hover .bar-fill{ filter:brightness(1.08); }
+.bar-val{ font:700 11.5px/1 var(--mono); text-align:right; color:var(--ink); }
+
+/* ---- 4c. SPARK / line-area chart ---- */
+.spark-wrap{ position:relative; }
+.spark-big{ width:100%; height:118px; display:block; }
+.spark-grid line{ stroke:var(--rule-soft); }
+.spark-area{ fill:var(--navy-bg); transition:opacity .12s; }
+.spark-line{ fill:none; stroke:var(--navy); stroke-width:2; stroke-linejoin:round; stroke-linecap:round; transition:opacity .12s; }
+.spark-line.risk{ stroke:var(--risk); }
+.spark-area.risk{ fill:var(--risk-bg); }
+.spark-node{ fill:var(--navy); }
+.spark-node.risk{ fill:var(--risk); }
+.spark-hot{ fill:transparent; cursor:pointer; }
+.spark-cursor{ stroke:var(--ink-faint); stroke-width:1; stroke-dasharray:3 3; opacity:0; }
+.spark-dot{ r:3.5; fill:var(--bg); stroke:var(--risk); stroke-width:2; opacity:0; }
+.spark-foot{ display:flex; justify-content:space-between; margin-top:8px; font:600 9.5px/1 var(--mono); color:var(--ink-faint); }
+.spark-inline{ width:62px; height:22px; display:block; }
+.spark-inline .l{ fill:none; stroke:var(--ok); stroke-width:1.75; stroke-linecap:round; stroke-linejoin:round; }
+.spark-inline .l.down{ stroke:var(--risk); }
+
+/* ---- 4d. STATUS LIST ---- */
+.statlist{ display:flex; flex-direction:column; }
+.statlist-bar{ display:flex; gap:6px; margin-bottom:11px; }
+.sl-chip{
+  display:inline-flex; align-items:center; gap:5px; cursor:pointer;
+  font:600 10.5px/1 var(--mono); letter-spacing:.03em; color:var(--ink-soft);
+  border:1px solid var(--rule); background:var(--bg); border-radius:6px; padding:4px 8px; transition:background .12s,color .12s,border-color .12s;
+}
+.sl-chip .mini-dot{ width:7px; height:7px; }
+.sl-chip:hover{ border-color:var(--navy-line); }
+.sl-chip.on{ background:var(--navy-bg); color:var(--navy-deep); border-color:var(--navy-line); }
+.sl-chip .n{ font-weight:700; }
+.stat-row{
+  display:grid; grid-template-columns:92px 1fr auto; align-items:center; gap:12px;
+  padding:9px 0; border-bottom:1px solid var(--rule-soft); cursor:pointer; transition:background .12s;
+}
+.stat-row:first-of-type{ padding-top:0; }
+.stat-row:last-child{ border-bottom:0; padding-bottom:0; }
+.stat-row:hover{ background:var(--bg-subtle); }
+.stat-row.is-hidden{ display:none; }
+.stat-name{ font:600 12.5px/1.2 var(--sans); color:var(--ink); min-width:0; }
+.stat-name span{ display:block; font:600 10.5px/1.3 var(--mono); color:var(--ink-faint); margin-top:1px; }
+.stat-figs{ display:flex; align-items:center; gap:16px; }
+.stat-fig{ text-align:right; }
+.stat-fig b{ display:block; font:700 13px/1.1 var(--mono); color:var(--ink); }
+.stat-fig em{ font:600 9.5px/1 var(--mono); font-style:normal; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-faint); }
+
+/* ---- 4e. DATA TABLE ---- */
+.dtable{ width:100%; border-collapse:collapse; }
+.dtable thead th{
+  font:700 9.5px/1.2 var(--mono); letter-spacing:.08em; text-transform:uppercase;
+  color:var(--ink-faint); text-align:left; padding:0 12px 8px; border-bottom:2px solid var(--ink);
+  white-space:nowrap;
+}
+.dtable thead th.num{ text-align:right; }
+.dtable thead th.sortable{ cursor:pointer; user-select:none; }
+.dtable thead th.sortable:hover{ color:var(--navy-deep); }
+.dtable thead th .sort-ar{ opacity:0; margin-left:3px; }
+.dtable thead th.sorted .sort-ar{ opacity:1; color:var(--navy-deep); }
+.dtable tbody td{ padding:9px 12px; border-bottom:1px solid var(--rule-soft); vertical-align:top; }
+.dtable tbody tr.row-main{ cursor:pointer; }
+.dtable tbody tr.row-main:hover{ background:var(--bg-subtle); }
+.dtable tbody tr.is-hidden{ display:none; }
+.dtable td.num{ text-align:right; font:600 12px/1.3 var(--mono); color:var(--ink); }
+.dtable td .id{ font:600 11px/1.3 var(--mono); color:var(--navy-deep); }
+.dtable td .svc{ font:600 12px/1.3 var(--sans); color:var(--ink); }
+.dtable td .sub{ font:600 10.5px/1.3 var(--mono); color:var(--ink-faint); }
+.dtable td .caret{ display:inline-block; width:0; height:0; border-left:5px solid var(--ink-faint); border-top:4px solid transparent; border-bottom:4px solid transparent; margin-right:5px; transition:transform .15s; vertical-align:1px; }
+.dtable tr.is-open .caret{ transform:rotate(90deg); }
+.row-drawer td{ background:var(--bg-subtle); padding:0 12px; border-bottom:1px solid var(--rule-soft); }
+.row-drawer .dz{ max-height:0; overflow:hidden; transition:max-height .2s ease, padding .2s ease; padding:0 2px; }
+.row-drawer.is-open .dz{ max-height:140px; padding:10px 2px 12px; }
+.row-drawer .dz p{ margin:0; font:600 12px/1.55 var(--sans); color:var(--ink-mid); }
+.row-drawer .dz .mlabel{ margin-bottom:4px; }
+
+/* mini kpi inside widget body */
+.minirow{ display:flex; gap:0; }
+.minicell{ flex:1 1 0; padding:0 12px; border-right:1px solid var(--rule-soft); }
+.minicell:first-child{ padding-left:0; } .minicell:last-child{ border-right:0; padding-right:0; }
+.minicell .mlabel{ margin-bottom:5px; }
+.minicell b{ font:800 22px/1 var(--mono); letter-spacing:-.02em; }
+.minicell b small{ font-size:12px; color:var(--ink-faint); }
+.minicell .delta{ margin-top:5px; }
+
+/* ---- footer strip ---- */
+.foot{
+  margin-top:auto; background:var(--bg-deep); color:#cfd3db;
+  display:flex; align-items:center; gap:14px; padding:13px 22px;
+  font:600 10.5px/1.4 var(--mono); letter-spacing:.05em; text-transform:uppercase;
+}
+.foot .wm{ display:inline-flex; align-items:center; gap:8px; color:#fff; font:800 12px/1 var(--sans); letter-spacing:-.01em; text-transform:none; }
+.foot .wm i{ width:16px; height:16px; border-radius:4px; background:var(--navy); display:inline-block; }
+.foot .sp{ flex:1 1 auto; }
+
+/* ---- print: static, complete snapshot; hide controls ---- */
+@media print{
+  body{ background:#fff; }
+  .navrail, .topbar .range, .live-dot, .tb-toggle, .clock,
+  .statlist-bar, .legend, .chart-tip, .kpi-pop, .dtable thead th .sort-ar{ display:none !important; }
+  .console{ grid-template-columns:1fr; }
+  .navrail{ position:static; }
+  .main{ grid-column:1; }
+  .widget,.kpi-tile{ box-shadow:none; break-inside:avoid; }
+  .kpi-tile{ cursor:default; }
+  .topbar{ position:static; background:#fff; }
+  .stat-row.is-hidden, .dtable tr.is-hidden{ display:table-row !important; }
+  .stat-row{ display:grid !important; }
+  .row-drawer .dz{ max-height:none !important; padding:10px 2px 12px !important; }
+  .dim-out{ opacity:1 !important; filter:none !important; }
+  .foot{ background:#fff; color:#000; border-top:2px solid #000; }
+  .foot .wm{ color:#000; }
+  .foot .wm i{ background:#000; }
+}
+</style>
+</head>
+<body>
+
+<noscript>
+  <div class="noscript-note">
+    This operations console renders from embedded data and requires JavaScript for its
+    live controls (time range, legends, filters, tooltips). The complete snapshot data is in the
+    <code>#report-data</code> block above.
+  </div>
+</noscript>
+
+<div class="console" id="console"><!-- built by render() --></div>
+
+<!-- floating chart tooltip (single shared instance) -->
+<div class="chart-tip" id="chart-tip" role="status" aria-live="polite"></div>
+
+<script>
+/* ============================================================
+   DASHBOARD RENDERER + INTERACTIONS  (vanilla JS, no libraries)
+   - render()           : #report-data JSON  →  console DOM
+   - renderKpis(range)  : re-scopes the KPI band per time range
+   - wireInteractions() : range chips · legends · filters · sorts ·
+                          drawers · drill · tooltips · live clock
+   - wireThemeSwitch()  : canonical 9-dot .rc-theme switcher (§3)
+   Reading requires JS (data-driven, per _DATA_DRIVEN §1); a
+   <noscript> notice + the raw JSON are provided above.
+   ============================================================ */
+(function(){
+  "use strict";
+
+  var DATA;
+  try { DATA = JSON.parse(document.getElementById('report-data').textContent); }
+  catch(e){ document.getElementById('console').innerHTML =
+    '<p style="padding:24px;font:600 13px var(--sans);color:var(--risk)">Could not parse #report-data: '+e.message+'</p>'; return; }
+
+  var root    = document.documentElement;
+  var console_ = document.getElementById('console');
+  var tip     = document.getElementById('chart-tip');
+
+  /* ---- helpers ---- */
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+  function num(s){ var n=parseFloat(String(s).replace(/[^0-9.\-]/g,'')); return isFinite(n)?n:0; }
+  function fmtK(v){ return v>=1000 ? (v/1000).toFixed(1).replace(/\.0$/,'')+'k' : String(v); }
+  var COLORVAR = { navy:'var(--navy)', risk:'var(--risk)', ok:'var(--ok)', hold:'var(--hold)' };
+
+  /* The time-range data lives in the table widget's free-form data.kpiRanges
+     (schema-valid; the top-level 'kpis' is the schema-required default set). */
+  function getRanges(){
+    var w = (DATA.widgets||[]).filter(function(x){ return x.data && x.data.kpiRanges; })[0];
+    return (w && w.data.kpiRanges) || { default:null, items:[] };
+  }
+  /* normalise a KPI item to ensure it carries a render label (schema 'kpis' has
+     explicit labels; the kpiRanges variants inherit from the default by id). */
+  function defLabel(id){
+    var d = (DATA.kpis||[]).filter(function(k){ return k.id===id; })[0];
+    return (d && d.label) || id;
+  }
+  function defIcon(id){
+    var d = (DATA.kpis||[]).filter(function(k){ return k.id===id; })[0];
+    return (d && d.icon) || 'data';
+  }
+
+  /* ---- inline house SVG icons (24×24, stroke=currentColor) ---- */
+  var ICON = {
+    nav:'<path d="M4.5 18a8 8 0 1 1 15 0"/><path d="M12 13.5 15.5 9.5"/><rect x="10.4" y="11.9" width="3.2" height="3.2" rx="1.2" fill="currentColor" stroke="none"/>',
+    infra:'<rect x="4" y="4.5" width="16" height="6" rx="2"/><rect x="4" y="13.5" width="16" height="6" rx="2"/><rect x="7" y="7" width="3.2" height="1.2" rx="0.6" fill="currentColor" stroke="none"/><rect x="7" y="16" width="3.2" height="1.2" rx="0.6" fill="currentColor" stroke="none"/>',
+    services:'<path d="M12 7.5 6 16.5M12 7.5 18 16.5M7.5 18.5H16.5"/><rect x="10" y="3.5" width="4" height="4" rx="1.2" fill="currentColor" stroke="none"/><rect x="3.5" y="16.5" width="4" height="4" rx="1.2" fill="currentColor" stroke="none"/><rect x="16.5" y="16.5" width="4" height="4" rx="1.2" fill="currentColor" stroke="none"/>',
+    data:'<path d="M4 4V20H20"/><rect x="6.75" y="12" width="3" height="8" rx="1.2"/><rect x="11.5" y="8" width="3" height="12" rx="1.2"/><rect x="16.25" y="14.5" width="3" height="5.5" rx="1.2"/>',
+    bell:'<path d="M6 17.5c1.3-1.1 1.8-2.6 1.8-4.6V11a4.2 4.2 0 0 1 8.4 0v1.9c0 2 .5 3.5 1.8 4.6Z"/><path d="M10.3 20.3a2 2 0 0 0 3.4 0"/><path d="M12 4.5V6"/>',
+    status:'<path d="M8.5 3.75h7L20.25 8.5v7L15.5 20.25h-7L3.75 15.5v-7Z"/><path d="M12 8.25V13"/><rect x="10.6" y="15.2" width="2.8" height="2.8" rx="1.2" fill="currentColor" stroke="none"/>',
+    deploy:'<path d="M7 20v-5.5a4 4 0 0 1 4-4h2"/><path d="M13 7.5 16.5 4 20 7.5"/><path d="M16.5 4v8"/><rect x="5" y="18.5" width="4" height="4" rx="1.2" fill="currentColor" stroke="none"/>',
+    settings:'<path d="M5 8h6M15 8h4M5 16h4M13 16h6"/><rect x="11" y="6" width="4" height="4" rx="1.2"/><rect x="9" y="14" width="4" height="4" rx="1.2"/>',
+    time:'<circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5"/><path d="M9.5 3.5h5"/>',
+    shield:'<path d="M12 3.25 19 5.75v5.45c0 4.4-3 7.6-7 8.8-4-1.2-7-4.4-7-8.8V5.75Z"/><path d="M9 12l2.2 2.2L15.2 9.6"/>',
+    pulse:'<path d="M5 12h4l2-5 3 10 2-5h3"/>',
+    up:'<path d="M5 16 11 9l3.5 3.5L19 7"/><path d="M19 7v4M19 7h-4"/>',
+    down:'<path d="M5 8 11 15l3.5-3.5L19 16"/><path d="M19 16v-4M19 16h-4"/>',
+    check:'<path d="M8.3 12.4l2.5 2.5 4.9-5.3"/><circle cx="12" cy="12" r="8.5"/>',
+    spark:'<path d="M4 5V19H20"/><path d="M5 15.5 9 11l3 2.5 4.5-7"/><rect x="15" y="5.4" width="3.2" height="3.2" rx="1.2" fill="currentColor" stroke="none"/>',
+    grid:'<rect x="6" y="6" width="12" height="12" rx="2"/><path d="M9 3.5v2.5M15 3.5v2.5M9 18v2.5M15 18v2.5M3.5 9H6M3.5 15H6M18 9h2.5M18 15h2.5"/>',
+    pipe:'<path d="M4 7h12M4 12h16M4 17h9"/><rect x="17.5" y="5.4" width="3.2" height="3.2" rx="1.2" fill="currentColor" stroke="none"/><rect x="14.5" y="15.4" width="3.2" height="3.2" rx="1.2" fill="currentColor" stroke="none"/>'
+  };
+  function svg(name, cls){ return '<svg class="'+(cls||'icon')+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" '
+    + 'stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">'+(ICON[name]||'')+'</svg>'; }
+  /* nav rail icon mapping (schema icon key → glyph) */
+  var NAVICON = { nav:'nav', infra:'infra', data:'data', status:'status', time:'time' };
+  /* KPI / widget icon mapping */
+  var KPIICON = { status:'shield', data:'pulse', time:'time', infra:'infra' };
+  var WIDGETICON = { gauge:'nav', barchart:'data', linechart:'spark', spark:'spark', statlist:'services', table:'status' };
+
+  /* state shared across interactions */
+  var STATE = { range:null, breachOnly:false, sort:{ key:null, dir:1 }, slFilter:'all' };
+
+  /* ============================================================
+     RENDER — build the whole console from DATA
+     ============================================================ */
+  function render(){
+    var m   = DATA.meta || {};
+    var nav = DATA.navItems || [];
+    root.dataset.theme = m.theme || 'blue';
+    var RG = getRanges();
+    STATE.range = RG.default || (RG.items[0] && RG.items[0].id) || null;
+
+    var themeSwitcher = '<label class="rc-theme" title="Brand colour">'
+      + '<span class="rc-theme-sw" aria-hidden="true"></span>'
+      + '<select class="rc-theme-sel" aria-label="Brand theme">'
+      + '<option value="blue">Blue</option>'
+      + '<option value="purple">Purple</option>'
+      + '<option value="indigo">Indigo</option>'
+      + '<option value="teal">Teal</option>'
+      + '<option value="cyan">Cyan</option>'
+      + '<option value="green">Green</option>'
+      + '<option value="plum">Plum</option>'
+      + '<option value="slate">Slate</option>'
+      + '<option value="black">Black</option>'
+      + '</select></label>';
+
+    /* nav rail */
+    var navHTML = nav.map(function(n){
+      return '<button class="nav-btn'+(n.active?' is-active':'')+'" data-tip="'+esc(n.label)+'" data-nav="'+esc(n.id)+'" '
+        + 'aria-label="'+esc(n.label)+'"'+(n.active?' aria-current="page"':'')+'>'+svg(NAVICON[n.icon]||'nav')+'</button>';
+    }).join('');
+
+    var rangeHTML = RG.items.map(function(r){
+      return '<button data-range="'+esc(r.id)+'"'+(r.id===STATE.range?' class="on"':'')+'>'+esc(r.label)+'</button>'; }).join('');
+
+    console_.innerHTML = ''
+    + '<nav class="navrail" aria-label="Console sections">'
+    +   '<div class="rail-mark" title="'+esc(m.org||'')+'">'+esc((m.org||'N').replace(/[^A-Za-z0-9]/g,'').charAt(0)||'N')+'</div>'
+    +   navHTML
+    +   '<div class="nav-spacer"></div>'
+    +   '<button class="nav-btn" data-tip="Settings" data-nav="settings" aria-label="Settings">'+svg('settings')+'</button>'
+    +   '<div class="nav-status" title="'+esc(m.author||'')+' · on-call">OC</div>'
+    + '</nav>'
+
+    + '<div class="main">'
+    +   '<header class="topbar">'
+    +     '<div>'
+    +       '<div class="tb-title">'+esc(m.project||'{{PROJECT}}')+' · <b>'+esc(m.title||'Operations Console')+'</b></div>'
+    +       '<div class="tb-sub">'+esc(m.org||'')+' · '+esc((m.reportType||'').toUpperCase())+(m.subtitle?' · '+esc(m.subtitle.toUpperCase()):'')+'</div>'
+    +     '</div>'
+    +     (m.environment ? '<span class="env-chip">'+esc(m.environment)+'</span>' : '')
+    +     '<span class="live-dot" id="live" title="Live — click to pause auto-refresh">Live</span>'
+    +     '<span class="clock tnum" id="clock">'+esc(m.date||'')+'</span>'
+    +     '<div class="tb-spacer"></div>'
+    +     '<button class="tb-toggle" id="breach-toggle" type="button" aria-pressed="false" title="Spotlight breaching widgets only">'
+    +       '<span class="sw-track" aria-hidden="true"></span>Breaching only</button>'
+    +     '<div class="range" role="group" aria-label="Time range">'+rangeHTML+'</div>'
+    +     themeSwitcher
+    +   '</header>'
+
+    +   '<section class="kpi-band" id="kpi-band" aria-label="Key performance indicators"></section>'
+
+    +   '<section class="widget-grid" id="widget-grid" aria-label="Monitoring widgets">'
+    +     (DATA.widgets||[]).map(renderWidget).join('')
+    +   '</section>'
+
+    +   '<footer class="foot">'
+    +     '<span class="wm"><i></i>'+esc(m.org||'{{ORG}}')+'</span>'
+    +     '<span class="sp"></span>'
+    +     '<span>'+esc(m.project||'{{PROJECT}}')+' OPS CONSOLE · '+esc((m.reportType||'').toUpperCase())+'</span>'
+    +     '<span>GENERATED '+esc(m.date||'')+'</span>'
+    +     '<span>SOURCE · METRICS PIPELINE (READ-ONLY)</span>'
+    +     '<span>'+esc(m.author||'{{AUTHOR}}')+'</span>'
+    +   '</footer>'
+    + '</div>';
+
+    renderKpis(STATE.range);
+  }
+
+  /* ---- KPI band (re-rendered when the time range changes) ---- */
+  function renderKpis(rangeId){
+    var band = document.getElementById('kpi-band');
+    var RG = getRanges(); var ranges = RG.items || [];
+    var set = null;
+    for(var i=0;i<ranges.length;i++){ if(ranges[i].id===rangeId){ set = ranges[i]; break; } }
+    /* fall back to the schema-required top-level default set */
+    var kpis = set ? set.kpis : (DATA.kpis || []);
+    band.style.gridTemplateColumns = 'repeat('+Math.max(kpis.length,1)+',1fr)';
+    band.innerHTML = kpis.map(function(k){
+      var stClass = (k.state==='risk') ? ' is-risk' : (k.state==='hold') ? ' is-hold' : '';
+      var label = k.label || defLabel(k.id);
+      var pts = (k.spark||[]).map(function(v,j,a){
+        var x = a.length>1 ? (j/(a.length-1))*100 : 0; var y = 30 - (v/100)*26 - 1; return x.toFixed(1)+','+y.toFixed(1); });
+      var line = pts.join(' ');
+      var area = (k.spark&&k.spark.length) ? ('M0,31 L'+line.replace(/ /g,' L')+' L100,31 Z') : '';
+      var sparkSVG = (k.spark&&k.spark.length)
+        ? '<svg class="kp-spark" viewBox="0 0 100 32" preserveAspectRatio="none"><path class="a" d="'+area+'"/><polyline class="l" points="'+line+'"/></svg>' : '';
+      var deltaIco = k.trend==='up' ? svg('up') : k.trend==='down' ? svg('down') : '';
+      var iconKey = k.icon || defIcon(k.id);
+      var detail = k.detail || ('Current value over the '+rangeId+' window.');
+      return '<div class="kpi-tile'+stClass+'" data-kpi="'+esc(k.id)+'" data-state="'+esc(k.state||'neutral')+'" tabindex="0" role="button" '
+        +    'aria-label="'+esc(label)+' '+esc(k.value)+esc(k.unit||'')+'. Click to drill to incidents.">'
+        +   '<span class="kpi-label mlabel">'+svg(KPIICON[iconKey]||'pulse')+esc(label)+'</span>'
+        +   '<div class="kpi-num tnum">'+esc(k.value)+(k.unit?'<small>'+esc(k.unit)+'</small>':'')+'</div>'
+        +   '<div class="kpi-foot">'
+        +     '<span class="delta '+esc(k.trend||'flat')+'">'+deltaIco+esc(k.delta||'')+'</span>'
+        +     (k.sloLabel?'<span class="mlabel">'+esc(k.sloLabel)+'</span>':'')
+        +   '</div>'
+        +   '<div class="kpi-pop" role="tooltip">'+sparkSVG
+        +     '<p>'+esc(detail)+'</p>'
+        +     '<div class="kp-meta"><span>'+esc(rangeId)+' window</span><span>'+(k.sloLabel?'<b>'+esc(k.sloLabel)+'</b>':'')+'</span></div>'
+        +   '</div>'
+        + '</div>';
+    }).join('');
+    if(STATE.breachOnly) applyBreachFilter();
+  }
+
+  /* ---- widget dispatch ---- */
+  function renderWidget(w){
+    var body;
+    switch(w.type){
+      case 'gauge':     body = w.data && w.data.rings ? ringGauge(w) : semiGauge(w); break;
+      case 'barchart':  body = (w.data&&w.data.orientation==='horizontal') ? hbars(w) : vbars(w); break;
+      case 'linechart':
+      case 'spark':     body = lineChart(w); break;
+      case 'statlist':  body = (w.data&&w.data.layout==='minirow') ? miniRow(w) : statList(w); break;
+      case 'table':     body = dataTable(w); break;
+      default:          body = { head:'', html:'<p class="muted">Unsupported widget.</p>' };
+    }
+    return ''
+    + '<article class="widget" style="--span:'+(w.span||4)+'" data-widget="'+esc(w.id)+'" data-wtype="'+esc(w.type)+'">'
+    +   '<div class="widget-head">'
+    +     '<div class="w-title">'+svg(WIDGETICON[w.type]||'data')+esc(w.title)+'</div>'
+    +     '<span class="w-meta">'+(body.head || (w.meta?'<span class="mlabel">'+esc(w.meta)+'</span>':''))+'</span>'
+    +   '</div>'
+    +   '<div class="widget-body'+(body.bodyClass?' '+body.bodyClass:'')+'"'+(body.bodyStyle?' style="'+body.bodyStyle+'"':'')+'>'+body.html+'</div>'
+    + '</article>';
+  }
+
+  /* ---- 4a. semicircular gauge ---- */
+  function semiGauge(w){
+    var d = w.data||{}; var LEN = 219.9;
+    var pct = Math.max(0, Math.min(1, (d.value||0)/(d.max||100)));
+    var off = LEN*(1-pct);
+    var cls = d.state==='risk'?'risk':d.state==='hold'?'hold':'';
+    var foot = (d.foot||[]).map(function(f){
+      var col = f.state==='risk'?'var(--risk)':f.state==='hold'?'var(--hold)':'';
+      return '<div><span class="mlabel">'+esc(f.label)+'</span><b class="tnum"'+(col?' style="color:'+col+'"':'')+'>'+esc(f.value)+'</b></div>';
+    }).join('');
+    var html = ''
+    + '<div class="gauge '+cls+'" data-gv="'+(d.value||0)+'" data-gu="'+esc(d.unit||'')+'" data-gl="'+esc(d.label||w.title)+'">'
+    +   '<svg viewBox="0 0 170 104">'
+    +     '<path class="gauge-track" d="M15 96 A70 70 0 0 1 155 96" fill="none" stroke-width="13"/>'
+    +     '<path class="gauge-fill" d="M15 96 A70 70 0 0 1 155 96" fill="none" stroke-width="13" stroke-dasharray="'+LEN+'" stroke-dashoffset="'+off.toFixed(1)+'"/>'
+    +   '</svg>'
+    +   '<div class="gauge-center"><div class="gauge-val tnum">'+(d.value||0)+(d.unit?'<small>'+esc(d.unit)+'</small>':'')+'</div>'
+    +   '<div class="gauge-cap">'+esc(d.cap||'')+'</div></div>'
+    + '</div>'
+    + '<div class="gauge-scale"><span>0</span><span>'+Math.round((d.max||100)/2)+'</span><span>'+(d.max||100)+'</span></div>'
+    + (foot?'<div class="gauge-foot">'+foot+'</div>':'');
+    return { html:html, bodyClass:'gauge-wrap', head:(w.meta?'<span class="mlabel">'+esc(w.meta)+'</span>':'') };
+  }
+
+  /* ---- ring gauges (donut stack) ---- */
+  function ringGauge(w){
+    var rings = (w.data&&w.data.rings)||[]; var LEN = 201;
+    var html = rings.map(function(r){
+      var pct = Math.max(0, Math.min(1, (r.value||0)/(r.max||100)));
+      var off = LEN*(1-pct);
+      var cls = r.state==='risk'?'risk':r.state==='hold'?'hold':'';
+      var col = r.state==='risk'?'color:var(--risk)':r.state==='hold'?'color:var(--hold)':'';
+      return '<div class="ring-row">'
+        +  '<div class="ring '+cls+'" data-gv="'+(r.value||0)+'" data-gu="'+esc(r.unit||'')+'" data-gl="'+esc(r.label)+'">'
+        +    '<svg width="78" height="78" viewBox="0 0 78 78"><circle class="ring-track" cx="39" cy="39" r="32" fill="none" stroke-width="9"/>'
+        +    '<circle class="ring-fill" cx="39" cy="39" r="32" fill="none" stroke-width="9" stroke-dasharray="'+LEN+'" stroke-dashoffset="'+off.toFixed(1)+'"/></svg>'
+        +    '<span class="ring-num tnum"'+(col?' style="'+col+'"':'')+'>'+(r.value||0)+(r.unit||'')+'</span>'
+        +  '</div>'
+        +  '<div class="ring-meta"><div class="mlabel">'+esc(r.label)+'</div><p><b>'+(r.value||0)+(r.unit||'')+'</b> '+esc(r.note||'')+'</p></div>'
+        + '</div>';
+    }).join('');
+    return { html:html, bodyStyle:'display:flex;flex-direction:column;gap:13px;', head:(w.meta?'<span class="mlabel">'+esc(w.meta)+'</span>':'') };
+  }
+
+  /* ---- 4b. vertical bar chart (req + 5xx overlay), clickable legend ---- */
+  function vbars(w){
+    var d = w.data||{}; var bars = d.bars||[]; var max = d.max || Math.max.apply(null, bars.map(function(b){return b.max||b.value;}));
+    var series = d.series || [{id:'req',label:'req',color:'navy'}];
+    var legend = '<span class="legend" data-legend="'+esc(w.id)+'">'+series.map(function(s){
+      return '<button data-series="'+esc(s.id)+'" type="button" title="Toggle '+esc(s.label)+'"><i style="background:'+(COLORVAR[s.color]||'var(--navy)')+'"></i>'+esc(s.label)+'</button>';
+    }).join('')+'</span>';
+    var cols = bars.map(function(b){
+      var h = ((b.value||0)/max)*100;
+      var eh = b.err!=null ? Math.min(h, (b.err/max)*100*8) : 0;  /* scale 5xx for visibility */
+      var cls = b.state==='risk'?'risk':b.state==='hold'?'hold':b.state==='proj'?'dim':'ok';
+      return '<div class="bm-col" data-req="'+(b.value||0)+'" data-err="'+(b.err||0)+'" data-x="'+esc(b.label)+'" data-state="'+esc(b.state||'')+'">'
+        +  '<div class="bm-stack">'
+        +    '<div class="bm-err" style="--he:'+eh.toFixed(1)+'%"></div>'
+        +    '<div class="bm-bar '+cls+'" style="--h:'+(h-eh).toFixed(1)+'%"></div>'
+        +  '</div>'
+        +  '<div class="bm-x">'+esc(b.label)+'</div>'
+        + '</div>';
+    }).join('');
+    return { head:legend, html:'<div class="barmini">'+cols+'</div><div class="bm-base"></div>' };
+  }
+
+  /* ---- horizontal bars (latency by service) ---- */
+  function hbars(w){
+    var d = w.data||{}; var bars = d.bars||[]; var max = d.max || Math.max.apply(null, bars.map(function(b){return b.max||b.value;}));
+    var rows = bars.map(function(b){
+      var wd = Math.min(100, ((b.value||0)/(bars.reduce(function(a,x){return Math.max(a,x.value);},1)))*100);
+      var cls = b.state==='risk'?'risk':b.state==='hold'?'hold':'ok';
+      var col = b.state==='risk'?' style="color:var(--risk)"':b.state==='hold'?' style="color:var(--hold)"':'';
+      return '<div class="bar-row" data-label="'+esc(b.label)+'" data-val="'+(b.value||0)+'" data-unit="'+esc(d.unit||'')+'" data-state="'+esc(b.state||'')+'">'
+        +  '<span class="bar-label">'+esc(b.label)+'</span>'
+        +  '<span class="bar-track"><span class="bar-fill '+cls+'" style="--w:'+wd.toFixed(0)+'%"></span></span>'
+        +  '<span class="bar-val tnum"'+col+'>'+(b.value||0)+'</span>'
+        + '</div>';
+    }).join('');
+    return { head:(w.meta?'<span class="mlabel">'+esc(w.meta)+'</span>':''), html:rows };
+  }
+
+  /* ---- 4c. line / area chart (single series + SLO line), hover tooltip ---- */
+  function lineChart(w){
+    var d = w.data||{}; var s = (d.series&&d.series[0])||{values:[]}; var vals = s.values||[];
+    var W=300, H=118; var max = Math.max.apply(null, vals.concat([d.slo||0]))*1.18 || 1;
+    function X(i){ return vals.length>1 ? (i/(vals.length-1))*W : 0; }
+    function Y(v){ return H - (v/max)*(H-10) - 4; }
+    var risk = s.color==='risk';
+    var line = vals.map(function(v,i){ return X(i).toFixed(1)+','+Y(v).toFixed(1); }).join(' ');
+    var area = vals.length ? ('M0,'+H+' L'+vals.map(function(v,i){return X(i).toFixed(1)+','+Y(v).toFixed(1);}).join(' L')+' L'+W+','+H+' Z') : '';
+    var sloY = Y(d.slo||0);
+    var hot = vals.map(function(v,i){
+      var bw = vals.length>1 ? W/(vals.length-1) : W;
+      return '<rect class="spark-hot" x="'+(X(i)-bw/2).toFixed(1)+'" y="0" width="'+bw.toFixed(1)+'" height="'+H+'" '
+        +  'data-i="'+i+'" data-v="'+v+'" data-x="'+(X(i)).toFixed(1)+'" data-y="'+Y(v).toFixed(1)+'"/>';
+    }).join('');
+    var last = vals.length?vals[vals.length-1]:0;
+    var html = ''
+    + '<div class="spark-wrap" data-line="'+esc(w.id)+'" data-unit="'+esc(d.unit||'')+'" data-label="'+esc(s.label||'value')+'">'
+    +   '<svg class="spark-big" viewBox="0 0 300 118" preserveAspectRatio="none">'
+    +     '<g class="spark-grid"><line x1="0" y1="30" x2="300" y2="30"/><line x1="0" y1="60" x2="300" y2="60"/><line x1="0" y1="90" x2="300" y2="90"/></g>'
+    +     (d.slo!=null?'<line x1="0" y1="'+sloY.toFixed(1)+'" x2="300" y2="'+sloY.toFixed(1)+'" stroke="var(--ink-faint)" stroke-width="1" stroke-dasharray="4 4"/>':'')
+    +     '<path class="spark-area'+(risk?' risk':'')+'" d="'+area+'"/>'
+    +     '<polyline class="spark-line'+(risk?' risk':'')+'" points="'+line+'"/>'
+    +     '<line class="spark-cursor" x1="0" y1="0" x2="0" y2="'+H+'"/>'
+    +     '<circle class="spark-dot'+(risk?' risk':'')+'" cx="0" cy="0"/>'
+    +     hot
+    +   '</svg>'
+    +   '<div class="spark-foot"><span>'+esc((d.labels&&d.labels[0])||'')+'</span>'
+    +     (d.sloLabel?'<span>'+esc(d.sloLabel)+'</span>':'')
+    +     '<span>now '+last+esc(d.unit||'')+'</span></div>'
+    + '</div>';
+    var head = '<span class="st-badge '+(last>(d.slo||Infinity)?'st-risk':'st-ok')+'">'+(last>(d.slo||Infinity)?'breach':'ok')+'</span>';
+    /* stash labels for tooltip */
+    LINE_LABELS[w.id] = d.labels||[];
+    return { head:head, html:html };
+  }
+  var LINE_LABELS = {};
+
+  /* ---- 4d. status list (filterable by state, drillable) ---- */
+  function statList(w){
+    var rows = (w.data&&w.data.rows)||[];
+    var counts = { ok:0, hold:0, risk:0 };
+    rows.forEach(function(r){ if(counts[r.status]!=null) counts[r.status]++; });
+    var bar = '<div class="statlist-bar" data-slfilter="'+esc(w.id)+'">'
+      + '<button class="sl-chip on" data-st="all">All <span class="n tnum">'+rows.length+'</span></button>'
+      + '<button class="sl-chip" data-st="ok"><span class="mini-dot ok"></span>OK <span class="n tnum">'+counts.ok+'</span></button>'
+      + '<button class="sl-chip" data-st="hold"><span class="mini-dot hold"></span>Degraded <span class="n tnum">'+counts.hold+'</span></button>'
+      + '<button class="sl-chip" data-st="risk"><span class="mini-dot risk"></span>Critical <span class="n tnum">'+counts.risk+'</span></button>'
+      + '</div>';
+    var list = rows.map(function(r){
+      var badge = r.status==='ok'?'st-ok':r.status==='hold'?'st-hold':'st-risk';
+      var pcol = r.status==='risk'?' style="color:var(--risk)"':r.status==='hold'?' style="color:var(--hold)"':'';
+      return '<div class="stat-row" data-status="'+esc(r.status)+'" data-svc="'+esc(r.label)+'" role="button" tabindex="0" '
+        +  'title="Drill to incidents for '+esc(r.label)+'">'
+        +  '<span class="st-badge '+badge+'">'+esc(r.stateLabel||r.status)+'</span>'
+        +  '<span class="stat-name">'+esc(r.label)+'<span>'+esc(r.sub||'')+'</span></span>'
+        +  '<span class="stat-figs"><span class="stat-fig"><b class="tnum"'+pcol+'>'+esc(r.p95||'—')+'</b><em>p95</em></span>'
+        +  '<span class="stat-fig"><b class="tnum"'+(r.status==='risk'?' style="color:var(--risk)"':'')+'>'+esc(r.err||'—')+'</b><em>err</em></span></span>'
+        + '</div>';
+    }).join('');
+    return { head:(w.meta?'<span class="mlabel">'+esc(w.meta)+'</span>':''), html:bar+'<div class="statlist">'+list+'</div>' };
+  }
+
+  /* ---- mini KPI row ---- */
+  function miniRow(w){
+    var cells = (w.data&&w.data.cells)||[];
+    var html = '<div class="minirow">'+cells.map(function(c){
+      var col = c.state==='risk'?' style="color:var(--risk)"':c.state==='hold'?' style="color:var(--hold)"':'';
+      var dico = c.trend==='up'?svg('up'):c.trend==='down'?svg('down'):'';
+      return '<div class="minicell"><div class="mlabel">'+esc(c.label)+'</div>'
+        +  '<b class="tnum"'+col+'>'+esc(c.value)+(c.unit?'<small>'+esc(c.unit)+'</small>':'')+'</b>'
+        +  '<div class="delta '+esc(c.trend||'flat')+'">'+dico+esc(c.delta||'')+'</div></div>';
+    }).join('')+'</div>';
+    return { head:(w.meta?'<span class="mlabel">'+esc(w.meta)+'</span>':''), html:html };
+  }
+
+  /* ---- 4e. data table (sortable, drawer, drill target) ---- */
+  function dataTable(w){
+    var d = w.data||{}; var cols = d.columns||[]; var rows = (d.rows||[]).map(function(r,i){ r.__i=i; return r; });
+    TABLE_DATA[w.id] = { cols:cols, rows:rows };
+    return { head:(w.meta?'<span class="chip">'+esc(w.meta)+'</span>':''),
+             bodyStyle:'padding:12px 2px;',
+             html:'<table class="dtable" data-table="'+esc(w.id)+'">'+tableHead(cols)+'<tbody>'+tableBody(w.id)+'</tbody></table>' };
+  }
+  var TABLE_DATA = {};
+  function tableHead(cols){
+    return '<thead><tr>'+cols.map(function(c){
+      var sortable = (c.key==='age'||c.key==='sev'||c.numeric);
+      return '<th class="'+(c.numeric?'num ':'')+(sortable?'sortable':'')+'"'+(sortable?' data-sort="'+esc(c.key)+'"':'')+'>'
+        + esc(c.label)+(sortable?'<span class="sort-ar">▾</span>':'')+'</th>'; }).join('')+'</tr></thead>';
+  }
+  function tableBody(tid){
+    var t = TABLE_DATA[tid]; var rows = t.rows.slice();
+    if(STATE.sort.key){
+      var k = STATE.sort.key, dir = STATE.sort.dir;
+      rows.sort(function(a,b){
+        var av, bv;
+        if(k==='age'){ av=a.ageMin||0; bv=b.ageMin||0; }
+        else if(k==='sev'){ var ord={'SEV-1':1,'SEV-2':2,'SEV-3':3,'Failed':1,'OK':4}; av=ord[a.sev]||9; bv=ord[b.sev]||9; }
+        else { av=a[k]; bv=b[k]; }
+        return av<bv?-1*dir:av>bv?1*dir:0;
+      });
+    }
+    return rows.map(function(r){
+      var sevBadge = r.sevState==='risk'?'st-risk':r.sevState==='hold'?'st-hold':'st-ok';
+      var dot = r.status==='risk'?'risk':r.status==='hold'?'hold':'ok';
+      return '<tr class="row-main" data-row="'+r.__i+'" data-svc="'+esc(r.service||'')+'" data-table="'+esc(tid)+'">'
+        +  '<td><span class="caret"></span><span class="id">'+esc(r.id)+'</span></td>'
+        +  '<td><span class="svc">'+esc(r.service||'')+'</span><br><span class="sub">'+esc(r.summary||'')+'</span></td>'
+        +  '<td><span class="st-badge '+sevBadge+'">'+esc(r.sev)+'</span></td>'
+        +  '<td class="num">'+esc(r.age||'')+'</td>'
+        +  '<td><span class="sub">'+esc(r.owner||'')+'</span></td>'
+        +  '<td><span class="mini-dot '+dot+'"></span> <span class="sub">'+esc(r.state||'')+'</span></td>'
+        + '</tr>'
+        + '<tr class="row-drawer" data-drawer="'+r.__i+'"><td colspan="'+t.cols.length+'"><div class="dz">'
+        +   '<div class="mlabel">'+esc(r.id)+' · '+esc(r.service||'')+'</div><p>'+esc(r.detail||'')+'</p></div></td></tr>';
+    }).join('');
+  }
+
+  /* ============================================================
+     INTERACTIONS
+     ============================================================ */
+  function wireInteractions(){
+    var main = console_;
+
+    /* ---- TIME RANGE: actually re-scope the KPI band ---- */
+    main.addEventListener('click', function(e){
+      var rb = e.target.closest('.range button'); if(!rb) return;
+      main.querySelectorAll('.range button').forEach(function(x){ x.classList.remove('on'); });
+      rb.classList.add('on');
+      STATE.range = rb.dataset.range;
+      renderKpis(STATE.range);
+    });
+
+    /* ---- NAV RAIL: switch active + scroll to a labelled band ---- */
+    main.addEventListener('click', function(e){
+      var nb = e.target.closest('.nav-btn[data-nav]'); if(!nb) return;
+      main.querySelectorAll('.nav-btn').forEach(function(x){ x.classList.remove('is-active'); x.removeAttribute('aria-current'); });
+      nb.classList.add('is-active'); nb.setAttribute('aria-current','page');
+      var id = nb.dataset.nav;
+      var map = { overview:'kpi-band', services:'service-health', throughput:'throughput',
+                  infra:'saturation', alerts:'error-trend', incidents:'active-incidents', deploys:'active-incidents' };
+      var target = map[id] && (document.getElementById(map[id]) || main.querySelector('[data-widget="'+map[id]+'"]'));
+      if(target) target.scrollIntoView({ behavior:'smooth', block:'start' });
+    });
+
+    /* ---- BREACH-ONLY toggle ---- */
+    var bt = document.getElementById('breach-toggle');
+    bt.addEventListener('click', function(){
+      STATE.breachOnly = !STATE.breachOnly;
+      bt.classList.toggle('on', STATE.breachOnly);
+      bt.setAttribute('aria-pressed', STATE.breachOnly?'true':'false');
+      applyBreachFilter();
+    });
+
+    /* ---- KPI tile DRILL → incidents table ---- */
+    main.addEventListener('click', function(e){
+      var tile = e.target.closest('.kpi-tile'); if(!tile) return;
+      var tbl = main.querySelector('[data-widget="active-incidents"]');
+      if(tbl){ tbl.scrollIntoView({ behavior:'smooth', block:'center' });
+        flash(tbl); }
+    });
+    main.addEventListener('keydown', function(e){
+      var tile = e.target.closest('.kpi-tile');
+      if(tile && (e.key==='Enter'||e.key===' ')){ e.preventDefault(); tile.click(); }
+    });
+
+    /* ---- LEGEND: toggle a series in the bar chart ---- */
+    main.addEventListener('click', function(e){
+      var lb = e.target.closest('.legend button'); if(!lb) return;
+      var legend = lb.closest('.legend'); var wid = legend.dataset.legend;
+      lb.classList.toggle('off');
+      var sid = lb.dataset.series;
+      var widget = main.querySelector('[data-widget="'+wid+'"]');
+      var off = lb.classList.contains('off');
+      widget.querySelectorAll('.bm-col').forEach(function(col){
+        if(sid==='err') col.classList.toggle('series-off', off);
+        if(sid==='req') col.classList.toggle('req-off', off);
+      });
+    });
+
+    /* ---- STATUS-LIST filter chips ---- */
+    main.addEventListener('click', function(e){
+      var chip = e.target.closest('.sl-chip'); if(!chip) return;
+      var bar = chip.closest('.statlist-bar'); var wid = bar.dataset.slfilter;
+      bar.querySelectorAll('.sl-chip').forEach(function(x){ x.classList.remove('on'); });
+      chip.classList.add('on');
+      var st = chip.dataset.st;
+      var widget = main.querySelector('[data-widget="'+wid+'"]');
+      widget.querySelectorAll('.stat-row').forEach(function(row){
+        row.classList.toggle('is-hidden', st!=='all' && row.dataset.status!==st);
+      });
+    });
+
+    /* ---- STATUS-LIST row → drill to incidents filtered by service ---- */
+    main.addEventListener('click', function(e){
+      var row = e.target.closest('.stat-row'); if(!row) return;
+      drillToService(row.dataset.svc);
+    });
+    main.addEventListener('keydown', function(e){
+      var row = e.target.closest('.stat-row');
+      if(row && (e.key==='Enter'||e.key===' ')){ e.preventDefault(); drillToService(row.dataset.svc); }
+    });
+
+    /* ---- TABLE sort ---- */
+    main.addEventListener('click', function(e){
+      var th = e.target.closest('th.sortable'); if(!th) return;
+      var table = th.closest('.dtable'); var tid = table.dataset.table;
+      var key = th.dataset.sort;
+      if(STATE.sort.key===key){ STATE.sort.dir *= -1; } else { STATE.sort.key=key; STATE.sort.dir=1; }
+      table.querySelector('tbody').innerHTML = tableBody(tid);
+      table.querySelectorAll('th').forEach(function(h){ h.classList.remove('sorted'); });
+      th.classList.add('sorted');
+      th.querySelector('.sort-ar').textContent = STATE.sort.dir>0?'▾':'▴';
+    });
+
+    /* ---- TABLE row → expand drawer ---- */
+    main.addEventListener('click', function(e){
+      var tr = e.target.closest('tr.row-main'); if(!tr) return;
+      var i = tr.dataset.row; var table = tr.closest('.dtable');
+      var drawer = table.querySelector('tr.row-drawer[data-drawer="'+i+'"]');
+      var open = tr.classList.toggle('is-open');
+      if(drawer){ drawer.classList.toggle('is-open', open); }
+    });
+
+    /* ---- CHART TOOLTIPS (gauge, ring, vbar, hbar, line) ---- */
+    wireTooltips();
+
+    /* ---- LIVE clock + pause ---- */
+    wireClock();
+  }
+
+  function applyBreachFilter(){
+    var on = STATE.breachOnly;
+    /* KPI tiles: dim everything not risk/hold */
+    console_.querySelectorAll('.kpi-tile').forEach(function(t){
+      var s = t.dataset.state; t.classList.toggle('dim-out', on && s!=='risk' && s!=='hold'); });
+    /* widgets: dim widgets that contain no breaching signal */
+    console_.querySelectorAll('.widget').forEach(function(wEl){
+      if(!on){ wEl.classList.remove('dim-out'); return; }
+      var hasBreach = wEl.querySelector('.risk, .st-risk, .st-hold, .hold, [data-status="risk"], [data-status="hold"], [data-state="risk"], [data-state="hold"]');
+      wEl.classList.toggle('dim-out', !hasBreach);
+    });
+  }
+
+  function drillToService(svc){
+    var tbl = console_.querySelector('[data-widget="active-incidents"]'); if(!tbl) return;
+    tbl.scrollIntoView({ behavior:'smooth', block:'center' });
+    tbl.querySelectorAll('tr.row-main').forEach(function(tr){
+      var match = !svc || tr.dataset.svc===svc;
+      tr.classList.toggle('is-hidden', !match);
+      var drawer = tbl.querySelector('tr.row-drawer[data-drawer="'+tr.dataset.row+'"]');
+      if(drawer) drawer.classList.toggle('is-hidden', !match);
+    });
+    flash(tbl);
+  }
+
+  function flash(el){
+    el.style.transition='box-shadow .2s'; el.style.boxShadow='0 0 0 2px var(--navy)';
+    setTimeout(function(){ el.style.boxShadow=''; }, 650);
+  }
+
+  /* ---- tooltips ---- */
+  function wireTooltips(){
+    function show(html, x, y){ tip.innerHTML=html; tip.style.left=x+'px'; tip.style.top=(y-8)+'px'; tip.classList.add('show'); }
+    function hide(){ tip.classList.remove('show'); }
+
+    console_.addEventListener('mousemove', function(e){
+      /* gauge / ring */
+      var g = e.target.closest('.gauge,.ring');
+      if(g){ var r=g.getBoundingClientRect();
+        show('<div class="ct-h">'+esc(g.dataset.gl||'')+'</div><div class="ct-row"><b>'+esc(g.dataset.gv)+esc(g.dataset.gu||'')+'</b></div>',
+             r.left+r.width/2, r.top); return; }
+      /* vertical bars */
+      var col = e.target.closest('.bm-col');
+      if(col){ var rc=col.getBoundingClientRect();
+        var reqOff = col.classList.contains('req-off'), errOff = col.classList.contains('series-off');
+        var rows = '';
+        if(!reqOff) rows += '<div class="ct-row"><i style="background:var(--navy)"></i>req <b>'+fmtK(+col.dataset.req)+'</b></div>';
+        if(!errOff && +col.dataset.err>0) rows += '<div class="ct-row"><i style="background:var(--risk)"></i>5xx <b>'+(+col.dataset.err)+'</b></div>';
+        if(!rows) rows = '<div class="ct-row muted">— hidden —</div>';
+        show('<div class="ct-h">'+esc(col.dataset.x)+':00</div>'+rows, rc.left+rc.width/2, rc.top); return; }
+      /* horizontal bars */
+      var br = e.target.closest('.bar-row');
+      if(br){ var rb=br.getBoundingClientRect();
+        show('<div class="ct-h">'+esc(br.dataset.label)+'</div><div class="ct-row"><i style="background:var(--navy)"></i>p95 <b>'+esc(br.dataset.val)+esc(br.dataset.unit||'')+'</b></div>',
+             e.clientX, rb.top); return; }
+      hide();
+    });
+    console_.addEventListener('mouseleave', hide);
+
+    /* line chart — precise per-point hover */
+    console_.querySelectorAll('.spark-wrap').forEach(function(wrap){
+      var svgEl = wrap.querySelector('.spark-big');
+      var cursor = wrap.querySelector('.spark-cursor');
+      var dot = wrap.querySelector('.spark-dot');
+      var wid = wrap.dataset.line; var unit = wrap.dataset.unit; var lab = wrap.dataset.label;
+      var labels = LINE_LABELS[wid]||[];
+      wrap.querySelectorAll('.spark-hot').forEach(function(hot){
+        hot.addEventListener('mousemove', function(e){
+          var x=+hot.dataset.x, y=+hot.dataset.y, v=hot.dataset.v, i=+hot.dataset.i;
+          cursor.setAttribute('x1',x); cursor.setAttribute('x2',x); cursor.style.opacity=1;
+          dot.setAttribute('cx',x); dot.setAttribute('cy',y); dot.style.opacity=1;
+          var r=svgEl.getBoundingClientRect();
+          var px = r.left + (x/300)*r.width;
+          show('<div class="ct-h">'+esc(labels[i]||'')+'</div><div class="ct-row"><i style="background:var(--risk)"></i>'+esc(lab)+' <b>'+esc(v)+esc(unit||'')+'</b></div>',
+               px, r.top + (y/118)*r.height);
+        });
+        hot.addEventListener('mouseleave', function(){ cursor.style.opacity=0; dot.style.opacity=0; hide(); });
+      });
+    });
+  }
+
+  /* ---- live clock (real, ticking) + click to pause ---- */
+  function wireClock(){
+    var el = document.getElementById('clock');
+    var live = document.getElementById('live');
+    var date = (DATA.meta&&DATA.meta.date) || '';
+    var paused = false, timer;
+    function tick(){
+      if(paused) return;
+      var d = new Date();
+      var hh = String(d.getHours()).padStart(2,'0');
+      var mm = String(d.getMinutes()).padStart(2,'0');
+      var ss = String(d.getSeconds()).padStart(2,'0');
+      el.textContent = date + ' · ' + hh+':'+mm+':'+ss;
+    }
+    tick(); timer = setInterval(tick, 1000);
+    live.addEventListener('click', function(){
+      paused = !paused;
+      live.classList.toggle('is-paused', paused);
+      live.textContent = paused ? 'Paused' : 'Live';
+      live.title = paused ? 'Paused — click to resume' : 'Live — click to pause auto-refresh';
+      if(!paused) tick();
+    });
+  }
+
+  /* ---- canonical dropdown theme switcher (per _DATA_DRIVEN §3) ---- */
+  function wireThemeSwitch(){
+    var rcSel = document.querySelector('.rc-theme-sel');
+    if (rcSel) {
+      rcSel.value = document.documentElement.dataset.theme || 'blue';
+      rcSel.addEventListener('change', function(){ document.documentElement.dataset.theme = rcSel.value; });
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', function(){
+    render();
+    wireInteractions();
+    wireThemeSwitch();
+  });
+})();
+</script>
+</body>
+</html>

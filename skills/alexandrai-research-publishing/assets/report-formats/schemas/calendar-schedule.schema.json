@@ -1,0 +1,142 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://genesis.local/html_report_design/schemas/calendar-schedule.schema.json",
+  "title": "Calendar / schedule report",
+  "description": "Data contract for the calendar-schedule format: a discrete day-cell calendar grid (month / week / resource view) with event chips inside cells, an event-type legend, status semantics, and click-to-detail popovers. This is NOT a continuous gantt time axis (that is timeline-roadmap); here time is quantised into day cells. The sample's #report-data MUST be a valid instance of this schema.",
+  "type": "object",
+  "required": ["meta", "view", "periodStart", "eventTypes", "events"],
+  "additionalProperties": false,
+  "properties": {
+    "meta": {
+      "type": "object",
+      "description": "Shared report chrome metadata (brand-neutral). Keep {{ORG}} / {{PROJECT}} placeholders unless real values are supplied.",
+      "required": ["org", "project", "reportType", "title", "theme"],
+      "additionalProperties": false,
+      "properties": {
+        "org": { "type": "string", "description": "Organisation placeholder, e.g. {{ORG}}.", "default": "{{ORG}}" },
+        "project": { "type": "string", "description": "Project placeholder, e.g. {{PROJECT}}.", "default": "{{PROJECT}}" },
+        "reportType": { "type": "string", "description": "Report type label shown in the footer, e.g. 'Release calendar'." },
+        "title": { "type": "string", "description": "Calendar title shown in the header, e.g. 'Release & Test Calendar'." },
+        "subtitle": { "type": "string", "description": "Optional short standfirst under the title." },
+        "date": { "type": "string", "format": "date", "description": "Report generation date (YYYY-MM-DD). Used for footer meta and may seed the 'today' highlight if today is absent.", "examples": ["2026-06-22"] },
+        "today": { "type": "string", "format": "date", "description": "Optional explicit 'today' date (YYYY-MM-DD) for the today-cell highlight. If omitted, the renderer uses meta.date, then the real current date.", "examples": ["2026-06-22"] },
+        "author": { "type": "string", "description": "Author placeholder, e.g. {{AUTHOR}}.", "default": "{{AUTHOR}}" },
+        "weekStart": { "type": "integer", "minimum": 0, "maximum": 1, "description": "First day of the week column: 0 = Sunday, 1 = Monday. Default 1 (Monday).", "default": 1 },
+        "theme": {
+          "type": "string",
+          "description": "Initial brand theme; sets <html data-theme>. The in-report .rc-theme switcher can change it live.",
+          "enum": ["blue", "purple", "indigo", "teal", "cyan", "green", "plum", "slate"],
+          "default": "green"
+        }
+      }
+    },
+    "view": {
+      "type": "string",
+      "description": "Initial view. 'month' = 7-column weeks of day cells; 'week' = a single week's day columns with taller cells; 'resource' = rows are resources, columns are the days of one week (a schedule lane grid). The header view-toggle switches between these live.",
+      "enum": ["month", "week", "resource"],
+      "default": "month"
+    },
+    "periodStart": {
+      "type": "string",
+      "format": "date",
+      "description": "The anchor date (YYYY-MM-DD). In month view the grid shows the calendar month that contains this date; in week/resource view it shows the week that contains this date. Prev/next moves this anchor by one month (month view) or one week (week/resource view).",
+      "examples": ["2026-07-01"]
+    },
+    "eventTypes": {
+      "type": "array",
+      "description": "The event categories shown as toggleable legend chips and used to colour-band event chips. 3-4 types recommended. Order is the legend order. Each type is auto-assigned one of the family accent/state palettes by index unless 'tone' is set.",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["key", "label"],
+        "additionalProperties": false,
+        "properties": {
+          "key": { "type": "string", "description": "Stable type key referenced by events[].type, e.g. 'release'.", "pattern": "^[a-z0-9][a-z0-9_-]*$" },
+          "label": { "type": "string", "description": "Human label shown on the legend chip, e.g. 'Release'." },
+          "tone": {
+            "type": "string",
+            "description": "Optional palette tone for this type. 'brand' uses the active accent; 'ok'/'risk'/'hold' use the family semantic palettes; 'accentN' (1-4) picks a fixed neutral-distinct accent so multiple types stay distinguishable. If omitted, a tone is assigned by index.",
+            "enum": ["brand", "ok", "risk", "hold", "accent1", "accent2", "accent3", "accent4"]
+          }
+        }
+      }
+    },
+    "resources": {
+      "type": "array",
+      "description": "Optional resource lanes (teams / environments / people) for the resource view and the 'resource' grouping. Each event may reference one via events[].resource. Required to be meaningful only when view can be 'resource'.",
+      "items": {
+        "type": "object",
+        "required": ["key", "label"],
+        "additionalProperties": false,
+        "properties": {
+          "key": { "type": "string", "description": "Stable resource key referenced by events[].resource, e.g. 'env-stg'.", "pattern": "^[a-z0-9][a-z0-9_-]*$" },
+          "label": { "type": "string", "description": "Resource lane label, e.g. 'Staging env'." },
+          "meta": { "type": "string", "description": "Optional short sub-label, e.g. an owner or capacity note." }
+        }
+      }
+    },
+    "events": {
+      "type": "array",
+      "description": "The calendar events. ~15-25 across the event types. Multi-day events (end set) render as a continuous bar across the day cells they span (clipped per week row). All-day vs timed is a presentation hint.",
+      "minItems": 0,
+      "items": {
+        "type": "object",
+        "required": ["id", "title", "start", "type"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "description": "Unique event id, e.g. 'EV-01'. Referenced by the detail popover." },
+          "title": { "type": "string", "description": "Event title shown on the chip and in the popover." },
+          "start": { "type": "string", "format": "date", "description": "Start date (YYYY-MM-DD)." },
+          "end": { "type": "string", "format": "date", "description": "Optional inclusive end date (YYYY-MM-DD) for multi-day events. Omit or equal to start for single-day events." },
+          "type": { "type": "string", "description": "Event-type key; must match one eventTypes[].key. Drives colour band and legend filtering." },
+          "status": {
+            "type": "string",
+            "description": "Optional family semantic state, surfaced as a status dot/badge on the chip and in the popover. 'ok' = on track / done, 'risk' = at risk, 'hold' = blocked / on hold.",
+            "enum": ["ok", "risk", "hold"]
+          },
+          "allDay": { "type": "boolean", "description": "If true, the chip shows no time and reads as a full-day band. Defaults true when no time component is present.", "default": true },
+          "time": { "type": "string", "description": "Optional display time label for timed events, e.g. '09:30' or '14:00-16:00'. Shown on the chip when allDay is false." },
+          "resource": { "type": "string", "description": "Optional resource key (must match resources[].key); places the event in that lane in resource view." },
+          "owner": { "type": "string", "description": "Optional owner / assignee name shown in the popover." },
+          "note": { "type": "string", "description": "Optional one-line detail shown in the popover body." }
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "meta": {
+        "org": "{{ORG}}",
+        "project": "{{PROJECT}}",
+        "reportType": "Release & test calendar",
+        "title": "Release & Test Calendar",
+        "subtitle": "Release 3.1 hardening window",
+        "date": "2026-06-22",
+        "today": "2026-07-14",
+        "author": "{{AUTHOR}}",
+        "weekStart": 1,
+        "theme": "green"
+      },
+      "view": "month",
+      "periodStart": "2026-07-01",
+      "eventTypes": [
+        { "key": "release", "label": "Release", "tone": "brand" },
+        { "key": "test", "label": "Test window", "tone": "accent3" },
+        { "key": "freeze", "label": "Code freeze", "tone": "hold" },
+        { "key": "review", "label": "Review / gate", "tone": "accent2" }
+      ],
+      "resources": [
+        { "key": "env-dev", "label": "Dev env", "meta": "CI" },
+        { "key": "env-stg", "label": "Staging env", "meta": "Pre-prod" },
+        { "key": "env-prd", "label": "Production", "meta": "Live" }
+      ],
+      "events": [
+        { "id": "EV-01", "title": "Sprint 31 planning", "start": "2026-07-01", "type": "review", "status": "ok", "time": "10:00", "allDay": false, "resource": "env-dev", "owner": "A. Rahman", "note": "Scope freeze for the 3.1 hardening sprint." },
+        { "id": "EV-02", "title": "Regression test window", "start": "2026-07-06", "end": "2026-07-10", "type": "test", "status": "ok", "resource": "env-stg", "owner": "QA team", "note": "Full mobile + core banking regression pass on staging." },
+        { "id": "EV-03", "title": "Code freeze", "start": "2026-07-13", "end": "2026-07-17", "type": "freeze", "status": "hold", "resource": "env-stg", "note": "No new feature merges; fix-only branch." },
+        { "id": "EV-04", "title": "Go / no-go gate", "start": "2026-07-14", "type": "review", "status": "risk", "time": "16:00", "allDay": false, "resource": "env-stg", "owner": "Release board", "note": "Two P1 defects still open — at risk." },
+        { "id": "EV-05", "title": "Release 3.1 to production", "start": "2026-07-18", "type": "release", "status": "ok", "time": "21:00", "allDay": false, "resource": "env-prd", "owner": "On-call", "note": "Phased rollout, 10% then 100%." }
+      ]
+    }
+  ]
+}

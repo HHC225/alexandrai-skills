@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="blue">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1440">
+<title>Knowledge Base — {{PROJECT}}</title>
+<style>
+/* ============================================================
+   KNOWLEDGE BASE / FAQ — a help-centre, not an article.
+   Search-first masthead → sticky category sidebar → Q&A accordion
+   grouped by category. Distinct from long-form (no hero/standfirst,
+   no scroll-spy TOC, no numbered section panels, no metadata rail)
+   and from magazine (discrete Q&A, not a continuous read).
+
+   DATA-DRIVEN: the ONLY content source is the JSON in
+   <script id="report-data">. render() builds the DOM from it on
+   DOMContentLoaded; wireInteractions()+wireThemeSwitch() add live
+   behaviour (search+highlight, category filter, tag filter,
+   expand/collapse, hash deep-link, related jump). <noscript> covers
+   the JS-off case. Self-contained: inline CSS + inline SVG + system
+   fonts. No external requests.
+   ============================================================ */
+:root{
+ /* surfaces */
+ --bg:#fff; --bg-band:#f6f6f8; --bg-subtle:#fafafb; --bg-deep:#15131a;
+ --rule:#dcdce2; --rule-soft:#ebebef;
+ /* ink */
+ --ink:#11131a; --ink-mid:#33363f; --ink-soft:#5a5e68; --ink-faint:#868b95;
+ /* brand accent — Purple (default :root) */
+ --navy:#a100ff; --navy-deep:#7a00c2; --navy-bg:#f3e8ff; --navy-line:#d9bef5;
+ /* cleared / approved */
+ --ok:#5a2f8a; --ok-bg:#efe8f5; --ok-line:#d0b5e0;
+ /* semantic states — constant across themes */
+ --risk:#b3261e; --risk-bg:#fbeceb; --risk-line:#edc7c4;
+ --hold:#8a6d00; --hold-bg:#fbf3da; --hold-line:#e7d8a4;
+ /* type stacks */
+ --mono:ui-monospace,"JetBrains Mono","SFMono-Regular",Menlo,Consolas,monospace;
+ --sans:-apple-system,"Segoe UI",system-ui,Roboto,"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic UI","Apple SD Gothic Neo","Malgun Gothic","PingFang SC","Microsoft YaHei","Noto Sans CJK JP","Noto Sans CJK KR","Noto Sans CJK SC","Noto Sans JP","Noto Sans KR","Noto Sans SC","Noto Sans",sans-serif;
+}
+/* theme overrides — swap ONLY the 7 accent values (all 9 presets incl. Black) */
+html[data-theme="blue"]{ --navy:#0b5fd4; --navy-deep:#0842a0; --navy-bg:#e8f1fc; --navy-line:#bcd6f5; --ok:#1a4f9c; --ok-bg:#e9f0fa; --ok-line:#b7cdea; }
+html[data-theme="purple"]{ --navy:#a100ff; --navy-deep:#7a00c2; --navy-bg:#f3e8ff; --navy-line:#d9bef5; --ok:#5a2f8a; --ok-bg:#efe8f5; --ok-line:#d0b5e0; }
+html[data-theme="indigo"]{ --navy:#4338ca; --navy-deep:#312c92; --navy-bg:#ebebfb; --navy-line:#c7c3f0; --ok:#3730a3; --ok-bg:#ebeaf7; --ok-line:#c5c2ea; }
+html[data-theme="teal"]{ --navy:#0e7c86; --navy-deep:#095861; --navy-bg:#e0f3f4; --navy-line:#a9dade; --ok:#0f5d54; --ok-bg:#e3f3ef; --ok-line:#b3ddd4; }
+html[data-theme="cyan"]{ --navy:#0891b2; --navy-deep:#0e6f88; --navy-bg:#e2f4f9; --navy-line:#abdde9; --ok:#0e6b7a; --ok-bg:#e4f3f4; --ok-line:#b0dde2; }
+html[data-theme="green"]{ --navy:#1f7a44; --navy-deep:#155730; --navy-bg:#e6f4ea; --navy-line:#b3dcc1; --ok:#2f6b3c; --ok-bg:#e9f3ea; --ok-line:#bedcc4; }
+html[data-theme="plum"]{ --navy:#a21d6e; --navy-deep:#7c1450; --navy-bg:#fbe8f2; --navy-line:#e8b9d4; --ok:#6d2356; --ok-bg:#f6e8f0; --ok-line:#e3bcd5; }
+html[data-theme="slate"]{ --navy:#3f4f63; --navy-deep:#29384b; --navy-bg:#eef1f5; --navy-line:#c2ccd8; --ok:#34495e; --ok-bg:#eef1f5; --ok-line:#c2ccd8; }
+html[data-theme="black"]{ --navy:#000000; --navy-deep:#000000; --navy-bg:#f1f1f3; --navy-line:#d6d6db; --ok:#3f3f46; --ok-bg:#f1f1f3; --ok-line:#cfcfd6; }
+
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{margin:0;background:var(--bg-subtle);color:var(--ink);font-family:var(--sans);font-size:13px;line-height:1.6;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
+code{font-family:var(--mono);}
+a{color:var(--navy-deep);}
+.icon{width:1.15em;height:1.15em;display:inline-block;vertical-align:-.18em;color:inherit;}
+.icon-lg{width:20px;height:20px;}
+.tnum{font-feature-settings:"tnum" 1;font-variant-numeric:tabular-nums;}
+
+/* ---------- noscript notice ---------- */
+.noscript{margin:20px 40px;padding:14px 18px;background:var(--hold-bg);border:1px solid var(--hold-line);border-radius:10px;color:#6b5500;font-size:12.5px;line-height:1.6;}
+
+/* ============================================================
+   MASTHEAD — search-first banner (replaces the long-form hero)
+   ============================================================ */
+.kb-masthead{position:sticky;top:0;z-index:12;background:var(--bg);border-bottom:1px solid var(--rule);box-shadow:0 1px 3px rgba(17,19,26,.05);}
+.kb-mast-inner{max-width:1500px;margin:0 auto;padding:16px 40px 18px;}
+.kb-mast-top{display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;margin:0 0 14px;}
+.kb-brand{display:flex;align-items:center;gap:10px;min-width:0;}
+.kb-brand .mark{width:22px;height:22px;color:var(--navy);flex:none;}
+.kb-brand-txt{min-width:0;}
+.kb-brand-org{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);}
+.kb-brand-title{font-size:19px;font-weight:800;letter-spacing:-.01em;color:var(--ink);line-height:1.2;}
+.kb-brand-title small{font-weight:600;font-size:12px;color:var(--ink-soft);letter-spacing:0;margin-left:8px;}
+/* theme switcher */
+.rc-theme{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--rule);border-radius:7px;padding:3px 4px 3px 7px;background:var(--bg);}
+.rc-theme-sw{width:12px;height:12px;border-radius:50%;background:var(--navy);box-shadow:0 0 0 1px var(--rule);flex:none;}
+.rc-theme-sel{border:0;background:none;font:600 11px/1 var(--mono);color:var(--ink-mid);cursor:pointer;outline:none;padding:2px;}
+@media print{.rc-theme{display:none;}}
+/* the centrepiece search */
+.kb-search-wrap{display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+.kb-search{position:relative;flex:1;min-width:280px;}
+.kb-search .s-ico{position:absolute;left:15px;top:50%;transform:translateY(-50%);width:18px;height:18px;color:var(--ink-faint);pointer-events:none;}
+.kb-search input{width:100%;font-family:var(--sans);font-size:15px;color:var(--ink);background:var(--bg);border:1.5px solid var(--rule);border-radius:11px;padding:13px 44px 13px 44px;outline:none;transition:border-color .12s ease,box-shadow .12s ease;}
+.kb-search input::placeholder{color:var(--ink-faint);}
+.kb-search input:focus{border-color:var(--navy);box-shadow:0 0 0 3px var(--navy-bg);}
+.kb-search .s-clear{position:absolute;right:11px;top:50%;transform:translateY(-50%);width:24px;height:24px;border:none;background:var(--bg-band);color:var(--ink-soft);border-radius:6px;cursor:pointer;display:none;align-items:center;justify-content:center;padding:0;}
+.kb-search .s-clear.is-on{display:inline-flex;}
+.kb-search .s-clear:hover{background:var(--navy-bg);color:var(--navy-deep);}
+.kb-search .s-clear .icon{width:13px;height:13px;}
+.kb-count{font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.04em;color:var(--navy-deep);background:var(--navy-bg);border:1px solid var(--navy-line);border-radius:7px;padding:7px 12px;white-space:nowrap;}
+.kb-intro{font-size:12.5px;color:var(--ink-soft);margin:11px 0 0;}
+
+/* ============================================================
+   TWO-PANE SHELL — sticky category sidebar + Q&A body
+   ============================================================ */
+.kb-main{max-width:1500px;margin:0 auto;padding:26px 40px 80px;display:grid;grid-template-columns:240px minmax(0,1fr);gap:36px;align-items:start;}
+@media(max-width:980px){.kb-main{grid-template-columns:1fr;gap:18px;padding:20px;}.kb-sidebar{position:static;}}
+
+/* sidebar (sticky) — category filter, NOT a scroll-spy TOC */
+.kb-sidebar{position:sticky;top:148px;align-self:start;display:flex;flex-direction:column;gap:16px;max-height:calc(100vh - 168px);overflow-y:auto;scrollbar-width:thin;}
+.kb-side-label{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);margin:0 0 8px;}
+.cat-nav{display:flex;flex-direction:column;gap:2px;}
+.cat-link{display:grid;grid-template-columns:18px 1fr auto;gap:10px;align-items:center;width:100%;text-align:left;background:none;border:none;border-left:2px solid transparent;border-radius:0 7px 7px 0;padding:8px 10px 8px 11px;margin-left:-2px;cursor:pointer;color:var(--ink-mid);font-size:13px;font-family:var(--sans);line-height:1.3;}
+.cat-link .ci{width:16px;height:16px;color:var(--ink-faint);flex:none;}
+.cat-link .cat-count{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--ink-faint);background:var(--bg-band);border-radius:5px;padding:1px 7px;}
+.cat-link:hover{color:var(--navy-deep);background:var(--bg-band);}
+.cat-link:hover .ci{color:var(--navy-deep);}
+.cat-link.is-on{color:var(--navy-deep);font-weight:700;background:var(--navy-bg);border-left-color:var(--navy);}
+.cat-link.is-on .ci{color:var(--navy-deep);}
+.cat-link.is-on .cat-count{color:var(--navy-deep);background:#fff;}
+.cat-link[data-empty="1"]{opacity:.4;}
+
+/* popular tags panel (second filter axis) */
+.kb-tags-panel{border:1px solid var(--rule);border-radius:12px;background:var(--bg);padding:13px 14px 14px;}
+.tag-row{display:flex;flex-wrap:wrap;gap:6px;}
+.tag-chip{display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);font-size:10.5px;font-weight:700;color:var(--navy-deep);background:var(--navy-bg);border:1px solid var(--navy-line);border-radius:6px;padding:3px 9px;cursor:pointer;line-height:1.4;}
+.tag-chip .icon{width:11px;height:11px;}
+.tag-chip:hover{background:var(--navy);color:#fff;border-color:var(--navy);}
+.tag-chip:hover .icon{color:#fff;}
+.tag-chip.is-on{background:var(--navy);color:#fff;border-color:var(--navy);}
+.tag-chip.is-on .icon{color:#fff;}
+
+/* ---------- Q&A body ---------- */
+.kb-articles{min-width:0;}
+.kb-toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 16px;padding-bottom:13px;border-bottom:1px solid var(--rule-soft);}
+.kb-active-filters{display:flex;align-items:center;gap:7px;flex-wrap:wrap;font-size:11.5px;color:var(--ink-soft);min-width:0;}
+.kb-active-filters .af-lbl{font-family:var(--mono);font-size:9.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint);}
+.af-chip{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:10.5px;font-weight:700;color:var(--navy-deep);background:var(--navy-bg);border:1px solid var(--navy-line);border-radius:6px;padding:2px 6px 2px 9px;}
+.af-chip button{border:none;background:none;color:var(--navy-deep);cursor:pointer;padding:0;display:inline-flex;width:14px;height:14px;align-items:center;justify-content:center;border-radius:4px;}
+.af-chip button:hover{background:var(--navy);color:#fff;}
+.af-chip button .icon{width:10px;height:10px;}
+.kb-bulk{margin-left:auto;display:flex;gap:8px;}
+.kb-bulk button{font-family:var(--mono);font-size:9.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-faint);background:none;border:none;cursor:pointer;}
+.kb-bulk button:hover{color:var(--navy-deep);}
+
+/* category heading within the body */
+.cat-heading{display:flex;align-items:center;gap:10px;margin:24px 0 12px;padding:0 2px;scroll-margin-top:160px;}
+.cat-heading:first-child{margin-top:0;}
+.cat-heading .ci{width:18px;height:18px;color:var(--navy-deep);flex:none;}
+.cat-heading h2{font-size:15px;font-weight:800;letter-spacing:-.01em;margin:0;color:var(--ink);}
+.cat-heading .ch-count{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--ink-faint);background:var(--bg-band);border-radius:5px;padding:1px 8px;}
+.cat-heading .ch-desc{font-size:11.5px;color:var(--ink-faint);margin-left:2px;}
+.cat-heading[hidden]{display:none;}
+
+/* the Q&A accordion entry */
+.qa{border:1px solid var(--rule);border-radius:11px;background:var(--bg);margin:0 0 10px;overflow:hidden;box-shadow:0 1px 2px rgba(17,19,26,.04);scroll-margin-top:160px;}
+.qa[hidden]{display:none;}
+.qa>summary{list-style:none;cursor:pointer;display:flex;align-items:flex-start;gap:12px;padding:14px 17px;}
+.qa>summary::-webkit-details-marker{display:none;}
+.qa>summary:hover{background:var(--bg-band);}
+.qa-q{font-size:13.5px;font-weight:700;color:var(--ink);flex:1;min-width:0;line-height:1.5;}
+.qa-cat-chip{font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--navy-deep);background:var(--navy-bg);border:1px solid var(--navy-line);border-radius:5px;padding:2px 7px;white-space:nowrap;flex:none;margin-top:1px;}
+.qa-caret{color:var(--ink-faint);font-size:13px;line-height:1.4;transition:transform .15s ease;flex:none;margin-top:1px;}
+.qa[open]>summary{border-bottom:1px solid var(--rule-soft);background:var(--bg-band);}
+.qa[open] .qa-caret{transform:rotate(90deg);}
+.qa-a{padding:15px 17px 16px;}
+.qa-a>*:first-child{margin-top:0;}
+.qa-a>*:last-child{margin-bottom:0;}
+.qa-a p{font-size:13px;line-height:1.8;color:var(--ink-mid);margin:0 0 11px;}
+.qa-a p strong{color:var(--ink);}
+.qa-a code{font-family:var(--mono);font-size:11.5px;color:var(--navy-deep);background:var(--navy-bg);padding:0 4px;border-radius:4px;}
+.qa-a ul,.qa-a ol{margin:0 0 12px;padding-left:22px;}
+.qa-a li{font-size:13px;line-height:1.75;color:var(--ink-mid);margin:0 0 4px;}
+
+/* answer code block (mono dark panel + copy) */
+.qa-code-cap{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-faint);margin:0 0 5px;}
+.qa-code{border:1px solid var(--rule);background:#0b0b0d;border-radius:10px;overflow:hidden;margin:0 0 12px;}
+.qa-code-hd{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:7px 13px;background:#000;border-bottom:1px solid #2a2a2a;}
+.qa-code-lang{font-family:var(--mono);font-size:9.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#8a8a8a;}
+.copy-btn{display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);font-size:9.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#cfcfd6;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);border-radius:5px;padding:3px 8px;cursor:pointer;}
+.copy-btn:hover{background:rgba(255,255,255,.16);color:#fff;}
+.copy-btn.copied{color:#9be29b;border-color:rgba(155,226,155,.5);}
+.copy-btn .icon{width:12px;height:12px;}
+.qa-code pre{margin:0;padding:12px 14px;font-family:var(--mono);font-size:12px;line-height:1.7;color:#e5e7eb;white-space:pre-wrap;word-break:break-word;overflow-wrap:anywhere;}
+
+/* answer note / callout (tinted, optional state) */
+.qa-note{display:flex;gap:11px;border:1px solid var(--rule-soft);background:var(--bg-subtle);border-radius:10px;padding:11px 14px;margin:0 0 12px;font-size:12.5px;line-height:1.7;color:var(--ink-mid);}
+.qa-note .ni{width:17px;height:17px;flex:none;margin-top:1px;color:var(--ink-soft);}
+.qa-note b{display:block;font-size:11px;font-weight:700;color:var(--ink);margin:0 0 2px;}
+.qa-note.n-ok{background:var(--ok-bg);border-color:var(--ok-line);}.qa-note.n-ok .ni,.qa-note.n-ok b{color:var(--ok);}
+.qa-note.n-risk{background:var(--risk-bg);border-color:var(--risk-line);}.qa-note.n-risk .ni,.qa-note.n-risk b{color:var(--risk);}
+.qa-note.n-hold{background:var(--hold-bg);border-color:var(--hold-line);}.qa-note.n-hold .ni,.qa-note.n-hold b{color:var(--hold);}
+.qa-note.n-info{background:var(--navy-bg);border-color:var(--navy-line);}.qa-note.n-info .ni,.qa-note.n-info b{color:var(--navy-deep);}
+
+/* tag row + related links in the answer */
+.qa-foot{border-top:1px solid var(--rule-soft);margin-top:14px;padding-top:13px;display:flex;flex-direction:column;gap:11px;}
+.qa-tags{display:flex;flex-wrap:wrap;gap:6px;align-items:center;}
+.qa-foot-lbl{font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);margin-right:3px;}
+.qa-related{display:flex;flex-wrap:wrap;gap:8px;align-items:center;}
+.related-link{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--navy-deep);text-decoration:none;border:1px solid var(--rule);border-radius:7px;padding:4px 10px;background:var(--bg);}
+.related-link .icon{width:12px;height:12px;color:var(--navy);}
+.related-link:hover{border-color:var(--navy-line);background:var(--navy-bg);}
+
+/* search hit highlight */
+mark.kb-hit{background:var(--hold-bg);color:var(--ink);border-radius:3px;padding:0 1px;box-shadow:inset 0 -2px 0 var(--hold-line);}
+
+/* deep-link / related flash */
+.qa.kb-flash{animation:kbflash 1.5s ease;}
+@keyframes kbflash{0%,28%{box-shadow:0 0 0 3px var(--navy-bg),0 0 0 4px var(--navy);}100%{box-shadow:0 1px 2px rgba(17,19,26,.04);}}
+
+/* empty state */
+.kb-empty{display:none;border:1px dashed var(--rule);border-radius:12px;padding:40px 24px;text-align:center;color:var(--ink-soft);background:var(--bg);}
+.kb-empty.is-on{display:block;}
+.kb-empty .ke-ico{width:34px;height:34px;color:var(--ink-faint);margin:0 auto 10px;display:block;}
+.kb-empty h3{font-size:15px;font-weight:800;color:var(--ink);margin:0 0 5px;}
+.kb-empty p{font-size:12.5px;margin:0 0 14px;}
+.kb-empty button{font-family:var(--mono);font-size:10.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--navy-deep);background:var(--navy-bg);border:1px solid var(--navy-line);border-radius:7px;padding:7px 14px;cursor:pointer;}
+.kb-empty button:hover{background:var(--navy);color:#fff;}
+
+/* footer */
+.kb-footer{background:var(--bg-deep);color:#c9c4d0;padding:30px 40px;}
+.foot-inner{max-width:1500px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;}
+.brand-dk{display:flex;align-items:center;gap:10px;font-weight:800;font-size:15px;color:#fff;letter-spacing:-.01em;}
+.brand-dk .sq{width:13px;height:13px;border-radius:4px;background:var(--navy);}
+.foot-meta{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#8f8898;text-align:right;line-height:1.7;}
+
+/* ============================================================
+   PRINT — expand every entry, hide controls (clean FAQ)
+   ============================================================ */
+@media print{
+ .kb-masthead{position:static;box-shadow:none;}
+ .rc-theme,.kb-search,.kb-count,.kb-bulk,.kb-tags-panel,.kb-sidebar,.s-clear{display:none !important;}
+ .kb-main{grid-template-columns:1fr;padding:0;gap:0;}
+ .qa{break-inside:avoid;box-shadow:none;}
+ .qa>summary{background:#fff !important;}
+ .qa-a{display:block !important;}
+ .qa[hidden],.cat-heading[hidden]{display:block !important;}
+ .qa-code{border-color:#bbb;}
+ .kb-footer{background:#fff;color:#333;border-top:1px solid var(--rule);}
+ .brand-dk{color:#111;}.foot-meta{color:#666;}
+ body{font-size:11px;}
+}
+/* force-open every answer for the print snapshot (set via JS on print + as a fallback) */
+@media print{ details.qa:not([open])>.qa-a{display:block;} }
+</style>
+</head>
+<body>
+
+<noscript>
+  <div class="noscript"><b>JavaScript is required.</b> This knowledge base renders its categories and
+  Q&amp;A entries from an embedded data block (<code>#report-data</code>) using JavaScript. Enable
+  JavaScript to use the live search, the category sidebar, tag filters, and the expandable answers.</div>
+</noscript>
+
+<!-- App chrome is built by render(); these are its mount points. -->
+<header class="kb-masthead" id="masthead"></header>
+<div class="kb-main" id="main"></div>
+<footer class="kb-footer" id="footer"></footer>
+
+<!-- ============================================================
+     #report-data — THE ONLY CONTENT SOURCE.
+     A valid instance of designs/schemas/knowledge-base.schema.json.
+     render() builds the DOM from it on load.
+     ============================================================ -->
+<script type="application/json" id="report-data">
+{
+  "meta": {
+    "org": "{{ORG}}",
+    "project": "{{PROJECT}}",
+    "reportType": "Help Centre",
+    "title": "Platform Knowledge Base",
+    "subtitle": "Ingestion platform",
+    "date": "{{DATE}}",
+    "author": "{{AUTHOR}}",
+    "theme": "blue"
+  },
+  "intro": "Search a question or browse by category — every answer is self-contained.",
+  "searchPlaceholder": "Search questions and answers…",
+  "popularTags": ["api-key", "rate-limit", "webhooks", "billing", "sso", "retry"],
+  "categories": [
+    { "id": "getting-started", "label": "Getting started", "icon": "document", "description": "Accounts, access, and the basics." },
+    { "id": "api", "label": "API & integration", "icon": "code", "description": "Auth, endpoints, webhooks, limits." },
+    { "id": "billing", "label": "Billing & plans", "icon": "finance", "description": "Invoices, usage, plan changes." },
+    { "id": "troubleshooting", "label": "Troubleshooting", "icon": "status", "description": "Errors, incidents, recovery." }
+  ],
+  "articles": [
+    {
+      "id": "create-account",
+      "category": "getting-started",
+      "question": "How do I create an account and invite my team?",
+      "answerBlocks": [
+        { "type": "p", "text": "Sign up from the console landing page with a work email. The first user becomes the <strong>workspace owner</strong> and can invite others from <code>Settings → Members</code>." },
+        { "type": "list", "items": ["Open <code>Settings → Members → Invite</code>.", "Enter one or more email addresses.", "Choose a role: <strong>Owner</strong>, <strong>Editor</strong>, or <strong>Viewer</strong>."] },
+        { "type": "note", "variant": "info", "label": "Tip", "text": "Invites expire after 7 days; re-send from the same screen if one lapses." }
+      ],
+      "tags": ["account", "members", "onboarding"],
+      "related": ["sso-setup", "roles-permissions"]
+    },
+    {
+      "id": "roles-permissions",
+      "category": "getting-started",
+      "question": "What can each role do?",
+      "answerBlocks": [
+        { "type": "p", "text": "Roles are workspace-wide and control both console access and API-key scope." },
+        { "type": "list", "ordered": true, "items": ["<strong>Owner</strong> — full access, including billing and member management.", "<strong>Editor</strong> — create and edit resources; no billing.", "<strong>Viewer</strong> — read-only access to dashboards and logs."] }
+      ],
+      "tags": ["members", "permissions"],
+      "related": ["create-account"]
+    },
+    {
+      "id": "sso-setup",
+      "category": "getting-started",
+      "question": "How do I enable single sign-on (SSO)?",
+      "answerBlocks": [
+        { "type": "p", "text": "SSO uses SAML 2.0 and is available on the Team and Enterprise plans. Configure it under <code>Settings → Security → SSO</code>." },
+        { "type": "code", "lang": "config", "caption": "Example ACS endpoint to register with your IdP", "code": "https://app.example.com/sso/saml/acs\nEntityID: urn:example:sp" },
+        { "type": "note", "variant": "hold", "label": "Before you switch", "text": "Once SSO is enforced, password logins are disabled for the domain. Keep one break-glass owner with a recovery code." }
+      ],
+      "tags": ["sso", "security", "saml"],
+      "related": ["roles-permissions", "lost-access"]
+    },
+    {
+      "id": "auth-api-key",
+      "category": "api",
+      "question": "How do I authenticate API requests?",
+      "answerBlocks": [
+        { "type": "p", "text": "Pass your API key as a bearer token on every request. Create and rotate keys under <code>Settings → API keys</code>." },
+        { "type": "code", "lang": "bash", "caption": "Authenticated request", "code": "curl https://api.example.com/v1/events \\\n  -H \"Authorization: Bearer $API_KEY\"" },
+        { "type": "note", "variant": "risk", "label": "Never expose keys", "text": "Treat keys like passwords — keep them server-side and out of client bundles and git history." }
+      ],
+      "tags": ["api-key", "auth", "security"],
+      "related": ["rotate-key", "rate-limit"]
+    },
+    {
+      "id": "rotate-key",
+      "category": "api",
+      "question": "How do I rotate an API key without downtime?",
+      "answerBlocks": [
+        { "type": "list", "ordered": true, "items": ["Create a second key alongside the active one.", "Deploy the new key to all services.", "Verify traffic shifts to the new key in the usage view.", "Revoke the old key."] },
+        { "type": "note", "variant": "ok", "label": "Zero-downtime", "text": "Both keys are valid during the overlap window, so there is no gap in authentication." }
+      ],
+      "tags": ["api-key", "rotation"],
+      "related": ["auth-api-key"]
+    },
+    {
+      "id": "rate-limit",
+      "category": "api",
+      "question": "What are the rate limits and how do I handle 429s?",
+      "answerBlocks": [
+        { "type": "p", "text": "The default limit is <strong>600 requests/minute</strong> per key. Exceeding it returns <code>HTTP 429</code> with a <code>Retry-After</code> header." },
+        { "type": "code", "lang": "http", "code": "HTTP/1.1 429 Too Many Requests\nRetry-After: 12" },
+        { "type": "p", "text": "Back off for the indicated seconds and retry with jitter. See the retry guidance for safe patterns." }
+      ],
+      "tags": ["rate-limit", "retry", "api-key"],
+      "related": ["retry-strategy", "webhooks-retries"]
+    },
+    {
+      "id": "webhooks-retries",
+      "category": "api",
+      "question": "How do webhooks retry on failure?",
+      "answerBlocks": [
+        { "type": "p", "text": "If your endpoint does not return <code>2xx</code> within 5 seconds, the delivery is retried with exponential backoff for up to <strong>24 hours</strong>." },
+        { "type": "list", "items": ["Retries: 1m, 5m, 30m, 2h, 6h, then hourly.", "Each attempt carries the same <code>event_id</code> — make handlers idempotent.", "Permanently-failed deliveries appear under <code>Webhooks → Failed</code>."] }
+      ],
+      "tags": ["webhooks", "retry"],
+      "related": ["rate-limit", "retry-strategy"]
+    },
+    {
+      "id": "invoices",
+      "category": "billing",
+      "question": "Where do I find invoices and receipts?",
+      "answerBlocks": [
+        { "type": "p", "text": "Invoices are issued monthly and available under <code>Settings → Billing → Invoices</code>. Owners can add a billing email to receive them automatically." }
+      ],
+      "tags": ["billing", "invoices"],
+      "related": ["change-plan", "usage-charges"]
+    },
+    {
+      "id": "change-plan",
+      "category": "billing",
+      "question": "How do I upgrade or downgrade my plan?",
+      "answerBlocks": [
+        { "type": "p", "text": "Change plans anytime from <code>Settings → Billing → Plan</code>. Upgrades take effect immediately; downgrades apply at the next renewal." },
+        { "type": "note", "variant": "info", "label": "Proration", "text": "Upgrades are prorated for the remainder of the current cycle." }
+      ],
+      "tags": ["billing", "plans"],
+      "related": ["invoices", "usage-charges"]
+    },
+    {
+      "id": "usage-charges",
+      "category": "billing",
+      "question": "How is usage metered and billed?",
+      "answerBlocks": [
+        { "type": "p", "text": "Usage is metered per <strong>processed event</strong> and aggregated daily. Your current period's usage is shown live under <code>Billing → Usage</code>." },
+        { "type": "list", "items": ["Included quota varies by plan.", "Overage is billed at the per-event rate on your plan.", "Set a usage alert to be notified before overage."] }
+      ],
+      "tags": ["billing", "usage", "rate-limit"],
+      "related": ["change-plan", "invoices"]
+    },
+    {
+      "id": "lost-access",
+      "category": "troubleshooting",
+      "question": "I'm locked out / lost access to my account — what now?",
+      "answerBlocks": [
+        { "type": "p", "text": "Use the <code>Recover access</code> link on the login page. If SSO is enforced and your IdP is down, sign in with a break-glass owner recovery code." },
+        { "type": "note", "variant": "hold", "label": "No recovery code?", "text": "Contact support from a verified domain email; identity verification can take up to one business day." }
+      ],
+      "tags": ["sso", "recovery", "account"],
+      "related": ["sso-setup"]
+    },
+    {
+      "id": "retry-strategy",
+      "category": "troubleshooting",
+      "question": "What's the recommended retry strategy for transient errors?",
+      "answerBlocks": [
+        { "type": "p", "text": "Retry only on <code>429</code> and <code>5xx</code>. Use capped exponential backoff with full jitter, and stop after a bounded number of attempts." },
+        { "type": "code", "lang": "pseudocode", "caption": "Backoff with jitter", "code": "delay = min(cap, base * 2 ** attempt)\nsleep(random(0, delay))" },
+        { "type": "note", "variant": "risk", "label": "Don't retry blind", "text": "Never retry non-idempotent writes without an idempotency key — you risk duplicating the operation." }
+      ],
+      "tags": ["retry", "rate-limit", "api-key"],
+      "related": ["rate-limit", "webhooks-retries"]
+    }
+  ]
+}
+</script>
+
+<script>
+(function(){
+  "use strict";
+  var EL = document.getElementById('report-data');
+  var DATA = {};
+  try { DATA = JSON.parse(EL.textContent); } catch(e){ DATA = {meta:{},categories:[],articles:[]}; }
+
+  /* ---------- helpers ---------- */
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+  function raw(s){ return s==null?'':String(s); }              /* trusted inline HTML from data (p/list/note) */
+  function cap(s){ return s.charAt(0).toUpperCase()+s.slice(1); }
+  function byId(id){ return document.getElementById(id); }
+  function slug(s){ return String(s).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,''); }
+
+  /* ---------- inline house SVG icons (24x24, currentColor) ---------- */
+  var ICON = {
+    document:'<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 3.5H13l4.5 4.5V20a.5.5 0 0 1-.5.5H6.5a.5.5 0 0 1-.5-.5V4a.5.5 0 0 1 .5-.5Z"/><path d="M13 3.5V7.5a.5.5 0 0 0 .5.5H17.5"/><path d="M9 12.5H15M9 15.5H15M9 18H12.5"/></svg>',
+    code:'<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9 8.5 5 12l4 3.5M15 8.5 19 12l-4 3.5M13.5 6l-3 12"/></svg>',
+    finance:'<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 7.5 12 3.5l8.5 4M4.5 7.5h15M5.5 11v6M10 11v6M14 11v6M18.5 11v6M3.5 20.5h17"/></svg>',
+    status:'<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M9.3 10.2a2.8 2.8 0 1 1 3.4 3.3v1.2"/><rect x="11.4" y="16.6" width="1.2" height="1.2" rx=".5" fill="currentColor" stroke="none"/></svg>',
+    search:'<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.5" cy="10.5" r="6"/><path d="M15 15l4 4"/></svg>',
+    close:'<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6 6 18"/></svg>',
+    chevron:'<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 5.5 16 12l-6.5 6.5"/></svg>',
+    tag:'<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11.5V5a1 1 0 0 1 1-1h6.5l8 8a1.4 1.4 0 0 1 0 2l-6.5 6.5a1.4 1.4 0 0 1-2 0l-7-7Z"/><rect x="7.2" y="7.2" width="1.8" height="1.8" rx=".7" fill="currentColor" stroke="none"/></svg>',
+    link:'<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14a3.5 3.5 0 0 0 5 0l3-3a3.5 3.5 0 0 0-5-5l-1.5 1.5"/><path d="M14 10a3.5 3.5 0 0 0-5 0l-3 3a3.5 3.5 0 0 0 5 5l1.5-1.5"/></svg>',
+    copy:'<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="8.5" y="8.5" width="11" height="11" rx="2.2"/><path d="M5.5 15.5H5a.5.5 0 0 1-.5-.5V5a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 .5.5v.5"/></svg>',
+    info:'<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5"/><rect x="11.4" y="7.4" width="1.2" height="1.2" rx=".5" fill="currentColor" stroke="none"/></svg>',
+    check:'<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M8.3 12.4l2.5 2.5 4.9-5.3"/></svg>',
+    warn:'<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4.5 21 19.5H3Z"/><path d="M12 10v4"/><rect x="11.4" y="16.2" width="1.2" height="1.2" rx=".5" fill="currentColor" stroke="none"/></svg>',
+    shield:'<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.25 19 5.75v5.45c0 4.4-3 7.6-7 8.8-4-1.2-7-4.4-7-8.8V5.75Z"/><path d="M9 12l2.2 2.2L15.2 9.6"/></svg>'
+  };
+  function catIcon(cat){ return ICON[cat] || ICON.document; }
+  var NOTE_ICON = { ok:ICON.check, risk:ICON.warn, hold:ICON.warn, info:ICON.info };
+
+  var THEMES = [ ['blue','#0b5fd4'],['purple','#a100ff'],['indigo','#4338ca'],['teal','#0e7c86'],['cyan','#0891b2'],['green','#1f7a44'],['plum','#a21d6e'],['slate','#3f4f63'],['black','#000000'] ];
+
+  /* ---------- index helpers ---------- */
+  var CATS = DATA.categories || [];
+  var ARTS = DATA.articles || [];
+  var CAT_LABEL = {}; CATS.forEach(function(c){ CAT_LABEL[c.id]=c.label; });
+  function artById(id){ return ARTS.filter(function(a){ return a.id===id; })[0]; }
+  /* plain searchable text for an article = question + all answer text */
+  function searchText(a){
+    var parts=[a.question||''];
+    (a.answerBlocks||[]).forEach(function(b){
+      if(b.text) parts.push(stripTags(b.text));
+      if(b.code) parts.push(b.code);
+      if(b.caption) parts.push(b.caption);
+      if(b.items) b.items.forEach(function(i){ parts.push(stripTags(i)); });
+    });
+    (a.tags||[]).forEach(function(t){ parts.push(t); });
+    return parts.join('  ').toLowerCase();
+  }
+  function stripTags(s){ return String(s).replace(/<[^>]*>/g,''); }
+
+  /* ---------- masthead ---------- */
+  function renderMasthead(){
+    var m=DATA.meta||{};
+    var dots='<label class="rc-theme" title="Brand colour">'
+      +'<span class="rc-theme-sw" aria-hidden="true"></span>'
+      +'<select class="rc-theme-sel" aria-label="Brand theme">'
+      +'<option value="blue">Blue</option>'
+      +'<option value="purple">Purple</option>'
+      +'<option value="indigo">Indigo</option>'
+      +'<option value="teal">Teal</option>'
+      +'<option value="cyan">Cyan</option>'
+      +'<option value="green">Green</option>'
+      +'<option value="plum">Plum</option>'
+      +'<option value="slate">Slate</option>'
+      +'<option value="black">Black</option>'
+      +'</select></label>';
+    var ph=esc(DATA.searchPlaceholder||'Search the knowledge base…');
+    var sub=m.subtitle?'<small>'+esc(m.subtitle)+'</small>':'';
+    byId('masthead').innerHTML =
+      '<div class="kb-mast-inner">'
+      + '<div class="kb-mast-top">'
+        + '<div class="kb-brand"><span class="mark">'+ICON.shield+'</span><div class="kb-brand-txt">'
+          + '<div class="kb-brand-org">'+esc(m.org||'{{ORG}}')+' · '+esc(m.reportType||'Knowledge Base')+'</div>'
+          + '<div class="kb-brand-title">'+esc(m.title||'Knowledge Base')+sub+'</div>'
+        + '</div></div>'
+        + dots
+      + '</div>'
+      + '<div class="kb-search-wrap">'
+        + '<span class="kb-search"><span class="s-ico">'+ICON.search+'</span>'
+          + '<input type="search" id="kb-search-input" placeholder="'+ph+'" autocomplete="off" aria-label="Search the knowledge base">'
+          + '<button type="button" class="s-clear" id="kb-search-clear" aria-label="Clear search">'+ICON.close+'</button>'
+        + '</span>'
+        + '<span class="kb-count" id="kb-count"></span>'
+      + '</div>'
+      + (DATA.intro?'<p class="kb-intro">'+esc(DATA.intro)+'</p>':'')
+      + '</div>';
+  }
+
+  /* ---------- sidebar (categories + tags) ---------- */
+  function renderSidebar(){
+    var total=ARTS.length;
+    var catLinks='<button type="button" class="cat-link is-on" data-cat="__all"><span class="ci">'+ICON.document+'</span><span>All articles</span><span class="cat-count">'+total+'</span></button>';
+    catLinks += CATS.map(function(c){
+      var n=ARTS.filter(function(a){ return a.category===c.id; }).length;
+      return '<button type="button" class="cat-link" data-cat="'+esc(c.id)+'"><span class="ci">'+catIcon(c.icon)+'</span><span>'+esc(c.label)+'</span><span class="cat-count">'+n+'</span></button>';
+    }).join('');
+    var tagsPanel='';
+    var pt=DATA.popularTags||[];
+    if(pt.length){
+      var chips=pt.map(function(t){ return '<button type="button" class="tag-chip" data-tag="'+esc(t)+'">'+ICON.tag+esc(t)+'</button>'; }).join('');
+      tagsPanel='<div class="kb-tags-panel"><div class="kb-side-label">Popular tags</div><div class="tag-row">'+chips+'</div></div>';
+    }
+    return '<aside class="kb-sidebar" aria-label="Categories">'
+      + '<div><div class="kb-side-label">Categories</div><nav class="cat-nav">'+catLinks+'</nav></div>'
+      + tagsPanel
+      + '</aside>';
+  }
+
+  /* ---------- answer blocks ---------- */
+  function blockHtml(b){
+    if(b.type==='p') return '<p>'+raw(b.text)+'</p>';
+    if(b.type==='list'){
+      var tag=b.ordered?'ol':'ul';
+      return '<'+tag+'>'+(b.items||[]).map(function(i){ return '<li>'+raw(i)+'</li>'; }).join('')+'</'+tag+'>';
+    }
+    if(b.type==='code'){
+      var cap_=b.caption?'<div class="qa-code-cap">'+esc(b.caption)+'</div>':'';
+      var lang=b.lang?'<span class="qa-code-lang">'+esc(b.lang)+'</span>':'<span class="qa-code-lang">code</span>';
+      return cap_+'<div class="qa-code"><div class="qa-code-hd">'+lang
+        + '<button type="button" class="copy-btn" data-copy="'+esc(b.code)+'">'+ICON.copy+'Copy</button></div>'
+        + '<pre>'+esc(b.code)+'</pre></div>';
+    }
+    if(b.type==='note'){
+      var v=b.variant||'info';
+      var ic=NOTE_ICON[v]||ICON.info;
+      var lbl=b.label?'<b>'+esc(b.label)+'</b>':'';
+      return '<div class="qa-note n-'+esc(v)+'"><span class="ni">'+ic+'</span><div>'+lbl+raw(b.text)+'</div></div>';
+    }
+    return '';
+  }
+
+  /* ---------- one Q&A entry ---------- */
+  function articleHtml(a){
+    var body=(a.answerBlocks||[]).map(blockHtml).join('');
+    var tags=(a.tags||[]).map(function(t){ return '<button type="button" class="tag-chip" data-tag="'+esc(t)+'">'+ICON.tag+esc(t)+'</button>'; }).join('');
+    var tagRow=tags?'<div class="qa-tags"><span class="qa-foot-lbl">Tags</span>'+tags+'</div>':'';
+    var rel=(a.related||[]).map(function(rid){
+      var r=artById(rid); if(!r) return '';
+      return '<a class="related-link" href="#'+esc(rid)+'" data-related="'+esc(rid)+'">'+ICON.link+esc(r.question)+'</a>';
+    }).join('');
+    var relRow=rel?'<div class="qa-related"><span class="qa-foot-lbl">Related</span>'+rel+'</div>':'';
+    var foot=(tagRow||relRow)?'<div class="qa-foot">'+tagRow+relRow+'</div>':'';
+    var catChip='<span class="qa-cat-chip">'+esc(CAT_LABEL[a.category]||a.category)+'</span>';
+    var tagAttr=(a.tags||[]).join(' ');
+    return '<details class="qa" id="'+esc(a.id)+'" data-cat="'+esc(a.category)+'" data-tags="'+esc(tagAttr)+'">'
+      + '<summary><span class="qa-q">'+esc(a.question)+'</span>'+catChip+'<span class="qa-caret">'+ICON.chevron+'</span></summary>'
+      + '<div class="qa-a">'+body+foot+'</div>'
+      + '</details>';
+  }
+
+  /* ---------- articles body, grouped by category ---------- */
+  function renderArticles(){
+    var groups=CATS.map(function(c){
+      var list=ARTS.filter(function(a){ return a.category===c.id; });
+      if(!list.length) return '';
+      var head='<div class="cat-heading" data-cat="'+esc(c.id)+'" id="cat-'+esc(c.id)+'"><span class="ci">'+catIcon(c.icon)+'</span>'
+        + '<h2>'+esc(c.label)+'</h2><span class="ch-count">'+list.length+'</span>'
+        + (c.description?'<span class="ch-desc">'+esc(c.description)+'</span>':'')+'</div>';
+      return head+list.map(articleHtml).join('');
+    }).join('');
+    var empty='<div class="kb-empty" id="kb-empty"><span class="ke-ico">'+ICON.search+'</span>'
+      + '<h3>No matching answers</h3><p>Try a different search term, or clear the active filters.</p>'
+      + '<button type="button" id="kb-empty-clear">Clear search &amp; filters</button></div>';
+    var toolbar='<div class="kb-toolbar"><div class="kb-active-filters" id="kb-active-filters"></div>'
+      + '<span class="kb-bulk"><button type="button" data-bulk="open">Expand all</button>'
+      + '<button type="button" data-bulk="close">Collapse all</button></span></div>';
+    return '<section class="kb-articles">'+toolbar+groups+empty+'</section>';
+  }
+
+  function renderMain(){
+    byId('main').innerHTML = renderSidebar() + renderArticles();
+  }
+
+  /* ---------- footer ---------- */
+  function renderFooter(){
+    var m=DATA.meta||{};
+    byId('footer').innerHTML =
+      '<div class="foot-inner"><div class="brand-dk"><span class="sq"></span>'+esc(m.org||'{{ORG}}')+'</div>'
+      + '<div class="foot-meta">'+esc(m.title||'')+' · '+esc(m.project||'{{PROJECT}}')+' · Updated '+esc(m.date||'')
+      + '<br>'+esc(m.reportType||'Knowledge Base')+' · '+ARTS.length+' articles · '+CATS.length+' categories</div></div>';
+  }
+
+  /* ---------- RENDER ---------- */
+  function render(){
+    document.documentElement.dataset.theme = (DATA.meta&&DATA.meta.theme)||'blue';
+    document.title = (DATA.meta&&DATA.meta.title?DATA.meta.title+' — ':'')+((DATA.meta&&DATA.meta.project)||'{{PROJECT}}');
+    renderMasthead(); renderMain(); renderFooter();
+  }
+
+  /* ============================================================
+     INTERACTIONS — state: search query, active category, active tag
+     ============================================================ */
+  var STATE = { q:'', cat:'__all', tag:'' };
+
+  /* highlight matched substring inside a question's text node */
+  function highlight(el, q){
+    var orig=el.getAttribute('data-q-orig');
+    if(orig==null){ orig=el.textContent; el.setAttribute('data-q-orig', orig); }
+    if(!q){ el.textContent=orig; return; }
+    var lo=orig.toLowerCase(), needle=q.toLowerCase(), out='', i=0, idx;
+    while((idx=lo.indexOf(needle,i))>=0){
+      out += esc(orig.slice(i,idx)) + '<mark class="kb-hit">' + esc(orig.slice(idx,idx+needle.length)) + '</mark>';
+      i = idx+needle.length;
+    }
+    out += esc(orig.slice(i));
+    el.innerHTML = out;
+  }
+
+  function apply(){
+    var q=STATE.q.trim().toLowerCase();
+    var shown=0;
+    document.querySelectorAll('.qa').forEach(function(qa){
+      var a=artById(qa.id);
+      var okCat = STATE.cat==='__all' || qa.dataset.cat===STATE.cat;
+      var okTag = !STATE.tag || (' '+qa.dataset.tags+' ').indexOf(' '+STATE.tag+' ')>=0;
+      var okQ   = !q || searchText(a).indexOf(q)>=0;
+      var vis = okCat && okTag && okQ;
+      qa.hidden = !vis;
+      if(vis){ shown++; }
+      highlight(qa.querySelector('.qa-q'), vis?q:'');
+      /* auto-open on an active search so matches are readable; otherwise leave as-is */
+      if(q && vis) qa.open=true;
+    });
+    /* hide category headings whose group has no visible entries */
+    document.querySelectorAll('.cat-heading').forEach(function(h){
+      var any=false, n=h.nextElementSibling;
+      while(n && n.classList && n.classList.contains('qa')){ if(!n.hidden){ any=true; break; } n=n.nextElementSibling; }
+      h.hidden=!any;
+    });
+    /* counts + empty state */
+    var total=ARTS.length;
+    var cnt=byId('kb-count');
+    var matching = (q||STATE.tag||STATE.cat!=='__all');
+    cnt.textContent = matching ? (shown+' of '+total+' answers') : (total+' answers');
+    byId('kb-empty').classList.toggle('is-on', shown===0);
+    /* sidebar active state */
+    document.querySelectorAll('.cat-link').forEach(function(l){ l.classList.toggle('is-on', l.dataset.cat===STATE.cat); });
+    /* live per-category counts reflect search + tag (not the category filter itself) */
+    document.querySelectorAll('.cat-link').forEach(function(l){
+      var c=l.dataset.cat, badge=l.querySelector('.cat-count');
+      var n = ARTS.filter(function(a){
+        if(c!=='__all' && a.category!==c) return false;
+        if(STATE.tag && (a.tags||[]).indexOf(STATE.tag)<0) return false;
+        if(q && searchText(a).indexOf(q)<0) return false;
+        return true;
+      }).length;
+      badge.textContent=n;
+      l.setAttribute('data-empty', n===0?'1':'0');
+    });
+    /* tag chips active state (sidebar + in-entry) */
+    document.querySelectorAll('.tag-chip').forEach(function(t){ t.classList.toggle('is-on', !!STATE.tag && t.dataset.tag===STATE.tag); });
+    /* active-filter chips strip */
+    renderActiveFilters();
+  }
+
+  function renderActiveFilters(){
+    var box=byId('kb-active-filters'); var bits=[];
+    if(STATE.cat!=='__all') bits.push(chip('Category', CAT_LABEL[STATE.cat]||STATE.cat, 'cat'));
+    if(STATE.tag) bits.push(chip('Tag', STATE.tag, 'tag'));
+    if(STATE.q.trim()) bits.push(chip('Search', '“'+STATE.q.trim()+'”', 'q'));
+    box.innerHTML = bits.length ? '<span class="af-lbl">Filters</span>'+bits.join('') : '';
+    function chip(k,v,kind){ return '<span class="af-chip">'+esc(v)+'<button type="button" data-clear="'+kind+'" aria-label="Remove '+esc(k)+' filter">'+ICON.close+'</button></span>'; }
+  }
+
+  function setCat(c){ STATE.cat=c; apply(); }
+  function setTag(t){ STATE.tag = (STATE.tag===t)?'':t; apply(); }
+
+  function wireThemeSwitch(){
+    var rcSel = document.querySelector('.rc-theme-sel');
+    if(rcSel){
+      rcSel.value = document.documentElement.dataset.theme || 'blue';
+      rcSel.addEventListener('change', function(){ document.documentElement.dataset.theme = rcSel.value; });
+    }
+  }
+
+  function wireSearch(){
+    var input=byId('kb-search-input'), clr=byId('kb-search-clear');
+    function onInput(){
+      STATE.q=input.value;
+      clr.classList.toggle('is-on', !!input.value);
+      apply();
+    }
+    input.addEventListener('input', onInput);
+    clr.addEventListener('click', function(){ input.value=''; STATE.q=''; clr.classList.remove('is-on'); apply(); input.focus(); });
+  }
+
+  function wireFilters(){
+    document.addEventListener('click', function(e){
+      var cl=e.target.closest && e.target.closest('.cat-link');
+      if(cl){ setCat(cl.dataset.cat); return; }
+      var tc=e.target.closest && e.target.closest('.tag-chip');
+      if(tc){ e.preventDefault(); setTag(tc.dataset.tag); return; }
+      var clear=e.target.closest && e.target.closest('[data-clear]');
+      if(clear){
+        var k=clear.dataset.clear;
+        if(k==='cat') STATE.cat='__all';
+        if(k==='tag') STATE.tag='';
+        if(k==='q'){ STATE.q=''; byId('kb-search-input').value=''; byId('kb-search-clear').classList.remove('is-on'); }
+        apply(); return;
+      }
+      var ec=e.target.closest && e.target.closest('#kb-empty-clear');
+      if(ec){ STATE.q=''; STATE.cat='__all'; STATE.tag='';
+        byId('kb-search-input').value=''; byId('kb-search-clear').classList.remove('is-on'); apply(); return; }
+    });
+  }
+
+  function wireBulk(){
+    document.addEventListener('click', function(e){
+      var b=e.target.closest && e.target.closest('[data-bulk]');
+      if(!b) return;
+      var open=b.dataset.bulk==='open';
+      document.querySelectorAll('.qa').forEach(function(qa){ if(!qa.hidden) qa.open=open; });
+    });
+  }
+
+  function wireCopy(){
+    document.addEventListener('click', function(e){
+      var b=e.target.closest && e.target.closest('.copy-btn');
+      if(!b) return;
+      var txt=b.getAttribute('data-copy')||'';
+      var done=function(){ var o=b.innerHTML; b.classList.add('copied'); b.textContent='Copied'; setTimeout(function(){ b.classList.remove('copied'); b.innerHTML=o; },1400); };
+      if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(txt).then(done,fallback); }
+      else fallback();
+      function fallback(){ var ta=document.createElement('textarea'); ta.value=txt; ta.style.position='fixed'; ta.style.opacity='0'; document.body.appendChild(ta); ta.select(); try{document.execCommand('copy');}catch(_){} document.body.removeChild(ta); done(); }
+    });
+  }
+
+  /* deep-link: open + scroll + flash a target article (also reveals it past filters) */
+  function openTo(hash){
+    if(!hash || hash.length<2) return;
+    var id=decodeURIComponent(hash.slice(1));
+    var el=byId(id);
+    if(!el || !el.classList.contains('qa')) return;
+    /* make sure the target is not filtered out: relax category to its own + clear tag */
+    if(el.hidden){
+      if(STATE.cat!=='__all' && el.dataset.cat!==STATE.cat) STATE.cat=el.dataset.cat;
+      STATE.tag=''; apply();
+    }
+    el.open=true;
+    el.scrollIntoView({block:'start'});
+    el.classList.remove('kb-flash'); void el.offsetWidth; el.classList.add('kb-flash');
+  }
+  function wireAnchors(){
+    document.addEventListener('click', function(e){
+      var a=e.target.closest && e.target.closest('a[href^="#"]');
+      if(a){ var h=a.getAttribute('href'); if(h.length>1){ setTimeout(function(){ openTo(h); },0); } }
+    });
+    window.addEventListener('hashchange', function(){ openTo(location.hash); });
+    if(location.hash) setTimeout(function(){ openTo(location.hash); }, 30);
+  }
+
+  /* keep the URL hash in sync when an entry is opened (deep-linkable) */
+  function wireHashSync(){
+    document.addEventListener('toggle', function(e){
+      var qa=e.target; if(!qa.classList || !qa.classList.contains('qa') || !qa.open) return;
+      if(history.replaceState) history.replaceState(null,'','#'+qa.id);
+    }, true);
+  }
+
+  /* print: open everything so the snapshot is complete; restore after */
+  function wirePrint(){
+    var saved=[];
+    window.addEventListener('beforeprint', function(){
+      saved=[];
+      document.querySelectorAll('.qa').forEach(function(qa){ saved.push([qa, qa.open, qa.hidden]); qa.open=true; qa.hidden=false; });
+      document.querySelectorAll('.cat-heading').forEach(function(h){ h.hidden=false; });
+    });
+    window.addEventListener('afterprint', function(){
+      saved.forEach(function(s){ s[0].open=s[1]; s[0].hidden=s[2]; });
+      apply();
+    });
+  }
+
+  function wireInteractions(){
+    wireSearch(); wireFilters(); wireBulk(); wireCopy(); wireAnchors(); wireHashSync(); wirePrint();
+    apply();
+  }
+
+  /* ---------- BOOT ---------- */
+  function boot(){ render(); wireInteractions(); wireThemeSwitch(); }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
+})();
+</script>
+
+</body>
+</html>

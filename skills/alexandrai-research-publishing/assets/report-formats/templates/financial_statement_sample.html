@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="blue">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>{{ORG}} · {{PROJECT}} — Financial Statement</title>
+
+<!-- ============================ DATA (the ONLY content source) ============================ -->
+<script type="application/json" id="report-data">
+{
+  "meta": {
+    "org": "{{ORG}}",
+    "project": "{{PROJECT}}",
+    "reportType": "financial-statement",
+    "title": "Consolidated Statement of Profit or Loss",
+    "subtitle": "For the financial years ended 31 March",
+    "date": "2026-06-22",
+    "author": "{{AUTHOR}}",
+    "theme": "blue"
+  },
+  "statementType": "pl",
+  "currency": { "code": "USD", "symbol": "$", "unit": "thousands", "basis": "Accrual basis · IFRS", "status": "draft" },
+  "periods": [
+    { "key": "fy26", "label": "FY2026" },
+    { "key": "fy25", "label": "FY2025" },
+    { "key": "fy24", "label": "FY2024" }
+  ],
+  "variance": { "basePeriod": "fy25", "comparePeriod": "fy26", "defaultMode": "abs", "show": true },
+  "commonSize": { "baseLineId": "rev_total", "label": "% of total revenue" },
+  "lines": [
+    { "id": "rev",        "label": "Revenue", "level": 0, "kind": "header" },
+    { "id": "rev_sub",    "label": "Subscription & platform services", "level": 1, "kind": "item", "parent": "rev", "note": "n1", "values": { "fy26": 48210, "fy25": 41880, "fy24": 35120 } },
+    { "id": "rev_txn",    "label": "Transaction & interchange fees",   "level": 1, "kind": "item", "parent": "rev", "values": { "fy26": 19640, "fy25": 17420, "fy24": 15030 } },
+    { "id": "rev_prof",   "label": "Professional services",            "level": 1, "kind": "item", "parent": "rev", "values": { "fy26": 6840,  "fy25": 6210,  "fy24": 5460  } },
+    { "id": "rev_other",  "label": "Other operating income",           "level": 1, "kind": "item", "parent": "rev", "values": { "fy26": 1310,  "fy25": 980,   "fy24": 640   } },
+    { "id": "rev_total",  "label": "Total revenue", "level": 0, "kind": "subtotal", "values": { "fy26": 76000, "fy25": 66490, "fy24": 56250 } },
+
+    { "id": "cogs",       "label": "Cost of sales", "level": 0, "kind": "header" },
+    { "id": "cogs_host",  "label": "Hosting & infrastructure",     "level": 1, "kind": "item", "parent": "cogs", "note": "n2", "values": { "fy26": -12480, "fy25": -11640, "fy24": -10380 } },
+    { "id": "cogs_supp",  "label": "Customer support & delivery",  "level": 1, "kind": "item", "parent": "cogs", "values": { "fy26": -9120,  "fy25": -8470,  "fy24": -7610  } },
+    { "id": "cogs_pay",   "label": "Payment processing fees",      "level": 1, "kind": "item", "parent": "cogs", "values": { "fy26": -5340,  "fy25": -4980,  "fy24": -4310  } },
+    { "id": "cogs_amort", "label": "Amortisation of capitalised software", "level": 1, "kind": "item", "parent": "cogs", "values": { "fy26": -2010, "fy25": -1880, "fy24": -1620 } },
+    { "id": "cogs_total", "label": "Total cost of sales", "level": 0, "kind": "subtotal", "values": { "fy26": -28950, "fy25": -26970, "fy24": -23920 } },
+
+    { "id": "gross_profit", "label": "Gross profit", "level": 0, "kind": "subtotal", "emphasis": true, "values": { "fy26": 47050, "fy25": 39520, "fy24": 32330 } },
+
+    { "id": "opex",       "label": "Operating expenses", "level": 0, "kind": "header" },
+    { "id": "opex_rnd",   "label": "Research & development",        "level": 1, "kind": "item", "parent": "opex", "values": { "fy26": -13880, "fy25": -12140, "fy24": -10650 } },
+    { "id": "opex_sm",    "label": "Sales & marketing",            "level": 1, "kind": "item", "parent": "opex", "values": { "fy26": -11320, "fy25": -10470, "fy24": -9880  } },
+    { "id": "opex_ga",    "label": "General & administrative",     "level": 1, "kind": "item", "parent": "opex", "note": "n3", "values": { "fy26": -6420, "fy25": -5980, "fy24": -5510 } },
+    { "id": "opex_dep",   "label": "Depreciation of fixed assets", "level": 1, "kind": "item", "parent": "opex", "values": { "fy26": -1640,  "fy25": -1530,  "fy24": -1390  } },
+    { "id": "opex_total", "label": "Total operating expenses", "level": 0, "kind": "subtotal", "values": { "fy26": -33260, "fy25": -30120, "fy24": -27430 } },
+
+    { "id": "op_income", "label": "Operating income", "level": 0, "kind": "subtotal", "emphasis": true, "values": { "fy26": 13790, "fy25": 9400, "fy24": 4900 } },
+
+    { "id": "fin",        "label": "Net finance income / (cost)", "level": 0, "kind": "header" },
+    { "id": "fin_int_inc","label": "Interest income",     "level": 1, "kind": "item", "parent": "fin", "values": { "fy26": 1180, "fy25": 760,  "fy24": 410   } },
+    { "id": "fin_int_exp","label": "Interest expense",    "level": 1, "kind": "item", "parent": "fin", "values": { "fy26": -2340, "fy25": -2510, "fy24": -2680 } },
+    { "id": "fin_fx",     "label": "Foreign-exchange gain / (loss)", "level": 1, "kind": "item", "parent": "fin", "values": { "fy26": -430, "fy25": 210, "fy24": -190 } },
+    { "id": "fin_total",  "label": "Net finance cost", "level": 0, "kind": "subtotal", "values": { "fy26": -1590, "fy25": -1540, "fy24": -2460 } },
+
+    { "id": "pbt", "label": "Income before tax", "level": 0, "kind": "subtotal", "emphasis": true, "values": { "fy26": 12200, "fy25": 7860, "fy24": 2440 } },
+
+    { "id": "tax", "label": "Income tax expense", "level": 0, "kind": "item", "note": "n4", "values": { "fy26": -3290, "fy25": -2120, "fy24": -660 } },
+
+    { "id": "net_income", "label": "Net income", "level": 0, "kind": "total", "emphasis": true, "values": { "fy26": 8910, "fy25": 5740, "fy24": 1780 } }
+  ],
+  "footnotes": [
+    { "id": "n1", "text": "Subscription & platform revenue is recognised rateably over the contract term in accordance with IFRS 15 / ASC 606." },
+    { "id": "n2", "text": "Hosting & infrastructure includes committed cloud spend net of vendor credits of $1,240k (FY2026)." },
+    { "id": "n3", "text": "General & administrative includes a one-off litigation provision of $480k recognised in FY2026." },
+    { "id": "n4", "text": "The effective tax rate was 27.0% (FY2026), 27.0% (FY2025) and 27.0% (FY2024)." }
+  ],
+  "signoff": { "preparedBy": "{{AUTHOR}}", "reviewedBy": "Group Controller", "note": "Draft — subject to audit." }
+}
+</script>
+
+<style>
+/* ============================ FOUNDATION TOKENS (default = Purple per _FOUNDATION) ============================ */
+:root{
+  /* surfaces */
+  --bg:#fff; --bg-band:#f6f6f8; --bg-subtle:#fafafb; --bg-deep:#15131a;
+  --rule:#dcdce2; --rule-soft:#ebebef;
+  /* ink */
+  --ink:#11131a; --ink-mid:#33363f; --ink-soft:#5a5e68; --ink-faint:#868b95;
+  /* brand accent — overridden per theme below */
+  --navy:#a100ff; --navy-deep:#7a00c2; --navy-bg:#f3e8ff; --navy-line:#d9bef5;
+  --ok:#5a2f8a; --ok-bg:#efe8f5; --ok-line:#d0b5e0;
+  /* semantic states — CONSTANT across themes */
+  --risk:#b3261e; --risk-bg:#fbeceb; --risk-line:#edc7c4;
+  --hold:#8a6d00; --hold-bg:#fbf3da; --hold-line:#e7d8a4;
+  /* type stacks */
+  --mono:ui-monospace,"JetBrains Mono","SFMono-Regular",Menlo,Consolas,monospace;
+  --sans:-apple-system,"Segoe UI",system-ui,Roboto,"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic UI","Apple SD Gothic Neo","Malgun Gothic","PingFang SC","Microsoft YaHei","Noto Sans CJK JP","Noto Sans CJK KR","Noto Sans CJK SC","Noto Sans JP","Noto Sans KR","Noto Sans SC","Noto Sans",sans-serif;
+}
+/* ---- 8 theme overrides (exact foundation values) ---- */
+html[data-theme="blue"]  { --navy:#0b5fd4; --navy-deep:#0842a0; --navy-bg:#e8f1fc; --navy-line:#bcd6f5; --ok:#1a4f9c; --ok-bg:#e9f0fa; --ok-line:#b7cdea; }
+html[data-theme="purple"]{ --navy:#a100ff; --navy-deep:#7a00c2; --navy-bg:#f3e8ff; --navy-line:#d9bef5; --ok:#5a2f8a; --ok-bg:#efe8f5; --ok-line:#d0b5e0; }
+html[data-theme="indigo"]{ --navy:#4338ca; --navy-deep:#312c92; --navy-bg:#ebebfb; --navy-line:#c7c3f0; --ok:#3730a3; --ok-bg:#ebeaf7; --ok-line:#c5c2ea; }
+html[data-theme="teal"]  { --navy:#0e7c86; --navy-deep:#095861; --navy-bg:#e0f3f4; --navy-line:#a9dade; --ok:#0f5d54; --ok-bg:#e3f3ef; --ok-line:#b3ddd4; }
+html[data-theme="cyan"]  { --navy:#0891b2; --navy-deep:#0e6f88; --navy-bg:#e2f4f9; --navy-line:#abdde9; --ok:#0e6b7a; --ok-bg:#e4f3f4; --ok-line:#b0dde2; }
+html[data-theme="green"] { --navy:#1f7a44; --navy-deep:#155730; --navy-bg:#e6f4ea; --navy-line:#b3dcc1; --ok:#2f6b3c; --ok-bg:#e9f3ea; --ok-line:#bedcc4; }
+html[data-theme="plum"]  { --navy:#a21d6e; --navy-deep:#7c1450; --navy-bg:#fbe8f2; --navy-line:#e8b9d4; --ok:#6d2356; --ok-bg:#f6e8f0; --ok-line:#e3bcd5; }
+html[data-theme="slate"] { --navy:#3f4f63; --navy-deep:#29384b; --navy-bg:#eef1f5; --navy-line:#c2ccd8; --ok:#34495e; --ok-bg:#eef1f5; --ok-line:#c2ccd8; }
+html[data-theme="black"] { --navy:#000000; --navy-deep:#000; --navy-bg:#f1f1f3; --navy-line:#d6d6db; --ok:#3f3f46; --ok-bg:#f1f1f3; --ok-line:#cfcfd6; }
+
+/* ============================ BASE ============================ */
+*{ box-sizing:border-box; }
+html,body{ margin:0; }
+body{
+  font:13px/1.6 var(--sans); color:var(--ink); background:var(--bg-band);
+  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+}
+.tnum{ font-variant-numeric:tabular-nums; font-feature-settings:"tnum" 1; }
+.icon{ width:1.15em; height:1.15em; display:inline-block; vertical-align:-.18em; color:inherit; }
+.icon-sm{ width:14px; height:14px; } .icon-lg{ width:20px; height:20px; }
+.noscript{ margin:0; padding:14px 20px; background:var(--hold-bg); color:var(--hold);
+  border-bottom:1px solid var(--hold-line); font:600 12px/1.5 var(--sans); text-align:center; }
+
+/* ============================ TOP BAR (slim) ============================ */
+.fs-topbar{
+  position:sticky; top:0; z-index:60; display:flex; align-items:center; gap:14px;
+  height:46px; padding:0 28px; background:rgba(255,255,255,.92); backdrop-filter:saturate(1.4) blur(6px);
+  border-bottom:1px solid var(--rule); box-shadow:0 1px 3px rgba(17,19,26,.05);
+}
+.fs-topbar .wm{ display:inline-flex; align-items:center; gap:8px; font:800 13px/1 var(--sans); letter-spacing:-.01em; }
+.fs-topbar .wm .sq{ width:15px; height:15px; border-radius:4px; background:var(--navy); display:inline-block; }
+.fs-topbar .wm .sub{ color:var(--ink-faint); font-weight:600; }
+.fs-topbar .doc-kind{ font:600 9.5px/1 var(--mono); letter-spacing:.14em; text-transform:uppercase;
+  color:var(--navy-deep); background:var(--navy-bg); border:1px solid var(--navy-line);
+  border-radius:5px; padding:5px 8px; }
+.fs-topbar .spacer{ flex:1 1 auto; }
+.fs-topbar .print-hint{ font:600 9.5px/1 var(--mono); letter-spacing:.08em; text-transform:uppercase; color:var(--ink-faint); }
+
+/* theme switcher (canonical .rc-theme — compact dropdown per _DATA_DRIVEN.md §3) */
+.rc-theme{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--rule);border-radius:7px;
+          padding:3px 4px 3px 7px;background:var(--bg);}
+.rc-theme-sw{width:12px;height:12px;border-radius:50%;background:var(--navy);box-shadow:0 0 0 1px var(--rule);flex:none;}
+.rc-theme-sel{border:0;background:none;font:600 11px/1 var(--mono);color:var(--ink-mid);cursor:pointer;outline:none;padding:2px;}
+
+/* ============================ PAGE SHEET (centred, print-grade) ============================ */
+.fs-page{
+  max-width:1640px; margin:24px auto 40px; padding:0 24px;
+}
+.fs-sheet-card{
+  background:var(--bg); border:1px solid var(--rule); border-radius:12px; overflow:clip;
+  box-shadow:0 1px 2px rgba(17,19,26,.045);
+}
+/* NOTE: overflow:clip (not hidden) keeps the rounded-corner clipping WITHOUT establishing a
+   scroll container — so the sticky .fs-controls band and sticky <thead> below stick relative to
+   the window, not this card. With overflow:hidden the band slid up behind the translucent topbar. */
+
+/* ---- masthead ---- */
+.fs-masthead{ padding:24px 30px 18px; background:var(--bg-subtle); border-bottom:1px solid var(--rule); }
+.fs-eyebrow{ display:flex; align-items:center; gap:8px; font:600 10px/1 var(--mono);
+  letter-spacing:.14em; text-transform:uppercase; color:var(--ink-faint); margin-bottom:10px; }
+.fs-eyebrow .icon{ color:var(--navy); }
+.fs-title{ margin:0; font:800 25px/1.18 var(--sans); letter-spacing:-.015em; color:var(--ink); }
+.fs-subtitle{ margin:5px 0 0; font:400 13px/1.5 var(--sans); color:var(--ink-soft); }
+.fs-caption{
+  margin-top:18px; display:grid; grid-template-columns:repeat(5,1fr);
+  border:1px solid var(--rule-soft); border-radius:10px; overflow:hidden; background:var(--bg);
+}
+.fs-caption .cap{ padding:10px 14px; border-right:1px solid var(--rule-soft); }
+.fs-caption .cap:last-child{ border-right:0; }
+.fs-caption .ck{ font:600 9.5px/1.3 var(--mono); letter-spacing:.1em; text-transform:uppercase; color:var(--ink-faint); }
+.fs-caption .cv{ margin-top:4px; font:600 12.5px/1.35 var(--mono); color:var(--ink); font-variant-numeric:tabular-nums; font-feature-settings:"tnum" 1; }
+
+/* status badge primitive */
+.st-badge{ display:inline-flex; align-items:center; gap:6px; padding:3px 9px 3px 7px; border-radius:6px;
+  border:1px solid var(--rule); font:700 10.5px/1 var(--mono); letter-spacing:.04em; text-transform:uppercase; }
+.st-badge::before{ content:""; width:7px; height:7px; border-radius:50%; background:currentColor; }
+.st-ok{ color:var(--ok); background:var(--ok-bg); border-color:var(--ok-line); }
+.st-risk{ color:var(--risk); background:var(--risk-bg); border-color:var(--risk-line); }
+.st-hold{ color:var(--hold); background:var(--hold-bg); border-color:var(--hold-line); }
+
+/* ---- controls band (NOT a search toolbar) ---- */
+.fs-controls{
+  position:sticky; top:46px; z-index:50; display:flex; flex-wrap:wrap; align-items:center; gap:10px 18px;
+  padding:11px 30px; background:var(--bg-band); border-bottom:1px solid var(--rule);
+  box-shadow:0 1px 3px rgba(17,19,26,.05);
+}
+.fs-cgroup{ display:flex; align-items:center; gap:7px; }
+.fs-clabel{ font:600 9px/1 var(--mono); letter-spacing:.1em; text-transform:uppercase; color:var(--ink-faint); }
+/* generic toggle chip */
+.fs-chip{ display:inline-flex; align-items:center; gap:6px; cursor:pointer; padding:5px 10px;
+  border:1px solid var(--rule); border-radius:6px; background:var(--bg); color:var(--ink-mid);
+  font:600 11px/1 var(--sans); transition:all .12s; user-select:none; }
+.fs-chip:hover{ border-color:var(--navy-line); }
+.fs-chip .icon{ color:var(--ink-faint); }
+.fs-chip[aria-pressed="true"]{ background:var(--navy); border-color:var(--navy); color:#fff; }
+.fs-chip[aria-pressed="true"] .icon{ color:#fff; }
+.fs-chip.is-off{ color:var(--ink-faint); text-decoration:line-through; opacity:.6; }
+.fs-chip[disabled]{ opacity:.4; cursor:not-allowed; }
+/* segmented control */
+.fs-seg{ display:inline-flex; border:1px solid var(--rule); border-radius:6px; overflow:hidden; }
+.fs-seg button{ border:0; background:var(--bg); color:var(--ink-soft); cursor:pointer;
+  font:600 11px/1 var(--sans); padding:6px 11px; border-right:1px solid var(--rule); }
+.fs-seg button:last-child{ border-right:0; }
+.fs-seg button[aria-pressed="true"]{ background:var(--navy); color:#fff; }
+.fs-divider{ width:1px; align-self:stretch; background:var(--rule); margin:2px 0; }
+
+/* ============================ THE STATEMENT (ruled ledger) ============================ */
+.fs-sheet{ overflow-x:auto; }
+.fs-statement{ width:100%; border-collapse:separate; border-spacing:0; }
+.fs-statement col.col-label{ width:auto; }
+/* head — sticky to the top of the horizontally-scrollable .fs-sheet (top:0 within that container) */
+.fs-statement thead th{
+  position:sticky; top:0; z-index:20; background:var(--bg);
+  font:600 10px/1.2 var(--mono); letter-spacing:.08em; text-transform:uppercase; color:var(--ink-faint);
+  padding:13px 18px 11px; border-bottom:2px solid var(--ink); text-align:right; white-space:nowrap;
+  box-shadow:0 2px 0 0 var(--ink);
+}
+.fs-statement thead th.th-label{ text-align:left; left:0; z-index:30; min-width:340px; }
+.fs-statement thead th.th-var{ border-left:1px solid var(--rule); color:var(--navy-deep); }
+.fs-statement thead .th-sub{ display:block; font-size:9px; color:var(--ink-faint); font-weight:600; margin-top:2px; letter-spacing:.06em; }
+
+/* rows */
+.fs-statement td{ padding:8px 18px; border-bottom:1px solid var(--rule-soft); vertical-align:middle; }
+.fs-label{ position:sticky; left:0; z-index:10; background:var(--bg); text-align:left;
+  color:var(--ink-mid); font-weight:500; white-space:nowrap; }
+.fs-num{ text-align:right; white-space:nowrap; font-family:var(--mono); color:var(--ink); font-size:12.5px;
+  font-variant-numeric:tabular-nums; font-feature-settings:"tnum" 1; }
+.fs-num .cs{ display:block; font-size:10px; color:var(--ink-faint); margin-top:1px; }
+.fs-var{ text-align:right; white-space:nowrap; font-family:var(--mono); border-left:1px solid var(--rule-soft);
+  font-size:12px; font-variant-numeric:tabular-nums; font-feature-settings:"tnum" 1; }
+.fs-var .vwrap{ display:inline-flex; align-items:center; gap:4px; justify-content:flex-end; }
+.fs-var.up{ color:var(--ok); } .fs-var.down{ color:var(--risk); } .fs-var.flat{ color:var(--ink-faint); }
+.fs-neg{ color:var(--risk); }
+.note-mark{ color:var(--navy-deep); font-size:9px; vertical-align:super; margin-left:3px; font-family:var(--mono); cursor:pointer;
+  background:none; border:0; padding:0 1px; border-radius:3px; line-height:1; text-decoration:underline dotted; text-underline-offset:2px; }
+.note-mark:hover{ background:var(--navy-bg); }
+.note-mark:focus-visible{ outline:2px solid var(--navy); outline-offset:1px; }
+sup:has(.note-mark){ vertical-align:super; }
+/* footnote back-link */
+.fn-back{ background:none; border:0; cursor:pointer; color:var(--navy-deep); font-size:12px; line-height:1;
+  padding:0 3px; margin-left:4px; border-radius:3px; }
+.fn-back:hover{ background:var(--navy-bg); }
+.fn-back:focus-visible{ outline:2px solid var(--navy); outline-offset:1px; }
+/* jump/back flash highlight */
+.is-flash{ animation:fsFlash 1.1s ease-out 1; }
+@keyframes fsFlash{ 0%{ background:var(--navy-bg); box-shadow:0 0 0 2px var(--navy-line); } 100%{ background:transparent; box-shadow:none; } }
+/* number cell is interrogable */
+td.fs-num[data-line]{ cursor:default; }
+td.fs-num[data-line]:hover{ outline:1px solid var(--navy-line); outline-offset:-1px; }
+td.fs-num[data-line]:focus-visible{ outline:2px solid var(--navy); outline-offset:-2px; }
+/* per-cell breakdown popover */
+.fs-cellpop{ position:absolute; z-index:80; display:none; min-width:188px; max-width:260px;
+  background:var(--bg); border:1px solid var(--rule); border-radius:8px; padding:9px 11px;
+  box-shadow:0 6px 22px rgba(17,19,26,.14); pointer-events:none; }
+.fs-cellpop .cp-period{ font:600 9px/1.2 var(--mono); letter-spacing:.1em; text-transform:uppercase; color:var(--navy-deep); }
+.fs-cellpop .cp-line{ margin:3px 0 8px; font:600 12px/1.35 var(--sans); color:var(--ink); }
+.fs-cellpop .cp-row{ display:flex; justify-content:space-between; gap:16px; padding:3px 0; border-top:1px solid var(--rule-soft);
+  font:500 11.5px/1.4 var(--sans); color:var(--ink-soft); }
+.fs-cellpop .cp-row b{ color:var(--ink); font-weight:700; }
+
+/* indentation by level */
+.lvl0 .fs-label{ padding-left:18px; } .lvl1 .fs-label{ padding-left:38px; }
+.lvl2 .fs-label{ padding-left:58px; } .lvl3 .fs-label{ padding-left:78px; }
+
+/* HEADER section rows (group bands + collapser) */
+tr.fs-header td{ background:var(--navy-bg); border-bottom:1px solid var(--navy-line); padding-top:9px; padding-bottom:9px; }
+tr.fs-header .fs-label{ background:var(--navy-bg); color:var(--navy-deep); font:700 11px/1.2 var(--mono);
+  letter-spacing:.08em; text-transform:uppercase; cursor:pointer; }
+.fs-disclosure{ display:inline-flex; align-items:center; gap:8px; }
+.fs-disclosure .chev{ transition:transform .15s; color:var(--navy); }
+tr.fs-header.collapsed .chev{ transform:rotate(-90deg); }
+tr.fs-header td.fs-num, tr.fs-header td.fs-var{ background:var(--navy-bg); }
+
+/* SUBTOTAL rows */
+tr.fs-subtotal td{ border-top:1px solid var(--ink-soft); border-bottom:1px solid var(--rule-soft);
+  padding-top:9px; padding-bottom:9px; }
+tr.fs-subtotal .fs-label{ font-weight:700; color:var(--ink); }
+tr.fs-subtotal .fs-num{ font-weight:700; }
+tr.fs-subtotal.emph .fs-label{ color:var(--navy-deep); }
+
+/* TOTAL row — heavy rule above + double underline below */
+tr.fs-total td{ border-top:2px solid var(--ink); padding-top:11px; padding-bottom:13px;
+  background:var(--bg-subtle);
+  box-shadow:inset 0 -4px 0 -3px var(--ink), inset 0 -1px 0 0 var(--ink); }
+tr.fs-total .fs-label{ background:var(--bg-subtle); font:800 14px/1.2 var(--sans); letter-spacing:-.01em; color:var(--ink); }
+tr.fs-total .fs-num{ font-weight:800; font-size:14px; color:var(--ink); }
+tr.fs-total .fs-var{ font-weight:700; }
+
+/* hover */
+tr.fs-item:hover .fs-label, tr.fs-item:hover td{ background:var(--bg-subtle); }
+
+/* hidden state for collapsed children + hidden period columns */
+.is-hidden{ display:none !important; }
+.col-hidden{ display:none !important; }
+
+/* ---- footnotes + signoff ---- */
+.fs-foot-wrap{ padding:18px 30px 22px; border-top:1px solid var(--rule); background:var(--bg-subtle); }
+.fs-foot-title{ font:600 9.5px/1 var(--mono); letter-spacing:.12em; text-transform:uppercase; color:var(--ink-faint); margin-bottom:10px; }
+.fs-footnotes{ display:grid; gap:6px; margin:0 0 18px; padding:0; list-style:none; }
+.fs-footnotes li{ display:flex; gap:9px; font:400 11.5px/1.5 var(--sans); color:var(--ink-soft); }
+.fs-footnotes .fn-id{ flex:none; font:700 10px/1.6 var(--mono); color:var(--navy-deep); }
+.fs-signoff{ display:flex; flex-wrap:wrap; gap:26px; padding-top:14px; border-top:1px dashed var(--rule); }
+.fs-signoff .so{ }
+.fs-signoff .so-k{ font:600 9px/1 var(--mono); letter-spacing:.1em; text-transform:uppercase; color:var(--ink-faint); }
+.fs-signoff .so-v{ margin-top:5px; font:600 12px/1 var(--mono); color:var(--ink-mid); border-bottom:1px solid var(--rule); padding-bottom:5px; min-width:160px; }
+
+/* ============================ FOOTER (dark band) ============================ */
+.fs-footer{
+  max-width:1640px; margin:16px auto 28px; display:flex; align-items:center; gap:16px;
+  background:var(--bg-deep); color:#cdd0d8; border-radius:12px; padding:13px 22px;
+  font:600 10px/1.4 var(--mono); letter-spacing:.06em; text-transform:uppercase;
+}
+.fs-footer .wm{ display:inline-flex; align-items:center; gap:8px; color:#fff; font:800 12px/1 var(--sans); letter-spacing:-.01em; text-transform:none; }
+.fs-footer .wm .sq{ width:15px; height:15px; border-radius:4px; background:var(--navy); display:inline-block; }
+.fs-footer .sp{ flex:1 1 auto; }
+.fs-footer .ic{ color:#9aa0ad; }
+
+/* ============================ PRINT (static complete snapshot) ============================ */
+@media print{
+  html,body{ background:#fff; }
+  .fs-topbar{ position:static; box-shadow:none; backdrop-filter:none; background:#fff; }
+  .rc-theme, .fs-controls, .print-hint, .noscript, .fs-cellpop{ display:none !important; }
+  .note-mark{ text-decoration:none; } .fn-back{ display:none; }
+  .fs-page{ max-width:none; margin:0; padding:0; }
+  .fs-sheet-card{ border:0; border-radius:0; box-shadow:none; }
+  .fs-sheet{ overflow:visible; }
+  .fs-statement thead th{ position:static; box-shadow:0 2px 0 0 var(--ink); }
+  .fs-label{ position:static; }
+  tr.fs-header.collapsed .chev{ transform:none; }
+  .is-hidden{ display:table-row !important; }   /* expand all groups on paper */
+  .fs-footer{ background:#fff; color:#000; border:1px solid #000; border-radius:0; margin:8mm 0 0; }
+  .fs-footer .wm{ color:#000; } .fs-footer .wm .sq{ background:#000; } .fs-footer .ic{ color:#000; }
+  tr,td,th{ break-inside:avoid; }
+  @page{ margin:14mm; }
+}
+</style>
+</head>
+<body>
+<noscript><p class="noscript">This financial statement renders from embedded data and requires JavaScript. With scripts disabled, the figures cannot be displayed.</p></noscript>
+
+<!-- top bar -->
+<header class="fs-topbar">
+  <span class="wm"><span class="sq"></span>{{ORG}} <span class="sub">· {{PROJECT}}</span></span>
+  <span class="doc-kind">Financial Statement</span>
+  <span class="spacer"></span>
+  <span class="print-hint">Print → PDF for archival</span>
+  <label class="rc-theme" title="Brand colour">
+    <span class="rc-theme-sw" aria-hidden="true"></span>
+    <select class="rc-theme-sel" aria-label="Brand theme">
+      <option value="blue">Blue</option>
+      <option value="purple">Purple</option>
+      <option value="indigo">Indigo</option>
+      <option value="teal">Teal</option>
+      <option value="cyan">Cyan</option>
+      <option value="green">Green</option>
+      <option value="plum">Plum</option>
+      <option value="slate">Slate</option>
+      <option value="black">Black</option>
+    </select>
+  </label>
+</header>
+
+<main class="fs-page">
+  <div class="fs-sheet-card">
+    <!-- masthead (rendered) -->
+    <section class="fs-masthead" id="masthead"></section>
+
+    <!-- controls band (rendered) -->
+    <section class="fs-controls" id="controls" aria-label="statement controls"></section>
+
+    <!-- the ruled statement (rendered) -->
+    <div class="fs-sheet">
+      <table class="fs-statement" id="statement">
+        <colgroup id="colgroup"></colgroup>
+        <thead id="statementHead"></thead>
+        <tbody id="statementBody"></tbody>
+      </table>
+    </div>
+
+    <!-- footnotes + signoff (rendered) -->
+    <div class="fs-foot-wrap" id="footWrap"></div>
+  </div>
+</main>
+
+<footer class="fs-footer">
+  <span class="wm"><span class="sq"></span>{{ORG}}</span>
+  <span class="sp"></span>
+  <span>{{PROJECT}} · <span id="footTitle"></span></span>
+  <span>Generated {{DATE}}</span>
+  <span>Source · Consolidation ledger (read-only)</span>
+  <span>{{AUTHOR}}</span>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---------- inline house icons (SVG strings, currentColor) ---------- */
+  const IC = {
+    ledger:'<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 3.5H17a.5.5 0 0 1 .5.5v16a.5.5 0 0 1-.5.5H6.5a.5.5 0 0 1-.5-.5V4a.5.5 0 0 1 .5-.5Z"/><path d="M6 8.25H4M6 12H4M6 15.75H4"/><path d="M9.5 8.5H14M9.5 12H14M9.5 15.5H12.5"/></svg>',
+    chevron:'<svg class="icon chev" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9.5 12 15.5 18 9.5"/></svg>',
+    up:'<svg class="icon icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 16.5 10 10.5 13.5 14 20 7.5"/><path d="M15 7.5H20V12.5"/></svg>',
+    down:'<svg class="icon icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7.5 10 13.5 13.5 10 20 16.5"/><path d="M15 16.5H20V11.5"/></svg>',
+    columns:'<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4" width="17" height="16" rx="2"/><path d="M9.5 4V20M14.5 4V20"/></svg>',
+    delta:'<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5 19.5 19H4.5L12 5Z"/></svg>',
+    percent:'<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 17.5 17.5 6.5"/><rect x="4.5" y="4.5" width="5" height="5" rx="1.4" fill="currentColor" stroke="none"/><rect x="14.5" y="14.5" width="5" height="5" rx="1.4" fill="currentColor" stroke="none"/></svg>',
+    scale:'<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4.5V19.5M7 19.5H17"/><path d="M4 9.5H20"/><path d="M2.5 13.5 4 9.5 5.5 13.5a2 2 0 0 1-3 0Z"/><path d="M18.5 13.5 20 9.5 21.5 13.5a2 2 0 0 1-3 0Z"/></svg>',
+    expand:'<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M8 10 12 6 16 10M8 14 12 18 16 14"/></svg>'
+  };
+
+  /* ---------- read the data ---------- */
+  const DATA = JSON.parse(document.getElementById('report-data').textContent);
+  const M = DATA.meta, CUR = DATA.currency, PERIODS = DATA.periods.slice();
+  const LINES = DATA.lines, VAR = DATA.variance || null, CS = DATA.commonSize || null;
+
+  /* ---------- view state ---------- */
+  const state = {
+    theme: M.theme || 'blue',
+    visiblePeriods: new Set(PERIODS.map(p=>p.key)),        // period column show/hide
+    collapsed: new Set(),                                  // collapsed section header ids
+    varShow: VAR ? (VAR.show !== false) : false,
+    varMode: VAR ? (VAR.defaultMode || 'abs') : 'abs',     // 'abs' | 'pct'
+    valueMode: 'value',                                    // 'value' | 'cs' | 'both'  (common-size)
+    highlightNeg: true
+  };
+
+  /* ---------- number formatting ---------- */
+  const SYM = CUR.symbol || '';
+  function fmtMoney(n){
+    if(n === undefined || n === null) return '';
+    const abs = Math.abs(Math.round(n));
+    const s = SYM + abs.toLocaleString('en-US');
+    if(n < 0) return state.highlightNeg ? '('+s+')' : '−'+s;
+    return s;
+  }
+  // plain signed money for the hover breakdown — independent of the highlight toggle
+  function fmtMoneyPlain(n){
+    if(n === undefined || n === null) return '';
+    const abs = Math.abs(Math.round(n));
+    return (n<0?'−':'') + SYM + abs.toLocaleString('en-US');
+  }
+  function fmtPct(n){
+    if(n === undefined || n === null || !isFinite(n)) return '';
+    const v = (Math.round(n*10)/10);
+    const sign = v < 0 ? (state.highlightNeg ? '(' : '−') : '';
+    const tail = (v < 0 && state.highlightNeg) ? ')' : '';
+    return sign + Math.abs(v).toFixed(1) + '%' + tail;
+  }
+  // common-size percent — sign convention is INDEPENDENT of the highlight-negatives toggle
+  // (always parenthesise negatives, the standard common-size convention)
+  function fmtCsPct(n){
+    if(n === undefined || n === null || !isFinite(n)) return '';
+    const v = (Math.round(n*10)/10);
+    return (v < 0 ? '(' : '') + Math.abs(v).toFixed(1) + '%' + (v < 0 ? ')' : '');
+  }
+  function fmtVar(n, mode){
+    if(n === undefined || n === null || !isFinite(n)) return '–';
+    if(mode === 'pct'){
+      const v = Math.round(n*10)/10;
+      return (v>0?'+':v<0?'−':'') + Math.abs(v).toFixed(1) + '%';
+    }
+    const abs = Math.abs(Math.round(n));
+    return (n>0?'+':n<0?'−':'') + SYM + abs.toLocaleString('en-US');
+  }
+  // common-size base value per period
+  const csBase = {};
+  if(CS){
+    const baseLine = LINES.find(l=>l.id===CS.baseLineId);
+    PERIODS.forEach(p=>{ csBase[p.key] = baseLine && baseLine.values ? baseLine.values[p.key] : null; });
+  }
+
+  /* ====================== RENDER ====================== */
+  function renderMasthead(){
+    const statusMap = { draft:['st-hold','Draft'], final:['st-ok','Final'], audited:['st-ok','Audited'] };
+    const stt = statusMap[CUR.status] || statusMap.draft;
+    const caps = [
+      ['Period covered', PERIODS[PERIODS.length-1].label + ' – ' + PERIODS[0].label],
+      ['Reporting currency', CUR.code + ' (' + SYM + ')'],
+      ['Figures in', CUR.unit ? CUR.unit.charAt(0).toUpperCase()+CUR.unit.slice(1) : '—'],
+      ['Basis of preparation', CUR.basis || '—'],
+      ['Statement status', '<span class="st-badge '+stt[0]+'">'+stt[1]+'</span>']
+    ];
+    document.getElementById('masthead').innerHTML =
+      '<div class="fs-eyebrow">'+IC.ledger+'<span>'+esc(M.org)+' &middot; '+esc(M.project)+' &middot; Statement of Account</span></div>'+
+      '<h1 class="fs-title">'+esc(M.title)+'</h1>'+
+      (M.subtitle ? '<p class="fs-subtitle">'+esc(M.subtitle)+'</p>' : '')+
+      '<div class="fs-caption">'+ caps.map(c=>
+        '<div class="cap"><div class="ck">'+esc(c[0])+'</div><div class="cv">'+c[1]+'</div></div>').join('') +'</div>';
+    document.getElementById('footTitle').textContent = M.title;
+  }
+
+  function renderControls(){
+    const periodChips = PERIODS.map(p=>{
+      const on = state.visiblePeriods.has(p.key);
+      return '<button class="fs-chip'+(on?'':' is-off')+'" data-act="period" data-key="'+p.key+'" aria-pressed="'+on+'">'+esc(p.label)+'</button>';
+    }).join('');
+
+    let varBlock = '';
+    if(VAR){
+      const cmp = lbl(VAR.comparePeriod), base = lbl(VAR.basePeriod);
+      varBlock =
+        '<div class="fs-divider"></div>'+
+        '<div class="fs-cgroup"><span class="fs-clabel">Variance</span>'+
+          '<button class="fs-chip" data-act="varshow" aria-pressed="'+state.varShow+'">'+IC.delta+'<span>'+esc(cmp)+' vs '+esc(base)+'</span></button>'+
+          '<div class="fs-seg" role="group" aria-label="variance mode">'+
+            '<button data-act="varmode" data-mode="abs" aria-pressed="'+(state.varMode==='abs')+'">Abs</button>'+
+            '<button data-act="varmode" data-mode="pct" aria-pressed="'+(state.varMode==='pct')+'">%</button>'+
+          '</div>'+
+        '</div>';
+    }
+
+    let csBlock = '';
+    if(CS){
+      csBlock =
+        '<div class="fs-divider"></div>'+
+        '<div class="fs-cgroup"><span class="fs-clabel">'+IC.percent+' Common&#8209;size</span>'+
+          '<div class="fs-seg" role="group" aria-label="common-size mode">'+
+            '<button data-act="vmode" data-mode="value" aria-pressed="'+(state.valueMode==='value')+'">Value</button>'+
+            '<button data-act="vmode" data-mode="cs" aria-pressed="'+(state.valueMode==='cs')+'" title="'+esc(CS.label||'')+'">%</button>'+
+            '<button data-act="vmode" data-mode="both" aria-pressed="'+(state.valueMode==='both')+'">Both</button>'+
+          '</div>'+
+        '</div>';
+    }
+
+    document.getElementById('controls').innerHTML =
+      '<div class="fs-cgroup"><span class="fs-clabel">'+IC.columns+' Periods</span>'+periodChips+'</div>'+
+      varBlock + csBlock +
+      '<div class="fs-divider"></div>'+
+      '<div class="fs-cgroup">'+
+        '<button class="fs-chip" data-act="neg" aria-pressed="'+state.highlightNeg+'">'+IC.scale+'<span>Highlight negatives</span></button>'+
+        '<button class="fs-chip" data-act="expandall">'+IC.expand+'<span id="expandLabel">'+(state.collapsed.size?'Expand all':'Collapse all')+'</span></button>'+
+      '</div>';
+  }
+
+  function visiblePeriodList(){ return PERIODS.filter(p=>state.visiblePeriods.has(p.key)); }
+
+  function renderHead(){
+    const vps = visiblePeriodList();
+    let cols = '<col class="col-label">';
+    let th = '<th class="th-label">Account</th>';
+    vps.forEach(p=>{ cols += '<col>'; th += '<th>'+esc(p.label)+'</th>'; });
+    if(VAR && state.varShow){
+      cols += '<col>';
+      th += '<th class="th-var">Variance<span class="th-sub">'+esc(lbl(VAR.comparePeriod))+' vs '+esc(lbl(VAR.basePeriod))+' &middot; '+(state.varMode==='pct'?'%':'abs')+'</span></th>';
+    }
+    document.getElementById('colgroup').innerHTML = cols;
+    document.getElementById('statementHead').innerHTML = '<tr>'+th+'</tr>';
+  }
+
+  function numCell(line, pkey){
+    const raw = line.values ? line.values[pkey] : undefined;
+    if(raw === undefined || raw === null) return '<td class="fs-num"></td>';
+    const neg = raw < 0;
+    let main = fmtMoney(raw);
+    let csHtml = '';
+    const base = CS ? csBase[pkey] : null;
+    const pct = (CS && base && base!==0) ? (raw/Math.abs(base))*100 : null;
+    if(CS && (state.valueMode==='cs' || state.valueMode==='both')){
+      const csTxt = (pct===null) ? '' : fmtCsPct(pct);
+      if(state.valueMode==='cs'){ main = csTxt || '–'; }
+      else { csHtml = '<span class="cs">'+ (csTxt||'') +'</span>'; }
+    }
+    const cls = (neg && state.highlightNeg) ? ' fs-neg' : '';
+    // hover-breakdown data (period / line / value / % of total)
+    const data = ' data-period="'+esc(lbl(pkey))+'" data-line="'+esc(line.label)+'"'+
+      ' data-value="'+esc(fmtMoneyPlain(raw))+'"'+
+      ' data-pct="'+(pct===null?'':esc(fmtCsPct(pct))+(CS&&CS.label?' '+esc(CS.label):''))+'"';
+    return '<td class="fs-num'+cls+'" tabindex="0"'+data+'>'+main+csHtml+'</td>';
+  }
+
+  function varCell(line){
+    if(!(VAR && state.varShow)) return '';
+    if(!line.values || line.kind==='header') return '<td class="fs-var flat">–</td>';
+    const b = line.values[VAR.basePeriod], c = line.values[VAR.comparePeriod];
+    if(b===undefined || c===undefined) return '<td class="fs-var flat">–</td>';
+    let val, dir;
+    if(state.varMode==='pct'){
+      val = (b!==0) ? ((c-b)/Math.abs(b))*100 : (c===0?0:null);
+      dir = (val>0)?'up':(val<0)?'down':'flat';
+      return '<td class="fs-var '+dir+'"><span class="vwrap">'+(dir==='up'?IC.up:dir==='down'?IC.down:'')+fmtVar(val,'pct')+'</span></td>';
+    } else {
+      val = c-b; dir = (val>0)?'up':(val<0)?'down':'flat';
+      return '<td class="fs-var '+dir+'"><span class="vwrap">'+(dir==='up'?IC.up:dir==='down'?IC.down:'')+fmtVar(val,'abs')+'</span></td>';
+    }
+  }
+
+  function rowHTML(line){
+    const vps = visiblePeriodList();
+    const lvl = 'lvl'+Math.min(line.level||0,3);
+    const noteMark = line.note ? '<sup><button type="button" class="note-mark" data-act="note" data-note="'+esc(line.note)+'" id="ref-'+esc(line.note)+'" title="'+esc(noteText(line.note))+'" aria-label="Footnote '+noteIndex(line.note)+' — jump to note">'+noteIndex(line.note)+'</button></sup>' : '';
+
+    if(line.kind==='header'){
+      const isCol = state.collapsed.has(line.id);
+      let cells = '';
+      vps.forEach(()=>{ cells += '<td class="fs-num"></td>'; });
+      if(VAR && state.varShow) cells += '<td class="fs-var flat"></td>';
+      return '<tr class="fs-row fs-header '+lvl+(isCol?' collapsed':'')+'" data-gid="'+esc(line.id)+'">'+
+        '<td class="fs-label"><span class="fs-disclosure" data-act="toggle" data-gid="'+esc(line.id)+'">'+IC.chevron+esc(line.label)+'</span></td>'+
+        cells+'</tr>';
+    }
+
+    let rowClass = 'fs-row '+lvl;
+    if(line.kind==='subtotal') rowClass += ' fs-subtotal' + (line.emphasis?' emph':'');
+    else if(line.kind==='total') rowClass += ' fs-total';
+    else rowClass += ' fs-item';
+    if(line.emphasis && line.kind==='item') rowClass += ' emph';
+
+    const parentColl = line.parent && state.collapsed.has(line.parent);
+    let cells = '';
+    vps.forEach(p=>{ cells += numCell(line,p.key); });
+    cells += varCell(line);
+    const labelStyle = (line.emphasis && line.kind==='item') ? ' style="font-weight:700;color:var(--ink)"' : '';
+    return '<tr class="'+rowClass+(parentColl?' is-hidden':'')+'" data-parent="'+esc(line.parent||'')+'">'+
+      '<td class="fs-label"'+labelStyle+'>'+esc(line.label)+noteMark+'</td>'+ cells +'</tr>';
+  }
+
+  function renderBody(){
+    hideCellPop();   // a body rebuild orphans the hovered cell — drop any open popover
+    document.getElementById('statementBody').innerHTML = LINES.map(rowHTML).join('');
+  }
+
+  function renderFoot(){
+    let html = '';
+    if(DATA.footnotes && DATA.footnotes.length){
+      html += '<div class="fs-foot-title">Notes to the statement</div>'+
+        '<ol class="fs-footnotes">'+ DATA.footnotes.map(f=>
+          '<li id="note-'+esc(f.id)+'"><span class="fn-id">'+noteIndex(f.id)+'</span><span>'+esc(f.text)+
+          ' <button type="button" class="fn-back" data-act="noteback" data-note="'+esc(f.id)+'" aria-label="Back to reference">&#8617;</button></span></li>').join('') +'</ol>';
+    }
+    if(DATA.signoff){
+      const s = DATA.signoff;
+      html += '<div class="fs-signoff">'+
+        (s.preparedBy?'<div class="so"><div class="so-k">Prepared by</div><div class="so-v">'+esc(s.preparedBy)+'</div></div>':'')+
+        (s.reviewedBy?'<div class="so"><div class="so-k">Reviewed by</div><div class="so-v">'+esc(s.reviewedBy)+'</div></div>':'')+
+        '<div class="so"><div class="so-k">Date</div><div class="so-v">'+esc(M.date)+'</div></div>'+
+        (s.note?'<div class="so"><div class="so-k">Note</div><div class="so-v" style="border:0">'+esc(s.note)+'</div></div>':'')+
+        '</div>';
+    }
+    document.getElementById('footWrap').innerHTML = html;
+  }
+
+  function renderTable(){ renderHead(); renderBody(); }
+  function renderAll(){ renderMasthead(); renderControls(); renderTable(); renderFoot(); syncTheme(); }
+
+  /* ---------- helpers ---------- */
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+  function lbl(key){ const p = PERIODS.find(x=>x.key===key); return p?p.label:key; }
+  function noteIndex(id){ const i = (DATA.footnotes||[]).findIndex(f=>f.id===id); return i<0?'*':String(i+1); }
+  function noteText(id){ const f = (DATA.footnotes||[]).find(x=>x.id===id); return f?f.text:''; }
+  // set aria-pressed on the clicked seg button + clear its siblings (in-place, no re-render)
+  function setPressedInGroup(btn){
+    const seg = btn.closest('.fs-seg'); if(!seg) return;
+    seg.querySelectorAll('[aria-pressed]').forEach(b=> b.setAttribute('aria-pressed', String(b===btn)));
+  }
+  // briefly highlight an element (footnote jump / back)
+  function flash(el){
+    if(!el) return;
+    el.classList.remove('is-flash'); void el.offsetWidth; el.classList.add('is-flash');
+  }
+
+  /* ====================== INTERACTIONS ====================== */
+  function wireInteractions(){
+    // CONTROLS (delegated)
+    document.getElementById('controls').addEventListener('click', function(e){
+      const t = e.target.closest('[data-act]'); if(!t) return;
+      const act = t.dataset.act;
+
+      if(act==='period'){
+        const k = t.dataset.key;
+        if(state.visiblePeriods.has(k)){
+          if(state.visiblePeriods.size<=2) return;          // keep >=2 columns
+          state.visiblePeriods.delete(k);
+        } else state.visiblePeriods.add(k);
+        renderControls(); renderTable();
+      }
+      else if(act==='varshow'){ state.varShow=!state.varShow; renderControls(); renderTable(); }
+      else if(act==='varmode'){ state.varMode=t.dataset.mode; renderControls(); renderTable(); }
+      // value-only modes: update the pressed control in place + re-render ONLY the body (keeps keyboard focus)
+      else if(act==='vmode'){ state.valueMode=t.dataset.mode; setPressedInGroup(t); renderBody(); }
+      else if(act==='neg'){
+        state.highlightNeg=!state.highlightNeg;
+        t.setAttribute('aria-pressed', String(state.highlightNeg));
+        renderBody();
+      }
+      else if(act==='expandall'){
+        if(state.collapsed.size){ state.collapsed.clear(); }
+        else { LINES.forEach(l=>{ if(l.kind==='header') state.collapsed.add(l.id); }); }
+        renderControls(); renderBody();
+      }
+    });
+
+    // STATEMENT body: group collapse + clickable footnote markers (delegated)
+    const body = document.getElementById('statementBody');
+    body.addEventListener('click', function(e){
+      const note = e.target.closest('[data-act="note"]');
+      if(note){ jumpToNote(note.dataset.note); return; }
+      const t = e.target.closest('[data-act="toggle"]'); if(!t) return;
+      const gid = t.dataset.gid;
+      if(state.collapsed.has(gid)) state.collapsed.delete(gid); else state.collapsed.add(gid);
+      renderControls(); renderBody();
+    });
+
+    // FOOTNOTES: back-link to the referencing line (delegated)
+    document.getElementById('footWrap').addEventListener('click', function(e){
+      const back = e.target.closest('[data-act="noteback"]'); if(!back) return;
+      const ref = document.getElementById('ref-'+back.dataset.note);
+      if(ref){ ref.scrollIntoView({behavior:'smooth', block:'center'}); flash(ref); ref.focus({preventScroll:true}); }
+    });
+
+    // PER-CELL hover/focus breakdown popover (delegated; works for mouse + keyboard)
+    body.addEventListener('mouseover', function(e){ const td=e.target.closest('td.fs-num[data-line]'); if(td) showCellPop(td); });
+    body.addEventListener('mouseout',  function(e){ const td=e.target.closest('td.fs-num[data-line]'); if(td && !td.contains(e.relatedTarget)) hideCellPop(); });
+    body.addEventListener('focusin',   function(e){ const td=e.target.closest('td.fs-num[data-line]'); if(td) showCellPop(td); });
+    body.addEventListener('focusout',  hideCellPop);
+    window.addEventListener('scroll', hideCellPop, true);
+  }
+
+  // jump from a footnote marker to its note + highlight it
+  function jumpToNote(id){
+    const note = document.getElementById('note-'+id); if(!note) return;
+    note.scrollIntoView({behavior:'smooth', block:'center'}); flash(note);
+  }
+
+  /* ---------- per-cell breakdown popover ---------- */
+  let cellPop = null;
+  function showCellPop(td){
+    if(!cellPop){
+      cellPop = document.createElement('div');
+      cellPop.className = 'fs-cellpop'; cellPop.setAttribute('role','tooltip');
+      document.body.appendChild(cellPop);
+    }
+    const pct = td.dataset.pct;
+    cellPop.innerHTML =
+      '<div class="cp-period">'+esc(td.dataset.period)+'</div>'+
+      '<div class="cp-line">'+esc(td.dataset.line)+'</div>'+
+      '<div class="cp-row"><span>Value</span><b class="tnum">'+esc(td.dataset.value)+'</b></div>'+
+      (pct ? '<div class="cp-row"><span>Share</span><b class="tnum">'+esc(pct)+'</b></div>' : '');
+    const r = td.getBoundingClientRect();
+    cellPop.style.display = 'block';
+    const pw = cellPop.offsetWidth, ph = cellPop.offsetHeight;
+    let left = window.scrollX + r.right - pw;
+    if(left < window.scrollX+6) left = window.scrollX+6;
+    let top = window.scrollY + r.top - ph - 8;
+    if(top < window.scrollY+6) top = window.scrollY + r.bottom + 8;   // flip below if no room above
+    cellPop.style.left = left+'px'; cellPop.style.top = top+'px';
+  }
+  function hideCellPop(){ if(cellPop) cellPop.style.display='none'; }
+
+  /* ====================== THEME SWITCH ====================== */
+  function syncTheme(){
+    document.documentElement.setAttribute('data-theme', state.theme);
+    var rcSel = document.querySelector('.rc-theme-sel');
+    if (rcSel) rcSel.value = state.theme;
+  }
+  function wireThemeSwitch(){
+    var rcSel = document.querySelector('.rc-theme-sel');
+    if (rcSel) {
+      rcSel.addEventListener('change', function(){ state.theme = rcSel.value; syncTheme(); });
+    }
+  }
+
+  /* ====================== INIT ====================== */
+  function boot(){ renderAll(); wireInteractions(); wireThemeSwitch(); }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
+})();
+</script>
+</body>
+</html>

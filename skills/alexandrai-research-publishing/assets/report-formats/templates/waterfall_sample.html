@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="blue">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>{{PROJECT}} · Bridge Analysis — {{ORG}}</title>
+
+<!-- ============================================================
+     DATA-DRIVEN: the ONLY content source. render() builds the
+     whole bridge (headline + chart + table) from this JSON on
+     DOMContentLoaded. It is a valid instance of
+     designs/schemas/waterfall.schema.json. No hard-coded body.
+     The bridge is recomputed from steps[] on every interaction.
+     ============================================================ -->
+<script type="application/json" id="report-data">
+{
+  "meta": {
+    "org": "{{ORG}}",
+    "project": "{{PROJECT}}",
+    "reportType": "waterfall",
+    "title": "FY2025 → FY2026 Revenue Bridge",
+    "subtitle": "What moved total revenue year over year",
+    "date": "2026-06-22",
+    "author": "{{AUTHOR}}",
+    "theme": "blue"
+  },
+  "unit": "$ thousands",
+  "currency": { "code": "USD", "symbol": "$", "unit": "thousands" },
+  "opening": { "label": "FY2025 revenue", "value": 66490, "note": "Audited prior-year total revenue — the base of the bridge." },
+  "steps": [
+    { "label": "New-logo subscriptions", "delta": 7480, "group": "Revenue", "note": "142 net-new enterprise logos onboarded over the year." },
+    { "label": "Expansion / upsell",     "delta": 4120, "group": "Revenue", "note": "Seat and tier expansion within the installed base." },
+    { "label": "Price uplift",           "delta": 1960, "group": "Revenue", "note": "List-price increase applied at renewal." },
+    { "label": "Subscription subtotal",  "delta": 80050, "type": "subtotal", "note": "Running total after all subscription movements." },
+    { "label": "Gross churn",            "delta": -3880, "group": "Revenue", "note": "Lost ARR from accounts that did not renew." },
+    { "label": "Downgrades",             "delta": -1240, "group": "Revenue", "note": "Customers moving to a lower tier." },
+    { "label": "Transaction fees",       "delta": 2220, "group": "Revenue", "note": "Higher interchange volume across the network." },
+    { "label": "Professional services",  "delta": 630,  "group": "Revenue" },
+    { "label": "FX translation",         "delta": -430, "group": "One-off", "note": "Adverse foreign-exchange movement on overseas revenue." },
+    { "label": "Other",                  "delta": 330,  "group": "One-off", "note": "Sundry operating income, net." }
+  ],
+  "closing": { "label": "FY2026 revenue", "value": 77680, "note": "Reported current-year total revenue — foots to the bridge." },
+  "options": { "runningLine": false, "mode": "absolute", "sort": "entered", "collapseThreshold": 0 }
+}
+</script>
+
+<style>
+/* ============================================================
+   WATERFALL — bridge / variance chart
+   Inherits the family DNA from designs/_FOUNDATION.md.
+   Default theme: Blue (shipped in :root). Self-contained.
+   Content is rendered from #report-data by render() below.
+   ============================================================ */
+
+/* ---- 1. tokens (Blue is the default for this format) ---- */
+:root{
+  /* surfaces */
+  --bg:#fff; --bg-band:#f6f6f8; --bg-subtle:#fafafb; --bg-deep:#15131a;
+  --rule:#dcdce2; --rule-soft:#ebebef;
+  /* ink */
+  --ink:#11131a; --ink-mid:#33363f; --ink-soft:#5a5e68; --ink-faint:#868b95;
+  /* brand accent — BLUE default */
+  --navy:#0b5fd4; --navy-deep:#0842a0; --navy-bg:#e8f1fc; --navy-line:#bcd6f5;
+  /* cleared / approved */
+  --ok:#1a4f9c; --ok-bg:#e9f0fa; --ok-line:#b7cdea;
+  /* semantic states — CONSTANT across themes */
+  --risk:#b3261e; --risk-bg:#fbeceb; --risk-line:#edc7c4;
+  --hold:#8a6d00; --hold-bg:#fbf3da; --hold-line:#e7d8a4;
+  /* type stacks */
+  --mono:ui-monospace,"JetBrains Mono","SFMono-Regular",Menlo,Consolas,monospace;
+  --sans:-apple-system,"Segoe UI",system-ui,Roboto,"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic UI","Apple SD Gothic Neo","Malgun Gothic","PingFang SC","Microsoft YaHei","Noto Sans CJK JP","Noto Sans CJK KR","Noto Sans CJK SC","Noto Sans JP","Noto Sans KR","Noto Sans SC","Noto Sans",sans-serif;
+  /* page geometry */
+  --shadow:0 1px 2px rgba(17,19,26,.045);
+  --grey:#9aa0ab; --grey-bg:#eceef1; --grey-line:#d3d7dd;
+}
+/* alternate theme swaps (all 9 per _FOUNDATION §1 / _DATA_DRIVEN §3 — Black mandatory) */
+html[data-theme="blue"]{   --navy:#0b5fd4; --navy-deep:#0842a0; --navy-bg:#e8f1fc; --navy-line:#bcd6f5; --ok:#1a4f9c; --ok-bg:#e9f0fa; --ok-line:#b7cdea; }
+html[data-theme="purple"]{ --navy:#a100ff; --navy-deep:#7a00c2; --navy-bg:#f3e8ff; --navy-line:#d9bef5; --ok:#5a2f8a; --ok-bg:#efe8f5; --ok-line:#d0b5e0; }
+html[data-theme="indigo"]{ --navy:#4338ca; --navy-deep:#312c92; --navy-bg:#ebebfb; --navy-line:#c7c3f0; --ok:#3730a3; --ok-bg:#ebeaf7; --ok-line:#c5c2ea; }
+html[data-theme="teal"]{   --navy:#0e7c86; --navy-deep:#095861; --navy-bg:#e0f3f4; --navy-line:#a9dade; --ok:#0f5d54; --ok-bg:#e3f3ef; --ok-line:#b3ddd4; }
+html[data-theme="cyan"]{   --navy:#0891b2; --navy-deep:#0e6f88; --navy-bg:#e2f4f9; --navy-line:#abdde9; --ok:#0e6b7a; --ok-bg:#e4f3f4; --ok-line:#b0dde2; }
+html[data-theme="green"]{  --navy:#1f7a44; --navy-deep:#155730; --navy-bg:#e6f4ea; --navy-line:#b3dcc1; --ok:#2f6b3c; --ok-bg:#e9f3ea; --ok-line:#bedcc4; }
+html[data-theme="plum"]{   --navy:#a21d6e; --navy-deep:#7c1450; --navy-bg:#fbe8f2; --navy-line:#e8b9d4; --ok:#6d2356; --ok-bg:#f6e8f0; --ok-line:#e3bcd5; }
+html[data-theme="slate"]{  --navy:#3f4f63; --navy-deep:#29384b; --navy-bg:#eef1f5; --navy-line:#c2ccd8; --ok:#34495e; --ok-bg:#eef1f5; --ok-line:#c2ccd8; }
+html[data-theme="black"]{  --navy:#000000; --navy-deep:#000000; --navy-bg:#f1f1f3; --navy-line:#d6d6db; --ok:#3f3f46; --ok-bg:#f1f1f3; --ok-line:#cfcfd6; }
+
+*{ box-sizing:border-box; }
+html,body{ margin:0; }
+body{
+  font:13px/1.6 var(--sans); color:var(--ink);
+  background:var(--bg-band);
+  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+}
+.tnum{ font-feature-settings:"tnum" 1; font-variant-numeric:tabular-nums; }
+
+/* ---- icons ---- */
+.icon{ width:1.15em; height:1.15em; display:inline-block; vertical-align:-.18em; color:inherit; }
+.icon-sm{ width:14px; height:14px; } .icon-lg{ width:20px; height:20px; }
+
+/* ---- shared primitives: status badge / dot / chip ---- */
+.st-badge{
+  display:inline-flex; align-items:center; gap:.4em;
+  font:600 11px/1 var(--sans); padding:4px 8px 4px 7px; border-radius:6px;
+  border:1px solid var(--rule); color:var(--ink-mid); background:var(--bg);
+  white-space:nowrap;
+}
+.st-badge::before{ content:""; width:7px; height:7px; border-radius:50%; background:var(--ink-faint); }
+.st-ok{ color:var(--ok); background:var(--ok-bg); border-color:var(--ok-line); }
+.st-ok::before{ background:var(--ok); }
+.st-risk{ color:var(--risk); background:var(--risk-bg); border-color:var(--risk-line); }
+.st-risk::before{ background:var(--risk); }
+.st-hold{ color:var(--hold); background:var(--hold-bg); border-color:var(--hold-line); }
+.st-hold::before{ background:var(--hold); }
+.chip{
+  display:inline-flex; align-items:center; gap:.35em;
+  font:600 10.5px/1 var(--mono); letter-spacing:.02em;
+  padding:4px 8px; border-radius:6px;
+  background:var(--navy-bg); color:var(--navy-deep); border:1px solid var(--navy-line);
+}
+.muted{ color:var(--ink-faint); }
+.mlabel{ font:600 10px/1.4 var(--mono); letter-spacing:.1em; text-transform:uppercase; color:var(--ink-faint); }
+
+/* ---- noscript banner ---- */
+.noscript-note{
+  margin:0; padding:14px 22px; background:var(--hold-bg); color:var(--hold);
+  border-bottom:1px solid var(--hold-line); font:600 12.5px/1.5 var(--sans);
+}
+.noscript-note code{ font:600 11.5px/1 var(--mono); }
+
+/* ============================================================
+   2. PAGE SHELL — centred analysis page (~1500px), slim topbar
+   ============================================================ */
+.wf-topbar{
+  position:sticky; top:0; z-index:20;
+  display:flex; align-items:center; gap:13px;
+  background:rgba(255,255,255,.93); backdrop-filter:saturate(1.2) blur(4px);
+  border-bottom:1px solid var(--rule);
+  padding:11px 40px;
+}
+.wf-wm{ display:inline-flex; align-items:center; gap:9px; font:800 14px/1 var(--sans); letter-spacing:-.01em; color:var(--ink); }
+.wf-wm i{ width:16px; height:16px; border-radius:4px; background:var(--navy); display:inline-block; }
+.wf-wm b{ color:var(--navy-deep); font-weight:800; }
+.wf-tb-sub{ font:600 11px/1 var(--mono); letter-spacing:.05em; color:var(--ink-faint); text-transform:uppercase; }
+.wf-tb-spacer{ flex:1 1 auto; }
+.print-hint{ font:600 11px/1 var(--mono); letter-spacing:.03em; color:var(--ink-faint); }
+.print-hint .icon{ width:14px; height:14px; vertical-align:-.2em; margin-right:3px; }
+
+/* theme switcher (MANDATORY, canonical dropdown per _DATA_DRIVEN §3) */
+.rc-theme{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--rule);border-radius:7px;padding:3px 4px 3px 7px;background:var(--bg);}
+.rc-theme-sw{width:12px;height:12px;border-radius:50%;background:var(--navy);box-shadow:0 0 0 1px var(--rule);flex:none;}
+.rc-theme-sel{border:0;background:none;font:600 11px/1 var(--mono);color:var(--ink-mid);cursor:pointer;outline:none;padding:2px;}
+@media print{.rc-theme{display:none;}}
+
+/* ---- the centred analysis page ---- */
+.wf-page{ max-width:1500px; margin:0 auto; padding:22px 40px 40px; }
+
+/* ============================================================
+   3. HEADLINE STRIP — opening · signed net Δ · closing
+   ============================================================ */
+.wf-headline{
+  background:var(--bg); border:1px solid var(--rule); border-radius:12px;
+  box-shadow:var(--shadow); padding:18px 22px; margin-bottom:16px;
+}
+.wf-head-title{ display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; margin-bottom:16px; }
+.wf-head-title h1{ margin:0; font:800 24px/1.15 var(--sans); letter-spacing:-.02em; color:var(--ink); }
+.wf-head-title .sub{ font:600 12.5px/1.4 var(--sans); color:var(--ink-soft); }
+.wf-head-stats{
+  display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:18px;
+}
+.wf-anchor{ display:flex; flex-direction:column; gap:4px; }
+.wf-anchor.close{ text-align:right; align-items:flex-end; }
+.wf-anchor .a-lab{ display:inline-flex; align-items:center; gap:6px; }
+.wf-anchor .a-lab .dot{ width:9px; height:9px; border-radius:3px; background:var(--navy); flex:none; }
+.wf-anchor .a-val{ font:800 30px/1 var(--mono); letter-spacing:-.02em; color:var(--ink); }
+.wf-anchor .a-val small{ font:700 14px/1 var(--mono); color:var(--ink-faint); letter-spacing:0; }
+.wf-net{
+  display:flex; flex-direction:column; align-items:center; gap:3px;
+  padding:10px 20px; border-radius:12px; border:1px solid var(--rule);
+  background:var(--bg-subtle); position:relative; min-width:210px;
+}
+.wf-net .n-lab{ font:600 9.5px/1.3 var(--mono); letter-spacing:.12em; text-transform:uppercase; color:var(--ink-faint); }
+.wf-net .n-big{ display:inline-flex; align-items:center; gap:7px; font:800 34px/1 var(--mono); letter-spacing:-.02em; }
+.wf-net .n-big .icon{ width:24px; height:24px; }
+.wf-net .n-pct{ font:700 12px/1 var(--mono); color:var(--ink-soft); }
+.wf-net.up{ background:var(--ok-bg); border-color:var(--ok-line); }
+.wf-net.up .n-big{ color:var(--ok); }
+.wf-net.down{ background:var(--risk-bg); border-color:var(--risk-line); }
+.wf-net.down .n-big{ color:var(--risk); }
+.wf-net .arrow-link{ position:absolute; left:-9px; right:-9px; top:50%; height:1px; background:var(--rule); z-index:-1; }
+/* mismatch flag if closing.value disagrees with computed sum */
+.wf-mismatch{ margin-top:11px; }
+
+/* ============================================================
+   4. CONTROLS BAND
+   ============================================================ */
+.wf-controls{
+  position:sticky; top:46px; z-index:15;
+  display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+  background:rgba(255,255,255,.95); backdrop-filter:saturate(1.2) blur(4px);
+  border:1px solid var(--rule); border-radius:11px; box-shadow:var(--shadow);
+  padding:9px 14px; margin-bottom:14px;
+}
+.wf-controls .cl-label{ font:600 10px/1.4 var(--mono); letter-spacing:.1em; text-transform:uppercase; color:var(--ink-faint); margin-right:1px; }
+.wf-controls .cl-sep{ width:1px; align-self:stretch; background:var(--rule-soft); margin:0 3px; }
+.wf-controls .cl-spacer{ flex:1 1 auto; }
+/* toggle switch (running-total line) */
+.wf-toggle{
+  display:inline-flex; align-items:center; gap:8px; cursor:pointer;
+  font:600 11.5px/1 var(--sans); color:var(--ink-soft); user-select:none;
+  padding:5px 10px; border:1px solid var(--rule); border-radius:8px; background:var(--bg); transition:background .12s,color .12s,border-color .12s;
+}
+.wf-toggle:hover{ border-color:var(--navy-line); color:var(--ink-mid); }
+.wf-toggle .sw-track{ width:30px; height:16px; border-radius:9px; background:var(--rule); position:relative; transition:background .15s; flex:none; }
+.wf-toggle .sw-track::after{ content:""; position:absolute; top:2px; left:2px; width:12px; height:12px; border-radius:50%; background:#fff; box-shadow:0 1px 2px rgba(0,0,0,.2); transition:left .15s; }
+.wf-toggle.on{ color:var(--navy-deep); border-color:var(--navy-line); background:var(--navy-bg); }
+.wf-toggle.on .sw-track{ background:var(--navy); }
+.wf-toggle.on .sw-track::after{ left:16px; }
+/* segmented mode / sort switches */
+.seg{ display:inline-flex; border:1px solid var(--rule); border-radius:8px; overflow:hidden; }
+.seg button{
+  border:0; background:var(--bg); cursor:pointer;
+  font:600 11px/1 var(--mono); letter-spacing:.02em; color:var(--ink-soft);
+  padding:6px 11px; border-right:1px solid var(--rule-soft); transition:background .12s,color .12s;
+}
+.seg button:last-child{ border-right:0; }
+.seg button:hover{ background:var(--navy-bg); color:var(--navy-deep); }
+.seg button.on{ background:var(--navy); color:#fff; }
+.seg button.on:hover{ background:var(--navy); color:#fff; }
+/* threshold slider */
+.wf-collapse{ display:inline-flex; align-items:center; gap:9px; }
+.wf-collapse input[type=range]{
+  -webkit-appearance:none; appearance:none; width:150px; height:4px; border-radius:3px;
+  background:var(--rule); outline:none; cursor:pointer;
+}
+.wf-collapse input[type=range]::-webkit-slider-thumb{ -webkit-appearance:none; appearance:none; width:15px; height:15px; border-radius:50%; background:var(--navy); border:2px solid #fff; box-shadow:0 1px 3px rgba(0,0,0,.25); cursor:pointer; }
+.wf-collapse input[type=range]::-moz-range-thumb{ width:15px; height:15px; border-radius:50%; background:var(--navy); border:2px solid #fff; box-shadow:0 1px 3px rgba(0,0,0,.25); cursor:pointer; }
+.wf-collapse .thr-val{ font:700 11.5px/1 var(--mono); color:var(--ink); min-width:62px; }
+.wf-collapse .thr-val small{ color:var(--ink-faint); font-weight:600; }
+
+/* ============================================================
+   5. THE WATERFALL CHART (the hero) — inline SVG
+   ============================================================ */
+.wf-chart-card{
+  background:var(--bg); border:1px solid var(--rule); border-radius:12px;
+  box-shadow:var(--shadow); padding:16px 18px 10px; margin-bottom:16px;
+}
+.wf-chart-head{ display:flex; align-items:center; gap:9px; margin-bottom:6px; }
+.wf-chart-head .ch-title{ display:inline-flex; align-items:center; gap:7px; font:700 12.5px/1.1 var(--sans); color:var(--ink); }
+.wf-chart-head .ch-title .icon{ color:var(--navy); width:16px; height:16px; }
+.wf-chart-head .ch-legend{ margin-left:auto; display:inline-flex; gap:12px; flex-wrap:wrap; }
+.wf-chart-head .lg{ display:inline-flex; align-items:center; gap:5px; font:600 10.5px/1 var(--mono); letter-spacing:.02em; color:var(--ink-soft); }
+.wf-chart-head .lg i{ width:11px; height:11px; border-radius:3px; flex:none; }
+.wf-chart-head .lg .i-total{ background:var(--navy); }
+.wf-chart-head .lg .i-up{ background:var(--ok); }
+.wf-chart-head .lg .i-down{ background:var(--risk); }
+.wf-chart-head .lg .i-other{ background:var(--grey); }
+
+.wf-chart{ width:100%; overflow-x:auto; }
+.wf-chart svg{ display:block; width:100%; height:auto; }
+/* axis + grid */
+.wf-grid line{ stroke:var(--rule-soft); stroke-width:1; }
+.wf-axis-base{ stroke:var(--ink); stroke-width:1.5; }
+.wf-tick{ font:600 9.5px/1 var(--mono); fill:var(--ink-faint); }
+.wf-axis-title{ font:600 9.5px/1 var(--mono); fill:var(--ink-faint); letter-spacing:.1em; text-transform:uppercase; }
+/* bars */
+.wf-bar{ cursor:pointer; transition:opacity .15s, filter .12s; }
+.wf-bar rect{ rx:3; transition:y .35s ease, height .35s ease, x .35s ease, width .35s ease; }
+.wf-bar.is-total rect{ fill:var(--navy); }
+.wf-bar.is-subtotal rect{ fill:var(--navy); opacity:.82; }
+.wf-bar.is-up rect{ fill:var(--ok); }
+.wf-bar.is-down rect{ fill:var(--risk); }
+.wf-bar.is-other rect{ fill:var(--grey); }
+.wf-bar:hover rect{ filter:brightness(1.08); }
+.wf-bar.hot rect{ stroke:var(--ink); stroke-width:2; }
+.wf-bar.dim{ opacity:.28; }
+/* bar value labels */
+.wf-blab{ font:700 10.5px/1 var(--mono); fill:var(--ink); text-anchor:middle; }
+.wf-blab.up{ fill:var(--ok); } .wf-blab.down{ fill:var(--risk); } .wf-blab.total{ fill:var(--navy-deep); }
+.wf-xlab{ font:600 10px/1.25 var(--sans); fill:var(--ink-mid); text-anchor:middle; }
+.wf-xlab.total{ font-weight:700; fill:var(--ink); }
+/* connectors */
+.wf-connector{ stroke:var(--ink-faint); stroke-width:1; stroke-dasharray:3 3; opacity:.7; }
+/* running-total overlay */
+.wf-runline{ fill:none; stroke:var(--navy-deep); stroke-width:2; stroke-linejoin:round; stroke-linecap:round; opacity:0; transition:opacity .2s; }
+.wf-runline.on{ opacity:1; }
+.wf-runnode{ fill:var(--bg); stroke:var(--navy-deep); stroke-width:2; opacity:0; transition:opacity .2s; }
+.wf-runnode.on{ opacity:1; }
+
+/* ============================================================
+   6. BRIDGE TABLE — sortable; rows sync-highlight with bars
+   ============================================================ */
+.wf-table-card{
+  background:var(--bg); border:1px solid var(--rule); border-radius:12px;
+  box-shadow:var(--shadow); padding:14px 18px 16px;
+}
+.wf-table-head{ display:flex; align-items:center; gap:9px; margin-bottom:8px; }
+.wf-table-head .th-title{ display:inline-flex; align-items:center; gap:7px; font:700 12.5px/1.1 var(--sans); color:var(--ink); }
+.wf-table-head .th-title .icon{ color:var(--navy); width:16px; height:16px; }
+.wf-table-head .th-hint{ margin-left:auto; font:600 10.5px/1 var(--mono); letter-spacing:.03em; color:var(--ink-faint); }
+.wf-table{ width:100%; border-collapse:collapse; }
+.wf-table thead th{
+  font:700 9.5px/1.2 var(--mono); letter-spacing:.08em; text-transform:uppercase;
+  color:var(--ink-faint); text-align:left; padding:0 12px 8px; border-bottom:2px solid var(--ink);
+  white-space:nowrap; cursor:pointer; user-select:none;
+}
+.wf-table thead th.num{ text-align:right; }
+.wf-table thead th:hover{ color:var(--navy-deep); }
+.wf-table thead th .sort-ar{ opacity:0; margin-left:3px; }
+.wf-table thead th.sorted .sort-ar{ opacity:1; color:var(--navy-deep); }
+.wf-table tbody td{ padding:8px 12px; border-bottom:1px solid var(--rule-soft); vertical-align:middle; }
+.wf-table tbody tr.wf-trow{ cursor:pointer; transition:background .12s; }
+.wf-table tbody tr.wf-trow:hover, .wf-table tbody tr.wf-trow.hot{ background:var(--bg-subtle); }
+.wf-table tbody tr.wf-trow.hot td:first-child{ box-shadow:inset 3px 0 0 var(--navy); }
+.wf-table tbody tr.is-total td, .wf-table tbody tr.is-subtotal td{ background:var(--navy-bg); }
+.wf-table tbody tr.is-total td:first-child, .wf-table tbody tr.is-subtotal td:first-child{ font-weight:700; }
+.wf-table .t-step{ display:inline-flex; align-items:center; gap:8px; }
+.wf-table .t-swatch{ width:9px; height:9px; border-radius:3px; flex:none; background:var(--grey); }
+.wf-table .t-swatch.up{ background:var(--ok); } .wf-table .t-swatch.down{ background:var(--risk); }
+.wf-table .t-swatch.total{ background:var(--navy); }
+.wf-table .t-name{ font:600 12.5px/1.3 var(--sans); color:var(--ink); }
+.wf-table .t-name .grp{ font:600 9.5px/1 var(--mono); letter-spacing:.04em; text-transform:uppercase; color:var(--ink-faint); margin-left:7px; }
+.wf-table td.num{ text-align:right; font:600 12.5px/1.3 var(--mono); color:var(--ink); }
+.wf-table td.num.up{ color:var(--ok); } .wf-table td.num.down{ color:var(--risk); }
+.wf-table .pct-cell{ display:inline-flex; align-items:center; gap:8px; justify-content:flex-end; }
+.wf-table .pct-bar{ width:54px; height:6px; border-radius:3px; background:var(--bg-band); overflow:hidden; position:relative; }
+.wf-table .pct-bar i{ position:absolute; top:0; bottom:0; left:50%; background:var(--ok); }
+.wf-table .pct-bar i.down{ background:var(--risk); }
+
+/* shared chart tooltip (exact values) */
+.chart-tip{
+  position:fixed; z-index:60; pointer-events:none;
+  background:#000; color:#fff; border-radius:7px; padding:8px 10px;
+  font:600 11px/1.45 var(--sans); white-space:nowrap; box-shadow:0 4px 14px rgba(0,0,0,.3);
+  opacity:0; transition:opacity .1s; transform:translate(-50%,-100%);
+}
+.chart-tip.show{ opacity:1; }
+.chart-tip .ct-h{ font:700 10px/1.3 var(--mono); letter-spacing:.06em; text-transform:uppercase; color:#cfd3db; margin-bottom:4px; }
+.chart-tip .ct-row{ display:flex; align-items:center; justify-content:space-between; gap:14px; }
+.chart-tip .ct-row span{ color:#cfd3db; }
+.chart-tip .ct-row b{ font:700 11.5px/1.4 var(--mono); color:#fff; }
+.chart-tip .ct-row b.up{ color:#9fe0b4; } .chart-tip .ct-row b.down{ color:#f3a9a4; }
+.chart-tip .ct-note{ margin-top:5px; padding-top:5px; border-top:1px solid #333; max-width:240px; white-space:normal; color:#cfd3db; font-weight:500; }
+
+/* ---- footer strip ---- */
+.wf-foot{
+  max-width:1500px; margin:18px auto 0; background:var(--bg-deep); color:#cfd3db; border-radius:12px;
+  display:flex; align-items:center; gap:14px; padding:13px 22px;
+  font:600 10.5px/1.4 var(--mono); letter-spacing:.05em; text-transform:uppercase;
+}
+.wf-foot .wm{ display:inline-flex; align-items:center; gap:8px; color:#fff; font:800 12px/1 var(--sans); letter-spacing:-.01em; text-transform:none; }
+.wf-foot .wm i{ width:16px; height:16px; border-radius:4px; background:var(--navy); display:inline-block; }
+.wf-foot .sp{ flex:1 1 auto; }
+
+/* ---- print: static, complete snapshot; hide controls ---- */
+@media print{
+  body{ background:#fff; }
+  .wf-topbar{ position:static; background:#fff; }
+  .wf-controls, .rc-theme, .print-hint, .chart-tip, .wf-table thead th .sort-ar{ display:none !important; }
+  .wf-headline, .wf-chart-card, .wf-table-card{ box-shadow:none; break-inside:avoid; }
+  .wf-chart{ overflow:visible; }
+  .wf-foot{ background:#fff; color:#000; border:2px solid #000; }
+  .wf-foot .wm{ color:#000; } .wf-foot .wm i{ background:#000; }
+  .wf-table tbody tr.is-total td, .wf-table tbody tr.is-subtotal td{ background:#f3f3f5; }
+}
+</style>
+</head>
+<body>
+
+<noscript>
+  <div class="noscript-note">
+    This bridge analysis renders from embedded data and requires JavaScript for its waterfall chart and
+    live controls (running-total line, absolute/percent mode, collapse-minor-steps, sort, tooltips). The
+    complete bridge data is in the <code>#report-data</code> block above.
+  </div>
+</noscript>
+
+<header class="wf-topbar" id="wf-topbar"><!-- built by render() --></header>
+<main class="wf-page" id="wf-page"><!-- built by render() --></main>
+<footer class="wf-foot" id="wf-foot"><!-- built by render() --></footer>
+
+<!-- floating chart tooltip (single shared instance) -->
+<div class="chart-tip" id="chart-tip" role="status" aria-live="polite"></div>
+
+<script>
+/* ============================================================
+   WATERFALL RENDERER + INTERACTIONS  (vanilla JS, no libraries)
+   - render()        : #report-data JSON  →  page DOM (headline,
+                       controls, chart, table, footer)
+   - computeBridge() : steps[] (+ live sort/collapse) → bars[]
+                       with running totals, y/heights, % of opening
+   - drawChart()     : bars[] → inline SVG (axis, gridlines, bars,
+                       connectors, optional running-total overlay)
+   - drawTable()     : bars[] → sortable bridge table
+   - wireInteractions(): run-line · mode · collapse slider · sort ·
+                       table sort · bar/row sync-highlight · tooltips
+   - wireThemeSwitch(): canonical 9-preset .rc-theme switcher (§3)
+   Reading requires JS (data-driven, per _DATA_DRIVEN §1); a
+   <noscript> notice + the raw JSON are provided above.
+   Every interaction recomputes the whole bridge from steps[].
+   ============================================================ */
+(function(){
+  "use strict";
+
+  var DATA;
+  try { DATA = JSON.parse(document.getElementById('report-data').textContent); }
+  catch(e){ document.getElementById('wf-page').innerHTML =
+    '<p style="padding:24px;font:600 13px var(--sans);color:var(--risk)">Could not parse #report-data: '+e.message+'</p>'; return; }
+
+  var root  = document.documentElement;
+  var elTop  = document.getElementById('wf-topbar');
+  var elPage = document.getElementById('wf-page');
+  var elFoot = document.getElementById('wf-foot');
+  var tip    = document.getElementById('chart-tip');
+
+  /* ---- helpers ---- */
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+  var SYM = (DATA.currency && DATA.currency.symbol) || '';
+  /* group digits with thin separators; keep sign */
+  function grp(n){
+    var neg = n<0, a = Math.abs(Math.round(n)).toString();
+    a = a.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    return (neg?'-':'')+a;
+  }
+  /* a value formatted for display in the current mode (absolute units or % of opening) */
+  function fmtVal(n, opts){
+    opts = opts||{};
+    if(STATE.mode==='percent'){
+      var p = OPENING ? (n/OPENING)*100 : 0;
+      return (opts.signed&&p>0?'+':'')+p.toFixed(1)+'%';
+    }
+    return (opts.signed&&n>0?'+':'') + (n<0?'-':'') + SYM + grp(Math.abs(n));
+  }
+  /* accountant style: negatives in parentheses (for the table) */
+  function fmtAcct(n){
+    if(STATE.mode==='percent'){
+      var p = OPENING ? (n/OPENING)*100 : 0;
+      return p<0 ? '('+Math.abs(p).toFixed(1)+'%)' : p.toFixed(1)+'%';
+    }
+    return n<0 ? '('+SYM+grp(Math.abs(n))+')' : SYM+grp(n);
+  }
+
+  /* ---- inline house SVG icons (24×24, stroke=currentColor, per icons/SPEC.md) ---- */
+  var ICON = {
+    /* axis + ascending data-bars = a bridge/variance chart (domain-specific, not a generic mark) */
+    bridge:'<path d="M4 5V19H20"/><rect x="6.5" y="13" width="3" height="6" rx="1.2"/><rect x="11" y="8.5" width="3" height="10.5" rx="1.2"/><rect x="15.5" y="11" width="3" height="8" rx="1.2"/>',
+    table:'<rect x="4" y="5" width="16" height="14" rx="2"/><path d="M4 9.5h16M9.5 9.5V19"/><rect x="6" y="6.6" width="2.4" height="1.4" rx="0.7" fill="currentColor" stroke="none"/>',
+    up:'<path d="M5 16 11 9l3.5 3.5L19 7"/><path d="M19 7v4M19 7h-4"/>',
+    down:'<path d="M5 8 11 15l3.5-3.5L19 16"/><path d="M19 16v-4M19 16h-4"/>',
+    delta:'<path d="M12 5 19.5 19h-15Z"/><rect x="10.6" y="9.5" width="2.8" height="2.8" rx="1.2" fill="currentColor" stroke="none"/>',
+    print:'<path d="M7 9V4h10v5"/><path d="M7 17H5.5A1.5 1.5 0 0 1 4 15.5V11a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v4.5A1.5 1.5 0 0 1 18.5 17H17"/><rect x="7.5" y="14.5" width="9" height="5.5" rx="1.2"/>',
+    warn:'<path d="M12 4.5 21 19.5H3Z"/><path d="M12 10v4"/><rect x="10.7" y="16.1" width="2.6" height="2.6" rx="1.2" fill="currentColor" stroke="none"/>'
+  };
+  function svg(name, cls){ return '<svg class="'+(cls||'icon')+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" '
+    + 'stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">'+(ICON[name]||'')+'</svg>'; }
+
+  /* ---- bridge primitives derived from DATA ---- */
+  var OPENING = (DATA.opening && DATA.opening.value) || 0;
+  /* sum of pure deltas (subtotals are NOT re-added) */
+  function deltaSum(){ return (DATA.steps||[]).reduce(function(a,s){ return a + ((s.type==='subtotal')?0:(+s.delta||0)); }, 0); }
+  var COMPUTED_CLOSING = OPENING + deltaSum();
+
+  /* state shared across interactions; seeded from options */
+  var OPT = DATA.options || {};
+  var STATE = {
+    runningLine: !!OPT.runningLine,
+    mode: OPT.mode==='percent' ? 'percent' : 'absolute',
+    sort: OPT.sort==='magnitude' ? 'magnitude' : 'entered',
+    threshold: Math.max(0, +OPT.collapseThreshold || 0),
+    tsort: { key:null, dir:1 }
+  };
+
+  /* ============================================================
+     COMPUTE — steps[] (+ live sort/collapse) → ordered bars[]
+     Each bar carries: kind, label, delta, base+top (running totals),
+     pct of opening. Recomputed on EVERY interaction.
+     ============================================================ */
+  function computeBridge(){
+    var rawSteps = (DATA.steps||[]).map(function(s,i){ return {
+      label:s.label, delta:+s.delta||0, type:(s.type==='subtotal'?'subtotal':'delta'),
+      group:s.group||'', note:s.note||'', _i:i
+    }; });
+
+    /* 1. SORT (subtotals stay pinned to their narrative index) */
+    var steps;
+    if(STATE.sort==='magnitude'){
+      var pinned = {}; rawSteps.forEach(function(s,idx){ if(s.type==='subtotal') pinned[idx]=s; });
+      var movable = rawSteps.filter(function(s){ return s.type!=='subtotal'; })
+                            .sort(function(a,b){ return Math.abs(b.delta)-Math.abs(a.delta); });
+      steps = []; var mi=0;
+      for(var k=0;k<rawSteps.length;k++){ steps.push(pinned[k] ? pinned[k] : movable[mi++]); }
+    } else {
+      steps = rawSteps.slice();
+    }
+
+    /* 2. COLLAPSE minor delta steps into one grey "Other" (subtotals exempt) */
+    var thr = STATE.threshold, collapsedCount = 0, collapsedSum = 0, out = [];
+    if(thr>0){
+      steps.forEach(function(s){
+        if(s.type==='delta' && Math.abs(s.delta) < thr){ collapsedCount++; collapsedSum += s.delta; }
+        else out.push(s);
+      });
+      if(collapsedCount>0){
+        /* place the merged step where the last collapsed item would sit: append before any trailing subtotal run — simplest: append at end of deltas, before final */
+        out.push({ label:'Other ('+collapsedCount+' steps)', delta:collapsedSum, type:'delta', group:'', note:collapsedCount+' minor steps below the |Δ| threshold, merged.', _other:true });
+      }
+    } else { out = steps; }
+
+    /* 3. WALK the bridge → bars with running totals */
+    var bars = [];
+    bars.push({ kind:'total', label:(DATA.opening&&DATA.opening.label)||'Opening', value:OPENING,
+                base:0, top:OPENING, delta:null, note:(DATA.opening&&DATA.opening.note)||'', pct:100, _i:'open' });
+    var running = OPENING;
+    out.forEach(function(s){
+      if(s.type==='subtotal'){
+        bars.push({ kind:'subtotal', label:s.label, value:running, base:0, top:running,
+                    delta:s.delta, note:s.note, pct:OPENING?(running/OPENING)*100:0, _i:s._i });
+      } else {
+        var base = running, top = running + s.delta;
+        running = top;
+        bars.push({ kind:(s.delta>=0?'up':'down'), label:s.label, value:s.delta,
+                    base:base, top:top, delta:s.delta, group:s.group, note:s.note,
+                    pct:OPENING?(s.delta/OPENING)*100:0, other:!!s._other, _i:s._i });
+      }
+    });
+    bars.push({ kind:'total', label:(DATA.closing&&DATA.closing.label)||'Closing', value:running,
+                base:0, top:running, delta:null, note:(DATA.closing&&DATA.closing.note)||'', pct:OPENING?(running/OPENING)*100:0, _i:'close' });
+    return bars;
+  }
+
+  /* ============================================================
+     RENDER — build the whole page from DATA
+     ============================================================ */
+  function render(){
+    var m = DATA.meta || {};
+    root.dataset.theme = m.theme || 'blue';
+    var unit = DATA.unit || (DATA.currency && (DATA.currency.code+' '+DATA.currency.unit)) || '';
+
+    /* ---- topbar (wordmark · unit chip · theme switcher · print hint) ---- */
+    var themeSwitcher = '<label class="rc-theme" title="Brand colour">'
+      + '<span class="rc-theme-sw" aria-hidden="true"></span>'
+      + '<select class="rc-theme-sel" aria-label="Brand theme">'
+      + '<option value="blue">Blue</option>'
+      + '<option value="purple">Purple</option>'
+      + '<option value="indigo">Indigo</option>'
+      + '<option value="teal">Teal</option>'
+      + '<option value="cyan">Cyan</option>'
+      + '<option value="green">Green</option>'
+      + '<option value="plum">Plum</option>'
+      + '<option value="slate">Slate</option>'
+      + '<option value="black">Black</option>'
+      + '</select></label>';
+
+    elTop.innerHTML = ''
+      + '<span class="wf-wm"><i></i>'+esc(m.org||'{{ORG}}')+'</span>'
+      + '<span class="wf-tb-sub">'+esc(m.project||'{{PROJECT}}')+' · '+esc((m.reportType||'bridge').toUpperCase())+'</span>'
+      + (unit?'<span class="chip">'+esc(unit)+'</span>':'')
+      + '<span class="wf-tb-spacer"></span>'
+      + '<span class="print-hint">'+svg('print')+'Print = static snapshot</span>'
+      + themeSwitcher;
+
+    /* ---- headline strip ---- */
+    var net = COMPUTED_CLOSING - OPENING;
+    var up = net>=0;
+    var netPct = OPENING ? (net/OPENING)*100 : 0;
+    var assertedClose = (DATA.closing && typeof DATA.closing.value==='number') ? DATA.closing.value : null;
+    var mismatch = (assertedClose!=null && Math.round(assertedClose)!==Math.round(COMPUTED_CLOSING));
+
+    elPage.innerHTML = ''
+    + '<section class="wf-headline" aria-label="Bridge headline">'
+    +   '<div class="wf-head-title">'
+    +     '<h1>'+esc(m.title||'Bridge')+'</h1>'
+    +     (m.subtitle?'<span class="sub">'+esc(m.subtitle)+(unit?' · '+esc(unit):'')+'</span>':'')
+    +   '</div>'
+    +   '<div class="wf-head-stats">'
+    +     '<div class="wf-anchor open">'
+    +       '<span class="a-lab mlabel"><span class="dot"></span>'+esc((DATA.opening&&DATA.opening.label)||'Opening')+'</span>'
+    +       '<span class="a-val tnum">'+SYM+grp(OPENING)+'</span>'
+    +     '</div>'
+    +     '<div class="wf-net '+(up?'up':'down')+'" title="Net change opening → closing">'
+    +       '<span class="arrow-link" aria-hidden="true"></span>'
+    +       '<span class="n-lab">Net change</span>'
+    +       '<span class="n-big tnum">'+svg(up?'up':'down')+(up?'+':'-')+SYM+grp(Math.abs(net))+'</span>'
+    +       '<span class="n-pct tnum">'+(up?'+':'')+netPct.toFixed(1)+'% of opening</span>'
+    +     '</div>'
+    +     '<div class="wf-anchor close">'
+    +       '<span class="a-lab mlabel"><span class="dot"></span>'+esc((DATA.closing&&DATA.closing.label)||'Closing')+'</span>'
+    +       '<span class="a-val tnum">'+SYM+grp(COMPUTED_CLOSING)+'</span>'
+    +     '</div>'
+    +   '</div>'
+    +   (mismatch
+        ? '<div class="wf-mismatch"><span class="st-badge st-risk">'+svg('warn')+'Foot mismatch · asserted '+SYM+grp(assertedClose)+' ≠ computed '+SYM+grp(COMPUTED_CLOSING)+'</span></div>'
+        : '')
+    + '</section>'
+
+    /* ---- controls band ---- */
+    + '<section class="wf-controls" aria-label="Chart controls">'
+    +   '<span class="cl-label">Running line</span>'
+    +   '<button class="wf-toggle'+(STATE.runningLine?' on':'')+'" id="wf-runtoggle" type="button" aria-pressed="'+(STATE.runningLine?'true':'false')+'" title="Overlay the cumulative running-total line">'
+    +     '<span class="sw-track" aria-hidden="true"></span>Show</button>'
+    +   '<span class="cl-sep"></span>'
+    +   '<span class="cl-label">Scale</span>'
+    +   '<div class="seg" id="wf-mode" role="group" aria-label="Value scale">'
+    +     '<button data-mode="absolute"'+(STATE.mode==='absolute'?' class="on"':'')+'>Absolute</button>'
+    +     '<button data-mode="percent"'+(STATE.mode==='percent'?' class="on"':'')+'>% of opening</button>'
+    +   '</div>'
+    +   '<span class="cl-sep"></span>'
+    +   '<span class="cl-label">Order</span>'
+    +   '<div class="seg" id="wf-sort" role="group" aria-label="Step order">'
+    +     '<button data-sort="entered"'+(STATE.sort==='entered'?' class="on"':'')+'>As entered</button>'
+    +     '<button data-sort="magnitude"'+(STATE.sort==='magnitude'?' class="on"':'')+'>By magnitude</button>'
+    +   '</div>'
+    +   '<span class="cl-spacer"></span>'
+    +   '<label class="wf-collapse" title="Merge steps with |Δ| below this into one grey “Other” step">'
+    +     '<span class="cl-label">Collapse &lt;</span>'
+    +     '<input type="range" id="wf-thr" min="0" max="'+collapseMax()+'" step="'+collapseStep()+'" value="'+STATE.threshold+'" aria-label="Collapse-minor-steps threshold">'
+    +     '<span class="thr-val tnum" id="wf-thr-val"></span>'
+    +   '</label>'
+    + '</section>'
+
+    /* ---- chart card ---- */
+    + '<section class="wf-chart-card" aria-label="Waterfall chart">'
+    +   '<div class="wf-chart-head">'
+    +     '<span class="ch-title">'+svg('bridge')+'Bridge — opening to closing</span>'
+    +     '<span class="ch-legend">'
+    +       '<span class="lg"><i class="i-total"></i>Total / subtotal</span>'
+    +       '<span class="lg"><i class="i-up"></i>Increase</span>'
+    +       '<span class="lg"><i class="i-down"></i>Decrease</span>'
+    +       '<span class="lg"><i class="i-other"></i>Other (collapsed)</span>'
+    +     '</span>'
+    +   '</div>'
+    +   '<div class="wf-chart" id="wf-chart"></div>'
+    + '</section>'
+
+    /* ---- table card ---- */
+    + '<section class="wf-table-card" aria-label="Bridge table">'
+    +   '<div class="wf-table-head">'
+    +     '<span class="th-title">'+svg('table')+'Bridge detail</span>'
+    +     '<span class="th-hint">Hover a row to highlight its bar · click a header to sort</span>'
+    +   '</div>'
+    +   '<table class="wf-table" id="wf-table"></table>'
+    + '</section>';
+
+    elFoot.innerHTML = ''
+      + '<span class="wm"><i></i>'+esc(m.org||'{{ORG}}')+'</span>'
+      + '<span class="sp"></span>'
+      + '<span>'+esc(m.project||'{{PROJECT}}')+' BRIDGE ANALYSIS · '+esc((m.reportType||'').toUpperCase())+'</span>'
+      + '<span>GENERATED '+esc(m.date||'')+'</span>'
+      + '<span>SOURCE · ANALYSIS WORKBOOK (READ-ONLY)</span>'
+      + '<span>'+esc(m.author||'{{AUTHOR}}')+'</span>';
+
+    redraw();
+    updateThrLabel();
+  }
+
+  /* slider bounds derived from the data (so the control is real) */
+  function collapseMax(){
+    var mx = Math.max.apply(null, (DATA.steps||[]).filter(function(s){return s.type!=='subtotal';})
+              .map(function(s){ return Math.abs(+s.delta||0); }).concat([1]));
+    return Math.ceil(mx/100)*100; /* round up to a clean step */
+  }
+  function collapseStep(){ var mx=collapseMax(); return Math.max(10, Math.round(mx/40/10)*10); }
+  function updateThrLabel(){
+    var el = document.getElementById('wf-thr-val'); if(!el) return;
+    el.innerHTML = STATE.threshold>0 ? (SYM+grp(STATE.threshold)) : '<small>off</small>';
+  }
+
+  /* recompute + redraw both chart and table from current STATE */
+  var BARS = [];
+  function redraw(){
+    BARS = computeBridge();
+    drawChart(BARS);
+    drawTable(BARS);
+  }
+
+  /* ============================================================
+     DRAW CHART — bars[] → inline SVG
+     ============================================================ */
+  function drawChart(bars){
+    var host = document.getElementById('wf-chart'); if(!host) return;
+    var n = bars.length;
+    var W = Math.max(820, n*86 + 90);          /* widen so bars never crowd */
+    var H = 360;
+    var padL = 64, padR = 18, padT = 26, padB = 58;
+    var plotW = W - padL - padR, plotH = H - padT - padB;
+    var slot = plotW / n;
+    var bw = Math.min(54, slot*0.62);
+
+    /* value domain: include 0 baseline and all bar tops/bases (percent mode rescales via fmt only;
+       geometry uses absolute running totals so the staircase stays truthful) */
+    var lo = 0, hi = 0;
+    bars.forEach(function(b){ lo=Math.min(lo,b.base,b.top); hi=Math.max(hi,b.base,b.top); });
+    if(hi===lo){ hi=lo+1; }
+    var pad = (hi-lo)*0.08; hi+=pad; if(lo<0) lo-=pad;
+    function Y(v){ return padT + plotH - ((v-lo)/(hi-lo))*plotH; }
+    function cx(i){ return padL + slot*i + slot/2; }
+
+    /* gridlines + ticks (nice-ish 5 divisions) */
+    var ticks = 5, gl='', tk='';
+    for(var t=0;t<=ticks;t++){
+      var gv = lo + (hi-lo)*(t/ticks);
+      var gy = Y(gv);
+      gl += '<line class="wf-grid" x1="'+padL+'" y1="'+gy.toFixed(1)+'" x2="'+(W-padR)+'" y2="'+gy.toFixed(1)+'"/>';
+      tk += '<text class="wf-tick" x="'+(padL-8)+'" y="'+(gy+3).toFixed(1)+'" text-anchor="end">'+tickLabel(gv)+'</text>';
+    }
+    /* baseline (value 0) emphasised */
+    var y0 = Y(0);
+
+    /* bars + connectors + labels */
+    var barsSVG='', connSVG='', labSVG='', xlabSVG='';
+    bars.forEach(function(b,i){
+      var x = cx(i) - bw/2;
+      var yTop = Y(Math.max(b.base,b.top));
+      var yBot = Y(Math.min(b.base,b.top));
+      var h = Math.max(2, yBot-yTop);
+      var cls = b.kind==='total'?'is-total':b.kind==='subtotal'?'is-subtotal':(b.other?'is-other':(b.kind==='up'?'is-up':'is-down'));
+      barsSVG += '<g class="wf-bar '+cls+'" data-bi="'+i+'" tabindex="0" role="img" '
+        + 'aria-label="'+esc(b.label)+' '+esc(barAria(b))+'">'
+        + '<rect x="'+x.toFixed(1)+'" y="'+yTop.toFixed(1)+'" width="'+bw.toFixed(1)+'" height="'+h.toFixed(1)+'"/>'
+        + '</g>';
+
+      /* connector from this bar's running-total top to the next bar's start level */
+      if(i < n-1){
+        var lvl = Y(b.top);                       /* running total after this bar */
+        var x2start = cx(i)+bw/2, x2end = cx(i+1)-bw/2;
+        connSVG += '<line class="wf-connector" x1="'+x2start.toFixed(1)+'" y1="'+lvl.toFixed(1)+'" x2="'+x2end.toFixed(1)+'" y2="'+lvl.toFixed(1)+'"/>';
+      }
+
+      /* value label above (signed for deltas, absolute for totals/subtotals) */
+      var lcls = b.kind==='total'||b.kind==='subtotal' ? 'total' : (b.kind==='up'?'up':'down');
+      var lval = (b.kind==='total'||b.kind==='subtotal') ? fmtVal(b.value) : fmtVal(b.delta,{signed:true});
+      labSVG += '<text class="wf-blab '+lcls+'" x="'+cx(i).toFixed(1)+'" y="'+(yTop-7).toFixed(1)+'">'+esc(lval)+'</text>';
+
+      /* x label below (wrap to two lines on space) */
+      xlabSVG += xLabel(b.label, cx(i), padT+plotH+16, (b.kind==='total'||b.kind==='subtotal'));
+    });
+
+    /* running-total overlay polyline through each bar's running total (b.top) */
+    var pts = bars.map(function(b,i){ return cx(i).toFixed(1)+','+Y(b.top).toFixed(1); }).join(' ');
+    var nodes = bars.map(function(b,i){ return '<circle class="wf-runnode'+(STATE.runningLine?' on':'')+'" cx="'+cx(i).toFixed(1)+'" cy="'+Y(b.top).toFixed(1)+'" r="3.2"/>'; }).join('');
+
+    host.innerHTML = '<svg viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="xMinYMid meet" role="presentation">'
+      + gl
+      + '<text class="wf-axis-title" x="2" y="'+(padT-10)+'" text-anchor="start">'+esc(axisUnit())+'</text>'
+      + connSVG
+      + barsSVG
+      + '<line class="wf-axis-base" x1="'+padL+'" y1="'+y0.toFixed(1)+'" x2="'+(W-padR)+'" y2="'+y0.toFixed(1)+'"/>'
+      + tk
+      + labSVG
+      + xlabSVG
+      + '<polyline class="wf-runline'+(STATE.runningLine?' on':'')+'" id="wf-runline" points="'+pts+'"/>'
+      + nodes
+      + '</svg>';
+  }
+
+  /* axis unit caption respects mode */
+  function axisUnit(){ return STATE.mode==='percent' ? '% of opening' : (DATA.unit || (DATA.currency&&DATA.currency.code) || 'value'); }
+  /* a tick label respects mode */
+  function tickLabel(v){
+    if(STATE.mode==='percent'){ return (OPENING?((v/OPENING)*100):0).toFixed(0)+'%'; }
+    var a = Math.abs(v);
+    if(a>=1000) return (v<0?'-':'')+SYM+(a/1000).toFixed(a%1000?1:0).replace(/\.0$/,'')+'k';
+    return (v<0?'-':'')+SYM+grp(a);
+  }
+  /* aria summary for a bar */
+  function barAria(b){
+    if(b.kind==='total'||b.kind==='subtotal') return 'running total '+fmtVal(b.value)+', '+b.pct.toFixed(1)+'% of opening';
+    return 'delta '+fmtVal(b.delta,{signed:true})+', running total '+fmtVal(b.top)+', '+b.pct.toFixed(1)+'% of opening';
+  }
+  /* x-axis label, wrapped to <=2 lines */
+  function xLabel(label, x, y, isTotal){
+    var words = String(label).split(' '), lines=[], cur='';
+    words.forEach(function(w){
+      if((cur+' '+w).trim().length>14 && cur){ lines.push(cur); cur=w; } else { cur=(cur+' '+w).trim(); }
+    });
+    if(cur) lines.push(cur);
+    if(lines.length>2){ lines = [lines[0], lines.slice(1).join(' ')]; }
+    return lines.map(function(ln,k){
+      return '<text class="wf-xlab'+(isTotal?' total':'')+'" x="'+x.toFixed(1)+'" y="'+(y+k*12).toFixed(1)+'">'+esc(ln)+'</text>';
+    }).join('');
+  }
+
+  /* ============================================================
+     DRAW TABLE — bars[] → sortable bridge table
+     (rows mirror the chart bars 1:1; sync-highlight on hover)
+     ============================================================ */
+  function drawTable(bars){
+    var table = document.getElementById('wf-table'); if(!table) return;
+    var head = '<thead><tr>'
+      + th('label','Step', false)
+      + th('type','Type', false)
+      + th('delta','Δ contribution', true)
+      + th('running','Running total', true)
+      + th('pct','% of opening', true)
+      + '</tr></thead>';
+
+    var rows = bars.map(function(b){ return b; });
+    /* table sort (independent of chart layout; chart keeps bridge order) */
+    if(STATE.tsort.key){
+      var k = STATE.tsort.key, dir = STATE.tsort.dir;
+      rows = rows.slice().sort(function(a,b){
+        var av,bv;
+        switch(k){
+          case 'label': av=a.label.toLowerCase(); bv=b.label.toLowerCase(); break;
+          case 'type':  av=a.kind; bv=b.kind; break;
+          case 'delta': av=(a.delta==null?-Infinity:a.delta); bv=(b.delta==null?-Infinity:b.delta); break;
+          case 'running': av=a.top; bv=b.top; break;
+          case 'pct': av=a.pct; bv=b.pct; break;
+        }
+        return av<bv?-1*dir:av>bv?1*dir:0;
+      });
+    }
+
+    var body = '<tbody>'+rows.map(function(b,ri){
+      var biIndex = bars.indexOf(b);
+      var isTot = b.kind==='total', isSub = b.kind==='subtotal';
+      var rowCls = isTot?'is-total':isSub?'is-subtotal':'';
+      var sw = isTot||isSub?'total':(b.other?'other':(b.kind==='up'?'up':b.kind==='down'?'down':''));
+      var typeBadge = isTot?'<span class="st-badge">Total</span>'
+                    : isSub?'<span class="st-badge">Subtotal</span>'
+                    : b.delta>=0?'<span class="st-badge st-ok">Increase</span>'
+                    : '<span class="st-badge st-risk">Decrease</span>';
+      var dcls = (b.delta==null)?'':(b.delta>=0?'up':'down');
+      var deltaCell = (b.delta==null) ? '<span class="muted">—</span>' : fmtAcct(b.delta);
+      var pctNum = b.pct;
+      var pctW = Math.min(50, Math.abs((b.kind==='up'||b.kind==='down')?pctNum:0)*1.4);
+      var pctBar = (b.kind==='up'||b.kind==='down')
+        ? '<span class="pct-bar"><i class="'+(b.delta>=0?'':'down')+'" style="'+(b.delta>=0?'left:50%;width:'+pctW.toFixed(0)+'%':'right:50%;left:auto;width:'+pctW.toFixed(0)+'%')+'"></i></span>'
+        : '';
+      return '<tr class="wf-trow '+rowCls+'" data-bi="'+biIndex+'">'
+        + '<td><span class="t-step"><span class="t-swatch '+sw+'"></span>'
+        +   '<span class="t-name">'+esc(b.label)+(b.group?'<span class="grp">'+esc(b.group)+'</span>':'')+'</span></span></td>'
+        + '<td>'+typeBadge+'</td>'
+        + '<td class="num '+dcls+'">'+deltaCell+'</td>'
+        + '<td class="num">'+fmtVal(b.top)+'</td>'
+        + '<td class="num"><span class="pct-cell">'+pctBar+'<span>'+(b.kind==='up'||b.kind==='down'?(b.delta>=0?'+':'')+pctNum.toFixed(1)+'%':pctNum.toFixed(1)+'%')+'</span></span></td>'
+        + '</tr>';
+    }).join('')+'</tbody>';
+
+    table.innerHTML = head + body;
+
+    /* restore sort arrow */
+    if(STATE.tsort.key){
+      var thEl = table.querySelector('th[data-k="'+STATE.tsort.key+'"]');
+      if(thEl){ thEl.classList.add('sorted'); thEl.querySelector('.sort-ar').textContent = STATE.tsort.dir>0?'▾':'▴'; }
+    }
+  }
+  function th(key,label,num){
+    return '<th data-k="'+key+'" class="'+(num?'num ':'')+'">'+esc(label)+'<span class="sort-ar">▾</span></th>';
+  }
+
+  /* ============================================================
+     INTERACTIONS
+     ============================================================ */
+  function wireInteractions(){
+    /* ---- running-total line toggle ---- */
+    elPage.addEventListener('click', function(e){
+      var t = e.target.closest('#wf-runtoggle'); if(!t) return;
+      STATE.runningLine = !STATE.runningLine;
+      t.classList.toggle('on', STATE.runningLine);
+      t.setAttribute('aria-pressed', STATE.runningLine?'true':'false');
+      var line = document.getElementById('wf-runline');
+      if(line) line.classList.toggle('on', STATE.runningLine);
+      document.querySelectorAll('.wf-runnode').forEach(function(nd){ nd.classList.toggle('on', STATE.runningLine); });
+    });
+
+    /* ---- mode: absolute ⇄ percent (rescales labels + axis; redraw) ---- */
+    elPage.addEventListener('click', function(e){
+      var b = e.target.closest('#wf-mode button'); if(!b) return;
+      STATE.mode = b.dataset.mode;
+      document.querySelectorAll('#wf-mode button').forEach(function(x){ x.classList.toggle('on', x===b); });
+      redraw();
+    });
+
+    /* ---- sort: as entered ⇄ by magnitude (re-layout the bridge) ---- */
+    elPage.addEventListener('click', function(e){
+      var b = e.target.closest('#wf-sort button'); if(!b) return;
+      STATE.sort = b.dataset.sort;
+      document.querySelectorAll('#wf-sort button').forEach(function(x){ x.classList.toggle('on', x===b); });
+      redraw();
+    });
+
+    /* ---- collapse threshold slider (merge minor steps → "Other") ---- */
+    elPage.addEventListener('input', function(e){
+      var s = e.target.closest('#wf-thr'); if(!s) return;
+      STATE.threshold = +s.value;
+      updateThrLabel();
+      redraw();
+    });
+
+    /* ---- table header sort ---- */
+    elPage.addEventListener('click', function(e){
+      var thEl = e.target.closest('#wf-table th'); if(!thEl) return;
+      var key = thEl.dataset.k;
+      if(STATE.tsort.key===key){ STATE.tsort.dir *= -1; } else { STATE.tsort.key=key; STATE.tsort.dir=1; }
+      drawTable(BARS);
+    });
+
+    /* ---- BAR ↔ ROW sync highlight + tooltip ---- */
+    /* hover a bar → light its row + show tooltip */
+    elPage.addEventListener('mousemove', function(e){
+      var bar = e.target.closest('.wf-bar');
+      if(bar){ var bi=+bar.dataset.bi; var b=BARS[bi];
+        setHot(bi, true);
+        var r = bar.getBoundingClientRect();
+        showTip(b, r.left+r.width/2, r.top);
+        return;
+      }
+      var row = e.target.closest('.wf-trow');
+      if(row){ var ri=+row.dataset.bi; setHot(ri, true);
+        var rr=row.getBoundingClientRect(); var bb=BARS[ri];
+        showTip(bb, e.clientX, rr.top); return; }
+      clearHot(); hideTip();
+    });
+    elPage.addEventListener('mouseleave', function(){ clearHot(); hideTip(); });
+    /* focus a bar via keyboard → tooltip + row sync */
+    elPage.addEventListener('focusin', function(e){
+      var bar = e.target.closest('.wf-bar'); if(!bar) return;
+      var bi=+bar.dataset.bi; setHot(bi,true);
+      var r=bar.getBoundingClientRect(); showTip(BARS[bi], r.left+r.width/2, r.top);
+    });
+    elPage.addEventListener('focusout', function(e){
+      if(e.target.closest('.wf-bar')){ clearHot(); hideTip(); }
+    });
+  }
+
+  function setHot(bi, on){
+    clearHot();
+    if(!on) return;
+    var bar = elPage.querySelector('.wf-bar[data-bi="'+bi+'"]');
+    var row = elPage.querySelector('.wf-trow[data-bi="'+bi+'"]');
+    if(bar) bar.classList.add('hot');
+    if(row){ row.classList.add('hot'); }
+  }
+  function clearHot(){
+    elPage.querySelectorAll('.wf-bar.hot').forEach(function(x){ x.classList.remove('hot'); });
+    elPage.querySelectorAll('.wf-trow.hot').forEach(function(x){ x.classList.remove('hot'); });
+  }
+
+  /* ---- tooltip: exact label · signed Δ · running total · % of opening ---- */
+  function showTip(b, x, y){
+    if(!b) return;
+    var rows='';
+    if(b.delta!=null){
+      var dcls = b.delta>=0?'up':'down';
+      rows += '<div class="ct-row"><span>Δ contribution</span><b class="'+dcls+'">'+fmtVal(b.delta,{signed:true})+'</b></div>';
+    }
+    rows += '<div class="ct-row"><span>Running total</span><b>'+fmtVal(b.top)+'</b></div>';
+    rows += '<div class="ct-row"><span>% of opening</span><b>'+( (b.kind==='up'||b.kind==='down') ? (b.delta>=0?'+':'')+b.pct.toFixed(1)+'%' : b.pct.toFixed(1)+'%' )+'</b></div>';
+    var head = (b.kind==='total'?'Total · ':b.kind==='subtotal'?'Subtotal · ':b.kind==='up'?'Increase · ':b.kind==='down'?'Decrease · ':'') + esc(b.label);
+    tip.innerHTML = '<div class="ct-h">'+head+'</div>'+rows + (b.note?'<div class="ct-note">'+esc(b.note)+'</div>':'');
+    tip.style.left = x+'px'; tip.style.top = (y-8)+'px';
+    tip.classList.add('show');
+  }
+  function hideTip(){ tip.classList.remove('show'); }
+
+  /* ---- canonical dropdown theme switcher (per _DATA_DRIVEN §3) ---- */
+  function wireThemeSwitch(){
+    var rcSel = document.querySelector('.rc-theme-sel');
+    if (rcSel) {
+      rcSel.value = document.documentElement.dataset.theme || 'blue';
+      rcSel.addEventListener('change', function(){ document.documentElement.dataset.theme = rcSel.value; });
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', function(){
+    render();
+    wireInteractions();
+    wireThemeSwitch();
+  });
+})();
+</script>
+</body>
+</html>

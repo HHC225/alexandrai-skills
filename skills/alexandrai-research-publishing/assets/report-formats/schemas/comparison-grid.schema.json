@@ -1,0 +1,211 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://genesis.local/html_report_design/schemas/comparison-grid.schema.json",
+  "title": "Comparison grid report",
+  "description": "Data contract for the comparison-grid format: a premium decision / feature / pricing comparison matrix. Options are rendered as header cards across the top (one column each); criteria are grouped rows down the left; every cell holds a boolean (check / cross), a value, a number, or a star rating. Renders to a centred, themeable, interactive HTML matrix. The sample's #report-data is a valid instance of this schema.",
+  "type": "object",
+  "required": ["meta", "options", "criteriaGroups", "cells"],
+  "additionalProperties": false,
+  "properties": {
+    "meta": {
+      "type": "object",
+      "description": "Shared report chrome (org / project / title / theme). Brand-neutral: keep {{ORG}} / {{PROJECT}} / {{AUTHOR}} placeholders unless real values are supplied.",
+      "required": ["org", "project", "reportType", "title", "date", "theme"],
+      "additionalProperties": false,
+      "properties": {
+        "org": { "type": "string", "description": "Organisation name or {{ORG}} placeholder.", "default": "{{ORG}}" },
+        "project": { "type": "string", "description": "Project / programme name or {{PROJECT}} placeholder.", "default": "{{PROJECT}}" },
+        "reportType": { "type": "string", "description": "Eyebrow label shown above the title, e.g. 'Vendor evaluation' or {{REPORT_TYPE}}." },
+        "title": { "type": "string", "description": "Main comparison title, e.g. 'Core banking platform comparison'." },
+        "subtitle": { "type": "string", "description": "Optional one-line standfirst describing the decision the matrix supports." },
+        "date": { "type": "string", "description": "ISO date the comparison was produced (YYYY-MM-DD).", "format": "date" },
+        "author": { "type": "string", "description": "Author / owning team or {{AUTHOR}} placeholder.", "default": "{{AUTHOR}}" },
+        "theme": {
+          "type": "string",
+          "description": "Initial brand theme; applied as <html data-theme>. The in-report switcher can change it live.",
+          "enum": ["blue", "purple", "indigo", "teal", "cyan", "green", "plum", "slate"],
+          "default": "teal"
+        }
+      }
+    },
+    "options": {
+      "type": "array",
+      "description": "The things being compared — one header card / column each (e.g. vendors, plans, products, designs). Render order is column order, left to right. 2-6 options is the comfortable range; more options scroll horizontally.",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "required": ["id", "name"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "description": "Stable unique key used in `cells`. e.g. 'opt-quantum'." },
+          "name": { "type": "string", "description": "Option display name shown in the column header card." },
+          "tagline": { "type": "string", "description": "Optional short positioning line under the name (<= ~60 chars)." },
+          "price": { "type": "string", "description": "Optional headline price / cost figure shown large in the header card, e.g. '$2.4M' or 'POA'." },
+          "unit": { "type": "string", "description": "Optional unit shown next to the price, e.g. '/ yr', '/ seat / mo'." },
+          "badges": {
+            "type": "array",
+            "description": "Optional small pills shown in the header card (e.g. deployment model, tier).",
+            "items": {
+              "type": "object",
+              "required": ["label"],
+              "additionalProperties": false,
+              "properties": {
+                "label": { "type": "string", "description": "Badge text." },
+                "tone": { "type": "string", "description": "Semantic tone: 'brand' (default), 'ok', 'risk', or 'hold'.", "enum": ["brand", "ok", "risk", "hold"], "default": "brand" }
+              }
+            }
+          },
+          "recommended": { "type": "boolean", "description": "If true, this column gets the 'Recommended' ribbon and is highlighted on load. At most one option should set this.", "default": false }
+        }
+      }
+    },
+    "criteriaGroups": {
+      "type": "array",
+      "description": "Criteria organised into collapsible row groups (e.g. 'Capabilities', 'Operations', 'Commercials'). Each group renders a band row, then its criteria as rows.",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "criteria"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "description": "Stable unique group key, used by the group filter control." },
+          "name": { "type": "string", "description": "Group heading shown on the band row." },
+          "icon": { "type": "string", "description": "Optional house icon key for the group band (one of the keys the template ships; falls back to a generic mark).", "enum": ["capabilities", "operations", "commercials", "security", "support", "data", "generic"] },
+          "criteria": {
+            "type": "array",
+            "description": "The comparison rows in this group.",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "required": ["key", "label", "kind"],
+              "additionalProperties": false,
+              "properties": {
+                "key": { "type": "string", "description": "Stable unique criterion key (unique across ALL groups); used as the inner key in `cells` and as the sort target." },
+                "label": { "type": "string", "description": "Row label shown in the left rail." },
+                "hint": { "type": "string", "description": "Optional clarifying sub-label shown faintly under the label." },
+                "unit": { "type": "string", "description": "Optional unit appended to numeric/text values in this row, e.g. 'ms', 'seats', '%'." },
+                "kind": {
+                  "type": "string",
+                  "description": "How every cell in this row is rendered & compared. 'bool' = check / cross / partial; 'text' = short text value; 'number' = numeric value (sortable; higher-is-better unless betterWhen='low'); 'rating' = 0-5 star rating (sortable).",
+                  "enum": ["bool", "text", "number", "rating"]
+                },
+                "betterWhen": { "type": "string", "description": "For kind=number only: whether a lower or higher value is better (drives the 'sort by this row' direction and best-in-row emphasis). Defaults to 'high'.", "enum": ["high", "low"], "default": "high" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "cells": {
+      "type": "object",
+      "description": "The matrix body, keyed by option id then by criterion key: cells[optionId][criterionKey] = value. A missing entry renders as a neutral em-dash. Value shape depends on the criterion's `kind`.",
+      "additionalProperties": {
+        "type": "object",
+        "description": "One option's values, keyed by criterion key.",
+        "additionalProperties": {
+          "description": "Cell value. bool: true | false | 'partial'. text: a string (optionally {value, note}). number: a number (optionally {value, note}). rating: an integer 0-5 (optionally {value, note}). The optional object form lets any cell carry a small footnote.",
+          "oneOf": [
+            { "type": "boolean" },
+            { "type": "string" },
+            { "type": "number" },
+            {
+              "type": "object",
+              "required": ["value"],
+              "additionalProperties": false,
+              "properties": {
+                "value": { "description": "The cell value (boolean | 'partial' | string | number).", "type": ["boolean", "string", "number"] },
+                "note": { "type": "string", "description": "Small footnote / qualifier shown under the value." }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "verdict": {
+      "type": "object",
+      "description": "Optional closing recommendation panel rendered under the matrix.",
+      "additionalProperties": false,
+      "required": ["text"],
+      "properties": {
+        "winnerId": { "type": "string", "description": "Option id the verdict endorses (links to that column)." },
+        "headline": { "type": "string", "description": "Short verdict headline, e.g. 'Recommended: Quantum Core'." },
+        "text": { "type": "string", "description": "1-3 sentences justifying the recommendation." }
+      }
+    }
+  },
+  "examples": [
+    {
+      "meta": {
+        "org": "{{ORG}}",
+        "project": "{{PROJECT}}",
+        "reportType": "{{REPORT_TYPE}}",
+        "title": "Core banking platform evaluation",
+        "subtitle": "Shortlist scorecard for the GEN2 core-replacement decision",
+        "date": "2026-06-22",
+        "author": "{{AUTHOR}}",
+        "theme": "teal"
+      },
+      "options": [
+        { "id": "quantum", "name": "Quantum Core", "tagline": "Cloud-native ledger", "price": "$2.4M", "unit": "/ yr", "badges": [{ "label": "SaaS", "tone": "brand" }, { "label": "PCI-DSS", "tone": "ok" }], "recommended": true },
+        { "id": "meridian", "name": "Meridian BankOS", "tagline": "Hybrid deployment", "price": "$1.9M", "unit": "/ yr", "badges": [{ "label": "Hybrid", "tone": "brand" }] },
+        { "id": "atlas", "name": "Atlas Ledger", "tagline": "On-prem, self-hosted", "price": "$1.3M", "unit": "/ yr", "badges": [{ "label": "On-prem", "tone": "hold" }] },
+        { "id": "vellum", "name": "Vellum Fabric", "tagline": "Composable micro-core", "price": "POA", "badges": [{ "label": "Composable", "tone": "brand" }] }
+      ],
+      "criteriaGroups": [
+        {
+          "id": "capabilities", "name": "Core capabilities", "icon": "capabilities",
+          "criteria": [
+            { "key": "realtime", "label": "Real-time posting", "kind": "bool" },
+            { "key": "iso20022", "label": "ISO 20022 native", "kind": "bool" },
+            { "key": "products", "label": "Pre-built product packs", "kind": "number", "unit": "packs", "betterWhen": "high" },
+            { "key": "multicur", "label": "Multi-currency ledger", "kind": "bool" }
+          ]
+        },
+        {
+          "id": "operations", "name": "Operations & scale", "icon": "operations",
+          "criteria": [
+            { "key": "tps", "label": "Peak throughput", "unit": "tps", "kind": "number", "betterWhen": "high" },
+            { "key": "latency", "label": "Posting latency (p99)", "unit": "ms", "kind": "number", "betterWhen": "low" },
+            { "key": "sla", "label": "Contractual uptime", "kind": "text" },
+            { "key": "dr", "label": "Active-active DR", "kind": "bool" }
+          ]
+        },
+        {
+          "id": "commercials", "name": "Commercials & fit", "icon": "commercials",
+          "criteria": [
+            { "key": "ttv", "label": "Time to first release", "kind": "text" },
+            { "key": "support", "label": "Support & roadmap", "kind": "rating" },
+            { "key": "lockin", "label": "Exit / portability", "kind": "rating" }
+          ]
+        }
+      ],
+      "cells": {
+        "quantum": {
+          "realtime": true, "iso20022": true, "products": 42, "multicur": true,
+          "tps": 9800, "latency": 38, "sla": "99.99%", "dr": true,
+          "ttv": { "value": "5 mo", "note": "accelerator programme" }, "support": 5, "lockin": 4
+        },
+        "meridian": {
+          "realtime": true, "iso20022": true, "products": 30, "multicur": true,
+          "tps": 6400, "latency": 55, "sla": "99.95%", "dr": "partial",
+          "ttv": "8 mo", "support": 4, "lockin": 3
+        },
+        "atlas": {
+          "realtime": "partial", "iso20022": false, "products": 18, "multicur": true,
+          "tps": 4200, "latency": 90, "sla": { "value": "99.9%", "note": "self-operated" }, "dr": false,
+          "ttv": "12 mo", "support": 3, "lockin": 5
+        },
+        "vellum": {
+          "realtime": true, "iso20022": true, "products": 12, "multicur": "partial",
+          "tps": 7100, "latency": 44, "sla": "99.95%", "dr": true,
+          "ttv": { "value": "10 mo", "note": "build-heavy" }, "support": 3, "lockin": 4
+        }
+      },
+      "verdict": {
+        "winnerId": "quantum",
+        "headline": "Recommended: Quantum Core",
+        "text": "Quantum leads on real-time capability, throughput and support depth at an acceptable premium. Meridian is the strong fallback if a hybrid deployment is mandated; Atlas wins only on portability and price."
+      }
+    }
+  ]
+}

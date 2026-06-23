@@ -1,0 +1,169 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://genesis.local/html_report_design/schemas/geo-region.schema.json",
+  "title": "Geo-region report",
+  "description": "Data contract for the geo-region format: a regional / geographic breakdown rendered as an ABSTRACT tile-grid choropleth. There are NO real maps, NO external map tiles, NO images: each region is a labelled square tile placed on a CSS grid by its gridRow / gridCol and shaded along the single-hue brand accent ramp by a metric (never a rainbow). The tilemap sits beside a ranked region list and a per-region detail panel, with a colour-scale legend. The whole document renders from this JSON; the sample's #report-data is a valid instance of this schema. Use it for any 'breakdown by region / territory / market / branch network / zone' where relative magnitude across places matters more than exact geography.",
+  "type": "object",
+  "required": ["meta", "metric", "regions", "scale"],
+  "additionalProperties": false,
+  "properties": {
+    "meta": {
+      "type": "object",
+      "description": "Shared report chrome (org / project / title / theme). Brand-neutral: keep {{ORG}} / {{PROJECT}} / {{AUTHOR}} placeholders unless real values are supplied.",
+      "required": ["org", "project", "reportType", "title", "date", "theme"],
+      "additionalProperties": false,
+      "properties": {
+        "org": { "type": "string", "description": "Organisation name or {{ORG}} placeholder.", "default": "{{ORG}}" },
+        "project": { "type": "string", "description": "Project / programme name or {{PROJECT}} placeholder.", "default": "{{PROJECT}}" },
+        "reportType": { "type": "string", "description": "Eyebrow label shown in the header, e.g. 'Regional breakdown' or {{REPORT_TYPE}}." },
+        "title": { "type": "string", "description": "Report title shown in the header, e.g. 'Regional Performance — by territory'." },
+        "subtitle": { "type": "string", "description": "Optional one-line standfirst / scope note." },
+        "date": { "type": "string", "description": "ISO date the snapshot was generated (YYYY-MM-DD).", "format": "date" },
+        "author": { "type": "string", "description": "Author / owning team or {{AUTHOR}} placeholder.", "default": "{{AUTHOR}}" },
+        "asOf": { "type": "string", "description": "Optional as-of label shown as a chip, e.g. 'FY26 Q1' or 'rolling 30d'." },
+        "theme": {
+          "type": "string",
+          "description": "Initial brand theme; applied as <html data-theme>. Geo-region default is 'teal'.",
+          "enum": ["blue", "purple", "indigo", "teal", "cyan", "green", "plum", "slate", "black"],
+          "default": "teal"
+        }
+      }
+    },
+    "metric": {
+      "$ref": "#/$defs/metricDef",
+      "description": "The metric shown on load. Its key MUST match one entry in regions[].metrics (and, if present, one entry in metrics[]). Tiles are coloured and the list is ranked by this metric until the reader switches."
+    },
+    "metrics": {
+      "type": "array",
+      "description": "Optional set of switchable metrics. When present (length >= 2) the header renders a metric switcher; selecting one recolours every tile, re-ranks the list, and re-points the legend. Each metric's key must resolve in regions[].metrics. If omitted, only 'metric' is used and no switcher is shown. Include 'metric' itself (or an equivalent key) so the default is selectable.",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/metricDef" }
+    },
+    "regions": {
+      "type": "array",
+      "description": "The regions plotted as tiles. Each tile is positioned by its gridRow / gridCol on an abstract grid (NOT geographic coordinates) so the layout reads as a stylised map silhouette. Every region must carry a value for every metric key in use, under metrics{}.",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "required": ["code", "name", "gridRow", "gridCol", "value", "metrics"],
+        "additionalProperties": false,
+        "properties": {
+          "code": { "type": "string", "description": "Short stable region code shown inside the tile, e.g. 'NCA', 'EU-W', 'KAN'. 2-4 chars reads best." },
+          "name": { "type": "string", "description": "Full region name shown in the list and detail panel, e.g. 'North California'." },
+          "gridRow": { "type": "integer", "description": "1-based row of the tile on the abstract tile grid. Place neighbouring regions adjacently to suggest geography.", "minimum": 1 },
+          "gridCol": { "type": "integer", "description": "1-based column of the tile on the abstract tile grid.", "minimum": 1 },
+          "value": { "type": "number", "description": "Convenience copy of the default metric's value for this region (should equal metrics[meta default key]). Used as a fallback if metrics{} lacks the active key." },
+          "metrics": {
+            "type": "object",
+            "description": "Per-metric values for this region, keyed by metric.key. Must contain an entry for every metric key the report can switch to. Values drive both the tile shade (normalised against scale) and the list ranking.",
+            "minProperties": 1,
+            "additionalProperties": { "type": "number" }
+          },
+          "group": { "type": "string", "description": "Optional grouping label (e.g. macro-region 'West' / 'EMEA') for legend / annotation; does not affect layout." },
+          "note": { "type": "string", "description": "Optional short qualitative note shown in the detail panel." },
+          "stats": {
+            "type": "array",
+            "description": "Optional secondary key/value facts shown in the detail panel (e.g. branches, YoY, rank). Rendered as a compact key/value grid.",
+            "items": {
+              "type": "object",
+              "required": ["label", "value"],
+              "additionalProperties": false,
+              "properties": {
+                "label": { "type": "string", "description": "Uppercase mono key, e.g. 'BRANCHES'." },
+                "value": { "type": "string", "description": "Mono value, e.g. '128' or '+4.2%'." },
+                "state": { "type": "string", "description": "Optional semantic tint for the value.", "enum": ["ok", "risk", "hold", "neutral"], "default": "neutral" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "scale": {
+      "type": "object",
+      "description": "The colour-scale domain shared by the tilemap shading and the legend. Tile shade = linear position of the region's active metric value between min and max, mapped onto the brand accent ramp (light --navy-bg → deep --navy-deep). NEVER a multi-hue / rainbow ramp.",
+      "required": ["min", "max"],
+      "additionalProperties": false,
+      "properties": {
+        "min": { "type": "number", "description": "Low end of the colour domain (lightest shade). Often 0 or the dataset minimum." },
+        "max": { "type": "number", "description": "High end of the colour domain (darkest shade). Often the dataset maximum or a round ceiling." },
+        "bands": {
+          "type": "array",
+          "description": "Optional explicit legend stops (ascending). When present, the legend renders these labelled swatches instead of a continuous gradient; tiles still shade continuously. Provide 3-6 stops.",
+          "items": {
+            "type": "object",
+            "required": ["to"],
+            "additionalProperties": false,
+            "properties": {
+              "to": { "type": "number", "description": "Upper bound of this band (inclusive). The first band runs from scale.min to its 'to'." },
+              "label": { "type": "string", "description": "Optional label for the band, e.g. '< 1.0M'." }
+            }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "metricDef": {
+      "type": "object",
+      "required": ["key", "label", "unit"],
+      "additionalProperties": false,
+      "properties": {
+        "key": { "type": "string", "description": "Stable metric key, matched against regions[].metrics keys, e.g. 'revenue'." },
+        "label": { "type": "string", "description": "Human label shown in the switcher / legend / tooltip, e.g. 'Net revenue'." },
+        "unit": { "type": "string", "description": "Unit suffix or prefix for display, e.g. '$M', '%', 'k accts'. May be an empty string." },
+        "format": {
+          "type": "string",
+          "description": "Optional number presentation hint for the renderer.",
+          "enum": ["number", "compact", "percent", "currency"],
+          "default": "number"
+        },
+        "higherIsBetter": { "type": "boolean", "description": "If false, a lower value is the better outcome (affects ranking direction and the 'top' framing only, not the colour ramp).", "default": true }
+      }
+    }
+  },
+  "examples": [
+    {
+      "meta": {
+        "org": "{{ORG}}",
+        "project": "{{PROJECT}}",
+        "reportType": "Regional breakdown",
+        "title": "Regional Performance — retail network",
+        "subtitle": "Net revenue and active accounts across 12 territories",
+        "date": "2026-06-22",
+        "author": "{{AUTHOR}}",
+        "asOf": "FY26 Q1",
+        "theme": "teal"
+      },
+      "metric": { "key": "revenue", "label": "Net revenue", "unit": "$M", "format": "currency", "higherIsBetter": true },
+      "metrics": [
+        { "key": "revenue", "label": "Net revenue", "unit": "$M", "format": "currency", "higherIsBetter": true },
+        { "key": "accounts", "label": "Active accounts", "unit": "k", "format": "compact", "higherIsBetter": true }
+      ],
+      "scale": {
+        "min": 0,
+        "max": 60,
+        "bands": [
+          { "to": 12, "label": "< 12" },
+          { "to": 24, "label": "12–24" },
+          { "to": 36, "label": "24–36" },
+          { "to": 48, "label": "36–48" },
+          { "to": 60, "label": "48–60" }
+        ]
+      },
+      "regions": [
+        { "code": "PNW", "name": "Pacific Northwest", "gridRow": 1, "gridCol": 1, "value": 18.4, "group": "West", "metrics": { "revenue": 18.4, "accounts": 96 }, "note": "Steady mid-tier territory; account base growing faster than revenue.", "stats": [ { "label": "Branches", "value": "42" }, { "label": "YoY rev", "value": "+6.1%", "state": "ok" }, { "label": "Rank", "value": "#7" } ] },
+        { "code": "NCA", "name": "Northern California", "gridRow": 2, "gridCol": 1, "value": 51.7, "group": "West", "metrics": { "revenue": 51.7, "accounts": 188 }, "note": "Top revenue territory; flagship metro branches drive the result.", "stats": [ { "label": "Branches", "value": "118" }, { "label": "YoY rev", "value": "+9.4%", "state": "ok" }, { "label": "Rank", "value": "#1" } ] },
+        { "code": "SCA", "name": "Southern California", "gridRow": 3, "gridCol": 1, "value": 44.2, "group": "West", "metrics": { "revenue": 44.2, "accounts": 205 }, "note": "Largest account base; revenue per account below network median.", "stats": [ { "label": "Branches", "value": "131" }, { "label": "YoY rev", "value": "+3.0%", "state": "hold" }, { "label": "Rank", "value": "#2" } ] },
+        { "code": "MTN", "name": "Mountain", "gridRow": 1, "gridCol": 2, "value": 9.6, "group": "West", "metrics": { "revenue": 9.6, "accounts": 38 }, "note": "Smallest territory by revenue; thin branch coverage.", "stats": [ { "label": "Branches", "value": "19" }, { "label": "YoY rev", "value": "+2.2%", "state": "hold" }, { "label": "Rank", "value": "#12" } ] },
+        { "code": "SWT", "name": "Southwest", "gridRow": 3, "gridCol": 2, "value": 27.9, "group": "West", "metrics": { "revenue": 27.9, "accounts": 121 }, "note": "Mid-tier; consistent growth across all branches.", "stats": [ { "label": "Branches", "value": "73" }, { "label": "YoY rev", "value": "+5.5%", "state": "ok" }, { "label": "Rank", "value": "#5" } ] },
+        { "code": "TXC", "name": "Texas Central", "gridRow": 2, "gridCol": 3, "value": 38.1, "group": "Central", "metrics": { "revenue": 38.1, "accounts": 164 }, "note": "Strong metro performance; second-fastest growing territory.", "stats": [ { "label": "Branches", "value": "97" }, { "label": "YoY rev", "value": "+11.2%", "state": "ok" }, { "label": "Rank", "value": "#3" } ] },
+        { "code": "GLK", "name": "Great Lakes", "gridRow": 1, "gridCol": 4, "value": 31.5, "group": "Central", "metrics": { "revenue": 31.5, "accounts": 142 }, "note": "Established territory; flat YoY, watch attrition.", "stats": [ { "label": "Branches", "value": "88" }, { "label": "YoY rev", "value": "+0.4%", "state": "hold" }, { "label": "Rank", "value": "#4" } ] },
+        { "code": "MWP", "name": "Midwest Plains", "gridRow": 2, "gridCol": 4, "value": 14.3, "group": "Central", "metrics": { "revenue": 14.3, "accounts": 67 }, "note": "Rural footprint; low density but high revenue per account.", "stats": [ { "label": "Branches", "value": "34" }, { "label": "YoY rev", "value": "+4.8%", "state": "ok" }, { "label": "Rank", "value": "#9" } ] },
+        { "code": "GULF", "name": "Gulf Coast", "gridRow": 3, "gridCol": 4, "value": 21.7, "group": "Central", "metrics": { "revenue": 21.7, "accounts": 103 }, "note": "Recovering after prior-year storm disruption.", "stats": [ { "label": "Branches", "value": "61" }, { "label": "YoY rev", "value": "+7.9%", "state": "ok" }, { "label": "Rank", "value": "#6" } ] },
+        { "code": "NEA", "name": "Northeast", "gridRow": 1, "gridCol": 5, "value": 47.0, "group": "East", "metrics": { "revenue": 47.0, "accounts": 176 }, "note": "Dense urban network; high revenue per branch.", "stats": [ { "label": "Branches", "value": "104" }, { "label": "YoY rev", "value": "+5.0%", "state": "ok" }, { "label": "Rank", "value": "#1" } ] },
+        { "code": "MAT", "name": "Mid-Atlantic", "gridRow": 2, "gridCol": 5, "value": 16.8, "group": "East", "metrics": { "revenue": 16.8, "accounts": 84 }, "note": "Underperforming vs branch count; remediation underway.", "stats": [ { "label": "Branches", "value": "59" }, { "label": "YoY rev", "value": "-1.3%", "state": "risk" }, { "label": "Rank", "value": "#8" } ] },
+        { "code": "SEA", "name": "Southeast", "gridRow": 3, "gridCol": 5, "value": 12.0, "group": "East", "metrics": { "revenue": 12.0, "accounts": 58 }, "note": "Newest territory; building presence, early-stage.", "stats": [ { "label": "Branches", "value": "27" }, { "label": "YoY rev", "value": "+18.6%", "state": "ok" }, { "label": "Rank", "value": "#10" } ] }
+      ]
+    }
+  ]
+}

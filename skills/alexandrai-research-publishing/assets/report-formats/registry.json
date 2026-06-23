@@ -1,0 +1,565 @@
+{
+  "version": 1,
+  "formats": [
+    {
+      "id": "long-form-report",
+      "label": "long-form-report",
+      "aliases": [],
+      "useWhen": "narrative analysis / audit / incident, evidence-forward",
+      "defaultTheme": "purple",
+      "required": [
+        "meta",
+        "hero",
+        "tocSections",
+        "sections",
+        "railFacts",
+        "references"
+      ],
+      "template": "long_form_report_sample.html",
+      "schema": "long-form-report.schema.json",
+      "spec": "long-form-report.md"
+    },
+    {
+      "id": "dashboard",
+      "label": "dashboard",
+      "aliases": [],
+      "useWhen": "live KPI / SLA / ops monitoring at a glance",
+      "defaultTheme": "blue",
+      "required": [
+        "meta",
+        "navItems",
+        "kpis",
+        "widgets"
+      ],
+      "template": "dashboard_sample.html",
+      "schema": "dashboard.schema.json",
+      "spec": "dashboard.md"
+    },
+    {
+      "id": "data-register",
+      "label": "data-register",
+      "aliases": [],
+      "useWhen": "a managed catalogue for lookup/filter (risk, control, dependency)",
+      "defaultTheme": "slate",
+      "required": [
+        "meta",
+        "columns",
+        "rows"
+      ],
+      "template": "data_register_sample.html",
+      "schema": "data-register.schema.json",
+      "spec": "data-register.md"
+    },
+    {
+      "id": "kanban-board",
+      "label": "kanban-board",
+      "aliases": [],
+      "useWhen": "work items by stage / flow / WIP",
+      "defaultTheme": "teal",
+      "required": [
+        "meta",
+        "lanes",
+        "cards"
+      ],
+      "template": "kanban_board_sample.html",
+      "schema": "kanban-board.schema.json",
+      "spec": "kanban-board.md"
+    },
+    {
+      "id": "timeline-roadmap",
+      "label": "timeline-roadmap",
+      "aliases": [],
+      "useWhen": "a forward plan across time (quarters/sprints)",
+      "defaultTheme": "indigo",
+      "required": [
+        "meta",
+        "periods",
+        "swimlanes",
+        "bars"
+      ],
+      "template": "timeline_roadmap_sample.html",
+      "schema": "timeline-roadmap.schema.json",
+      "spec": "timeline-roadmap.md"
+    },
+    {
+      "id": "slide-deck",
+      "label": "presentation",
+      "aliases": [
+        "presentation"
+      ],
+      "useWhen": "a deck to present / read slide-by-slide",
+      "defaultTheme": "purple",
+      "required": [
+        "meta",
+        "slides"
+      ],
+      "template": "presentation_deck_sample.html",
+      "schema": "slide-deck.schema.json",
+      "spec": "slide-deck.md"
+    },
+    {
+      "id": "one-pager",
+      "label": "one-pager",
+      "aliases": [],
+      "useWhen": "a single-sheet executive brief (prints to 1 page)",
+      "defaultTheme": "plum",
+      "required": [
+        "meta",
+        "verdict",
+        "bluf",
+        "scr",
+        "kpis",
+        "visual",
+        "ask",
+        "risks"
+      ],
+      "template": "one_pager_sample.html",
+      "schema": "one-pager.schema.json",
+      "spec": "one-pager.md"
+    },
+    {
+      "id": "portfolio",
+      "label": "portfolio",
+      "aliases": [],
+      "useWhen": "showcase of projects / case studies + outcomes",
+      "defaultTheme": "cyan",
+      "required": [
+        "meta",
+        "hero",
+        "cases"
+      ],
+      "template": "portfolio_sample.html",
+      "schema": "portfolio.schema.json",
+      "spec": "portfolio.md"
+    },
+    {
+      "id": "infographic",
+      "label": "infographic",
+      "aliases": [],
+      "useWhen": "a visual-statistical narrative poster",
+      "defaultTheme": "green",
+      "required": [
+        "meta",
+        "bands"
+      ],
+      "template": "infographic_sample.html",
+      "schema": "infographic.schema.json",
+      "spec": "infographic.md"
+    },
+    {
+      "id": "matrix-canvas",
+      "label": "matrix-canvas",
+      "aliases": [],
+      "useWhen": "a 2×2 / SWOT / business-model framework",
+      "defaultTheme": "indigo",
+      "required": [
+        "meta",
+        "matrix"
+      ],
+      "template": "matrix_canvas_sample.html",
+      "schema": "matrix-canvas.schema.json",
+      "spec": "matrix-canvas.md"
+    },
+    {
+      "id": "magazine",
+      "label": "magazine",
+      "aliases": [],
+      "useWhen": "a long editorial feature read",
+      "defaultTheme": "slate",
+      "required": [
+        "meta",
+        "body",
+        "folio"
+      ],
+      "template": "magazine_sample.html",
+      "schema": "magazine.schema.json",
+      "spec": "magazine.md"
+    },
+    {
+      "id": "comparison-grid",
+      "label": "comparison-grid",
+      "aliases": [],
+      "useWhen": "decision / feature / pricing matrix (options × criteria)",
+      "defaultTheme": "teal",
+      "required": [
+        "meta",
+        "options",
+        "criteriaGroups",
+        "cells"
+      ],
+      "template": "comparison_grid_sample.html",
+      "schema": "comparison-grid.schema.json",
+      "spec": "comparison-grid.md"
+    },
+    {
+      "id": "financial-statement",
+      "label": "financial-statement",
+      "aliases": [],
+      "useWhen": "formal P&L / balance sheet / cash flow / ledger",
+      "defaultTheme": "blue",
+      "required": [
+        "meta",
+        "statementType",
+        "currency",
+        "periods",
+        "lines"
+      ],
+      "template": "financial_statement_sample.html",
+      "schema": "financial-statement.schema.json",
+      "spec": "financial-statement.md"
+    },
+    {
+      "id": "org-chart",
+      "label": "org-chart",
+      "aliases": [],
+      "useWhen": "a top-down hierarchy / org / work-breakdown tree",
+      "defaultTheme": "indigo",
+      "required": [
+        "meta",
+        "root"
+      ],
+      "template": "org_chart_sample.html",
+      "schema": "org-chart.schema.json",
+      "spec": "org-chart.md"
+    },
+    {
+      "id": "calendar-schedule",
+      "label": "calendar-schedule",
+      "aliases": [],
+      "useWhen": "a month/week/resource calendar of events",
+      "defaultTheme": "green",
+      "required": [
+        "meta",
+        "view",
+        "periodStart",
+        "eventTypes",
+        "events"
+      ],
+      "template": "calendar_schedule_sample.html",
+      "schema": "calendar-schedule.schema.json",
+      "spec": "calendar-schedule.md"
+    },
+    {
+      "id": "runbook-checklist",
+      "label": "runbook-checklist",
+      "aliases": [],
+      "useWhen": "an operational step-by-step procedure / SOP",
+      "defaultTheme": "cyan",
+      "required": [
+        "meta",
+        "sections"
+      ],
+      "template": "runbook_checklist_sample.html",
+      "schema": "runbook-checklist.schema.json",
+      "spec": "runbook-checklist.md"
+    },
+    {
+      "id": "diagram-topology",
+      "label": "diagram-topology",
+      "aliases": [],
+      "useWhen": "a system / network / data-flow map",
+      "defaultTheme": "purple",
+      "required": [
+        "meta",
+        "layers",
+        "nodeTypes",
+        "nodes",
+        "edges"
+      ],
+      "template": "diagram_topology_sample.html",
+      "schema": "diagram-topology.schema.json",
+      "spec": "diagram-topology.md"
+    },
+    {
+      "id": "scorecard",
+      "label": "scorecard",
+      "aliases": [],
+      "useWhen": "periodic graded assessment (maturity / RAG / review)",
+      "defaultTheme": "blue",
+      "required": [
+        "meta",
+        "scale",
+        "areas",
+        "overall"
+      ],
+      "template": "scorecard_sample.html",
+      "schema": "scorecard.schema.json",
+      "spec": "scorecard.md"
+    },
+    {
+      "id": "incident-timeline",
+      "label": "incident-timeline",
+      "aliases": [],
+      "useWhen": "chronological incident / postmortem event log",
+      "defaultTheme": "plum",
+      "required": [
+        "meta",
+        "incident",
+        "events"
+      ],
+      "template": "incident_timeline_sample.html",
+      "schema": "incident-timeline.schema.json",
+      "spec": "incident-timeline.md"
+    },
+    {
+      "id": "heatmap-grid",
+      "label": "heatmap-grid",
+      "aliases": [],
+      "useWhen": "N×M graded matrix (risk likelihood×impact / correlation / activity)",
+      "defaultTheme": "teal",
+      "required": [
+        "meta",
+        "mode",
+        "rows",
+        "cols",
+        "cells",
+        "scale"
+      ],
+      "template": "heatmap_grid_sample.html",
+      "schema": "heatmap-grid.schema.json",
+      "spec": "heatmap-grid.md"
+    },
+    {
+      "id": "flowchart",
+      "label": "flowchart",
+      "aliases": [],
+      "useWhen": "structured process flow with swimlanes + decisions",
+      "defaultTheme": "indigo",
+      "required": [
+        "meta",
+        "lanes",
+        "nodes",
+        "edges"
+      ],
+      "template": "flowchart_sample.html",
+      "schema": "flowchart.schema.json",
+      "spec": "flowchart.md"
+    },
+    {
+      "id": "survey-results",
+      "label": "survey-results",
+      "aliases": [],
+      "useWhen": "question-by-question survey / poll results",
+      "defaultTheme": "green",
+      "required": [
+        "meta",
+        "summary",
+        "segments",
+        "questions"
+      ],
+      "template": "survey_results_sample.html",
+      "schema": "survey-results.schema.json",
+      "spec": "survey-results.md"
+    },
+    {
+      "id": "leaderboard",
+      "label": "leaderboard",
+      "aliases": [],
+      "useWhen": "ranked entities by a metric (podium + bars + tiers)",
+      "defaultTheme": "cyan",
+      "required": [
+        "meta",
+        "metric",
+        "tiers",
+        "entries"
+      ],
+      "template": "leaderboard_sample.html",
+      "schema": "leaderboard.schema.json",
+      "spec": "leaderboard.md"
+    },
+    {
+      "id": "changelog",
+      "label": "changelog",
+      "aliases": [],
+      "useWhen": "reverse-chronological release feed",
+      "defaultTheme": "slate",
+      "required": [
+        "meta",
+        "product",
+        "versions"
+      ],
+      "template": "changelog_sample.html",
+      "schema": "changelog.schema.json",
+      "spec": "changelog.md"
+    },
+    {
+      "id": "knowledge-base",
+      "label": "knowledge-base",
+      "aliases": [],
+      "useWhen": "FAQ / help centre (searchable Q&A)",
+      "defaultTheme": "blue",
+      "required": [
+        "meta",
+        "categories",
+        "articles"
+      ],
+      "template": "knowledge_base_sample.html",
+      "schema": "knowledge-base.schema.json",
+      "spec": "knowledge-base.md"
+    },
+    {
+      "id": "experiment-readout",
+      "label": "experiment-readout",
+      "aliases": [],
+      "useWhen": "A/B controlled-experiment results",
+      "defaultTheme": "purple",
+      "required": [
+        "meta",
+        "experiment",
+        "variants",
+        "metrics"
+      ],
+      "template": "experiment_readout_sample.html",
+      "schema": "experiment-readout.schema.json",
+      "spec": "experiment-readout.md"
+    },
+    {
+      "id": "geo-region",
+      "label": "geo-region",
+      "aliases": [],
+      "useWhen": "regional / geographic breakdown (tile-grid choropleth)",
+      "defaultTheme": "teal",
+      "required": [
+        "meta",
+        "metric",
+        "regions",
+        "scale"
+      ],
+      "template": "geo_region_sample.html",
+      "schema": "geo-region.schema.json",
+      "spec": "geo-region.md"
+    },
+    {
+      "id": "sankey-flow",
+      "label": "sankey-flow",
+      "aliases": [],
+      "useWhen": "quantitative flow between stages (funds / throughput / journey volume)",
+      "defaultTheme": "teal",
+      "required": [
+        "meta",
+        "units",
+        "groups",
+        "nodes",
+        "links"
+      ],
+      "template": "sankey_flow_sample.html",
+      "schema": "sankey-flow.schema.json",
+      "spec": "sankey-flow.md"
+    },
+    {
+      "id": "treemap",
+      "label": "treemap",
+      "aliases": [],
+      "useWhen": "part-of-whole hierarchy where magnitude + nesting both matter",
+      "defaultTheme": "indigo",
+      "required": [
+        "meta",
+        "sizeMetric",
+        "colorMetric",
+        "root"
+      ],
+      "template": "treemap_sample.html",
+      "schema": "treemap.schema.json",
+      "spec": "treemap.md"
+    },
+    {
+      "id": "diff-review",
+      "label": "diff-review",
+      "aliases": [],
+      "useWhen": "a code change / pull request to review (diffs + comments + verdict)",
+      "defaultTheme": "slate",
+      "required": [
+        "meta",
+        "change",
+        "reviewers",
+        "checks",
+        "files"
+      ],
+      "template": "diff_review_sample.html",
+      "schema": "diff-review.schema.json",
+      "spec": "diff-review.md"
+    },
+    {
+      "id": "waterfall",
+      "label": "waterfall",
+      "aliases": [],
+      "useWhen": "explain a net change as a bridge of +/- contributions",
+      "defaultTheme": "blue",
+      "required": [
+        "meta",
+        "opening",
+        "steps",
+        "closing"
+      ],
+      "template": "waterfall_sample.html",
+      "schema": "waterfall.schema.json",
+      "spec": "waterfall.md"
+    },
+    {
+      "id": "test-report",
+      "label": "test-report",
+      "aliases": [],
+      "useWhen": "a test-execution run (suites × cases, pass/fail/flaky)",
+      "defaultTheme": "green",
+      "required": [
+        "meta",
+        "runs",
+        "activeRunId",
+        "suites",
+        "cases"
+      ],
+      "template": "test_report_sample.html",
+      "schema": "test-report.schema.json",
+      "spec": "test-report.md"
+    },
+    {
+      "id": "status-page",
+      "label": "status-page",
+      "aliases": [],
+      "useWhen": "service uptime history + incident communications",
+      "defaultTheme": "cyan",
+      "required": [
+        "meta",
+        "windows",
+        "groups",
+        "components",
+        "incidents"
+      ],
+      "template": "status_page_sample.html",
+      "schema": "status-page.schema.json",
+      "spec": "status-page.md"
+    },
+    {
+      "id": "bracket",
+      "label": "bracket",
+      "aliases": [],
+      "useWhen": "a knockout tournament / elimination",
+      "defaultTheme": "plum",
+      "required": [
+        "meta",
+        "format",
+        "rounds",
+        "matches"
+      ],
+      "template": "bracket_sample.html",
+      "schema": "bracket.schema.json",
+      "spec": "bracket.md"
+    },
+    {
+      "id": "research-paper",
+      "label": "research-paper",
+      "aliases": [],
+      "useWhen": "a formal academic / journal article (abstract, citations, equations, figures)",
+      "defaultTheme": "indigo",
+      "required": [
+        "meta",
+        "paper",
+        "sections",
+        "references"
+      ],
+      "template": "research_paper_sample.html",
+      "schema": "research-paper.schema.json",
+      "spec": "research-paper.md"
+    }
+  ]
+}

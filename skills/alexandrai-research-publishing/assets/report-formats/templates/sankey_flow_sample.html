@@ -1,0 +1,1164 @@
+<!doctype html>
+<html lang="en" data-theme="teal">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1440">
+<title>{{PROJECT}} — Sankey Flow</title>
+
+<!-- ============================================================
+     DATA-DRIVEN: the ONLY content source. render() builds the
+     entire <body> DOM from this JSON; it is a valid instance of
+     designs/schemas/sankey-flow.schema.json. The Sankey layout
+     (node x by column, node y by stacked incident flows, ribbon
+     endpoints + bezier control points) is computed in JS.
+     ============================================================ -->
+<script type="application/json" id="report-data">
+{
+  "meta": {
+    "org": "{{ORG}}",
+    "project": "{{PROJECT}}",
+    "reportType": "Flow of Funds",
+    "title": "Daily Settlement Flow — Payments Pipeline",
+    "subtitle": "Where the day's value enters, how it is routed and cleared, and where it lands — by value (¥M)",
+    "date": "2026-06-22",
+    "author": "{{AUTHOR}}",
+    "theme": "teal"
+  },
+  "units": "¥M",
+  "valueFormat": { "prefix": "¥", "suffix": "M" },
+  "groups": [
+    { "id": "channel", "label": "Inbound channel", "tone": "brand" },
+    { "id": "core", "label": "Core processing", "tone": "ink" },
+    { "id": "rail", "label": "Clearing rail", "tone": "ok" },
+    { "id": "hold", "label": "Held / review", "tone": "hold" },
+    { "id": "reject", "label": "Returned / failed", "tone": "risk" }
+  ],
+  "nodes": [
+    { "id": "mobile", "label": "Mobile app", "column": 0, "group": "channel", "note": "Retail mobile originations" },
+    { "id": "web", "label": "Web banking", "column": 0, "group": "channel" },
+    { "id": "branch", "label": "Branch & ATM", "column": 0, "group": "channel" },
+    { "id": "corp", "label": "Corporate API", "column": 0, "group": "channel", "note": "Bulk host-to-host files" },
+    { "id": "intake", "label": "Payment intake", "column": 1, "group": "core", "note": "Validation & enrichment" },
+    { "id": "fraud", "label": "Fraud & sanctions", "column": 1, "group": "core", "note": "Screening engine" },
+    { "id": "route", "label": "Routing engine", "column": 2, "group": "core", "note": "Rail selection by scheme & cut-off" },
+    { "id": "review", "label": "Manual review", "column": 2, "group": "hold", "note": "Operator queue" },
+    { "id": "rtgs", "label": "RTGS / wire", "column": 3, "group": "rail", "note": "High-value, same-day" },
+    { "id": "ach", "label": "ACH / batch", "column": 3, "group": "rail", "note": "Low-value batch" },
+    { "id": "card", "label": "Card network", "column": 3, "group": "rail" },
+    { "id": "intl", "label": "Cross-border", "column": 3, "group": "rail", "note": "Correspondent / SWIFT" },
+    { "id": "settled", "label": "Settled value", "column": 4, "group": "rail", "note": "Confirmed cleared" },
+    { "id": "pending", "label": "Pending cut-off", "column": 4, "group": "hold", "note": "Next-cycle release" },
+    { "id": "returned", "label": "Returned funds", "column": 4, "group": "reject", "note": "Bounced / recalled" }
+  ],
+  "links": [
+    { "source": "mobile", "target": "intake", "value": 1840, "note": "Retail push payments" },
+    { "source": "web", "target": "intake", "value": 1320 },
+    { "source": "branch", "target": "intake", "value": 760, "note": "Teller & ATM" },
+    { "source": "corp", "target": "intake", "value": 2960, "note": "Bulk salary & supplier files" },
+    { "source": "intake", "target": "fraud", "value": 6880, "note": "All intake screened" },
+    { "source": "fraud", "target": "route", "value": 6470, "note": "Cleared screening" },
+    { "source": "fraud", "target": "review", "value": 410, "note": "Flagged for review" },
+    { "source": "review", "target": "route", "value": 300, "note": "Released after review" },
+    { "source": "review", "target": "returned", "value": 110, "note": "Rejected on review" },
+    { "source": "route", "target": "rtgs", "value": 2510, "note": "High-value, same-day" },
+    { "source": "route", "target": "ach", "value": 2840, "note": "Low-value batch" },
+    { "source": "route", "target": "card", "value": 980, "note": "Card-scheme settlement" },
+    { "source": "route", "target": "intl", "value": 440, "note": "Correspondent routing" },
+    { "source": "rtgs", "target": "settled", "value": 2470 },
+    { "source": "rtgs", "target": "pending", "value": 40, "note": "After window cut-off" },
+    { "source": "ach", "target": "settled", "value": 2610 },
+    { "source": "ach", "target": "pending", "value": 230, "note": "Next ACH cycle" },
+    { "source": "card", "target": "settled", "value": 940 },
+    { "source": "card", "target": "returned", "value": 40, "note": "Scheme reject" },
+    { "source": "intl", "target": "settled", "value": 360 },
+    { "source": "intl", "target": "pending", "value": 60, "note": "Correspondent hold" },
+    { "source": "intl", "target": "returned", "value": 20, "note": "Compliance recall" }
+  ],
+  "legend": {
+    "ribbonHint": "Ribbon width is proportional to settled value (¥M); colour follows the source group.",
+    "totalLabel": "Day's intake"
+  }
+}
+</script>
+
+<style>
+/* ============================================================
+   SHARED FOUNDATION TOKENS  (per _FOUNDATION.md §1)
+   :root = Purple default; data-theme overrides swap 7 values.
+   This document ships data-theme="teal" (its default).
+   ============================================================ */
+:root{
+  /* surfaces */
+  --bg:#fff; --bg-band:#f6f6f8; --bg-subtle:#fafafb; --bg-deep:#15131a;
+  --rule:#dcdce2; --rule-soft:#ebebef;
+  /* ink */
+  --ink:#11131a; --ink-mid:#33363f; --ink-soft:#5a5e68; --ink-faint:#868b95;
+  /* brand accent (Purple default) */
+  --navy:#a100ff; --navy-deep:#7a00c2; --navy-bg:#f3e8ff; --navy-line:#d9bef5;
+  /* cleared / approved */
+  --ok:#5a2f8a; --ok-bg:#efe8f5; --ok-line:#d0b5e0;
+  /* semantic states — CONSTANT across all themes */
+  --risk:#b3261e; --risk-bg:#fbeceb; --risk-line:#edc7c4;
+  --hold:#8a6d00; --hold-bg:#fbf3da; --hold-line:#e7d8a4;
+  /* type stacks */
+  --mono:ui-monospace,"JetBrains Mono","SFMono-Regular",Menlo,Consolas,monospace;
+  --sans:-apple-system,"Segoe UI",system-ui,Roboto,"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic UI","Apple SD Gothic Neo","Malgun Gothic","PingFang SC","Microsoft YaHei","Noto Sans CJK JP","Noto Sans CJK KR","Noto Sans CJK SC","Noto Sans JP","Noto Sans KR","Noto Sans SC","Noto Sans",sans-serif;
+  /* shell geometry */
+  --shadow:0 1px 2px rgba(17,19,26,.045);
+  --shadow-rail:0 1px 3px rgba(17,19,26,.05);
+}
+/* alternate theme swaps (all 9 per _FOUNDATION §1 / _DATA_DRIVEN §3 — Black mandatory) */
+html[data-theme="blue"]{   --navy:#0b5fd4; --navy-deep:#0842a0; --navy-bg:#e8f1fc; --navy-line:#bcd6f5; --ok:#1a4f9c; --ok-bg:#e9f0fa; --ok-line:#b7cdea; }
+html[data-theme="purple"]{ --navy:#a100ff; --navy-deep:#7a00c2; --navy-bg:#f3e8ff; --navy-line:#d9bef5; --ok:#5a2f8a; --ok-bg:#efe8f5; --ok-line:#d0b5e0; }
+html[data-theme="indigo"]{ --navy:#4338ca; --navy-deep:#312c92; --navy-bg:#ebebfb; --navy-line:#c7c3f0; --ok:#3730a3; --ok-bg:#ebeaf7; --ok-line:#c5c2ea; }
+html[data-theme="teal"]{   --navy:#0e7c86; --navy-deep:#095861; --navy-bg:#e0f3f4; --navy-line:#a9dade; --ok:#0f5d54; --ok-bg:#e3f3ef; --ok-line:#b3ddd4; }
+html[data-theme="cyan"]{   --navy:#0891b2; --navy-deep:#0e6f88; --navy-bg:#e2f4f9; --navy-line:#abdde9; --ok:#0e6b7a; --ok-bg:#e4f3f4; --ok-line:#b0dde2; }
+html[data-theme="green"]{  --navy:#1f7a44; --navy-deep:#155730; --navy-bg:#e6f4ea; --navy-line:#b3dcc1; --ok:#2f6b3c; --ok-bg:#e9f3ea; --ok-line:#bedcc4; }
+html[data-theme="plum"]{   --navy:#a21d6e; --navy-deep:#7c1450; --navy-bg:#fbe8f2; --navy-line:#e8b9d4; --ok:#6d2356; --ok-bg:#f6e8f0; --ok-line:#e3bcd5; }
+html[data-theme="slate"]{  --navy:#3f4f63; --navy-deep:#29384b; --navy-bg:#eef1f5; --navy-line:#c2ccd8; --ok:#34495e; --ok-bg:#eef1f5; --ok-line:#c2ccd8; }
+html[data-theme="black"]{  --navy:#000000; --navy-deep:#000000; --navy-bg:#f1f1f3; --navy-line:#d6d6db; --ok:#3f3f46; --ok-bg:#f1f1f3; --ok-line:#cfcfd6; }
+
+*{ box-sizing:border-box; }
+html,body{ margin:0; height:100%; }
+body{
+  font:13px/1.6 var(--sans); color:var(--ink); background:var(--bg-band);
+  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+  overflow:hidden;
+}
+h1,h2,h3,h4,p{ margin:0; }
+.tnum{ font-feature-settings:"tnum" 1; font-variant-numeric:tabular-nums; }
+.mono{ font-family:var(--mono); }
+button{ font-family:inherit; }
+
+/* icon sizing (house SVGs, currentColor) */
+.icon{ width:1.15em; height:1.15em; display:inline-block; vertical-align:-.18em; color:inherit; }
+.icon-sm{ width:14px; height:14px; } .icon-lg{ width:18px; height:18px; }
+
+/* ---- shared primitives: status badge / dot / chip ---- */
+.st-badge{
+  display:inline-flex; align-items:center; gap:6px; font:600 10.5px/1 var(--mono);
+  letter-spacing:.04em; text-transform:uppercase; padding:4px 8px 4px 7px;
+  border:1px solid var(--rule); border-radius:6px; background:var(--bg); white-space:nowrap;
+}
+.st-badge::before{ content:""; width:7px; height:7px; border-radius:50%; background:var(--ink-faint); }
+.st-ok{ color:var(--ok); border-color:var(--ok-line); background:var(--ok-bg); } .st-ok::before{ background:var(--ok); }
+.st-risk{ color:var(--risk); border-color:var(--risk-line); background:var(--risk-bg); } .st-risk::before{ background:var(--risk); }
+.st-hold{ color:var(--hold); border-color:var(--hold-line); background:var(--hold-bg); } .st-hold::before{ background:var(--hold); }
+.mini-dot{ display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--ink-faint); flex:none; }
+.chip{
+  display:inline-flex; align-items:center; gap:5px; font:600 10.5px/1 var(--mono); letter-spacing:.02em;
+  color:var(--navy-deep); background:var(--navy-bg); border:1px solid var(--navy-line);
+  border-radius:6px; padding:5px 8px; white-space:nowrap;
+}
+.mlabel{ font:700 9.5px/1.2 var(--mono); letter-spacing:.1em; text-transform:uppercase; color:var(--ink-faint); }
+
+/* ---- noscript ---- */
+.noscript-note{ position:fixed; inset:0; display:flex; align-items:center; justify-content:center;
+  background:var(--bg); z-index:999; padding:40px; text-align:center; color:var(--ink-mid); font-size:14px; }
+.noscript-note code{ font:600 12px/1 var(--mono); }
+
+/* ============================================================
+   SANKEY APP SHELL  (the distinct format silhouette)
+   100vw × 100vh: toolbar row, then [ canvas | rail ], then legend
+   ============================================================ */
+.sk-shell{
+  width:100vw; height:100vh; display:grid;
+  grid-template-rows:auto 1fr auto;
+  grid-template-columns:1fr 332px;
+  grid-template-areas:"bar bar" "canvas rail" "legend legend";
+}
+
+/* ---- top toolbar ---- */
+.sk-toolbar{
+  grid-area:bar; display:flex; align-items:center; gap:16px; flex-wrap:nowrap;
+  padding:10px 18px; background:var(--bg); border-bottom:1px solid var(--rule);
+  box-shadow:0 1px 3px rgba(17,19,26,.05); z-index:30; min-width:0;
+}
+.sk-id{ display:flex; align-items:center; gap:11px; min-width:0; flex:none; }
+.sk-mark{ width:30px; height:30px; border-radius:8px; background:var(--navy); color:#fff;
+  display:inline-flex; align-items:center; justify-content:center; flex:none; }
+.sk-mark svg{ width:19px; height:19px; }
+.sk-titles{ min-width:0; }
+.sk-eyebrow{ font:600 9.5px/1 var(--mono); letter-spacing:.14em; text-transform:uppercase; color:var(--ink-faint); margin-bottom:3px; }
+.sk-title{ font:800 15px/1.15 var(--sans); letter-spacing:-.01em; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.sk-title b{ color:var(--navy-deep); }
+
+.sk-unit{
+  display:inline-flex; align-items:center; gap:6px; flex:none;
+  font:700 11px/1 var(--mono); letter-spacing:.04em; color:var(--navy-deep);
+  background:var(--navy-bg); border:1px solid var(--navy-line); border-radius:6px; padding:6px 9px;
+}
+.sk-unit .icon{ width:13px; height:13px; color:var(--navy); }
+
+/* min-flow threshold slider */
+.sk-threshold{ display:flex; align-items:center; gap:9px; flex:none;
+  border:1px solid var(--rule); border-radius:8px; padding:5px 11px 5px 9px; background:var(--bg); }
+.sk-thr-label{ font:700 9px/1.2 var(--mono); letter-spacing:.08em; text-transform:uppercase; color:var(--ink-faint); white-space:nowrap; }
+.sk-thr-range{ -webkit-appearance:none; appearance:none; width:120px; height:4px; border-radius:3px;
+  background:var(--rule); outline:none; cursor:pointer; }
+.sk-thr-range::-webkit-slider-thumb{ -webkit-appearance:none; appearance:none; width:14px; height:14px;
+  border-radius:50%; background:var(--navy); border:2px solid var(--bg); box-shadow:0 0 0 1px var(--navy-line); cursor:pointer; }
+.sk-thr-range::-moz-range-thumb{ width:14px; height:14px; border-radius:50%; background:var(--navy);
+  border:2px solid var(--bg); box-shadow:0 0 0 1px var(--navy-line); cursor:pointer; }
+.sk-thr-readout{ font:700 11px/1 var(--mono); color:var(--ink); min-width:54px; text-align:right; }
+
+.sk-tools-spacer{ flex:1 1 auto; min-width:8px; }
+
+/* group toggle chips */
+.sk-groups{ display:flex; align-items:center; gap:6px; flex:none; }
+.sk-grouptoggle{
+  display:inline-flex; align-items:center; gap:7px; cursor:pointer;
+  font:600 11px/1 var(--sans); color:var(--ink-mid);
+  background:var(--bg); border:1px solid var(--rule); border-radius:7px; padding:5px 9px;
+  transition:background .12s, border-color .12s, opacity .12s;
+}
+.sk-grouptoggle:hover{ border-color:var(--navy-line); background:var(--navy-bg); }
+.sk-gt-sw{ width:11px; height:11px; border-radius:3px; flex:none; background:var(--navy); }
+.sk-gt-n{ font:700 9.5px/1 var(--mono); color:var(--ink-faint); }
+.sk-grouptoggle[aria-pressed="false"]{ opacity:.4; }
+.sk-grouptoggle[aria-pressed="false"] .sk-gt-sw{ background:var(--ink-faint) !important; }
+
+/* trace-path mode toggle */
+.sk-trace{
+  display:inline-flex; align-items:center; gap:7px; cursor:pointer; flex:none;
+  font:600 11px/1 var(--sans); color:var(--ink-soft); user-select:none;
+  padding:5px 10px; border:1px solid var(--rule); border-radius:7px; background:var(--bg);
+  transition:background .12s,color .12s,border-color .12s;
+}
+.sk-trace:hover{ border-color:var(--navy-line); color:var(--ink-mid); }
+.sk-trace svg{ width:14px; height:14px; }
+.sk-trace[aria-pressed="true"]{ color:#fff; background:var(--navy); border-color:var(--navy); }
+
+/* theme switcher (MANDATORY, canonical dropdown per _DATA_DRIVEN §3) */
+.rc-theme{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--rule);border-radius:7px;padding:3px 4px 3px 7px;background:var(--bg);flex:none;}
+.rc-theme-sw{width:12px;height:12px;border-radius:50%;background:var(--navy);box-shadow:0 0 0 1px var(--rule);flex:none;}
+.rc-theme-sel{border:0;background:none;font:600 11px/1 var(--mono);color:var(--ink-mid);cursor:pointer;outline:none;padding:2px;}
+@media print{.rc-theme{display:none;}}
+
+/* ============================================================
+   THE CANVAS — full-bleed inline-SVG Sankey
+   ============================================================ */
+.sk-canvas{
+  grid-area:canvas; position:relative; overflow:auto; min-width:0; min-height:0;
+  background:
+    radial-gradient(circle, var(--rule) 1px, transparent 1.4px) 0 0 / 30px 30px,
+    var(--bg-band);
+}
+svg.sk-flow{ display:block; }
+
+/* links (ribbons) */
+.sk-link{ stroke:none; transition:fill-opacity .14s, fill .14s; cursor:pointer; }
+.sk-link.is-dim{ fill-opacity:.07 !important; }
+.sk-link.is-hot{ fill-opacity:.62 !important; }
+.sk-link.is-hidden{ display:none; }
+
+/* column total labels + baseline */
+.sk-col-total{ font:700 10px/1 var(--mono); letter-spacing:.02em; fill:var(--ink-mid); }
+.sk-col-name{ font:700 9px/1 var(--mono); letter-spacing:.1em; text-transform:uppercase; fill:var(--ink-faint); }
+.sk-col-rule{ stroke:var(--rule); stroke-width:1; stroke-dasharray:2 4; }
+
+/* nodes */
+.sk-node{ cursor:pointer; }
+.sk-node-bar{ stroke:var(--bg); stroke-width:1; transition:filter .12s; }
+.sk-node:hover .sk-node-bar{ filter:brightness(1.06); }
+.sk-node-accent{ } /* left accent strip; coloured inline by group tone */
+.sk-node-label{ font:700 11.5px/1.1 var(--sans); fill:var(--ink); }
+.sk-node-val{ font:700 10px/1 var(--mono); fill:var(--ink-soft); }
+.sk-node.is-dim{ opacity:.3; }
+.sk-node.is-selected .sk-node-label{ fill:var(--navy-deep); }
+.sk-node-ring{ fill:none; stroke:var(--navy); stroke-width:2; rx:5; opacity:0; transition:opacity .12s; }
+.sk-node.is-selected .sk-node-ring{ opacity:1; }
+.sk-node.is-linked .sk-node-ring{ opacity:1; stroke:var(--navy-line); }
+.sk-node.is-reach .sk-node-ring{ opacity:1; stroke:var(--navy-line); stroke-dasharray:3 3; }
+.sk-node.is-hidden{ display:none; }
+
+/* floating tooltip (single shared instance) */
+.sk-tip{
+  position:fixed; z-index:60; pointer-events:none;
+  background:#000; color:#fff; border-radius:7px; padding:8px 10px;
+  font:600 11px/1.45 var(--sans); white-space:nowrap; box-shadow:0 4px 14px rgba(0,0,0,.3);
+  opacity:0; transition:opacity .1s; transform:translate(-50%,-100%);
+}
+.sk-tip.show{ opacity:1; }
+.sk-tip .tt-h{ font:700 10px/1.3 var(--mono); letter-spacing:.05em; text-transform:uppercase; color:#cfd3db; margin-bottom:4px; }
+.sk-tip .tt-row{ display:flex; align-items:center; gap:7px; }
+.sk-tip .tt-row i{ width:9px; height:9px; border-radius:2px; flex:none; }
+.sk-tip .tt-row b{ font:700 11.5px/1 var(--mono); }
+.sk-tip .tt-sub{ font:600 10px/1.3 var(--mono); color:#aeb4bf; margin-top:3px; }
+
+/* ============================================================
+   RIGHT DETAIL RAIL  (selected-node inflows / outflows)
+   ============================================================ */
+.sk-rail{
+  grid-area:rail; background:var(--bg); border-left:1px solid var(--rule);
+  display:flex; flex-direction:column; min-height:0; overflow:auto;
+}
+.sk-rail-empty{ padding:24px 18px; color:var(--ink-soft); font-size:12px; line-height:1.55; }
+.sk-rail-empty .re-ico{ color:var(--navy-line); display:block; margin-bottom:11px; }
+.sk-rail-empty .re-ico svg{ width:34px; height:34px; }
+.sk-rail-empty b{ color:var(--ink-mid); font-weight:700; }
+
+.sk-rail-card{ display:none; }
+.sk-rail-card.show{ display:block; }
+.sk-rail-head{ padding:15px 16px 13px; border-bottom:1px solid var(--rule-soft); }
+.sk-rail-eyebrow{ display:flex; align-items:center; gap:7px; font:700 9.5px/1 var(--mono); letter-spacing:.1em;
+  text-transform:uppercase; color:var(--navy-deep); margin-bottom:8px; }
+.sk-rail-eyebrow .iht-ico{ color:var(--navy); display:inline-flex; } .sk-rail-eyebrow .iht-ico svg{ width:14px; height:14px; }
+.sk-rail-title{ font:800 16px/1.2 var(--sans); letter-spacing:-.01em; color:var(--ink); margin-bottom:5px; }
+.sk-rail-note{ font:600 11.5px/1.45 var(--sans); color:var(--ink-soft); margin-bottom:9px; }
+.sk-rail-chips{ display:flex; flex-wrap:wrap; gap:6px; }
+
+/* total-in / total-out key-value pair */
+.sk-rail-totals{ display:grid; grid-template-columns:1fr 1fr; border-bottom:1px solid var(--rule-soft); }
+.sk-tot{ padding:12px 16px; }
+.sk-tot:first-child{ border-right:1px solid var(--rule-soft); }
+.sk-tot .k{ display:flex; align-items:center; gap:6px; font:700 9px/1.1 var(--mono); letter-spacing:.08em; text-transform:uppercase; color:var(--ink-faint); margin-bottom:5px; }
+.sk-tot .k svg{ width:12px; height:12px; }
+.sk-tot .k.in{ color:var(--ink-faint); } .sk-tot .k.in svg{ color:var(--ink-soft); }
+.sk-tot .k.out svg{ color:var(--navy); }
+.sk-tot .v{ font:800 19px/1 var(--mono); letter-spacing:-.02em; color:var(--ink); }
+.sk-tot .v small{ font:700 11px/1 var(--mono); color:var(--ink-faint); }
+
+/* inflow / outflow lists */
+.sk-flow-list{ padding:13px 16px 4px; border-bottom:1px solid var(--rule-soft); }
+.sk-flow-list:last-child{ border-bottom:0; padding-bottom:16px; }
+.sk-flow-cap{ display:flex; align-items:center; gap:7px; font:700 9.5px/1 var(--mono); letter-spacing:.1em;
+  text-transform:uppercase; color:var(--ink-faint); margin-bottom:11px; }
+.sk-flow-cap .fc-ico{ display:inline-flex; } .sk-flow-cap .fc-ico svg{ width:13px; height:13px; }
+.sk-flow-cap .fc-ico.in{ color:var(--ink-soft); } .sk-flow-cap .fc-ico.out{ color:var(--navy); }
+.sk-flow-cap .fc-n{ margin-left:auto; color:var(--ink-faint); }
+.sk-flow-row{
+  display:grid; grid-template-columns:1fr auto; gap:3px 10px; align-items:center;
+  width:100%; text-align:left; cursor:pointer; background:transparent; border:0;
+  border-radius:8px; padding:7px 8px; margin:0 -8px 2px; transition:background .12s;
+}
+.sk-flow-row:hover{ background:var(--bg-subtle); }
+.sk-fr-name{ font:700 11.5px/1.2 var(--sans); color:var(--ink); min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.sk-fr-val{ font:700 11.5px/1 var(--mono); color:var(--ink); text-align:right; white-space:nowrap; }
+.sk-fr-track{ grid-column:1 / -1; height:6px; border-radius:4px; background:var(--bg-band); border:1px solid var(--rule-soft); overflow:hidden; }
+.sk-fr-fill{ height:100%; border-radius:4px; background:var(--navy); width:0; transition:width .3s ease; }
+.sk-fr-pct{ grid-column:2; font:600 9px/1.2 var(--mono); letter-spacing:.04em; color:var(--ink-faint); text-align:right; }
+.sk-fr-note{ grid-column:1; font:600 9px/1.2 var(--mono); letter-spacing:.02em; color:var(--ink-faint); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.sk-flow-none{ font:600 11.5px/1.4 var(--sans); color:var(--ink-faint); padding-bottom:8px; }
+
+/* ============================================================
+   BOTTOM LEGEND  (group key + ribbon hint + grand total)
+   ============================================================ */
+.sk-legend{
+  grid-area:legend; display:flex; align-items:center; gap:18px; flex-wrap:wrap;
+  padding:10px 18px; background:var(--bg); border-top:1px solid var(--rule); z-index:20;
+}
+.sk-leg-items{ display:flex; align-items:center; gap:7px; flex-wrap:wrap; }
+.sk-leg-item{ display:inline-flex; align-items:center; gap:7px; font:600 11px/1 var(--sans); color:var(--ink-mid);
+  background:var(--bg-subtle); border:1px solid var(--rule); border-radius:6px; padding:4px 9px; }
+.sk-leg-sw{ width:14px; height:9px; border-radius:2px; flex:none; background:var(--navy); }
+.sk-leg-n{ font:700 9px/1 var(--mono); color:var(--ink-faint); }
+.sk-leg-hint{ display:inline-flex; align-items:center; gap:7px; font:600 11px/1.3 var(--sans); color:var(--ink-soft); }
+.sk-leg-hint .ribbon-demo{ width:34px; height:13px; flex:none; }
+.sk-leg-sp{ flex:1 1 auto; }
+.sk-leg-total{ display:inline-flex; align-items:baseline; gap:8px; font:600 11px/1 var(--mono); color:var(--ink-faint);
+  letter-spacing:.04em; text-transform:uppercase; }
+.sk-leg-total b{ font:800 16px/1 var(--mono); color:var(--ink); letter-spacing:-.02em; text-transform:none; }
+
+/* print-only footer */
+.sk-print-foot{ display:none; }
+
+/* ============================================================
+   PRINT — full diagram, un-dimmed, controls hidden
+   ============================================================ */
+@media print{
+  html,body{ height:auto; overflow:visible; background:#fff; }
+  .sk-shell{ display:block; width:auto; height:auto; }
+  .sk-toolbar{ box-shadow:none; flex-wrap:wrap; }
+  .sk-threshold, .sk-groups, .sk-trace, .rc-theme{ display:none !important; }
+  .sk-canvas{ overflow:visible; height:auto; background:#fff; border-bottom:1px solid var(--rule); }
+  .sk-rail{ display:none; }
+  .sk-link.is-dim, .sk-link.is-hot{ fill-opacity:.4 !important; }
+  .sk-link.is-hidden{ display:inline !important; }
+  .sk-node.is-dim{ opacity:1; }
+  .sk-node-ring{ opacity:0 !important; }
+  .sk-legend{ border-top:1px solid var(--rule); }
+  .sk-print-foot{ display:flex; align-items:center; gap:16px; flex-wrap:wrap;
+    margin-top:0; padding:14px 18px; background:#fff; border-top:1px solid var(--rule); }
+  .sk-print-foot .wm{ display:flex; align-items:center; gap:9px; font:800 13px/1 var(--sans); color:#000; }
+  .sk-print-foot .wm .sq{ width:14px; height:14px; border-radius:4px; background:var(--navy); }
+  .sk-print-foot .fmeta{ font:600 10px/1.5 var(--mono); letter-spacing:.06em; text-transform:uppercase; color:#555; }
+}
+</style>
+</head>
+<body>
+
+<noscript><div class="noscript-note">This Sankey flow diagram renders its value-weighted ribbons from embedded data with JavaScript (for the threshold slider, group toggles, trace mode and hover tooltips). The complete flow data is in the <code>#report-data</code> block in the page source.</div></noscript>
+
+<main class="sk-shell" id="shell" hidden><!-- built by render() --></main>
+
+<!-- floating tooltip (single shared instance) -->
+<div class="sk-tip" id="sk-tip" role="status" aria-live="polite"></div>
+
+<!-- print-only footer (rendered into place by JS, shown only in @media print) -->
+<footer class="sk-print-foot" id="print-foot"></footer>
+
+<script>
+/* ============================================================
+   SANKEY FLOW — renderer + layout + interactions (vanilla JS)
+   - DATA            : #report-data JSON (the only content source)
+   - layout()        : compute node columns/heights + ribbon paths
+   - render()        : DATA → full app-shell DOM
+   - wireInteractions: hover/select · threshold · group toggle · trace
+   - wireThemeSwitch : canonical 9-preset .rc-theme dropdown (§3)
+   Reading requires JS (data-driven, per _DATA_DRIVEN §1); a
+   <noscript> notice + the raw JSON are provided in source.
+   ============================================================ */
+(function(){
+  "use strict";
+
+  /* ---- inline house SVG icons (24×24, stroke=currentColor, SPEC.md) ---- */
+  var SVG_OPEN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">';
+  var ICONS = {
+    /* flow — split stream with squared origin node (the app mark) */
+    'flow':       SVG_OPEN+'<path d="M5 8h7M5 16h11"/><path d="M12 5l3 3-3 3M16 13l3 3-3 3"/><rect x="3" y="6" width="3.2" height="3.2" rx="1.2" fill="currentColor" stroke="none"/></svg>',
+    /* fork-path — one in, two out */
+    'fork':       SVG_OPEN+'<path d="M5 12h5M10 12 16 7M10 12l6 5"/><rect x="2.6" y="10" width="3.2" height="3.2" rx="1.2" fill="currentColor" stroke="none"/><rect x="16.4" y="5.4" width="3.2" height="3.2" rx="1.2" fill="currentColor" stroke="none"/><rect x="16.4" y="15.4" width="3.2" height="3.2" rx="1.2" fill="currentColor" stroke="none"/></svg>',
+    /* funnel — narrowing flow */
+    'funnel':     SVG_OPEN+'<path d="M4.5 5.5h15l-5.8 7v5l-3.4 1.8v-6.8Z"/></svg>',
+    /* transfer-arrows — value moving */
+    'transfer':   SVG_OPEN+'<path d="M5 9h11l-3-3M19 15H8l3 3"/></svg>',
+    /* arrow-in (inflow) */
+    'arrow-in':   SVG_OPEN+'<path d="M18.5 12H5.5M10 7l-5 5 5 5"/></svg>',
+    /* arrow-out (outflow) */
+    'arrow-out':  SVG_OPEN+'<path d="M5.5 12H18.5M14 7l5 5-5 5"/></svg>',
+    /* trace — downstream reach rings from a point */
+    'trace':      SVG_OPEN+'<circle cx="6.5" cy="12" r="2.2" fill="currentColor" stroke="none"/><path d="M10 12h4M14 12l-2.4-2.4M14 12l-2.4 2.4"/><path d="M17.5 7.4A6.4 6.4 0 0 1 17.5 16.6"/></svg>',
+    /* tap — hint for empty rail */
+    'tap':        SVG_OPEN+'<path d="M9 10.5V6.2A1.7 1.7 0 0 1 12.4 6.2V11"/><path d="M12.4 11V9.4A1.6 1.6 0 0 1 15.6 9.4V11M15.6 11V9.9A1.6 1.6 0 0 1 18.8 9.9V14.5A4.5 4.5 0 0 1 14.3 19H12.5A4.5 4.5 0 0 1 8.6 16.7L6.4 13A1.6 1.6 0 0 1 9 11.2Z"/></svg>',
+    /* node-card — a station bar */
+    'node':       SVG_OPEN+'<rect x="4" y="9" width="16" height="6" rx="2"/><path d="M8 6.5v2M12 6.5v2M16 6.5v2M8 15.5v2M12 15.5v2M16 15.5v2"/></svg>'
+  };
+  function icon(key){ return ICONS[key] || ICONS['node']; }
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+
+  /* ---- parse data ---- */
+  var DATA;
+  try { DATA = JSON.parse(document.getElementById('report-data').textContent); }
+  catch(e){
+    document.getElementById('shell').hidden = false;
+    document.getElementById('shell').innerHTML =
+      '<p style="padding:24px;font:600 13px var(--sans);color:var(--risk)">Could not parse #report-data: '+esc(e.message)+'</p>';
+    return;
+  }
+
+  var NODES = DATA.nodes || [];
+  var LINKS = (DATA.links || []).map(function(l,i){ l.__i=i; return l; });
+  var GROUPS = DATA.groups || [];
+  var NODE_BY_ID = {}; NODES.forEach(function(n){ NODE_BY_ID[n.id] = n; });
+  var GROUP_BY_ID = {}; GROUPS.forEach(function(g){ GROUP_BY_ID[g.id] = g; });
+
+  /* group tone → palette var (brand or one of the 3 semantic states only) */
+  var TONE_VAR = { brand:'var(--navy)', ok:'var(--ok)', hold:'var(--hold)', risk:'var(--risk)', ink:'var(--ink-soft)' };
+  function groupColor(gid){
+    var g = GROUP_BY_ID[gid]; var tone = (g && g.tone) || 'brand';
+    return TONE_VAR[tone] || 'var(--navy)';
+  }
+
+  /* value formatting */
+  var VF = DATA.valueFormat || {};
+  var SUFFIX = (VF.suffix!=null && VF.suffix!=='') ? VF.suffix : (DATA.units || '');
+  var PREFIX = VF.prefix || '';
+  function fmtVal(v){
+    var n = +v || 0, s;
+    if(VF.decimals!=null) s = n.toFixed(VF.decimals);
+    else s = (Math.abs(n%1)<1e-9) ? String(Math.round(n)) : n.toFixed(1);
+    /* thousands separators */
+    s = s.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    return PREFIX + s + SUFFIX;
+  }
+
+  /* ---- interaction state ---- */
+  var STATE = {
+    threshold: 0,        /* min-flow: links with value < threshold are hidden */
+    hiddenGroups: {},    /* groupId -> true when collapsed */
+    selectedId: null,
+    traceMode: false
+  };
+
+  /* ---- layout geometry ---- */
+  var GEO = {
+    padX: 124, padTop: 56, padBottom: 26,   /* canvas margins (px) */
+    colGap: 196,                            /* horizontal gap between column centres' bar */
+    nodeW: 19,                              /* bar width (px) */
+    nodeGap: 22,                            /* vertical gap between bars in a column */
+    minBar: 3,                              /* floor bar height so tiny nodes stay visible */
+    minH: 560
+  };
+
+  /* the computed layout, rebuilt whenever filters change */
+  var LAYOUT = null;
+
+  /* a link is "live" (counts toward layout) when it clears the threshold and
+     neither endpoint's group is collapsed */
+  function linkLive(l){
+    if((+l.value) < STATE.threshold) return false;
+    var s = NODE_BY_ID[l.source], t = NODE_BY_ID[l.target];
+    if(!s || !t) return false;
+    if(s.group && STATE.hiddenGroups[s.group]) return false;
+    if(t.group && STATE.hiddenGroups[t.group]) return false;
+    return true;
+  }
+  function nodeLive(n){
+    if(n.group && STATE.hiddenGroups[n.group]) return false;
+    return true;
+  }
+
+  /* directed downstream adjacency over LIVE links (for trace mode) */
+  function liveOut(id){
+    var out = [];
+    LINKS.forEach(function(l){ if(l.source===id && linkLive(l)) out.push(l.target); });
+    return out;
+  }
+  function reachDownstream(id){
+    var seen={}, q=[id], reached={};
+    seen[id]=true;
+    while(q.length){
+      var cur=q.shift();
+      liveOut(cur).forEach(function(to){
+        if(seen[to]) return; seen[to]=true; reached[to]=true; q.push(to);
+      });
+    }
+    return reached;   /* excludes origin */
+  }
+
+  /* ============================================================
+     LAYOUT — assign columns (x), stack nodes (y), size bars by
+     throughput = max(total in, total out) over LIVE links, then
+     derive ribbon endpoints + bezier control points.
+     ============================================================ */
+  function layout(){
+    /* 1. group nodes by column; keep only live nodes */
+    var cols = {};
+    var liveNodes = NODES.filter(nodeLive);
+    liveNodes.forEach(function(n){
+      var c = n.column||0; (cols[c] = cols[c] || []).push(n);
+    });
+    var colKeys = Object.keys(cols).map(Number).sort(function(a,b){return a-b;});
+
+    /* 2. per-node throughput from LIVE links */
+    var inSum={}, outSum={};
+    liveNodes.forEach(function(n){ inSum[n.id]=0; outSum[n.id]=0; });
+    LINKS.forEach(function(l){
+      if(!linkLive(l)) return;
+      if(outSum[l.source]!=null) outSum[l.source]+=(+l.value);
+      if(inSum[l.target]!=null)  inSum[l.target] +=(+l.value);
+    });
+    var through={};
+    liveNodes.forEach(function(n){ through[n.id]=Math.max(inSum[n.id], outSum[n.id]); });
+
+    /* 3. value→px scale: choose so the tallest column stack fits the canvas height.
+       For each column, stack height = sum(through) + gaps. Pick the binding column. */
+    var H = Math.max(GEO.minH, (document.getElementById('shell') ? canvasH() : GEO.minH));
+    var avail = H - GEO.padTop - GEO.padBottom;
+    var unit = Infinity;
+    colKeys.forEach(function(c){
+      var list = cols[c];
+      var sum = list.reduce(function(a,n){ return a+through[n.id]; },0);
+      var gaps = Math.max(0, list.length-1) * GEO.nodeGap;
+      var usable = avail - gaps;
+      if(sum>0 && usable>0) unit = Math.min(unit, usable/sum);
+    });
+    if(!isFinite(unit) || unit<=0) unit = 0.02;
+
+    /* 4. place each column: x by index, y stacked & vertically centred.
+       Spread columns to FILL the canvas width (the last column's labels are
+       anchored left/inside, so the right margin can be tighter than padX). */
+    var CW = (document.getElementById('shell') ? canvasW() : 0);
+    var nGaps = Math.max(1, colKeys.length-1);
+    var padR = Math.round(GEO.padX*0.62);                    /* tighter right margin */
+    var fillGap = (CW>120) ? (CW - GEO.padX - padR - GEO.nodeW) / nGaps : GEO.colGap;
+    var colGap = Math.max(GEO.colGap, fillGap);              /* never crowd below the design gap */
+    var xs = {};
+    colKeys.forEach(function(c, idx){ xs[c] = GEO.padX + idx*colGap; });
+    var totalW = GEO.padX + Math.max(0,(colKeys.length-1))*colGap + GEO.nodeW + padR;
+
+    var nodeBox = {};   /* id -> {x,y,w,h,cx,top,bottom} */
+    colKeys.forEach(function(c){
+      var list = cols[c];
+      /* order nodes within a column to reduce crossings: by group order then incoming weight */
+      list.sort(function(a,b){
+        var ga = groupIndex(a.group), gb = groupIndex(b.group);
+        if(ga!==gb) return ga-gb;
+        return (through[b.id]||0)-(through[a.id]||0);
+      });
+      var stackH = list.reduce(function(a,n){ return a + Math.max(GEO.minBar, through[n.id]*unit); },0)
+                 + Math.max(0,list.length-1)*GEO.nodeGap;
+      var y = GEO.padTop + Math.max(0,(avail-stackH)/2);
+      list.forEach(function(n){
+        var h = Math.max(GEO.minBar, through[n.id]*unit);
+        nodeBox[n.id] = { x:xs[c], y:y, w:GEO.nodeW, h:h, cx:xs[c]+GEO.nodeW/2,
+                          top:y, bottom:y+h, col:c, inUsed:0, outUsed:0,
+                          through:through[n.id], inSum:inSum[n.id], outSum:outSum[n.id] };
+        y += h + GEO.nodeGap;
+      });
+    });
+
+    /* 5. ribbon endpoints: for each node, sub-stack outgoing on its right edge and
+       incoming on its left edge, ordered by the counterpart's vertical position so
+       ribbons stay mostly monotone (less crossing). */
+    var outByNode={}, inByNode={};
+    liveNodes.forEach(function(n){ outByNode[n.id]=[]; inByNode[n.id]=[]; });
+    LINKS.forEach(function(l){ if(!linkLive(l)){ return; }
+      if(outByNode[l.source]) outByNode[l.source].push(l);
+      if(inByNode[l.target])  inByNode[l.target].push(l);
+    });
+    function sortByCounterpartY(arr, key){
+      arr.sort(function(a,b){
+        var ba=nodeBox[a[key]], bb=nodeBox[b[key]];
+        return (ba?ba.top:0)-(bb?bb.top:0);
+      });
+    }
+    liveNodes.forEach(function(n){
+      sortByCounterpartY(outByNode[n.id],'target');
+      sortByCounterpartY(inByNode[n.id],'source');
+    });
+
+    var ribbons=[];
+    LINKS.forEach(function(l){
+      if(!linkLive(l)) return;
+      var sb=nodeBox[l.source], tb=nodeBox[l.target];
+      if(!sb||!tb) return;
+      var w = (+l.value)*unit;                 /* ribbon width == bar-height scale (same unit) */
+      var sy0 = sb.top + sb.outUsed; sb.outUsed += w;  /* source right edge */
+      var ty0 = tb.top + tb.inUsed;  tb.inUsed  += w;  /* target left edge */
+      var x0 = sb.x + sb.w, x1 = tb.x;
+      ribbons.push({ link:l, x0:x0, x1:x1, sy0:sy0, sy1:sy0+w, ty0:ty0, ty1:ty0+w,
+                     source:l.source, target:l.target, value:+l.value, gid:(NODE_BY_ID[l.source]||{}).group });
+    });
+
+    LAYOUT = { cols:cols, colKeys:colKeys, xs:xs, nodeBox:nodeBox, ribbons:ribbons,
+               unit:unit, through:through, inSum:inSum, outSum:outSum,
+               width:totalW, height:H, liveNodes:liveNodes };
+    return LAYOUT;
+  }
+
+  function groupIndex(gid){ for(var i=0;i<GROUPS.length;i++){ if(GROUPS[i].id===gid) return i; } return 99; }
+  function canvasH(){
+    var c = document.getElementById('canvas');
+    if(c){ var r=c.getBoundingClientRect(); if(r.height>40) return r.height; }
+    return Math.max(GEO.minH, window.innerHeight-150);
+  }
+  function canvasW(){
+    var c = document.getElementById('canvas');
+    if(c){ var r=c.getBoundingClientRect(); if(r.width>80) return r.width; }
+    return Math.max(900, window.innerWidth-332);
+  }
+
+  /* cubic-bezier ribbon path: a filled band between two horizontal edges,
+     each edge an S-curve from source x to target x. */
+  function ribbonPath(r){
+    var xm = (r.x0+r.x1)/2;
+    /* top edge: (x0,sy0) -> (x1,ty0); bottom edge back: (x1,ty1) -> (x0,sy1) */
+    return 'M'+r.x0+' '+r.sy0+
+           ' C'+xm+' '+r.sy0+' '+xm+' '+r.ty0+' '+r.x1+' '+r.ty0+
+           ' L'+r.x1+' '+r.ty1+
+           ' C'+xm+' '+r.ty1+' '+xm+' '+r.sy1+' '+r.x0+' '+r.sy1+
+           ' Z';
+  }
+
+  /* ============================================================
+     RENDER — build the entire app shell from DATA
+     ============================================================ */
+  function render(){
+    var m = DATA.meta || {};
+    document.documentElement.dataset.theme = m.theme || 'teal';
+    document.title = (m.project || 'Flow') + ' — Sankey Flow';
+
+    var shell = document.getElementById('shell');
+    shell.hidden = false;
+    shell.innerHTML = renderToolbar(m) + renderCanvasShell() + renderRail() + renderLegend();
+
+    /* print footer */
+    document.getElementById('print-foot').innerHTML =
+      '<span class="wm"><span class="sq"></span>'+esc(m.org)+'</span>'+
+      '<span class="fmeta">'+esc(m.reportType)+' &middot; '+esc(m.title)+'<br>Prepared by '+esc(m.author)+' &middot; as of '+esc(m.date)+'</span>';
+
+    drawCanvas();
+    recountGroups();
+  }
+
+  function renderToolbar(m){
+    /* threshold slider bounds from the data */
+    var maxV = LINKS.reduce(function(a,l){ return Math.max(a,+l.value); },0);
+    var themeDropdown =
+      '<label class="rc-theme" title="Brand colour">'+
+        '<span class="rc-theme-sw" aria-hidden="true"></span>'+
+        '<select class="rc-theme-sel" aria-label="Brand theme">'+
+          '<option value="blue">Blue</option>'+
+          '<option value="purple">Purple</option>'+
+          '<option value="indigo">Indigo</option>'+
+          '<option value="teal">Teal</option>'+
+          '<option value="cyan">Cyan</option>'+
+          '<option value="green">Green</option>'+
+          '<option value="plum">Plum</option>'+
+          '<option value="slate">Slate</option>'+
+          '<option value="black">Black</option>'+
+        '</select>'+
+      '</label>';
+
+    var groupChips = GROUPS.map(function(g){
+      return '<button class="sk-grouptoggle" data-group="'+esc(g.id)+'" aria-pressed="true" '+
+        'title="Show / collapse '+esc(g.label)+'">'+
+        '<span class="sk-gt-sw" style="background:'+groupColor(g.id)+'"></span>'+
+        esc(g.label)+'<span class="sk-gt-n" data-group-n="'+esc(g.id)+'"></span></button>';
+    }).join('');
+
+    return '<header class="sk-toolbar">'+
+      '<div class="sk-id"><span class="sk-mark">'+icon('flow')+'</span>'+
+        '<div class="sk-titles"><div class="sk-eyebrow">'+esc(m.reportType||'')+' &middot; '+esc(m.project||'{{PROJECT}}')+'</div>'+
+        '<div class="sk-title">'+esc(m.title||'Flow')+'</div></div></div>'+
+      '<span class="sk-unit" title="Flow unit">'+icon('transfer')+esc(DATA.units||'')+'</span>'+
+      '<div class="sk-threshold">'+
+        '<span class="sk-thr-label">Min&nbsp;flow</span>'+
+        '<input class="sk-thr-range" id="thr" type="range" min="0" max="'+maxV+'" value="0" step="'+Math.max(1,Math.round(maxV/200))+'" aria-label="Minimum flow value to show">'+
+        '<span class="sk-thr-readout tnum" id="thr-readout">all</span>'+
+      '</div>'+
+      '<div class="sk-tools-spacer"></div>'+
+      '<div class="sk-groups" role="group" aria-label="Group filter">'+groupChips+'</div>'+
+      '<button class="sk-trace" id="trace" type="button" aria-pressed="false" title="Trace mode: click a node to light its whole downstream path">'+
+        icon('trace')+'Trace</button>'+
+      themeDropdown+
+    '</header>';
+  }
+
+  function renderCanvasShell(){
+    return '<section class="sk-canvas" id="canvas" aria-label="Sankey flow canvas">'+
+      '<svg class="sk-flow" id="flow" xmlns="http://www.w3.org/2000/svg"></svg>'+
+    '</section>';
+  }
+
+  function renderRail(){
+    return '<aside class="sk-rail" id="rail">'+
+      '<div class="sk-rail-empty" id="rail-empty">'+
+        '<span class="re-ico">'+icon('tap')+'</span>'+
+        '<b>Hover or select a node</b> to isolate its up- and down-stream ribbons &mdash; the rest dims. '+
+        'Its inflows and outflows appear here with value and % of node total. Hover a ribbon for its exact value.'+
+      '</div>'+
+      '<div class="sk-rail-card" id="rail-card"></div>'+
+    '</aside>';
+  }
+
+  function renderLegend(){
+    var leg = DATA.legend || {};
+    var items = GROUPS.map(function(g){
+      return '<span class="sk-leg-item"><span class="sk-leg-sw" style="background:'+groupColor(g.id)+'"></span>'+
+        esc(g.label)+'<span class="sk-leg-n" data-leg-n="'+esc(g.id)+'"></span></span>';
+    }).join('');
+    var grand = LINKS.filter(function(l){ var s=NODE_BY_ID[l.source]; return s && (s.column||0)===minColumn(); })
+                     .reduce(function(a,l){ return a+(+l.value); },0);
+    /* demo ribbon for the hint */
+    var demo = '<svg class="ribbon-demo" viewBox="0 0 34 13" preserveAspectRatio="none">'+
+      '<path d="M0 2 C12 2 22 9 34 9 L34 12 C22 12 12 5 0 5 Z" fill="var(--navy)" fill-opacity=".34"/></svg>';
+    return '<footer class="sk-legend">'+
+      '<div class="sk-leg-items">'+items+'</div>'+
+      '<span class="sk-leg-hint">'+demo+esc(leg.ribbonHint||'Ribbon width is proportional to flow value.')+'</span>'+
+      '<span class="sk-leg-sp"></span>'+
+      '<span class="sk-leg-total">'+esc(leg.totalLabel||'Total flow')+' <b class="tnum">'+fmtVal(grand)+'</b></span>'+
+    '</footer>';
+  }
+  function minColumn(){ return Math.min.apply(null, NODES.map(function(n){return n.column||0;})); }
+
+  /* ============================================================
+     DRAW the SVG canvas from the computed LAYOUT
+     ============================================================ */
+  function drawCanvas(){
+    var L = layout();
+    var svg = document.getElementById('flow');
+    if(!svg) return;
+    svg.setAttribute('viewBox','0 0 '+L.width+' '+L.height);
+    svg.setAttribute('width', L.width);
+    svg.setAttribute('height', L.height);
+
+    var NS='http://www.w3.org/2000/svg';
+    while(svg.firstChild) svg.removeChild(svg.firstChild);
+
+    /* group 1: ribbons (drawn first, behind nodes) */
+    var gLinks = document.createElementNS(NS,'g'); gLinks.setAttribute('class','sk-links');
+    L.ribbons.forEach(function(r){
+      var p = document.createElementNS(NS,'path');
+      p.setAttribute('class','sk-link');
+      p.setAttribute('d', ribbonPath(r));
+      p.setAttribute('fill', groupColor(r.gid));
+      p.setAttribute('fill-opacity','.34');
+      p.setAttribute('data-link', r.link.__i);
+      p.setAttribute('data-source', r.source);
+      p.setAttribute('data-target', r.target);
+      p.setAttribute('data-value', r.value);
+      gLinks.appendChild(p);
+    });
+    svg.appendChild(gLinks);
+
+    /* group 2: column headers (name + total) + baseline */
+    var gCols = document.createElementNS(NS,'g'); gCols.setAttribute('class','sk-cols');
+    L.colKeys.forEach(function(c, idx){
+      var list = L.cols[c];
+      var x = L.xs[c] + GEO.nodeW/2;
+      var sum = list.reduce(function(a,n){ return a+(L.through[n.id]||0); },0);
+      var name = document.createElementNS(NS,'text');
+      name.setAttribute('class','sk-col-name'); name.setAttribute('x', x); name.setAttribute('y', 24);
+      name.setAttribute('text-anchor','middle'); name.textContent = 'STAGE '+(idx+1);
+      var tot = document.createElementNS(NS,'text');
+      tot.setAttribute('class','sk-col-total'); tot.setAttribute('x', x); tot.setAttribute('y', 40);
+      tot.setAttribute('text-anchor','middle'); tot.textContent = fmtVal(sum);
+      gCols.appendChild(name); gCols.appendChild(tot);
+    });
+    svg.appendChild(gCols);
+
+    /* group 3: nodes (bars + labels), drawn on top */
+    var gNodes = document.createElementNS(NS,'g'); gNodes.setAttribute('class','sk-nodes');
+    L.liveNodes.forEach(function(n){
+      var b = L.nodeBox[n.id]; if(!b) return;
+      var isLast = (b.col === L.colKeys[L.colKeys.length-1]);
+      var labelRight = !isLast;   /* label on the right of the bar, except the last column (label left) */
+      var g = document.createElementNS(NS,'g');
+      g.setAttribute('class','sk-node'); g.setAttribute('data-node', n.id);
+      g.setAttribute('tabindex','0'); g.setAttribute('role','button');
+      g.setAttribute('aria-label', n.label+' — throughput '+fmtVal(b.through));
+
+      /* bar */
+      var bar = document.createElementNS(NS,'rect');
+      bar.setAttribute('class','sk-node-bar');
+      bar.setAttribute('x', b.x); bar.setAttribute('y', b.y);
+      bar.setAttribute('width', b.w); bar.setAttribute('height', b.h);
+      bar.setAttribute('rx', 4);
+      bar.setAttribute('fill', groupColor(n.group));
+      gNodes.appendChild(bar);
+
+      /* selection ring (slightly larger, behind label) */
+      var ring = document.createElementNS(NS,'rect');
+      ring.setAttribute('class','sk-node-ring');
+      ring.setAttribute('x', b.x-2.5); ring.setAttribute('y', b.y-2.5);
+      ring.setAttribute('width', b.w+5); ring.setAttribute('height', b.h+5);
+      ring.setAttribute('rx', 6);
+      g.appendChild(ring);
+      g.appendChild(bar);
+
+      /* label + value */
+      var lx = labelRight ? (b.x + b.w + 8) : (b.x - 8);
+      var anchor = labelRight ? 'start' : 'end';
+      var midY = b.y + b.h/2;
+      var label = document.createElementNS(NS,'text');
+      label.setAttribute('class','sk-node-label');
+      label.setAttribute('x', lx); label.setAttribute('y', midY - 1);
+      label.setAttribute('text-anchor', anchor);
+      label.setAttribute('dominant-baseline','auto');
+      label.textContent = n.label;
+      var val = document.createElementNS(NS,'text');
+      val.setAttribute('class','sk-node-val');
+      val.setAttribute('x', lx); val.setAttribute('y', midY + 11);
+      val.setAttribute('text-anchor', anchor);
+      val.textContent = fmtVal(b.through);
+      g.appendChild(label); g.appendChild(val);
+
+      gNodes.appendChild(g);
+    });
+    svg.appendChild(gNodes);
+
+    /* restore any active selection highlight after a re-draw */
+    if(STATE.selectedId && NODE_BY_ID[STATE.selectedId] && nodeLive(NODE_BY_ID[STATE.selectedId]) ){
+      applySelection(STATE.selectedId);
+    } else {
+      STATE.selectedId = null; clearHighlight();
+    }
+  }
+
+  /* ============================================================
+     HIGHLIGHT helpers (hover + selection share these)
+     ============================================================ */
+  function clearHighlight(){
+    document.querySelectorAll('.sk-link').forEach(function(p){ p.classList.remove('is-hot','is-dim'); });
+    document.querySelectorAll('.sk-node').forEach(function(g){ g.classList.remove('is-selected','is-linked','is-dim','is-reach'); });
+  }
+
+  /* highlight a single ribbon + its two endpoints; dim the rest */
+  function highlightLink(idx){
+    var links = document.querySelectorAll('.sk-link');
+    var src, tgt;
+    links.forEach(function(p){
+      var on = (+p.dataset.link === idx);
+      p.classList.toggle('is-hot', on);
+      p.classList.toggle('is-dim', !on);
+      if(on){ src=p.dataset.source; tgt=p.dataset.target; }
+    });
+    document.querySelectorAll('.sk-node').forEach(function(g){
+      var id=g.dataset.node;
+      var keep = (id===src||id===tgt);
+      g.classList.toggle('is-linked', keep);
+      g.classList.toggle('is-dim', !keep);
+      g.classList.remove('is-selected','is-reach');
+    });
+  }
+
+  /* select a node: isolate all its incident ribbons + counterpart nodes; in trace
+     mode, also light its whole reachable downstream path. */
+  function applySelection(id){
+    STATE.selectedId = id;
+    var neigh = {};
+    LINKS.forEach(function(l){ if(!linkLive(l)) return;
+      if(l.source===id) neigh[l.target]=true;
+      if(l.target===id) neigh[l.source]=true;
+    });
+    var reach = STATE.traceMode ? reachDownstream(id) : {};
+
+    document.querySelectorAll('.sk-link').forEach(function(p){
+      var f=p.dataset.source, t=p.dataset.target;
+      var direct = (f===id || t===id);
+      var inReach = STATE.traceMode && (f===id || reach[f]) && reach[t];
+      var hot = direct || inReach;
+      p.classList.toggle('is-hot', hot);
+      p.classList.toggle('is-dim', !hot);
+    });
+    document.querySelectorAll('.sk-node').forEach(function(g){
+      var nid=g.dataset.node;
+      g.classList.remove('is-selected','is-linked','is-dim','is-reach');
+      if(nid===id) g.classList.add('is-selected');
+      else if(neigh[nid]) g.classList.add('is-linked');
+      else if(reach[nid]) g.classList.add('is-reach');
+      else g.classList.add('is-dim');
+    });
+    fillRail(id, reach);
+  }
+
+  /* ============================================================
+     RIGHT RAIL — selected node's inflows / outflows
+     ============================================================ */
+  function fillRail(id, reach){
+    var n = NODE_BY_ID[id]; if(!n) return;
+    var L = LAYOUT; var b = L.nodeBox[id] || { inSum:0, outSum:0, through:0 };
+    var g = GROUP_BY_ID[n.group] || {};
+
+    var ins  = LINKS.filter(function(l){ return l.target===id && linkLive(l); });
+    var outs = LINKS.filter(function(l){ return l.source===id && linkLive(l); });
+    var totalIn  = ins.reduce(function(a,l){ return a+(+l.value); },0);
+    var totalOut = outs.reduce(function(a,l){ return a+(+l.value); },0);
+
+    function rows(arr, total, dir){
+      if(!arr.length) return '<div class="sk-flow-none">No '+(dir==='in'?'inflows':'outflows')+' at the current threshold.</div>';
+      return arr.sort(function(a,b){ return (+b.value)-(+a.value); }).map(function(l){
+        var other = dir==='in' ? l.source : l.target;
+        var on = NODE_BY_ID[other] || {label:other};
+        var pct = total>0 ? ((+l.value)/total*100) : 0;
+        var col = groupColor(dir==='in' ? on.group : n.group);
+        return '<button class="sk-flow-row" data-goto="'+esc(other)+'" title="Focus '+esc(on.label)+'">'+
+          '<span class="sk-fr-name">'+esc(on.label)+'</span>'+
+          '<span class="sk-fr-val tnum">'+fmtVal(l.value)+'</span>'+
+          '<span class="sk-fr-track"><span class="sk-fr-fill" style="width:'+pct.toFixed(1)+'%;background:'+col+'"></span></span>'+
+          (l.note?'<span class="sk-fr-note">'+esc(l.note)+'</span>':'<span class="sk-fr-note"></span>')+
+          '<span class="sk-fr-pct tnum">'+pct.toFixed(1)+'%</span>'+
+        '</button>';
+      }).join('');
+    }
+
+    var traceNote = '';
+    if(STATE.traceMode && reach){
+      var rn = Object.keys(reach).length;
+      traceNote = '<span class="chip" style="background:var(--navy);color:#fff;border-color:var(--navy)">'+icon('trace')+'&nbsp;'+rn+' downstream</span>';
+    }
+
+    var card = document.getElementById('rail-card');
+    card.innerHTML =
+      '<div class="sk-rail-head">'+
+        '<div class="sk-rail-eyebrow"><span class="iht-ico">'+icon('node')+'</span>'+esc(g.label||'Node')+' &middot; Stage '+((n.column||0)+1)+'</div>'+
+        '<div class="sk-rail-title">'+esc(n.label)+'</div>'+
+        (n.note?'<div class="sk-rail-note">'+esc(n.note)+'</div>':'')+
+        '<div class="sk-rail-chips"><span class="chip"><span class="mini-dot" style="background:'+groupColor(n.group)+'"></span>'+esc(g.label||n.group||'—')+'</span>'+
+          '<span class="chip">throughput '+fmtVal(b.through)+'</span>'+traceNote+'</div>'+
+      '</div>'+
+      '<div class="sk-rail-totals">'+
+        '<div class="sk-tot"><div class="k in">'+icon('arrow-in')+'Total in</div><div class="v tnum">'+fmtVal(totalIn)+'</div></div>'+
+        '<div class="sk-tot"><div class="k out">'+icon('arrow-out')+'Total out</div><div class="v tnum">'+fmtVal(totalOut)+'</div></div>'+
+      '</div>'+
+      '<div class="sk-flow-list">'+
+        '<div class="sk-flow-cap"><span class="fc-ico in">'+icon('arrow-in')+'</span>Inflows<span class="fc-n">'+ins.length+'</span></div>'+
+        rows(ins, totalIn, 'in')+
+      '</div>'+
+      '<div class="sk-flow-list">'+
+        '<div class="sk-flow-cap"><span class="fc-ico out">'+icon('arrow-out')+'</span>Outflows<span class="fc-n">'+outs.length+'</span></div>'+
+        rows(outs, totalOut, 'out')+
+      '</div>';
+    card.classList.add('show');
+    document.getElementById('rail-empty').style.display='none';
+
+    /* chained re-focus from a flow row */
+    card.querySelectorAll('.sk-flow-row').forEach(function(btn){
+      btn.addEventListener('click', function(){ selectNode(btn.dataset.goto); });
+    });
+  }
+  function clearRail(){
+    var card=document.getElementById('rail-card'); if(card){ card.classList.remove('show'); card.innerHTML=''; }
+    var e=document.getElementById('rail-empty'); if(e) e.style.display='';
+  }
+
+  function selectNode(id){
+    if(!NODE_BY_ID[id] || !nodeLive(NODE_BY_ID[id])) return;
+    applySelection(id);
+  }
+  function clearSelection(){ STATE.selectedId=null; clearHighlight(); clearRail(); }
+
+  /* ============================================================
+     TOOLTIP
+     ============================================================ */
+  var tip = document.getElementById('sk-tip');
+  function showTip(html, x, y){ tip.innerHTML=html; tip.style.left=x+'px'; tip.style.top=(y-10)+'px'; tip.classList.add('show'); }
+  function hideTip(){ tip.classList.remove('show'); }
+
+  /* ============================================================
+     WIRE INTERACTIONS
+     ============================================================ */
+  function wireInteractions(){
+    var canvas = document.getElementById('canvas');
+    var svg = document.getElementById('flow');
+
+    /* ---- ribbon hover: highlight + tooltip (value & % of source's outflow) ---- */
+    svg.addEventListener('mousemove', function(e){
+      var p = e.target.closest('.sk-link'); if(!p){ return; }
+      var idx = +p.dataset.link;
+      if(!STATE.selectedId) highlightLink(idx);
+      var l = LINKS[idx];
+      var s = NODE_BY_ID[l.source]||{}, t = NODE_BY_ID[l.target]||{};
+      var outTot = LINKS.filter(function(x){ return x.source===l.source && linkLive(x); }).reduce(function(a,x){return a+(+x.value);},0);
+      var pct = outTot>0 ? ((+l.value)/outTot*100).toFixed(1) : '0.0';
+      showTip('<div class="tt-h">'+esc(s.label||l.source)+' &rarr; '+esc(t.label||l.target)+'</div>'+
+        '<div class="tt-row"><i style="background:'+groupColor(s.group)+'"></i><b>'+fmtVal(l.value)+'</b></div>'+
+        '<div class="tt-sub">'+pct+'% of '+esc(s.label||l.source)+' outflow'+(l.note?' &middot; '+esc(l.note):'')+'</div>',
+        e.clientX, e.clientY);
+    });
+    svg.addEventListener('mouseleave', function(){ hideTip(); if(!STATE.selectedId) clearHighlight(); });
+
+    /* leaving a ribbon (but staying on the svg) restores base state when nothing selected */
+    svg.addEventListener('mouseover', function(e){
+      var p = e.target.closest('.sk-link');
+      var node = e.target.closest('.sk-node');
+      if(!p && !node && !STATE.selectedId){ clearHighlight(); hideTip(); }
+    });
+
+    /* ---- node hover: preview highlight + value tooltip (only when nothing pinned) ---- */
+    svg.addEventListener('mousemove', function(e){
+      var g = e.target.closest('.sk-node'); if(!g) return;
+      var id = g.dataset.node; var b = (LAYOUT&&LAYOUT.nodeBox[id])||{};
+      var nn = NODE_BY_ID[id]||{};
+      if(!STATE.selectedId) previewNode(id);
+      showTip('<div class="tt-h">'+esc(nn.label||id)+'</div>'+
+        '<div class="tt-row"><i style="background:'+groupColor(nn.group)+'"></i>throughput <b>'+fmtVal(b.through||0)+'</b></div>'+
+        '<div class="tt-sub">in '+fmtVal(b.inSum||0)+' &middot; out '+fmtVal(b.outSum||0)+'</div>',
+        e.clientX, e.clientY);
+    }, true);
+
+    /* ---- click a node → pin selection + fill rail ---- */
+    svg.addEventListener('click', function(e){
+      var g = e.target.closest('.sk-node');
+      if(g){ e.stopPropagation();
+        var id=g.dataset.node;
+        if(STATE.selectedId===id){ clearSelection(); } else { selectNode(id); }
+        return;
+      }
+      /* click empty canvas clears */
+      clearSelection();
+    });
+
+    /* keyboard select on a focused node */
+    svg.addEventListener('keydown', function(e){
+      var g = e.target.closest('.sk-node'); if(!g) return;
+      if(e.key==='Enter'||e.key===' '){ e.preventDefault(); var id=g.dataset.node;
+        if(STATE.selectedId===id) clearSelection(); else selectNode(id); }
+    });
+
+    /* ---- min-flow threshold slider ---- */
+    var thr = document.getElementById('thr');
+    var readout = document.getElementById('thr-readout');
+    thr.addEventListener('input', function(){
+      STATE.threshold = +thr.value;
+      readout.textContent = STATE.threshold<=0 ? 'all' : ('≥ '+fmtVal(STATE.threshold));
+      drawCanvas();                 /* recompute heights from visible links */
+      recountGroups();
+      if(STATE.selectedId && (!NODE_BY_ID[STATE.selectedId] || !nodeLive(NODE_BY_ID[STATE.selectedId]))) clearSelection();
+    });
+
+    /* ---- group toggle chips: collapse/hide group's nodes + links ---- */
+    document.querySelectorAll('.sk-grouptoggle').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var gid = btn.dataset.group;
+        var on = btn.getAttribute('aria-pressed')!=='true';
+        btn.setAttribute('aria-pressed', on?'true':'false');
+        if(on) delete STATE.hiddenGroups[gid]; else STATE.hiddenGroups[gid]=true;
+        drawCanvas();
+        recountGroups();
+        if(STATE.selectedId && (!NODE_BY_ID[STATE.selectedId] || !nodeLive(NODE_BY_ID[STATE.selectedId]))) clearSelection();
+      });
+    });
+
+    /* ---- trace-path mode toggle ---- */
+    var traceBtn = document.getElementById('trace');
+    traceBtn.addEventListener('click', function(){
+      STATE.traceMode = !STATE.traceMode;
+      traceBtn.setAttribute('aria-pressed', STATE.traceMode?'true':'false');
+      if(STATE.selectedId) applySelection(STATE.selectedId);   /* re-light with/without reach */
+    });
+
+    /* ---- Esc clears selection ---- */
+    document.addEventListener('keydown', function(e){ if(e.key==='Escape') clearSelection(); });
+
+    /* ---- re-layout on resize (keeps the canvas filling the viewport) ---- */
+    var rz;
+    window.addEventListener('resize', function(){ clearTimeout(rz); rz=setTimeout(function(){ drawCanvas(); }, 120); });
+    window.addEventListener('beforeprint', function(){ clearSelection(); drawCanvas(); });
+  }
+
+  /* hover preview (lighter than a pinned selection): isolate incident ribbons */
+  function previewNode(id){
+    var neigh={};
+    LINKS.forEach(function(l){ if(!linkLive(l)) return;
+      if(l.source===id) neigh[l.target]=true;
+      if(l.target===id) neigh[l.source]=true; });
+    document.querySelectorAll('.sk-link').forEach(function(p){
+      var on=(p.dataset.source===id||p.dataset.target===id);
+      p.classList.toggle('is-hot', on); p.classList.toggle('is-dim', !on);
+    });
+    document.querySelectorAll('.sk-node').forEach(function(g){
+      var nid=g.dataset.node; var keep=(nid===id||neigh[nid]);
+      g.classList.remove('is-selected','is-reach');
+      g.classList.toggle('is-linked', keep); g.classList.toggle('is-dim', !keep);
+    });
+  }
+
+  /* update group-toggle + legend counts (visible nodes per group) */
+  function recountGroups(){
+    GROUPS.forEach(function(g){
+      var c = NODES.filter(function(n){ return n.group===g.id && nodeLive(n); }).length;
+      document.querySelectorAll('[data-group-n="'+CSS.escape(g.id)+'"]').forEach(function(el){ el.textContent=c; });
+      document.querySelectorAll('[data-leg-n="'+CSS.escape(g.id)+'"]').forEach(function(el){ el.textContent=c; });
+    });
+  }
+
+  /* ============================================================
+     THEME SWITCH  (canonical dropdown → data-theme)
+     ============================================================ */
+  function wireThemeSwitch(){
+    var rcSel = document.querySelector('.rc-theme-sel');
+    if(rcSel){
+      rcSel.value = document.documentElement.dataset.theme || 'teal';
+      rcSel.addEventListener('change', function(){
+        document.documentElement.dataset.theme = rcSel.value;
+        /* re-fill so ribbon fills / bars pick up the new accent vars on next draw */
+        drawCanvas();
+        if(STATE.selectedId) applySelection(STATE.selectedId);
+      });
+    }
+  }
+
+  /* ============================================================ */
+  document.addEventListener('DOMContentLoaded', function(){
+    render();
+    wireInteractions();
+    wireThemeSwitch();
+  });
+})();
+</script>
+</body>
+</html>

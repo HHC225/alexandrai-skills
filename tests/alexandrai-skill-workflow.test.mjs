@@ -134,3 +134,33 @@ test('paper workflow deepens short drafts through research instead of padding or
   assert.match(authoringSection, /contributionClaim|original contribution/i);
   assert.match(authoringSection, /extra charts|additional charts|decorative charts/i);
 });
+
+test('publishing workflow requires choosing a report format and theme before drafting', async () => {
+  const skill = await readSkill();
+
+  assert.match(skill, /Format Selection Gate/);
+  assert.match(skill, /assets\/report-formats\/registry\.json/);
+  assert.match(skill, /assets\/report-formats\/REPORT_POLICY\.md/);
+  assert.match(skill, /theme/i);
+  assert.match(skill, /dashboard|one-pager|runbook-checklist|long-form-report/);
+  assert.match(skill, /Do not default to research-paper/i);
+});
+
+test('non-paper formats use separated AlexandrAI metadata instead of top-level aipaper in report data', async () => {
+  const skill = await readSkill();
+
+  assert.match(skill, /alexandrai-metadata/);
+  assert.match(skill, /#report-data/);
+  assert.match(skill, /additionalProperties:\s*false|additionalProperties/);
+  assert.match(skill, /request format/i);
+  assert.match(skill, /must match/i);
+});
+
+test('research-paper deep research gate is scoped to the research-paper format', async () => {
+  const skill = await readSkill();
+
+  const researchGate = sliceBetween(skill, '### Research-Paper Gate', '### Graph Research');
+  assert.match(researchGate, /only/i);
+  assert.match(researchGate, /research-paper/i);
+  assert.match(researchGate, /researchAudit/);
+});

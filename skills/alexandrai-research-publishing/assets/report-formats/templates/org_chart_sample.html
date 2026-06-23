@@ -1,0 +1,950 @@
+<!doctype html>
+<html lang="en" data-theme="indigo">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1440">
+<title>{{PROJECT}} — Org Chart / Hierarchy</title>
+<style>
+/* ============================================================
+   SHARED FOUNDATION TOKENS  (per _FOUNDATION.md §1)
+   :root = Purple default; data-theme overrides swap 7 values.
+   This document ships data-theme="indigo".
+   ============================================================ */
+:root{
+  /* surfaces */
+  --bg:#fff; --bg-band:#f6f6f8; --bg-subtle:#fafafb; --bg-deep:#15131a;
+  --rule:#dcdce2; --rule-soft:#ebebef;
+  /* ink */
+  --ink:#11131a; --ink-mid:#33363f; --ink-soft:#5a5e68; --ink-faint:#868b95;
+  /* brand accent (Purple default) */
+  --navy:#a100ff; --navy-deep:#7a00c2; --navy-bg:#f3e8ff; --navy-line:#d9bef5;
+  /* cleared / approved */
+  --ok:#5a2f8a; --ok-bg:#efe8f5; --ok-line:#d0b5e0;
+  /* semantic states — CONSTANT across all themes */
+  --risk:#b3261e; --risk-bg:#fbeceb; --risk-line:#edc7c4;
+  --hold:#8a6d00; --hold-bg:#fbf3da; --hold-line:#e7d8a4;
+  /* type stacks */
+  --mono:ui-monospace,"JetBrains Mono","SFMono-Regular",Menlo,Consolas,monospace;
+  --sans:-apple-system,"Segoe UI",system-ui,Roboto,"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic UI","Apple SD Gothic Neo","Malgun Gothic","PingFang SC","Microsoft YaHei","Noto Sans CJK JP","Noto Sans CJK KR","Noto Sans CJK SC","Noto Sans JP","Noto Sans KR","Noto Sans SC","Noto Sans",sans-serif;
+  /* connector colour */
+  --wire:var(--rule);
+}
+html[data-theme="blue"]{ --navy:#0b5fd4; --navy-deep:#0842a0; --navy-bg:#e8f1fc; --navy-line:#bcd6f5; --ok:#1a4f9c; --ok-bg:#e9f0fa; --ok-line:#b7cdea; }
+html[data-theme="purple"]{ --navy:#a100ff; --navy-deep:#7a00c2; --navy-bg:#f3e8ff; --navy-line:#d9bef5; --ok:#5a2f8a; --ok-bg:#efe8f5; --ok-line:#d0b5e0; }
+html[data-theme="indigo"]{ --navy:#4338ca; --navy-deep:#312c92; --navy-bg:#ebebfb; --navy-line:#c7c3f0; --ok:#3730a3; --ok-bg:#ebeaf7; --ok-line:#c5c2ea; }
+html[data-theme="teal"]{ --navy:#0e7c86; --navy-deep:#095861; --navy-bg:#e0f3f4; --navy-line:#a9dade; --ok:#0f5d54; --ok-bg:#e3f3ef; --ok-line:#b3ddd4; }
+html[data-theme="cyan"]{ --navy:#0891b2; --navy-deep:#0e6f88; --navy-bg:#e2f4f9; --navy-line:#abdde9; --ok:#0e6b7a; --ok-bg:#e4f3f4; --ok-line:#b0dde2; }
+html[data-theme="green"]{ --navy:#1f7a44; --navy-deep:#155730; --navy-bg:#e6f4ea; --navy-line:#b3dcc1; --ok:#2f6b3c; --ok-bg:#e9f3ea; --ok-line:#bedcc4; }
+html[data-theme="plum"]{ --navy:#a21d6e; --navy-deep:#7c1450; --navy-bg:#fbe8f2; --navy-line:#e8b9d4; --ok:#6d2356; --ok-bg:#f6e8f0; --ok-line:#e3bcd5; }
+html[data-theme="slate"]{ --navy:#3f4f63; --navy-deep:#29384b; --navy-bg:#eef1f5; --navy-line:#c2ccd8; --ok:#34495e; --ok-bg:#eef1f5; --ok-line:#c2ccd8; }
+html[data-theme="black"]{ --navy:#000000; --navy-deep:#000; --navy-bg:#f1f1f3; --navy-line:#d6d6db; --ok:#3f3f46; --ok-bg:#f1f1f3; --ok-line:#cfcfd6; }
+
+*{ box-sizing:border-box; }
+html,body{ margin:0; height:100%; }
+body{
+  font:13px/1.6 var(--sans); color:var(--ink); background:var(--bg-band);
+  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+}
+h1,h2,h3,h4,p{ margin:0; }
+.tnum{ font-feature-settings:"tnum" 1; }
+.mono{ font-family:var(--mono); }
+
+/* icon sizing (house SVGs, currentColor) */
+.icon{ width:1.15em; height:1.15em; display:inline-block; vertical-align:-.18em; color:inherit; }
+.icon-lg{ width:18px; height:18px; }
+
+/* ---- shared primitives ---- */
+.mini-dot{ display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--ink-faint); flex:none; }
+.mini-dot.is-ok{ background:var(--ok); } .mini-dot.is-risk{ background:var(--risk); } .mini-dot.is-hold{ background:var(--hold); } .mini-dot.is-neutral{ background:var(--ink-faint); }
+.chip{
+  display:inline-flex; align-items:center; gap:5px; font:500 11px/1 var(--mono); letter-spacing:.02em;
+  color:var(--navy-deep); background:var(--navy-bg); border:1px solid var(--navy-line);
+  border-radius:6px; padding:4px 7px; white-space:nowrap;
+}
+
+/* ============================================================
+   ORG SHELL  (the distinct format silhouette: toolbar + canvas)
+   ============================================================ */
+.org{ display:flex; flex-direction:column; min-height:100vh; }
+
+/* ---- toolbar (slim, sticky) ---- */
+.tree-toolbar{
+  position:sticky; top:0; z-index:20;
+  display:flex; align-items:center; gap:18px; flex-wrap:wrap;
+  padding:11px 22px; background:var(--bg); border-bottom:1px solid var(--rule);
+  box-shadow:0 1px 3px rgba(17,19,26,.05);
+}
+.tt-brand{ display:flex; align-items:center; gap:11px; min-width:0; }
+.tt-brand .markmini{ color:var(--navy); display:inline-flex; flex:none; }
+.tt-brand .markmini svg{ width:26px; height:26px; }
+.tt-titles{ min-width:0; }
+.tt-eyebrow{ font:600 9.5px/1 var(--mono); letter-spacing:.14em; text-transform:uppercase; color:var(--ink-faint); }
+.tt-title{ font:800 16px/1.2 var(--sans); letter-spacing:-.01em; color:var(--ink); white-space:nowrap; }
+.tt-sub{ font:500 11px/1 var(--mono); letter-spacing:.03em; color:var(--ink-soft); margin-top:2px; }
+
+.tt-actions{ display:flex; align-items:center; gap:7px; }
+.btn{
+  display:inline-flex; align-items:center; gap:6px; cursor:pointer;
+  font:600 10.5px/1 var(--mono); letter-spacing:.05em; text-transform:uppercase; color:var(--ink-mid);
+  background:var(--bg); border:1px solid var(--rule); border-radius:7px; padding:7px 10px;
+}
+.btn:hover{ border-color:var(--navy-line); color:var(--navy-deep); background:var(--navy-bg); }
+.btn .icon{ width:14px; height:14px; }
+.btn.is-on{ color:var(--navy-deep); border-color:var(--navy-line); background:var(--navy-bg); }
+
+.tree-search{ position:relative; display:flex; align-items:center; }
+.tree-search .s-ico{ position:absolute; left:9px; color:var(--ink-faint); display:inline-flex; pointer-events:none; }
+.tree-search input{
+  font:500 12px/1 var(--sans); color:var(--ink); width:188px;
+  padding:8px 26px 8px 28px; border:1px solid var(--rule); border-radius:7px; background:var(--bg-subtle);
+}
+.tree-search input:focus{ outline:none; border-color:var(--navy-line); background:var(--bg); box-shadow:0 0 0 3px var(--navy-bg); }
+.tree-search .s-clear{
+  position:absolute; right:6px; display:none; cursor:pointer; border:0; background:none; padding:3px;
+  color:var(--ink-faint); border-radius:5px;
+}
+.tree-search .s-clear:hover{ color:var(--risk); background:var(--risk-bg); }
+.tree-search.has-q .s-clear{ display:inline-flex; }
+.s-count{ font:600 10px/1 var(--mono); letter-spacing:.04em; color:var(--navy-deep); min-width:34px; }
+
+.legend{ display:flex; gap:13px; align-items:center; padding:7px 12px; border:1px solid var(--rule); border-radius:8px; background:var(--bg-subtle); }
+.legend-item{ display:inline-flex; align-items:center; gap:6px; font:600 10px/1 var(--mono); letter-spacing:.05em; text-transform:uppercase; color:var(--ink-mid); }
+
+.tt-right{ margin-left:auto; display:flex; align-items:center; gap:16px; }
+
+/* in-report theme switcher (canonical dropdown per _DATA_DRIVEN.md §3) */
+.rc-theme{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--rule);border-radius:7px;
+          padding:3px 4px 3px 7px;background:var(--bg);}
+.rc-theme-sw{width:12px;height:12px;border-radius:50%;background:var(--navy);box-shadow:0 0 0 1px var(--rule);flex:none;}
+.rc-theme-sel{border:0;background:none;font:600 11px/1 var(--mono);color:var(--ink-mid);cursor:pointer;outline:none;padding:2px;}
+
+/* ============================================================
+   TREE CANVAS  (full-bleed, centred, x-scroll for wide trees)
+   ============================================================ */
+.tree-canvas{
+  flex:1; position:relative; overflow:hidden; cursor:grab;
+  background:
+    radial-gradient(circle, var(--rule-soft) 1px, transparent 1.4px) 0 0/22px 22px,
+    var(--bg-subtle);
+}
+.tree-canvas.is-panning{ cursor:grabbing; }
+.stage-world{ position:absolute; top:0; left:0; transform-origin:0 0; will-change:transform; }
+.zoombar{
+  position:absolute; right:16px; bottom:16px; z-index:15; display:flex; align-items:center; gap:5px;
+  background:var(--bg); border:1px solid var(--rule); border-radius:9px; padding:5px;
+  box-shadow:0 2px 8px rgba(17,19,26,.10);
+}
+.zoombar button{
+  width:28px; height:28px; display:inline-flex; align-items:center; justify-content:center; cursor:pointer;
+  color:var(--ink-mid); background:var(--bg); border:1px solid var(--rule); border-radius:6px;
+  font:700 15px/1 var(--sans); padding:0;
+}
+.zoombar button:hover{ color:var(--navy-deep); border-color:var(--navy-line); background:var(--navy-bg); }
+.zoombar .zlabel{ min-width:40px; text-align:center; font:600 10px/1 var(--mono); color:var(--ink-soft); }
+.noscript-note{
+  margin:40px auto; max-width:560px; padding:16px 20px; text-align:center;
+  border:1px solid var(--hold-line); background:var(--hold-bg); color:var(--hold);
+  border-radius:10px; font:600 12px/1.5 var(--sans);
+}
+
+/* ---- the recursive tree ---- */
+.tree, .tree ul{ list-style:none; margin:0; padding:0; }
+.tree{ display:inline-block; text-align:center; white-space:nowrap; }
+
+/* a node + its subtree */
+.subtree{ display:inline-block; vertical-align:top; text-align:center; position:relative; z-index:1; }
+.tree-row{ display:flex; justify-content:center; align-items:flex-start; }
+.tree-row > .subtree{ padding-left:16px; padding-right:16px; }
+
+/* === connectors: an SVG overlay computed from real node positions (see drawWires) ===
+   Robust at any node width and on collapse/expand/zoom. Replaces the old ::before/::after
+   half-bus, which left gaps on middle children and misaligned on variable widths. */
+.kids{ position:relative; padding-top:40px; }   /* vertical gap the connectors are drawn into */
+.subtree.is-root{ padding-top:0; }
+.subtree.is-collapsed > .kids{ display:none; }
+svg.wires{ position:absolute; top:0; left:0; overflow:visible; pointer-events:none; z-index:0; }
+svg.wires path{ fill:none; stroke:var(--wire); stroke-width:2; stroke-linecap:round; stroke-linejoin:round; transition:stroke .13s ease; }
+svg.wires path.is-path{ stroke:var(--navy); stroke-width:2.25; }
+
+/* ============================================================
+   NODE CARD  (compact, rounded, status-dot, badge, metric)
+   ============================================================ */
+.node{
+  position:relative; display:inline-flex; flex-direction:column; gap:0; text-align:left;
+  min-width:172px; max-width:228px; white-space:normal; vertical-align:top;
+  background:var(--bg); border:1px solid var(--rule); border-radius:11px;
+  box-shadow:0 1px 2px rgba(17,19,26,.05);
+  padding:11px 13px 11px 14px; cursor:pointer;
+  border-left:3px solid var(--ink-faint);
+  transition:transform .13s ease, box-shadow .13s ease, opacity .13s ease, border-color .13s ease;
+}
+.node.s-ok{ border-left-color:var(--ok); }
+.node.s-risk{ border-left-color:var(--risk); }
+.node.s-hold{ border-left-color:var(--hold); }
+.node.s-neutral{ border-left-color:var(--ink-faint); }
+.node:hover{ transform:translateY(-1px); box-shadow:0 3px 10px rgba(17,19,26,.10); border-color:var(--navy-line); }
+
+/* root node reads as the trunk */
+.subtree.is-root > .node{ min-width:208px; background:var(--bg); border-color:var(--navy-line);
+  box-shadow:0 2px 10px rgba(17,19,26,.08); border-left-width:3px; }
+.subtree.is-root > .node .node-name{ font-size:15px; }
+
+.node-top{ display:flex; align-items:center; gap:8px; }
+.node-dot{ width:9px; height:9px; border-radius:50%; background:var(--ink-faint); flex:none; }
+.node.s-ok .node-dot{ background:var(--ok); }
+.node.s-risk .node-dot{ background:var(--risk); }
+.node.s-hold .node-dot{ background:var(--hold); }
+.node.s-neutral .node-dot{ background:var(--ink-faint); }
+.node-name{ font:700 13px/1.25 var(--sans); color:var(--ink); letter-spacing:-.005em; flex:1; min-width:0; }
+.node-badge{
+  font:700 8.5px/1 var(--mono); letter-spacing:.1em; text-transform:uppercase;
+  color:var(--navy-deep); background:var(--navy-bg); border:1px solid var(--navy-line);
+  border-radius:5px; padding:3px 5px; flex:none;
+}
+.node-role{ font:500 11.5px/1.35 var(--sans); color:var(--ink-soft); margin-top:4px; }
+.node-foot{ display:flex; align-items:center; gap:8px; margin-top:8px; }
+.node-meta{
+  font:600 10.5px/1 var(--mono); letter-spacing:.02em; color:var(--ink-mid);
+  background:var(--bg-band); border:1px solid var(--rule-soft); border-radius:5px; padding:3px 6px;
+}
+/* toggle chevron + hidden-child count (parents only) */
+.node-toggle{
+  margin-left:auto; display:inline-flex; align-items:center; gap:5px;
+  font:700 9.5px/1 var(--mono); color:var(--ink-faint);
+}
+.node-toggle .chev{ display:inline-flex; color:var(--ink-soft); transition:transform .15s ease; }
+.subtree.is-collapsed > .node .node-toggle .chev{ transform:rotate(-90deg); }
+.kid-count{
+  display:none; font:700 9px/1 var(--mono); color:#fff; background:var(--navy);
+  border-radius:9px; padding:3px 6px; letter-spacing:.02em;
+}
+.subtree.is-collapsed > .node .kid-count{ display:inline-block; }
+.subtree.is-collapsed > .node .node-toggle{ color:var(--navy-deep); }
+
+/* focus mode: dim everything off the path */
+.tree.is-focusing .node{ opacity:.26; }
+.tree.is-focusing .subtree.is-path > .node,
+.tree.is-focusing .subtree.is-focus > .node{ opacity:1; }
+.subtree.is-focus > .node{ border-color:var(--navy); box-shadow:0 0 0 2px var(--navy-bg),0 3px 12px rgba(17,19,26,.12); }
+
+/* search match ring + dim */
+.tree.is-searching .node{ opacity:.24; }
+.node.is-match{ opacity:1 !important; border-color:var(--navy); box-shadow:0 0 0 2px var(--navy-bg); }
+.node.is-match .node-name{ color:var(--navy-deep); }
+/* the active (detail-open) node reads with a stronger ring even outside focus */
+.node.is-active{ border-color:var(--navy); box-shadow:0 0 0 2px var(--navy-bg),0 3px 12px rgba(17,19,26,.12); }
+
+/* ============================================================
+   HOVER TOOLTIP  (lightweight quick-detail, follows the node)
+   ============================================================ */
+.node-tip{
+  position:fixed; z-index:40; max-width:240px; pointer-events:none; opacity:0;
+  transform:translateY(3px); transition:opacity .11s ease, transform .11s ease;
+  background:var(--bg); border:1px solid var(--rule); border-radius:9px;
+  box-shadow:0 6px 22px rgba(17,19,26,.16); padding:9px 11px;
+}
+.node-tip.is-on{ opacity:1; transform:translateY(0); }
+.node-tip .nt-head{ display:flex; align-items:center; gap:7px; }
+.node-tip .nt-dot{ width:8px; height:8px; border-radius:50%; background:var(--ink-faint); flex:none; }
+.node-tip .nt-dot.s-ok{ background:var(--ok); } .node-tip .nt-dot.s-risk{ background:var(--risk); }
+.node-tip .nt-dot.s-hold{ background:var(--hold); } .node-tip .nt-dot.s-neutral{ background:var(--ink-faint); }
+.node-tip .nt-name{ font:700 12px/1.25 var(--sans); color:var(--ink); }
+.node-tip .nt-role{ font:500 11px/1.4 var(--sans); color:var(--ink-soft); margin-top:3px; }
+.node-tip .nt-foot{ display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-top:6px;
+  font:600 9.5px/1 var(--mono); letter-spacing:.04em; text-transform:uppercase; color:var(--ink-faint); }
+.node-tip .nt-foot b{ color:var(--ink-mid); font-weight:700; }
+
+/* ============================================================
+   DETAIL SIDE-PANEL  (click a node → full detail rail, right)
+   ============================================================ */
+.detail{
+  position:absolute; top:0; right:0; bottom:0; z-index:30; width:320px;
+  display:flex; flex-direction:column; transform:translateX(102%);
+  transition:transform .18s ease; background:var(--bg); border-left:1px solid var(--rule);
+  box-shadow:-6px 0 26px rgba(17,19,26,.10);
+}
+.detail.is-open{ transform:translateX(0); }
+.detail-head{
+  display:flex; align-items:flex-start; gap:10px; padding:16px 16px 14px;
+  border-bottom:1px solid var(--rule-soft);
+}
+.detail-head .dh-dot{ width:11px; height:11px; border-radius:50%; background:var(--ink-faint); flex:none; margin-top:5px; }
+.detail-head .dh-dot.s-ok{ background:var(--ok); } .detail-head .dh-dot.s-risk{ background:var(--risk); }
+.detail-head .dh-dot.s-hold{ background:var(--hold); } .detail-head .dh-dot.s-neutral{ background:var(--ink-faint); }
+.detail-head .dh-tt{ min-width:0; flex:1; }
+.detail-head .dh-name{ font:800 16px/1.25 var(--sans); letter-spacing:-.01em; color:var(--ink); }
+.detail-head .dh-role{ font:500 12px/1.4 var(--sans); color:var(--ink-soft); margin-top:4px; }
+.detail-close{
+  flex:none; cursor:pointer; border:1px solid var(--rule); background:var(--bg); border-radius:7px;
+  width:28px; height:28px; display:inline-flex; align-items:center; justify-content:center; color:var(--ink-mid);
+}
+.detail-close:hover{ color:var(--risk); border-color:var(--risk-line); background:var(--risk-bg); }
+.detail-body{ padding:14px 16px; overflow:auto; }
+.d-rows{ display:flex; flex-wrap:wrap; gap:8px; }
+.d-pair{ flex:1 1 120px; border:1px solid var(--rule-soft); border-radius:8px; padding:8px 10px; background:var(--bg-subtle); }
+.d-pair .dl{ font:600 8.5px/1 var(--mono); letter-spacing:.12em; text-transform:uppercase; color:var(--ink-faint); }
+.d-pair .dv{ font:700 13px/1.2 var(--sans); color:var(--ink); margin-top:5px; }
+.d-pair .dv .st-badge{ display:inline-flex; align-items:center; gap:5px; }
+.d-pair .dv .st-badge .mini-dot{ width:8px; height:8px; }
+.d-sect-h{ font:700 9.5px/1 var(--mono); letter-spacing:.12em; text-transform:uppercase; color:var(--ink-faint);
+  margin:18px 0 9px; }
+.d-kids{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:6px; }
+.d-kid{
+  display:flex; align-items:center; gap:8px; cursor:pointer; text-align:left;
+  border:1px solid var(--rule-soft); border-radius:8px; padding:8px 10px; background:var(--bg);
+  font:inherit; color:inherit; width:100%;
+}
+.d-kid:hover{ border-color:var(--navy-line); background:var(--navy-bg); }
+.d-kid .dk-dot{ width:8px; height:8px; border-radius:50%; background:var(--ink-faint); flex:none; }
+.d-kid .dk-dot.s-ok{ background:var(--ok); } .d-kid .dk-dot.s-risk{ background:var(--risk); }
+.d-kid .dk-dot.s-hold{ background:var(--hold); } .d-kid .dk-dot.s-neutral{ background:var(--ink-faint); }
+.d-kid .dk-name{ font:600 12px/1.2 var(--sans); color:var(--ink); flex:1; min-width:0;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.d-kid .dk-meta{ font:600 9.5px/1 var(--mono); color:var(--ink-soft); flex:none; }
+.d-kid .dk-arrow{ color:var(--ink-faint); display:inline-flex; flex:none; }
+.d-empty{ font:500 11.5px/1.5 var(--sans); color:var(--ink-faint); }
+
+/* ---- footer ---- */
+.foot{
+  background:var(--bg-deep); color:#d7d6dd;
+  padding:15px 24px; display:flex; align-items:center; gap:16px; flex-wrap:wrap;
+}
+.foot .wm{ display:flex; align-items:center; gap:9px; font:800 13px/1 var(--sans); color:#fff; }
+.foot .wm .sq{ width:14px; height:14px; border-radius:4px; background:var(--navy); }
+.foot .fmeta{ font:600 10px/1.5 var(--mono); letter-spacing:.06em; text-transform:uppercase; color:#9a99a4; }
+.foot .fright{ margin-left:auto; font:600 10px/1.5 var(--mono); letter-spacing:.06em; text-transform:uppercase; color:#9a99a4; text-align:right; }
+
+/* ============================================================
+   PRINT — fully-expanded static snapshot, controls hidden
+   ============================================================ */
+@media print{
+  body{ background:#fff; }
+  .tree-toolbar{ position:static; box-shadow:none; border-bottom:1px solid var(--rule); }
+  .tt-actions, .tree-search, .rc-theme, .legend{ display:none; }
+  .detail, .node-tip, .s-count{ display:none !important; }
+  .tt-right{ margin-left:auto; }
+  .tree-canvas{ overflow:visible; background:#fff; padding:24px; display:block; }
+  .stage-world{ position:static !important; transform:none !important; }
+  .zoombar{ display:none !important; }
+  .tree{ display:inline-block; }
+  .subtree.is-collapsed > .kids{ display:block !important; }   /* expand all */
+  .subtree.is-collapsed > .node .kid-count{ display:none; }
+  .subtree.is-collapsed > .node .node-toggle .chev{ transform:none; }
+  .tree.is-focusing .node, .tree.is-searching .node{ opacity:1 !important; }   /* clear focus/search */
+  .subtree.is-focus > .node, .node.is-match{ box-shadow:none; border-color:var(--rule); }
+  .node{ box-shadow:none; }
+  .foot{ background:#fff; color:#000; border-top:1px solid var(--rule); }
+  .foot .fmeta, .foot .fright{ color:#555; } .foot .wm{ color:#000; }
+}
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     THE ONLY CONTENT SOURCE — a valid instance of
+     designs/schemas/org-chart.schema.json
+     ============================================================ -->
+<script type="application/json" id="report-data">
+{
+  "meta": {
+    "org": "{{ORG}}",
+    "project": "{{PROJECT}}",
+    "reportType": "Delivery Org & Work-Breakdown",
+    "title": "Platform Delivery — Org & Work-Breakdown",
+    "subtitle": "FY2026 reorg · 17 nodes · depth 4",
+    "date": "2026-06-22",
+    "author": "{{AUTHOR}}",
+    "theme": "indigo"
+  },
+  "orientation": "vertical",
+  "legend": [
+    { "status": "ok", "label": "On track" },
+    { "status": "risk", "label": "At risk" },
+    { "status": "hold", "label": "On hold" },
+    { "status": "neutral", "label": "Not started" }
+  ],
+  "root": {
+    "id": "n-root",
+    "name": "Platform Delivery",
+    "role": "Programme · {{PROJECT}}",
+    "meta": "62 FTE",
+    "status": "ok",
+    "badge": "PROGRAMME",
+    "children": [
+      {
+        "id": "n-core",
+        "name": "Core Banking Platform",
+        "role": "Ledger, posting & accounts",
+        "meta": "24 FTE",
+        "status": "ok",
+        "badge": "CORE",
+        "children": [
+          { "id": "n-ledger", "name": "Ledger Service", "role": "Double-entry posting engine", "meta": "8 FTE", "status": "ok" },
+          { "id": "n-accounts", "name": "Accounts Service", "role": "Account lifecycle & balances", "meta": "7 FTE", "status": "hold" },
+          {
+            "id": "n-batch", "name": "Batch & Settlement", "role": "EOD batch, settlement files", "meta": "9 FTE", "status": "risk",
+            "children": [
+              { "id": "n-batch-eod", "name": "EOD Pipeline", "role": "Nightly close jobs", "meta": "P1", "status": "risk" },
+              { "id": "n-batch-recon", "name": "Reconciliation", "role": "Nostro / suspense recon", "status": "hold" }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "n-channels",
+        "name": "Digital Channels",
+        "role": "Mobile, web & API",
+        "meta": "20 FTE",
+        "status": "hold",
+        "badge": "CHANNELS",
+        "children": [
+          { "id": "n-mobile", "name": "Mobile App", "role": "iOS / Android clients", "meta": "11 FTE", "status": "hold" },
+          { "id": "n-web", "name": "Web Banking", "role": "Responsive web client", "meta": "5 FTE", "status": "ok" },
+          { "id": "n-openapi", "name": "Open-Banking API", "role": "Partner & PSD2 endpoints", "meta": "4 FTE", "status": "ok" }
+        ]
+      },
+      {
+        "id": "n-platform",
+        "name": "Platform & SRE",
+        "role": "Infra, reliability & data",
+        "meta": "18 FTE",
+        "status": "ok",
+        "badge": "PLATFORM",
+        "children": [
+          { "id": "n-infra", "name": "Cloud Infrastructure", "role": "GCP estate & networking", "meta": "6 FTE", "status": "ok" },
+          { "id": "n-sre", "name": "Reliability (SRE)", "role": "On-call, SLOs, incidents", "meta": "7 FTE", "status": "ok" },
+          {
+            "id": "n-data", "name": "Data Platform", "role": "Streaming & warehouse", "meta": "5 FTE", "status": "risk",
+            "children": [
+              { "id": "n-kafka", "name": "Event Streaming", "role": "Kafka topics & schemas", "status": "ok" },
+              { "id": "n-dwh", "name": "Warehouse", "role": "BigQuery marts", "meta": "32%", "status": "risk" }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
+</script>
+
+<main class="org" id="org" hidden></main>
+
+<noscript>
+  <div class="noscript-note">
+    This hierarchy report renders from embedded data and requires JavaScript.
+    The complete tree is in the <code>#report-data</code> block above.
+  </div>
+</noscript>
+
+<script>
+/* ============================================================
+   ORG-CHART RENDERER + INTERACTIONS
+   - render()          : #report-data JSON  →  DOM tree
+   - wireInteractions(): collapse/expand · focus/reset · expand-all
+                         · collapse-all · search
+   - wireThemeSwitch() : .rc-theme dot switcher (per _DATA_DRIVEN §3)
+   No libraries. All interactions are driven from the data / DOM.
+   ============================================================ */
+(function(){
+  "use strict";
+
+  /* ---- house icons (inline SVG, currentColor, stroke 1.75) ---- */
+  var ICON = {
+    org:    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7.5 6 16.5M12 7.5 18 16.5M7.5 18.5H16.5"/><rect x="10" y="3.5" width="4" height="4" rx="1.2" fill="currentColor" stroke="none"/><rect x="3.5" y="16.5" width="4" height="4" rx="1.2" fill="currentColor" stroke="none"/><rect x="16.5" y="16.5" width="4" height="4" rx="1.2" fill="currentColor" stroke="none"/></svg>',
+    chevron:'<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9.5 12 15.5l6-6"/></svg>',
+    chevR:  '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 6 15.5 12l-6 6"/></svg>',
+    search: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6.5"/><path d="M20.5 20.5 16 16"/></svg>',
+    close:  '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5 17.5 17.5M17.5 6.5 6.5 17.5"/></svg>',
+    collapseAll:'<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12H19"/><path d="M9 8.5 12 5.5l3 3M9 15.5 12 18.5l3-3"/></svg>',
+    expandAll:'<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4.5V19.5"/><path d="M5 11.5H19"/><path d="M8.5 8 12 4.5 15.5 8M8.5 16 12 19.5 15.5 16"/></svg>',
+    reset:  '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5.5 9.5A7 7 0 1 1 5 13.5"/><path d="M5.5 5V9.5H10"/></svg>'
+  };
+
+  /* ---- parse the only content source ---- */
+  var DATA;
+  try { DATA = JSON.parse(document.getElementById('report-data').textContent); }
+  catch(e){ console.error('Invalid #report-data JSON', e); return; }
+
+  var root = document.documentElement;
+  var org  = document.getElementById('org');
+  var nodeIndex = {};   // id -> { node, parentId } for fast focus/path walks
+
+  /* ---- pan / zoom world + SVG connector overlay ---- */
+  var canvas, world, wires, treeEl;
+  var view = { x:0, y:0, k:1 };
+  function clampK(v){ return Math.max(0.3, Math.min(2.5, v)); }
+  function applyView(){
+    if(!world) return;
+    world.style.transform = 'translate('+view.x+'px,'+view.y+'px) scale('+view.k+')';
+    var zl = document.getElementById('zlabel'); if(zl) zl.textContent = Math.round(view.k*100)+'%';
+  }
+  function fitView(){
+    if(!canvas || !world) return;
+    var cw = canvas.clientWidth, tw = world.offsetWidth || 1;
+    view.k = clampK(Math.min((cw-64)/tw, 1));
+    view.x = Math.max(24, (cw - tw*view.k)/2);
+    view.y = 34;
+    applyView();
+  }
+  // pan (keep current zoom) so a given .subtree's card sits centred in the visible canvas.
+  // accounts for the detail rail when it's open so the node isn't hidden behind it.
+  function centerOnNode(sub){
+    if(!canvas || !world || !sub) return;
+    var card = sub.querySelector(':scope > .node'); if(!card) return;
+    var cr = card.getBoundingClientRect(), wr = world.getBoundingClientRect(), k = view.k || 1;
+    // node centre in untransformed world coords
+    var nx = (cr.left + cr.width/2 - wr.left)/k, ny = (cr.top + cr.height/2 - wr.top)/k;
+    var rail = 0, dp = document.getElementById('detail');
+    if(dp && dp.classList.contains('is-open')) rail = dp.offsetWidth;
+    var availW = canvas.clientWidth - rail;
+    view.x = (availW/2) - nx*k;
+    view.y = Math.max(34, (canvas.clientHeight/2) - ny*k);
+    applyView();
+  }
+  // draw every parent→child connector as two aggregate SVG paths (normal + focused-path)
+  function drawWires(){
+    if(!wires || !world || !treeEl) return;
+    var W = world.offsetWidth, H = world.offsetHeight;
+    wires.setAttribute('width', W); wires.setAttribute('height', H);
+    wires.setAttribute('viewBox', '0 0 '+W+' '+H);
+    var wr = world.getBoundingClientRect(), k = view.k || 1;
+    function rel(el){ var r = el.getBoundingClientRect();
+      return { x:(r.left-wr.left)/k, y:(r.top-wr.top)/k, w:r.width/k, h:r.height/k }; }
+    var dN = '', dP = '';
+    treeEl.querySelectorAll('.subtree').forEach(function(P){
+      if(P.classList.contains('is-collapsed')) return;
+      var kids = P.querySelector(':scope > .kids'); if(!kids) return;
+      if(getComputedStyle(kids).display === 'none') return;
+      var pc = P.querySelector(':scope > .node'); if(!pc) return;
+      var pr = rel(pc), pX = pr.x + pr.w/2, pB = pr.y + pr.h;
+      kids.querySelectorAll(':scope > .tree-row > .subtree').forEach(function(C){
+        var cc = C.querySelector(':scope > .node'); if(!cc) return;
+        var cr = rel(cc), cX = cr.x + cr.w/2, cT = cr.y;
+        var midY = pB + (cT - pB)/2;
+        var seg = 'M'+pX.toFixed(1)+' '+pB.toFixed(1)+'V'+midY.toFixed(1)+'H'+cX.toFixed(1)+'V'+cT.toFixed(1);
+        var lit = (P.classList.contains('is-path')||P.classList.contains('is-focus')) &&
+                  (C.classList.contains('is-path')||C.classList.contains('is-focus'));
+        if(lit) dP += seg; else dN += seg;
+      });
+    });
+    wires.innerHTML = '<path d="'+dN+'"></path><path class="is-path" d="'+dP+'"></path>';
+  }
+
+  var esc = function(s){ return String(s==null?'':s)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); };
+
+  /* ---------- render ---------- */
+  function render(){
+    var m = DATA.meta || {};
+    if(m.theme) root.setAttribute('data-theme', m.theme);
+
+    var legend = (DATA.legend && DATA.legend.length) ? DATA.legend : [
+      { status:'ok', label:'On track' }, { status:'risk', label:'At risk' },
+      { status:'hold', label:'On hold' }, { status:'neutral', label:'Not started' }
+    ];
+    var legendHTML = legend.map(function(l){
+      return '<span class="legend-item"><span class="mini-dot is-'+esc(l.status)+'"></span>'+esc(l.label)+'</span>';
+    }).join('');
+
+    var themeSwitcherHTML = '<label class="rc-theme" title="Brand colour">'
+      + '<span class="rc-theme-sw" aria-hidden="true"></span>'
+      + '<select class="rc-theme-sel" aria-label="Brand theme">'
+      + '<option value="blue">Blue</option>'
+      + '<option value="purple">Purple</option>'
+      + '<option value="indigo">Indigo</option>'
+      + '<option value="teal">Teal</option>'
+      + '<option value="cyan">Cyan</option>'
+      + '<option value="green">Green</option>'
+      + '<option value="plum">Plum</option>'
+      + '<option value="slate">Slate</option>'
+      + '<option value="black">Black</option>'
+      + '</select></label>';
+
+    var html = ''
+    + '<header class="tree-toolbar">'
+    +   '<div class="tt-brand">'
+    +     '<span class="markmini" aria-hidden="true">'+ICON.org+'</span>'
+    +     '<div class="tt-titles">'
+    +       '<div class="tt-eyebrow">'+esc(m.reportType||'Hierarchy')+'</div>'
+    +       '<div class="tt-title">'+esc(m.title||(m.project+' Org'))+'</div>'
+    +       (m.subtitle ? '<div class="tt-sub">'+esc(m.subtitle)+'</div>' : '')
+    +     '</div>'
+    +   '</div>'
+    +   '<div class="tt-actions">'
+    +     '<button class="btn" data-act="expand-all" type="button">'+ICON.expandAll+'Expand all</button>'
+    +     '<button class="btn" data-act="collapse-all" type="button">'+ICON.collapseAll+'Collapse all</button>'
+    +     '<button class="btn" data-act="reset" type="button">'+ICON.reset+'Reset</button>'
+    +   '</div>'
+    +   '<div class="tree-search" id="search">'
+    +     '<span class="s-ico" aria-hidden="true">'+ICON.search+'</span>'
+    +     '<input type="search" placeholder="Search nodes…" aria-label="Search nodes" autocomplete="off">'
+    +     '<button class="s-clear" type="button" aria-label="Clear search">'+ICON.close+'</button>'
+    +   '</div>'
+    +   '<span class="s-count" id="s-count"></span>'
+    +   '<div class="legend" aria-label="Status legend">'+legendHTML+'</div>'
+    +   '<div class="tt-right">'
+    +     themeSwitcherHTML
+    +   '</div>'
+    + '</header>'
+    + '<div class="tree-canvas" id="canvas">'
+    +   '<div class="stage-world" id="world">'
+    +     '<svg class="wires" id="wires" aria-hidden="true"></svg>'
+    +     '<div class="tree" id="tree" role="tree">'+ renderNode(DATA.root, null, true) +'</div>'
+    +   '</div>'
+    +   '<div class="zoombar" aria-label="zoom controls">'
+    +     '<button type="button" data-zoom="out" title="Zoom out" aria-label="Zoom out">&#8722;</button>'
+    +     '<span class="zlabel" id="zlabel">100%</span>'
+    +     '<button type="button" data-zoom="in" title="Zoom in" aria-label="Zoom in">+</button>'
+    +     '<button type="button" data-zoom="reset" title="Reset view" aria-label="Reset view">&#8634;</button>'
+    +   '</div>'
+    +   '<aside class="detail" id="detail" aria-label="Node detail" aria-hidden="true"></aside>'
+    +   '<div class="node-tip" id="tip" role="tooltip" aria-hidden="true"></div>'
+    + '</div>'
+    + '<footer class="foot">'
+    +   '<div class="wm"><span class="sq" aria-hidden="true"></span>'+esc(m.org||'{{ORG}}')+'</div>'
+    +   '<div class="fmeta">'+esc(m.reportType||'Hierarchy')+' · '+esc(m.title||'')+'<br>Prepared by '+esc(m.author||'{{AUTHOR}}')+' · '+esc(m.date||'')+'</div>'
+    +   '<div class="fright">Confidential — internal use only<br>'+esc(m.project||'{{PROJECT}}')+' hierarchy</div>'
+    + '</footer>';
+
+    org.innerHTML = html;
+    org.hidden = false;
+  }
+
+  /* recursive node → HTML */
+  function renderNode(node, parentId, isRoot){
+    if(!node || !node.id) return '';
+    nodeIndex[node.id] = { node:node, parentId:parentId };
+    var kids = node.children || [];
+    var hasKids = kids.length > 0;
+    var status = node.status || 'neutral';
+    var collapsed = node.collapsed && hasKids;
+
+    var card = ''
+    + '<div class="node s-'+esc(status)+'" data-id="'+esc(node.id)+'" role="treeitem"'
+    +      (hasKids ? ' aria-expanded="'+(collapsed?'false':'true')+'"' : '')
+    +      ' tabindex="0">'
+    +   '<div class="node-top">'
+    +     '<span class="node-dot" aria-hidden="true"></span>'
+    +     '<span class="node-name">'+esc(node.name)+'</span>'
+    +     (node.badge ? '<span class="node-badge">'+esc(node.badge)+'</span>' : '')
+    +     (hasKids ? '<span class="node-toggle"><span class="kid-count">+'+kids.length+'</span><span class="chev" aria-hidden="true">'+ICON.chevron+'</span></span>' : '')
+    +   '</div>'
+    +   (node.role ? '<div class="node-role">'+esc(node.role)+'</div>' : '')
+    +   (node.meta ? '<div class="node-foot"><span class="node-meta tnum">'+esc(node.meta)+'</span></div>' : '')
+    + '</div>';
+
+    var childrenHTML = '';
+    if(hasKids){
+      childrenHTML = '<div class="kids"><div class="tree-row">'
+        + kids.map(function(k){ return renderNode(k, node.id, false); }).join('')
+        + '</div></div>';
+    }
+
+    var cls = 'subtree' + (isRoot?' is-root':'') + (collapsed?' is-collapsed':'');
+    return '<div class="'+cls+'" data-id="'+esc(node.id)+'">'+ card + childrenHTML +'</div>';
+  }
+
+  /* ---------- interactions ---------- */
+  function wireInteractions(){
+    var tree = document.getElementById('tree');
+
+    /* collapse / expand + focus + detail on node click */
+    tree.addEventListener('click', function(e){
+      var card = e.target.closest('.node'); if(!card) return;
+      var sub = card.closest('.subtree');
+      var hasKids = sub.querySelector(':scope > .kids');
+      var onToggle = e.target.closest('.node-toggle');
+
+      if(onToggle && hasKids){           // chevron → collapse/expand
+        toggleCollapse(sub);
+      } else {                           // card body → focus + detail (toggle)
+        if(sub.classList.contains('is-focus')){ clearFocus(); closeDetail(); }
+        else { focusNode(sub); openDetail(sub.dataset.id); }
+      }
+    });
+
+    /* keyboard: Enter collapses/expands focused card */
+    tree.addEventListener('keydown', function(e){
+      var card = e.target.closest('.node'); if(!card) return;
+      if(e.key==='Enter' || e.key===' '){ e.preventDefault();
+        var sub = card.closest('.subtree');
+        if(sub.querySelector(':scope > .kids')) toggleCollapse(sub);
+      }
+      if(e.key==='Escape'){ clearFocus(); clearSearch(); }
+    });
+
+    /* toolbar buttons */
+    org.querySelectorAll('.tt-actions .btn').forEach(function(b){
+      b.addEventListener('click', function(){
+        var act = b.dataset.act;
+        if(act==='expand-all')  setAllCollapsed(false);
+        if(act==='collapse-all')setAllCollapsed(true);
+        if(act==='reset'){ clearFocus(); clearSearch(); closeDetail(); setAllCollapsed(false);
+          // BUG FIX: Reset must also re-fit/centre the camera (tree could be panned off-screen)
+          requestAnimationFrame(fitView); }
+      });
+    });
+
+    /* search */
+    var box = document.getElementById('search');
+    var input = box.querySelector('input');
+    var clearBtn = box.querySelector('.s-clear');
+    input.addEventListener('input', function(){ runSearch(input.value); });
+    clearBtn.addEventListener('click', clearSearch);
+
+    /* ---- helpers (closures over tree) ---- */
+    // walk a subtree's ancestor chain (parent → … → root), calling fn on each ancestor's .subtree
+    function eachAncestor(sub, fn){
+      if(!sub) return;
+      var walk = nodeIndex[sub.dataset.id];
+      while(walk && walk.parentId){
+        var pSub = tree.querySelector('.subtree[data-id="'+CSS.escape(walk.parentId)+'"]');
+        if(pSub) fn(pSub);
+        walk = nodeIndex[walk.parentId];
+      }
+    }
+    function toggleCollapse(sub){
+      var open = sub.classList.toggle('is-collapsed');
+      var card = sub.querySelector(':scope > .node');
+      if(card) card.setAttribute('aria-expanded', open ? 'false' : 'true');
+    }
+    function setAllCollapsed(state){
+      clearFocus();
+      tree.querySelectorAll('.subtree').forEach(function(s){
+        if(s.classList.contains('is-root')) return;        // keep root open
+        if(!s.querySelector(':scope > .kids')) return;     // leaves: nothing to do
+        s.classList.toggle('is-collapsed', state);
+        var c = s.querySelector(':scope > .node');
+        if(c) c.setAttribute('aria-expanded', state ? 'false' : 'true');
+      });
+    }
+    function focusNode(sub){
+      clearSearch();
+      tree.querySelectorAll('.is-focus,.is-path').forEach(function(n){ n.classList.remove('is-focus','is-path'); });
+      tree.classList.add('is-focusing');
+      sub.classList.add('is-focus');
+      // subtree of the focused node stays lit
+      sub.querySelectorAll('.subtree').forEach(function(s){ s.classList.add('is-path'); });
+      // ancestors up to root stay lit + connectors recolour, and expand so it's visible
+      eachAncestor(sub, function(pSub){ pSub.classList.add('is-path'); pSub.classList.remove('is-collapsed'); });
+      sub.classList.remove('is-collapsed');
+      // pan the focused node into view (after layout settles from any ancestor expand)
+      requestAnimationFrame(function(){ centerOnNode(sub); });
+    }
+    function clearFocus(){
+      tree.classList.remove('is-focusing');
+      tree.querySelectorAll('.is-focus,.is-path').forEach(function(n){ n.classList.remove('is-focus','is-path'); });
+    }
+    function runSearch(q){
+      clearFocus();
+      q = (q||'').trim().toLowerCase();
+      box.classList.toggle('has-q', q.length>0);
+      var countEl = document.getElementById('s-count');
+      tree.querySelectorAll('.node.is-match').forEach(function(n){ n.classList.remove('is-match'); });
+      if(!q){ tree.classList.remove('is-searching'); countEl.textContent=''; return; }
+      var hits = 0, firstSub = null;
+      tree.querySelectorAll('.node').forEach(function(card){
+        var name = card.querySelector('.node-name'), role = card.querySelector('.node-role');
+        var hay = ((name?name.textContent:'')+' '+(role?role.textContent:'')).toLowerCase();
+        if(hay.indexOf(q) !== -1){
+          card.classList.add('is-match'); hits++;
+          var cSub = card.closest('.subtree');
+          if(!firstSub) firstSub = cSub;
+          // reveal: expand every ancestor so the match is on-screen
+          eachAncestor(cSub, function(pSub){ pSub.classList.remove('is-collapsed'); });
+        }
+      });
+      // keep the tree readable on a zero-match query (don't dim everything to .24)
+      tree.classList.toggle('is-searching', hits>0);
+      countEl.textContent = hits + (hits===1?' hit':' hits');
+      // bring the first match into view (after ancestor-expand layout settles)
+      if(firstSub) requestAnimationFrame(function(){ centerOnNode(firstSub); });
+    }
+    function clearSearch(){
+      input.value=''; box.classList.remove('has-q');
+      tree.classList.remove('is-searching');
+      tree.querySelectorAll('.node.is-match').forEach(function(n){ n.classList.remove('is-match'); });
+      document.getElementById('s-count').textContent='';
+    }
+
+    /* ---- detail side-panel (depth on click) ---- */
+    var detail = document.getElementById('detail');
+    function subById(id){ return tree.querySelector('.subtree[data-id="'+CSS.escape(id)+'"]'); }
+    var STATUS_LABEL = { ok:'On track', risk:'At risk', hold:'On hold', neutral:'Not started' };
+
+    function openDetail(id){
+      var rec = nodeIndex[id]; if(!rec || !detail) return;
+      var n = rec.node, st = n.status || 'neutral', kids = n.children || [];
+      // mark the active card
+      tree.querySelectorAll('.node.is-active').forEach(function(c){ c.classList.remove('is-active'); });
+      var activeCard = subById(id) && subById(id).querySelector(':scope > .node');
+      if(activeCard) activeCard.classList.add('is-active');
+
+      var pairs = ''
+        + (n.badge ? pair('Type', esc(n.badge)) : '')
+        + pair('Status', '<span class="st-badge"><span class="mini-dot is-'+esc(st)+'"></span>'+esc(STATUS_LABEL[st]||st)+'</span>')
+        + (n.meta ? pair('Metric', esc(n.meta)) : '')
+        + pair('Children', String(kids.length));
+
+      var kidsHTML;
+      if(kids.length){
+        kidsHTML = '<ul class="d-kids">' + kids.map(function(k){
+          var ks = k.status || 'neutral';
+          return '<li><button type="button" class="d-kid" data-goto="'+esc(k.id)+'">'
+            + '<span class="dk-dot s-'+esc(ks)+'" aria-hidden="true"></span>'
+            + '<span class="dk-name">'+esc(k.name)+'</span>'
+            + (k.meta ? '<span class="dk-meta tnum">'+esc(k.meta)+'</span>' : '')
+            + '<span class="dk-arrow" aria-hidden="true">'+ICON.chevR+'</span>'
+            + '</button></li>';
+        }).join('') + '</ul>';
+      } else {
+        kidsHTML = '<div class="d-empty">Leaf node — no children.</div>';
+      }
+
+      detail.innerHTML = ''
+        + '<div class="detail-head">'
+        +   '<span class="dh-dot s-'+esc(st)+'" aria-hidden="true"></span>'
+        +   '<div class="dh-tt"><div class="dh-name">'+esc(n.name)+'</div>'
+        +     (n.role ? '<div class="dh-role">'+esc(n.role)+'</div>' : '') + '</div>'
+        +   '<button type="button" class="detail-close" aria-label="Close detail">'+ICON.close+'</button>'
+        + '</div>'
+        + '<div class="detail-body">'
+        +   '<div class="d-rows">'+pairs+'</div>'
+        +   '<div class="d-sect-h">Direct reports</div>'+kidsHTML
+        + '</div>';
+
+      detail.classList.add('is-open');
+      detail.setAttribute('aria-hidden', 'false');
+    }
+    function pair(label, val){
+      return '<div class="d-pair"><div class="dl">'+label+'</div><div class="dv tnum">'+val+'</div></div>';
+    }
+    function closeDetail(){
+      if(!detail) return;
+      detail.classList.remove('is-open');
+      detail.setAttribute('aria-hidden', 'true');
+      tree.querySelectorAll('.node.is-active').forEach(function(c){ c.classList.remove('is-active'); });
+    }
+    // detail-panel clicks: close button + navigate to a child (focus + open + center)
+    if(detail) detail.addEventListener('click', function(e){
+      if(e.target.closest('.detail-close')){ closeDetail(); clearFocus(); return; }
+      var go = e.target.closest('.d-kid'); if(!go) return;
+      var id = go.dataset.goto, csub = subById(id); if(!csub) return;
+      // reveal the child if its parent was collapsed, then focus + detail + center
+      eachAncestor(csub, function(p){ p.classList.remove('is-collapsed'); });
+      focusNode(csub); openDetail(id);
+    });
+
+    // Escape also closes the detail panel
+    document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeDetail(); });
+  }
+
+  /* ---------- pan / zoom wiring (drag to move · wheel/buttons to zoom) ---------- */
+  function wireCanvas(){
+    canvas = document.getElementById('canvas');
+    world  = document.getElementById('world');
+    wires  = document.getElementById('wires');
+    treeEl = document.getElementById('tree');
+    if(!canvas || !world) return;
+
+    // auto-redraw connectors whenever the tree's class/structure changes (collapse/focus/search)
+    var raf = null;
+    new MutationObserver(function(){ if(raf) return; raf = requestAnimationFrame(function(){ raf=null; drawWires(); }); })
+      .observe(treeEl, { attributes:true, subtree:true, attributeFilter:['class','style'] });
+
+    // drag to pan — starts only on empty canvas (not on a node card or the zoom controls)
+    var drag=false, sx=0, sy=0, ox=0, oy=0;
+    canvas.addEventListener('mousedown', function(e){
+      if(e.button!==0 || e.target.closest('.node') || e.target.closest('.zoombar')) return;
+      drag=true; sx=e.clientX; sy=e.clientY; ox=view.x; oy=view.y;
+      canvas.classList.add('is-panning'); e.preventDefault();
+    });
+    window.addEventListener('mousemove', function(e){
+      if(!drag) return; view.x = ox + (e.clientX-sx); view.y = oy + (e.clientY-sy); applyView();
+    });
+    window.addEventListener('mouseup', function(){ if(drag){ drag=false; canvas.classList.remove('is-panning'); } });
+
+    // wheel zoom about the cursor
+    canvas.addEventListener('wheel', function(e){
+      e.preventDefault();
+      var r = canvas.getBoundingClientRect(), cx = e.clientX-r.left, cy = e.clientY-r.top;
+      var pk = view.k, nk = clampK(pk * (e.deltaY<0 ? 1.12 : 0.89));
+      view.x = cx-(cx-view.x)*(nk/pk); view.y = cy-(cy-view.y)*(nk/pk); view.k = nk; applyView();
+    }, { passive:false });
+
+    // zoom buttons (about centre) + reset/fit
+    var zb = canvas.querySelector('.zoombar');
+    if(zb) zb.addEventListener('click', function(e){
+      var b = e.target.closest('button'); if(!b) return; var z = b.dataset.zoom;
+      if(z==='reset'){ fitView(); return; }
+      var r = canvas.getBoundingClientRect(), cx = r.width/2, cy = r.height/2;
+      var pk = view.k, nk = clampK(pk * (z==='in' ? 1.18 : 0.85));
+      view.x = cx-(cx-view.x)*(nk/pk); view.y = cy-(cy-view.y)*(nk/pk); view.k = nk; applyView();
+    });
+
+    window.addEventListener('resize', drawWires);
+    window.addEventListener('load', function(){ fitView(); drawWires(); });
+    // print: expand all + reset transform so the static snapshot is complete & aligned
+    window.addEventListener('beforeprint', function(){
+      treeEl.querySelectorAll('.subtree.is-collapsed').forEach(function(s){ s.classList.remove('is-collapsed'); });
+      view = { x:0, y:0, k:1 }; applyView(); drawWires();
+    });
+
+    /* ---- hover quick-detail tooltip (name · role · status · child count) ---- */
+    var tip = document.getElementById('tip');
+    var TIP_LABEL = { ok:'On track', risk:'At risk', hold:'On hold', neutral:'Not started' };
+    function placeTip(card){
+      if(!tip) return;
+      var r = card.getBoundingClientRect();
+      // prefer above-right of the card; flip below if near the top edge
+      var top = r.top - tip.offsetHeight - 8;
+      if(top < 8) top = r.bottom + 8;
+      var left = Math.min(r.left, window.innerWidth - tip.offsetWidth - 10);
+      tip.style.left = Math.max(8, left) + 'px';
+      tip.style.top  = Math.max(8, top) + 'px';
+    }
+    function showTip(card){
+      if(!tip || drag) return;
+      var sub = card.closest('.subtree'); if(!sub) return;
+      var rec = nodeIndex[sub.dataset.id]; if(!rec) return;
+      var n = rec.node, st = n.status || 'neutral', kc = (n.children||[]).length;
+      tip.innerHTML = ''
+        + '<div class="nt-head"><span class="nt-dot s-'+esc(st)+'"></span><span class="nt-name">'+esc(n.name)+'</span></div>'
+        + (n.role ? '<div class="nt-role">'+esc(n.role)+'</div>' : '')
+        + '<div class="nt-foot"><span><b>'+esc(TIP_LABEL[st]||st)+'</b></span>'
+        +   (n.meta ? '<span>'+esc(n.meta)+'</span>' : '')
+        +   '<span>'+(kc?kc+(kc===1?' report':' reports'):'leaf')+'</span></div>';
+      tip.classList.add('is-on'); tip.setAttribute('aria-hidden','false');
+      placeTip(card);
+    }
+    function hideTip(){ if(tip){ tip.classList.remove('is-on'); tip.setAttribute('aria-hidden','true'); } }
+    treeEl.addEventListener('mouseover', function(e){ var c = e.target.closest('.node'); if(c) showTip(c); });
+    treeEl.addEventListener('mouseout', function(e){
+      var c = e.target.closest('.node'); if(!c) return;
+      if(!e.relatedTarget || !c.contains(e.relatedTarget)) hideTip();
+    });
+    canvas.addEventListener('mousedown', hideTip);   // hide while panning
+
+    fitView();
+    drawWires();
+  }
+
+  /* ---------- theme switch (canonical dropdown per _DATA_DRIVEN.md §3) ---------- */
+  function wireThemeSwitch(){
+    var rcSel = org.querySelector('.rc-theme-sel');
+    if (rcSel) {
+      rcSel.value = root.dataset.theme || 'indigo';
+      rcSel.addEventListener('change', function(){ root.dataset.theme = rcSel.value; });
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', function(){
+    render();
+    wireInteractions();
+    wireThemeSwitch();
+    wireCanvas();
+  });
+})();
+</script>
+</body>
+</html>

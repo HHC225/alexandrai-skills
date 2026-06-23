@@ -1,0 +1,742 @@
+<!doctype html>
+<html lang="en" data-theme="plum">
+<!-- ONE-PAGER format — see designs/one-pager.md.
+     A single non-scrolling A4 sheet: masthead · lede · KPI strip · SCR spine + mini visual ·
+     ask box · mini risk list · footer. Self-contained per _FOUNDATION §0:
+     inline <style> + inline <svg> + system fonts, NO external requests.
+     Brand-neutral chrome — {{ORG}} / {{PROJECT}} left literal. Default theme: Plum.
+
+     DATA-DRIVEN (_DATA_DRIVEN.md §1): all body content lives in #report-data (JSON, a valid
+     instance of designs/schemas/one-pager.schema.json); render() builds the sheet on load.
+     INTERACTIVE (§4) without breaking the single A4 page: bar hover → exact value tooltip,
+     KPI hover → detail popover, risk click → mitigation popover, verdict hover → gate tooltip.
+     All interactivity is overlay/hover only (no inline growth), so the sheet never overflows.
+     THEME (§3): standard 9-dot .rc-theme switcher incl. mandatory Black; @page keeps one page. -->
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=900">
+<title>{{PROJECT}} — Phase 2 Go/No-Go (One-Pager)</title>
+<style>
+/* ============================== TOKENS (Plum default) ============================== */
+:root{
+  /* surfaces */
+  --bg:#fff; --bg-band:#f6f6f8; --bg-subtle:#fafafb; --bg-deep:#15131a;
+  --rule:#dcdce2; --rule-soft:#ebebef;
+  /* ink */
+  --ink:#11131a; --ink-mid:#33363f; --ink-soft:#5a5e68; --ink-faint:#868b95;
+  /* brand accent — PLUM */
+  --navy:#a21d6e; --navy-deep:#7c1450; --navy-bg:#fbe8f2; --navy-line:#e8b9d4;
+  /* cleared / approved */
+  --ok:#6d2356; --ok-bg:#f6e8f0; --ok-line:#e3bcd5;
+  /* semantic states — CONSTANT across themes */
+  --risk:#b3261e; --risk-bg:#fbeceb; --risk-line:#edc7c4;
+  --hold:#8a6d00; --hold-bg:#fbf3da; --hold-line:#e7d8a4;
+  /* type stacks */
+  --mono:ui-monospace,"JetBrains Mono","SFMono-Regular",Menlo,Consolas,monospace;
+  --sans:-apple-system,"Segoe UI",system-ui,Roboto,"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic UI","Apple SD Gothic Neo","Malgun Gothic","PingFang SC","Microsoft YaHei","Noto Sans CJK JP","Noto Sans CJK KR","Noto Sans CJK SC","Noto Sans JP","Noto Sans KR","Noto Sans SC","Noto Sans",sans-serif;
+}
+/* The 9 brand presets — data-theme swaps the 7 accent values only (risk/hold/neutrals constant). */
+html[data-theme="blue"]{   --navy:#0b5fd4; --navy-deep:#0842a0; --navy-bg:#e8f1fc; --navy-line:#bcd6f5; --ok:#1a4f9c; --ok-bg:#e9f0fa; --ok-line:#b7cdea; }
+html[data-theme="purple"]{ --navy:#a100ff; --navy-deep:#7a00c2; --navy-bg:#f3e8ff; --navy-line:#d9bef5; --ok:#5a2f8a; --ok-bg:#efe8f5; --ok-line:#d0b5e0; }
+html[data-theme="indigo"]{ --navy:#4338ca; --navy-deep:#312c92; --navy-bg:#ebebfb; --navy-line:#c7c3f0; --ok:#3730a3; --ok-bg:#ebeaf7; --ok-line:#c5c2ea; }
+html[data-theme="teal"]{   --navy:#0e7c86; --navy-deep:#095861; --navy-bg:#e0f3f4; --navy-line:#a9dade; --ok:#0f5d54; --ok-bg:#e3f3ef; --ok-line:#b3ddd4; }
+html[data-theme="cyan"]{   --navy:#0891b2; --navy-deep:#0e6f88; --navy-bg:#e2f4f9; --navy-line:#abdde9; --ok:#0e6b7a; --ok-bg:#e4f3f4; --ok-line:#b0dde2; }
+html[data-theme="green"]{  --navy:#1f7a44; --navy-deep:#155730; --navy-bg:#e6f4ea; --navy-line:#b3dcc1; --ok:#2f6b3c; --ok-bg:#e9f3ea; --ok-line:#bedcc4; }
+html[data-theme="plum"]{   --navy:#a21d6e; --navy-deep:#7c1450; --navy-bg:#fbe8f2; --navy-line:#e8b9d4; --ok:#6d2356; --ok-bg:#f6e8f0; --ok-line:#e3bcd5; }
+html[data-theme="slate"]{  --navy:#3f4f63; --navy-deep:#29384b; --navy-bg:#eef1f5; --navy-line:#c2ccd8; --ok:#34495e; --ok-bg:#eef1f5; --ok-line:#c2ccd8; }
+html[data-theme="black"]{  --navy:#000000; --navy-deep:#000; --navy-bg:#f1f1f3; --navy-line:#d6d6db; --ok:#3f3f46; --ok-bg:#f1f1f3; --ok-line:#cfcfd6; }
+
+*{ box-sizing:border-box; }
+html,body{ margin:0; }
+body{ font:13px/1.55 var(--sans); color:var(--ink); -webkit-font-smoothing:antialiased; }
+
+/* ============================== PAGE / SHEET ============================== */
+.page{ background:var(--bg-band); padding:24px; min-height:100vh; }
+.sheet{
+  width:210mm; height:297mm;            /* A4. Letter: 215.9mm × 279.4mm + @page size:Letter */
+  margin:0 auto; background:var(--bg);
+  display:grid;
+  grid-template-rows:auto auto auto 1fr auto auto;
+  gap:6.4mm;
+  padding:12mm 13mm 8mm;
+  overflow:hidden;                       /* a one-pager NEVER scrolls */
+  box-shadow:0 1px 2px rgba(17,19,26,.045), 0 8px 30px rgba(17,19,26,.10);
+}
+
+/* ============================== MASTHEAD ============================== */
+.masthead{ display:flex; align-items:flex-end; justify-content:space-between; gap:18px;
+  padding-bottom:5mm; border-bottom:2px solid var(--ink); }
+.mast-l{ min-width:0; }
+.mast-kicker{ font:10px/1 var(--mono); letter-spacing:.13em; text-transform:uppercase;
+  color:var(--ink-faint); display:flex; align-items:center; gap:7px; margin-bottom:7px; }
+.mast-kicker .icon{ color:var(--navy); }
+.mast-title{ font:800 25px/1.12 var(--sans); letter-spacing:-.012em; color:var(--ink); margin:0; }
+.mast-title b{ color:var(--navy-deep); font-weight:800; }
+.mast-r{ display:flex; flex-direction:column; align-items:flex-end; gap:8px; flex:0 0 auto; }
+.verdict{ position:relative; display:inline-flex; align-items:center; gap:7px; font:800 12px/1 var(--sans);
+  letter-spacing:.02em; text-transform:uppercase; padding:8px 13px; border-radius:6px;
+  border:1px solid var(--ok-line); background:var(--ok-bg); color:var(--ok); cursor:default; }
+.verdict .icon{ width:15px; height:15px; }
+.verdict.v-hold{ border-color:var(--hold-line); background:var(--hold-bg); color:var(--hold); }
+.verdict.v-risk{ border-color:var(--risk-line); background:var(--risk-bg); color:var(--risk); }
+.chips{ display:flex; gap:6px; }
+.chip{ font:500 11px/1 var(--mono); color:var(--navy-deep); background:var(--navy-bg);
+  border:1px solid var(--navy-line); border-radius:5px; padding:5px 8px; letter-spacing:.01em; }
+.chip.plain{ color:var(--ink-soft); background:var(--bg-subtle); border-color:var(--rule); }
+
+/* ============================== LEDE (BLUF) ============================== */
+.lede{ display:flex; gap:11px; align-items:flex-start;
+  background:var(--navy-bg); border:1px solid var(--navy-line); border-left:3px solid var(--navy);
+  border-radius:10px; padding:11px 14px; }
+.lede .icon{ color:var(--navy-deep); width:18px; height:18px; flex:0 0 auto; margin-top:1px; }
+.lede p{ margin:0; font-size:13.5px; line-height:1.5; color:var(--ink-mid); }
+.lede strong{ color:var(--ink); font-weight:700; }
+
+/* ============================== KPI STRIP ============================== */
+.kpi-strip{ display:grid; grid-template-columns:repeat(4,1fr);
+  border:1px solid var(--rule); border-radius:11px; overflow:visible; background:var(--bg); }
+.kpi{ position:relative; padding:10px 14px; border-left:1px solid var(--rule-soft); cursor:default; }
+.kpi:first-child{ border-left:0; }
+.kpi .lbl{ font:10px/1 var(--mono); letter-spacing:.09em; text-transform:uppercase;
+  color:var(--ink-faint); margin-bottom:6px; }
+.kpi .n{ font:800 29px/1 var(--sans); letter-spacing:-.02em; color:var(--ink);
+  font-feature-settings:"tnum" 1; display:flex; align-items:baseline; gap:1px; }
+.kpi .n small{ font-size:14px; font-weight:700; color:var(--ink-soft); }
+.kpi .n.ink-navy{ color:var(--navy-deep); }
+.kpi .delta{ font:600 11px/1 var(--mono); margin-top:6px; display:inline-flex; align-items:center; gap:4px;
+  font-feature-settings:"tnum" 1; }
+.kpi .delta.up{ color:var(--ok); }
+.kpi .delta.down{ color:var(--risk); }
+.kpi .delta.flat{ color:var(--ink-faint); }
+
+/* ============================== MAIN BAND: SCR + VISUAL ============================== */
+.grid-main{ display:grid; grid-template-columns:1.52fr 1fr; gap:6.4mm; min-height:0; }
+
+.scr{ display:flex; flex-direction:column; gap:7px; min-height:0; }
+.scr-head{ font:10px/1 var(--mono); letter-spacing:.12em; text-transform:uppercase;
+  color:var(--ink-faint); display:flex; align-items:center; gap:7px; margin-bottom:1px; }
+.scr-head .icon{ color:var(--navy); width:14px; height:14px; }
+.scr-row{ display:grid; grid-template-columns:auto 1fr; gap:11px; align-items:start;
+  border:1px solid var(--rule); border-radius:10px; padding:10px 12px; background:var(--bg);
+  box-shadow:0 1px 2px rgba(17,19,26,.045); flex:1 1 0; }
+.scr-row.r-act{ border-color:var(--navy-line); background:var(--navy-bg); }
+.scr-step{ display:flex; flex-direction:column; align-items:center; gap:5px; flex:0 0 auto; padding-top:1px; }
+.scr-num{ width:24px; height:24px; border-radius:7px; background:var(--ink); color:#fff;
+  font:800 12px/24px var(--mono); text-align:center; }
+.scr-row.r-act .scr-num{ background:var(--navy); }
+.scr-rail{ width:2px; flex:1; background:var(--rule); border-radius:1px; min-height:8px; }
+.scr-body .t{ font:700 13px/1.25 var(--sans); color:var(--ink); margin:0 0 3px;
+  display:flex; align-items:center; gap:6px; }
+.scr-body .t .icon{ color:var(--navy); width:14px; height:14px; }
+.scr-body p{ margin:0; font-size:12px; line-height:1.46; color:var(--ink-mid); }
+.scr-body b{ color:var(--ink); font-weight:700; }
+.scr-body .tnum{ font-family:var(--mono); font-feature-settings:"tnum" 1; }
+
+/* ----- mini visual (CSS-drawn bar chart) ----- */
+.visual{ border:1px solid var(--rule); border-radius:11px; padding:11px 13px 12px; background:var(--bg);
+  display:flex; flex-direction:column; min-height:0; box-shadow:0 1px 2px rgba(17,19,26,.045); }
+.visual .vh{ font:10px/1 var(--mono); letter-spacing:.1em; text-transform:uppercase; color:var(--ink-faint);
+  display:flex; align-items:center; gap:7px; margin-bottom:3px; }
+.visual .vh .icon{ color:var(--navy); width:14px; height:14px; }
+.visual .vsub{ font-size:11px; color:var(--ink-soft); margin-bottom:11px; }
+.visual .vsub b{ color:var(--navy-deep); font-weight:700; font-family:var(--mono); font-feature-settings:"tnum" 1; }
+.bars{ position:relative; flex:1; display:grid; grid-template-columns:repeat(var(--ncols,6),1fr); align-items:end; gap:9px;
+  border-bottom:1.5px solid var(--ink); padding-bottom:0; min-height:0; }
+.bar{ position:relative; display:flex; flex-direction:column; align-items:center; justify-content:flex-end;
+  height:100%; cursor:pointer; }
+.bar .col{ width:62%; border-radius:5px 5px 0 0; background:var(--navy-line); transition:opacity .12s ease, filter .12s ease; }
+.bar.is-plan .col{ background:var(--navy); }
+.bar.is-proj .col{ background:repeating-linear-gradient(45deg,var(--ok) 0 5px,var(--ok-bg) 5px 9px);
+  border:1px solid var(--ok-line); }
+.bar .v{ font:700 10px/1 var(--mono); color:var(--ink-soft); margin-bottom:4px; font-feature-settings:"tnum" 1; }
+.bar.is-proj .v{ color:var(--ok); }
+.bar .x{ font:10px/1 var(--mono); color:var(--ink-faint); margin-top:6px; letter-spacing:.02em; }
+/* hover affordance: emphasise the hovered bar, dim the rest — overlay tooltip carries the exact value */
+.bars.is-hovering .bar:not(.is-hover) .col{ opacity:.34; }
+.bar.is-hover .col{ filter:saturate(1.12); box-shadow:0 0 0 2px var(--navy-bg), 0 0 0 3px var(--navy); }
+.bar .v{ transition:color .12s ease; }
+.bar.is-hover .v{ color:var(--navy-deep); }
+.vlegend{ display:flex; gap:14px; margin-top:10px; font:10.5px/1 var(--mono); color:var(--ink-soft);
+  letter-spacing:.02em; }
+.vlegend span{ display:inline-flex; align-items:center; gap:6px; }
+.swatch{ width:11px; height:11px; border-radius:3px; flex:0 0 auto; }
+.swatch.s-act{ background:var(--navy); }
+.swatch.s-proj{ background:repeating-linear-gradient(45deg,var(--ok) 0 4px,var(--ok-bg) 4px 7px); border:1px solid var(--ok-line); }
+.swatch.s-base{ background:var(--navy-line); }
+
+/* ============================== ASK BOX ============================== */
+.ask-box{ border:1px solid var(--navy-line); border-top:2px solid var(--navy); border-radius:11px;
+  background:linear-gradient(180deg,var(--navy-bg),var(--bg) 145%); padding:12px 15px;
+  display:grid; grid-template-columns:1fr auto; gap:16px; align-items:center; }
+.ask-l .ah{ font:10px/1 var(--mono); letter-spacing:.12em; text-transform:uppercase; color:var(--navy-deep);
+  display:flex; align-items:center; gap:7px; margin-bottom:6px; }
+.ask-l .ah .icon{ width:14px; height:14px; }
+.ask-l p{ margin:0; font-size:13px; line-height:1.48; color:var(--ink-mid); }
+.ask-l p strong{ color:var(--ink); font-weight:700; }
+.ask-meta{ display:grid; grid-template-columns:auto auto; gap:3px 16px; border-left:1px solid var(--navy-line);
+  padding-left:16px; }
+.ask-meta dt{ font:9.5px/1.5 var(--mono); letter-spacing:.07em; text-transform:uppercase; color:var(--ink-faint); }
+.ask-meta dd{ margin:0 0 4px; font:600 12px/1.4 var(--mono); color:var(--ink); font-feature-settings:"tnum" 1; }
+
+/* ============================== MINI RISK LIST ============================== */
+.mini-risk .rh{ font:10px/1 var(--mono); letter-spacing:.12em; text-transform:uppercase; color:var(--ink-faint);
+  display:flex; align-items:center; gap:7px; margin-bottom:7px; }
+.mini-risk .rh .icon{ color:var(--navy); width:14px; height:14px; }
+.mini-risk .rh .hint{ margin-left:auto; font:9px/1 var(--mono); letter-spacing:.05em; color:var(--ink-faint);
+  text-transform:none; opacity:.85; }
+.risk-item{ position:relative; display:grid; grid-template-columns:160px auto 1fr auto; gap:11px; align-items:center;
+  padding:6px 0; border-top:1px solid var(--rule-soft); cursor:pointer; }
+.risk-item:first-of-type{ border-top:0; }
+.risk-label{ font:700 12px/1.3 var(--sans); color:var(--ink); }
+.risk-fix{ font-size:11.5px; line-height:1.4; color:var(--ink-soft);
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }   /* truncate inline — full text in popover */
+.risk-fix b{ color:var(--ink-mid); font-weight:600; }
+.risk-more{ font:9px/1 var(--mono); letter-spacing:.05em; text-transform:uppercase; color:var(--navy-deep);
+  border:1px solid var(--navy-line); background:var(--navy-bg); border-radius:5px; padding:4px 6px; flex:0 0 auto;
+  transition:transform .12s ease; }
+.risk-item[aria-expanded="true"] .risk-more{ transform:rotate(90deg); }
+
+/* shared primitive: status badge */
+.st-badge{ display:inline-flex; align-items:center; gap:6px; font:600 10.5px/1 var(--mono);
+  letter-spacing:.04em; text-transform:uppercase; padding:5px 9px; border-radius:6px; white-space:nowrap;
+  border:1px solid var(--rule); background:var(--bg-subtle); color:var(--ink-mid); }
+.st-badge::before{ content:""; width:7px; height:7px; border-radius:50%; background:currentColor; flex:0 0 auto; }
+.st-ok{ color:var(--ok); background:var(--ok-bg); border-color:var(--ok-line); }
+.st-risk{ color:var(--risk); background:var(--risk-bg); border-color:var(--risk-line); }
+.st-hold{ color:var(--hold); background:var(--hold-bg); border-color:var(--hold-line); }
+
+/* ============================== FOOTER ============================== */
+.sheet-foot{ display:flex; align-items:center; justify-content:space-between; gap:16px;
+  border-top:1px solid var(--rule); padding-top:6px;
+  font:9.5px/1 var(--mono); letter-spacing:.06em; text-transform:uppercase; color:var(--ink-faint); }
+.wordmark{ display:inline-flex; align-items:center; gap:7px; color:var(--ink-mid); font-weight:600; }
+.wordmark .sq{ width:11px; height:11px; border-radius:3px; background:var(--navy); }
+
+.icon{ width:1.15em; height:1.15em; display:inline-block; vertical-align:-.18em; color:inherit; flex:0 0 auto; }
+
+/* ============================== POPOVER / TOOLTIP OVERLAYS (screen-only) ==============================
+   All interactivity is an absolutely-positioned overlay — it NEVER reflows the sheet, so the single
+   A4 page is preserved. Anchored to the sheet so coordinates stay inside the print box. */
+.sheet{ position:relative; }
+.pop{ position:absolute; z-index:40; max-width:280px; pointer-events:none;
+  background:var(--ink); color:#fff; border-radius:8px; padding:9px 11px;
+  box-shadow:0 6px 22px rgba(17,19,26,.22); opacity:0; transform:translateY(4px) scale(.98);
+  transition:opacity .12s ease, transform .12s ease; }
+.pop.is-open{ opacity:1; transform:translateY(0) scale(1); }
+.pop .pt{ font:700 11px/1.35 var(--sans); margin:0 0 3px; letter-spacing:.01em; }
+.pop .pb{ font:11.5px/1.45 var(--sans); margin:0; color:#e9e9ee; }
+.pop .pb b{ color:#fff; font-weight:700; }
+.pop .pk{ font:9px/1 var(--mono); letter-spacing:.09em; text-transform:uppercase; color:#b9b9c2; margin:0 0 4px; }
+.pop .pv{ font:800 16px/1 var(--mono); font-feature-settings:"tnum" 1; color:#fff; }
+.pop::after{ content:""; position:absolute; left:var(--ax,50%); bottom:-6px; transform:translateX(-50%);
+  border:6px solid transparent; border-top-color:var(--ink); border-bottom:0; }
+.pop.below::after{ bottom:auto; top:-6px; border-top:0; border-bottom-color:var(--ink); }
+.risk-pop{ max-width:300px; }
+
+/* ============================== THEME PICKER (screen-only) ============================== */
+.toolbar{ position:fixed; top:14px; right:16px; z-index:60; display:flex; gap:12px; align-items:center;
+  background:var(--bg); border:1px solid var(--rule); border-radius:9px; padding:8px 11px;
+  box-shadow:0 1px 3px rgba(17,19,26,.08); font:11px/1 var(--mono); }
+.toolbar .tb-lbl{ color:var(--ink-faint); letter-spacing:.06em; text-transform:uppercase; }
+.rc-theme{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--rule);border-radius:7px;
+          padding:3px 4px 3px 7px;background:var(--bg);}
+.rc-theme-sw{width:12px;height:12px;border-radius:50%;background:var(--navy);box-shadow:0 0 0 1px var(--rule);flex:none;}
+.rc-theme-sel{border:0;background:none;font:600 11px/1 var(--mono);color:var(--ink-mid);cursor:pointer;outline:none;padding:2px;}
+@media print{.rc-theme{display:none;}}
+.toolbar button.print{ font:11px/1 var(--mono); letter-spacing:.05em; text-transform:uppercase; cursor:pointer;
+  border:1px solid var(--navy-line); background:var(--navy-bg); color:var(--navy-deep);
+  border-radius:6px; padding:6px 9px; }
+
+/* ============================== PRINT — one sheet, one page ============================== */
+@page{ size:A4; margin:0; }
+@media print{
+  .page{ background:#fff; padding:0; min-height:0; }
+  html,body{ background:#fff; }
+  .sheet{ box-shadow:none; margin:0; }
+  .no-print{ display:none !important; }
+  .pop{ display:none !important; }
+  .rc-theme,.toolbar{ display:none; }
+  /* print a complete static snapshot: full mitigation text, no truncation, no hover dimming */
+  .risk-fix{ white-space:normal; overflow:visible; }
+  .bars .col{ opacity:1 !important; filter:none !important; box-shadow:none !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- ===================== DATA SOURCE — the ONLY content source =====================
+     Valid instance of designs/schemas/one-pager.schema.json (verdict, bluf, scr, kpis[4],
+     visual, ask, risks[]). render() builds the sheet below from this JSON on load. -->
+<script type="application/json" id="report-data">
+{
+  "meta": {
+    "org": "{{ORG}}",
+    "project": "{{PROJECT}}",
+    "reportType": "{{REPORT_TYPE}}",
+    "title": "Phase 2 Go / No-Go",
+    "date": "2026-06-22",
+    "author": "{{AUTHOR}}",
+    "theme": "plum"
+  },
+  "verdict": {
+    "label": "Proceed — staged",
+    "state": "ok",
+    "decideBy": "2026-06-30"
+  },
+  "bluf": "<strong>Recommendation: approve the ¥2.8B Phase&nbsp;2 build, staged on a Q3 pilot gate.</strong> It clears the two workstreams now capping growth, returns a 5-yr NPV of ¥3.9B at 24% IRR, and caps pre-gate downside at ¥1.1B. Deferral past Q2 forfeits FY26 revenue and vendor-renewal leverage.",
+  "scr": {
+    "situation": {
+      "text": "Core platform is at <b class=\"tnum\">97%</b> of plan and on budget, but the <b>experience</b> and <b>integration</b> workstreams sit amber — current run-rate closes only <b class=\"tnum\">58%</b> of the FY26 roadmap. The addressable market is growing <b class=\"tnum\">14%</b> YoY."
+    },
+    "complication": {
+      "text": "Two competitors shipped the capability this quarter, and the primary vendor contract expires in <b>September</b> — renewing before Phase&nbsp;2 scope is fixed forfeits leverage worth ~<b class=\"tnum\">¥240M/yr</b>. Compliance hardening trails at <b class=\"tnum\">41%</b>."
+    },
+    "resolution": {
+      "text": "Fund experience + integration to green, ring-fence a compliance squad, and renew the vendor on the hybrid option once scope locks. Release <b class=\"tnum\">40%</b> now; the <b class=\"tnum\">60%</b> balance gates on the Q3 pilot hitting its conversion target."
+    }
+  },
+  "kpis": [
+    { "label": "Investment ask", "value": "¥2.8", "unit": "B",  "delta": "staged · 40% / 60%", "deltaDirection": "flat" },
+    { "label": "5-yr NPV",       "value": "¥3.9", "unit": "B",  "delta": "▲ ¥0.4B vs base",   "deltaDirection": "up"   },
+    { "label": "IRR",            "value": "24",   "unit": "%",  "delta": "▲ 6 pt over hurdle", "deltaDirection": "up"   },
+    { "label": "Payback",        "value": "18",   "unit": "mo", "delta": "▼ 2 mo vs plan",     "deltaDirection": "down" }
+  ],
+  "visual": {
+    "kind": "bars",
+    "title": "Roadmap coverage",
+    "subtitle": "% of FY26 roadmap funded — <b>58% → 92%</b> with Phase&nbsp;2",
+    "data": [
+      { "label": "Now",   "value": 58, "state": "plan" },
+      { "label": "Q2",    "value": 64, "state": "plan" },
+      { "label": "Q3",    "value": 73, "state": "proj" },
+      { "label": "Q4",    "value": 82, "state": "proj" },
+      { "label": "Q1'27", "value": 88, "state": "proj" },
+      { "label": "Q2'27", "value": 92, "state": "proj" }
+    ],
+    "legend": [
+      { "label": "Funded base",   "swatchStyle": "brand" },
+      { "label": "Phase 2 gated", "swatchStyle": "projected" }
+    ]
+  },
+  "ask": {
+    "text": "<strong>Approve</strong> the ¥2.8B staged Phase&nbsp;2 investment (40% now / 60% on the Q3 pilot gate) and <strong>authorise</strong> the hybrid vendor renewal before the September expiry. Full evidence: long-form <i>{{PROJECT}} Investment Business Case</i>.",
+    "metaItems": [
+      { "key": "Owner",   "value": "CFO" },
+      { "key": "Sponsor", "value": "COO" },
+      { "key": "Amount",  "value": "¥2.8B" },
+      { "key": "Gate",    "value": "Q3 pilot" }
+    ]
+  },
+  "risks": [
+    { "label": "Pilot misses target",      "severity": "hold", "severityLabel": "Watch",    "mitigation": "<b>Stage-gate</b> caps exposure to ¥1.1B; 60% balance held until Q3 conversion confirmed." },
+    { "label": "Vendor renewal slips",     "severity": "risk", "severityLabel": "High",     "mitigation": "<b>Lock hybrid term by Aug</b>; legal pre-cleared, fallback supplier shortlisted." },
+    { "label": "Compliance hardening lag", "severity": "ok",   "severityLabel": "On track", "mitigation": "<b>Ring-fenced squad</b> brings 41% → 100% before pilot; weekly burn-down to CRO." }
+  ]
+}
+</script>
+
+<noscript>
+  <div style="max-width:210mm;margin:24px auto;padding:16px 20px;border:1px solid #edc7c4;
+              border-left:3px solid #b3261e;border-radius:10px;background:#fbeceb;
+              font:13px/1.55 -apple-system,'Segoe UI',sans-serif;color:#33363f;">
+    <strong>This one-pager renders from embedded JSON and needs JavaScript.</strong>
+    The decision brief (verdict, BLUF, KPI strip, SCR case, coverage chart, ask, residual risks)
+    lives in the <code>#report-data</code> block above and is valid against
+    <code>designs/schemas/one-pager.schema.json</code>. Enable JavaScript, or read that JSON directly.
+  </div>
+</noscript>
+
+<div class="page">
+
+  <div class="toolbar no-print">
+    <span class="tb-lbl">Theme</span>
+    <label class="rc-theme" title="Brand colour">
+      <span class="rc-theme-sw" aria-hidden="true"></span>
+      <select class="rc-theme-sel" aria-label="Brand theme">
+        <option value="blue">Blue</option>
+        <option value="purple">Purple</option>
+        <option value="indigo">Indigo</option>
+        <option value="teal">Teal</option>
+        <option value="cyan">Cyan</option>
+        <option value="green">Green</option>
+        <option value="plum">Plum</option>
+        <option value="slate">Slate</option>
+        <option value="black">Black</option>
+      </select>
+    </label>
+    <button type="button" class="print" onclick="window.print()">Print</button>
+  </div>
+
+  <section class="sheet" aria-label="One-page decision brief">
+
+    <!-- ===== MASTHEAD ===== -->
+    <header class="masthead">
+      <div class="mast-l">
+        <div class="mast-kicker">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 3.5H13l4.5 4.5V20a.5.5 0 0 1-.5.5H6.5a.5.5 0 0 1-.5-.5V4a.5.5 0 0 1 .5-.5Z"/><path d="M13 3.5V7.5a.5.5 0 0 0 .5.5H17.5"/><path d="M9 12.5H15M9 15.5H15M9 18H12.5"/></svg>
+          <span id="r-kicker"></span>
+        </div>
+        <h1 class="mast-title" id="r-title"></h1>
+      </div>
+      <div class="mast-r">
+        <span class="verdict" id="r-verdict" tabindex="0">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M8.3 12.4l2.5 2.5 4.9-5.3"/></svg>
+          <span id="r-verdict-label"></span>
+        </span>
+        <div class="chips" id="r-chips"></div>
+      </div>
+    </header>
+
+    <!-- ===== LEDE / BLUF ===== -->
+    <div class="lede">
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.25 19 5.75v5.45c0 4.4-3 7.6-7 8.8-4-1.2-7-4.4-7-8.8V5.75Z"/><path d="M9 12l2.2 2.2L15.2 9.6"/></svg>
+      <p id="r-bluf"></p>
+    </div>
+
+    <!-- ===== KPI STRIP ===== -->
+    <div class="kpi-strip" id="r-kpis" role="group" aria-label="Key metrics"></div>
+
+    <!-- ===== MAIN BAND: SCR spine + mini visual ===== -->
+    <div class="grid-main">
+
+      <div class="scr">
+        <div class="scr-head">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4V20H20"/><rect x="6.75" y="12" width="3" height="8" rx="1.2"/><rect x="11.5" y="8" width="3" height="12" rx="1.2"/><rect x="16.25" y="14.5" width="3" height="5.5" rx="1.2"/></svg>
+          The case — Situation · Complication · Resolution
+        </div>
+        <div id="r-scr"></div>
+      </div>
+
+      <!-- ONE CSS-drawn mini visual -->
+      <div class="visual">
+        <div class="vh">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4V20H20"/><rect x="6.75" y="12" width="3" height="8" rx="1.2"/><rect x="11.5" y="8" width="3" height="12" rx="1.2"/><rect x="16.25" y="14.5" width="3" height="5.5" rx="1.2"/></svg>
+          <span id="r-visual-title"></span>
+        </div>
+        <div class="vsub" id="r-visual-sub"></div>
+        <div class="bars" id="r-bars" role="img"></div>
+        <div class="vlegend" id="r-vlegend"></div>
+      </div>
+
+    </div>
+
+    <!-- ===== ASK BOX ===== -->
+    <div class="ask-box">
+      <div class="ask-l">
+        <div class="ah">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M8.3 12.4l2.5 2.5 4.9-5.3"/></svg>
+          Decision requested today
+        </div>
+        <p id="r-ask"></p>
+      </div>
+      <dl class="ask-meta" id="r-ask-meta"></dl>
+    </div>
+
+    <!-- ===== MINI RISK LIST ===== -->
+    <div class="mini-risk">
+      <div class="rh">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.25 19 5.75v5.45c0 4.4-3 7.6-7 8.8-4-1.2-7-4.4-7-8.8V5.75Z"/><path d="M12 9v3.5M12 15.4v.1"/></svg>
+        Residual risks &amp; mitigations
+        <span class="hint no-print">click a row for detail</span>
+      </div>
+      <div id="r-risks"></div>
+    </div>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="sheet-foot">
+      <span id="r-foot-l"></span>
+      <span class="wordmark"><i class="sq"></i> <span id="r-foot-r"></span></span>
+    </footer>
+
+    <!-- single reusable overlay popover (screen-only; never reflows the sheet) -->
+    <div class="pop no-print" id="pop" role="status" aria-live="polite"></div>
+
+  </section>
+</div>
+
+<script>
+/* ============================================================================
+   DATA-DRIVEN one-pager. Reads #report-data (valid vs one-pager.schema.json),
+   renders the sheet, then wires overlay-only interactivity so the single A4
+   page is preserved (no inline growth — all detail is an absolute popover).
+   ============================================================================ */
+(function(){
+  "use strict";
+  var DATA;
+  try { DATA = JSON.parse(document.getElementById('report-data').textContent); }
+  catch (e) { console.error('report-data is not valid JSON', e); return; }
+
+  var $  = function(id){ return document.getElementById(id); };
+  var esc = function(s){ return String(s == null ? '' : s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); };
+
+  /* ---------------------------------------- render() ---------------------------------------- */
+  function render(){
+    var m = DATA.meta || {};
+
+    /* initial theme = meta.theme */
+    document.documentElement.setAttribute('data-theme', m.theme || 'plum');
+    document.title = (m.project || '{{PROJECT}}') + ' — ' + (m.title || 'One-Pager');
+
+    /* masthead */
+    var kick = [m.reportType, 'Decision Brief', 'One-Pager'].filter(Boolean).join(' · ');
+    $('r-kicker').textContent = kick;
+    $('r-title').innerHTML = esc(m.project || '{{PROJECT}}') + ' — ' + esc(m.title || '');
+    if (m.subtitle) $('r-title').innerHTML += ' <b>' + esc(m.subtitle) + '</b>';
+
+    /* verdict pill (state → colour class) */
+    var v = DATA.verdict || {};
+    var vEl = $('r-verdict');
+    vEl.classList.remove('v-hold','v-risk');
+    if (v.state === 'hold') vEl.classList.add('v-hold');
+    else if (v.state === 'risk') vEl.classList.add('v-risk');
+    $('r-verdict-label').textContent = v.label || '';
+
+    /* chips: DECIDE BY + report date */
+    var chips = '';
+    if (v.decideBy) chips += '<span class="chip">DECIDE BY ' + esc(v.decideBy) + '</span>';
+    if (m.date) chips += '<span class="chip plain">' + esc(m.date) + '</span>';
+    $('r-chips').innerHTML = chips;
+
+    /* BLUF (rich text allowed from schema) */
+    $('r-bluf').innerHTML = DATA.bluf || '';
+
+    /* KPI strip (exactly 4) */
+    $('r-kpis').innerHTML = (DATA.kpis || []).map(function(k, i){
+      var unit = k.unit ? '<small>' + esc(k.unit) + '</small>' : '';
+      var dir  = (k.deltaDirection || 'flat');
+      var delta = k.delta ? '<div class="delta ' + dir + '">' + esc(k.delta) + '</div>' : '';
+      return '<div class="kpi" tabindex="0" data-i="' + i + '">'
+           +   '<div class="lbl">' + esc(k.label) + '</div>'
+           +   '<div class="n' + (i === 0 ? ' ink-navy' : '') + '">' + (k.value || '') + unit + '</div>'
+           +   delta
+           + '</div>';
+    }).join('');
+
+    /* SCR spine */
+    var scr = DATA.scr || {};
+    var steps = [
+      { k:'S', t:'Situation',    o:scr.situation,    act:false },
+      { k:'C', t:'Complication', o:scr.complication, act:false },
+      { k:'R', t:'Resolution',   o:scr.resolution,   act:true  }
+    ];
+    var arrow = '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 5.5 16 12l-6.5 6.5"/></svg>';
+    $('r-scr').innerHTML = steps.map(function(s, idx){
+      var last = idx === steps.length - 1;
+      var rail = last ? '' : '<div class="scr-rail"></div>';
+      return '<div class="scr-row' + (s.act ? ' r-act' : '') + '">'
+           +   '<div class="scr-step"><div class="scr-num">' + s.k + '</div>' + rail + '</div>'
+           +   '<div class="scr-body">'
+           +     '<p class="t">' + (s.act ? arrow : '') + esc(s.t) + '</p>'
+           +     '<p>' + ((s.o && s.o.text) || '') + '</p>'
+           +   '</div>'
+           + '</div>';
+    }).join('');
+
+    /* visual — CSS bar chart */
+    var vis = DATA.visual || {};
+    $('r-visual-title').textContent = vis.title || '';
+    $('r-visual-sub').innerHTML = vis.subtitle || '';
+    var bars = (vis.data || []);
+    var max = bars.reduce(function(a, d){ return Math.max(a, +d.value || 0); }, 0) || 100;
+    var barsEl = $('r-bars');
+    barsEl.style.setProperty('--ncols', bars.length || 1);
+    barsEl.setAttribute('aria-label',
+      (vis.title || 'Chart') + ': ' + bars.map(function(d){ return d.label + ' ' + d.value; }).join(', '));
+    barsEl.innerHTML = bars.map(function(d, i){
+      var cls = d.state === 'plan' ? 'is-plan' : (d.state === 'proj' ? 'is-proj' : '');
+      var h = Math.max(2, Math.round((+d.value || 0) / max * 100));
+      var prev = i > 0 ? bars[i - 1] : null;
+      var dlt = prev ? ((+d.value - +prev.value >= 0 ? '+' : '') + (+d.value - +prev.value)) : null;
+      return '<div class="bar ' + cls + '" data-i="' + i + '"'
+           +   ' data-label="' + esc(d.label) + '" data-value="' + esc(d.value)
+           +   '" data-state="' + esc(d.state || 'default') + '"'
+           +   (dlt ? ' data-delta="' + esc(dlt) + '"' : '') + '>'
+           +   '<div class="v">' + esc(d.value) + '</div>'
+           +   '<div class="col" style="height:' + h + '%"></div>'
+           +   '<div class="x">' + esc(d.label) + '</div>'
+           + '</div>';
+    }).join('');
+
+    /* legend */
+    var swMap = { brand:'s-act', projected:'s-proj', base:'s-base' };
+    $('r-vlegend').innerHTML = (vis.legend || []).map(function(l){
+      return '<span><i class="swatch ' + (swMap[l.swatchStyle] || 's-base') + '"></i> ' + esc(l.label) + '</span>';
+    }).join('');
+
+    /* ask box */
+    var ask = DATA.ask || {};
+    $('r-ask').innerHTML = ask.text || '';
+    $('r-ask-meta').innerHTML = (ask.metaItems || []).map(function(it){
+      return '<dt>' + esc(it.key) + '</dt><dd>' + esc(it.value) + '</dd>';
+    }).join('');
+
+    /* risk list — inline truncated; full mitigation in popover */
+    var sevMap = { ok:'st-ok', hold:'st-hold', risk:'st-risk' };
+    $('r-risks').innerHTML = (DATA.risks || []).map(function(r, i){
+      return '<div class="risk-item" data-i="' + i + '" tabindex="0" role="button"'
+           +   ' aria-expanded="false" aria-label="' + esc(r.label) + ' — show mitigation">'
+           +   '<div class="risk-label">' + esc(r.label) + '</div>'
+           +   '<span class="st-badge ' + (sevMap[r.severity] || '') + '">' + esc(r.severityLabel || r.severity) + '</span>'
+           +   '<div class="risk-fix">' + (r.mitigation || '') + '</div>'
+           +   '<span class="risk-more no-print" aria-hidden="true">›</span>'
+           + '</div>';
+    }).join('');
+
+    /* footer */
+    $('r-foot-l').textContent = 'Confidential · For steering decision · ' + (m.author || '{{AUTHOR}}');
+    $('r-foot-r').textContent = (m.org || '{{ORG}}') + ' · Decision Brief · ' + (m.date || '{{DATE}}');
+  }
+
+  /* ----------------------------- overlay popover engine ----------------------------- */
+  var pop = $('pop');
+  var sheet = document.querySelector('.sheet');
+  var pinned = null;   /* a click-pinned anchor (risk rows) */
+
+  function placePop(anchor, opts){
+    opts = opts || {};
+    pop.classList.add('is-open');
+    var sR = sheet.getBoundingClientRect();
+    var aR = anchor.getBoundingClientRect();
+    var pR = pop.getBoundingClientRect();
+    var pad = 8;
+    /* horizontal: centre on anchor, clamp inside sheet */
+    var cx = (aR.left + aR.width / 2) - sR.left;
+    var left = cx - pR.width / 2;
+    left = Math.max(pad, Math.min(left, sR.width - pR.width - pad));
+    /* arrow x relative to popover */
+    var ax = cx - left;
+    ax = Math.max(14, Math.min(ax, pR.width - 14));
+    pop.style.setProperty('--ax', ax + 'px');
+    /* vertical: prefer above the anchor; flip below if it would clip the top */
+    var top = (aR.top - sR.top) - pR.height - 10;
+    if (top < pad){ top = (aR.bottom - sR.top) + 10; pop.classList.add('below'); }
+    else { pop.classList.remove('below'); }
+    pop.style.left = left + 'px';
+    pop.style.top  = top + 'px';
+  }
+  function showPop(anchor, html){ pop.innerHTML = html; pop.classList.add('is-open'); placePop(anchor); }
+  function hidePop(){ if (pinned) return; pop.classList.remove('is-open'); }
+  function forceHide(){ pinned = null; pop.classList.remove('is-open'); }
+
+  /* ----------------------------- wireInteractions() ----------------------------- */
+  function wireInteractions(){
+    /* verdict pill → gate / condition tooltip */
+    var v = DATA.verdict || {};
+    var vEl = $('r-verdict');
+    var vTip = function(){
+      var by = v.decideBy ? '<p class="pb">Decide by <b>' + esc(v.decideBy) + '</b>.</p>' : '';
+      showPop(vEl, '<p class="pt">' + esc(v.label || 'Verdict') + '</p>'
+        + '<p class="pb">Staged call: 40% released now, the 60% balance gates on the Q3 pilot conversion target.</p>' + by);
+    };
+    vEl.addEventListener('mouseenter', vTip);
+    vEl.addEventListener('focus', vTip);
+    vEl.addEventListener('mouseleave', hidePop);
+    vEl.addEventListener('blur', hidePop);
+
+    /* KPI tiles → detail (basis) popover on hover/focus */
+    var kpis = DATA.kpis || [];
+    Array.prototype.forEach.call(document.querySelectorAll('#r-kpis .kpi'), function(el){
+      var k = kpis[+el.dataset.i] || {};
+      var show = function(){
+        var val = (k.value || '') + (k.unit ? ' ' + k.unit : '');
+        var d = k.delta ? '<p class="pb">' + esc(k.delta) + '</p>' : '';
+        showPop(el, '<p class="pk">' + esc(k.label || '') + '</p>'
+          + '<div class="pv">' + esc(val) + '</div>' + d);
+      };
+      el.addEventListener('mouseenter', show);
+      el.addEventListener('focus', show);
+      el.addEventListener('mouseleave', hidePop);
+      el.addEventListener('blur', hidePop);
+    });
+
+    /* mini bar chart → exact value + delta tooltip; emphasise hovered bar, dim others */
+    var barsEl = $('r-bars');
+    var bars = (DATA.visual && DATA.visual.data) || [];
+    Array.prototype.forEach.call(barsEl.querySelectorAll('.bar'), function(b){
+      var d = bars[+b.dataset.i] || {};
+      var enter = function(){
+        barsEl.classList.add('is-hovering');
+        Array.prototype.forEach.call(barsEl.querySelectorAll('.bar'), function(x){ x.classList.remove('is-hover'); });
+        b.classList.add('is-hover');
+        var delta = b.dataset.delta ? '<p class="pb">vs prev <b>' + esc(b.dataset.delta) + ' pt</b></p>' : '';
+        var tag = (d.state === 'proj') ? 'Phase 2 gated' : (d.state === 'plan' ? 'Funded base' : '');
+        showPop(b, '<p class="pk">' + esc(d.label || '') + (tag ? ' · ' + tag : '') + '</p>'
+          + '<div class="pv">' + esc(d.value) + '%</div>' + delta);
+      };
+      var leave = function(){
+        b.classList.remove('is-hover');
+        barsEl.classList.remove('is-hovering');
+        hidePop();
+      };
+      b.addEventListener('mouseenter', enter);
+      b.addEventListener('mouseleave', leave);
+      b.addEventListener('focus', enter);
+      b.addEventListener('blur', leave);
+      b.setAttribute('tabindex', '0');
+    });
+
+    /* risk rows → click pins a mitigation popover (overlay, no inline growth) */
+    var risks = DATA.risks || [];
+    Array.prototype.forEach.call(document.querySelectorAll('#r-risks .risk-item'), function(row){
+      var r = risks[+row.dataset.i] || {};
+      var open = function(){
+        document.querySelectorAll('#r-risks .risk-item[aria-expanded="true"]').forEach(function(o){
+          o.setAttribute('aria-expanded', 'false');
+        });
+        row.setAttribute('aria-expanded', 'true');
+        pinned = null;                       /* allow re-placement before pinning */
+        showPop(row, '<p class="pt">' + esc(r.label || '') + '</p>'
+          + '<p class="pb">' + (r.mitigation || '') + '</p>');
+        pinned = row;
+      };
+      row.addEventListener('click', function(e){
+        e.stopPropagation();
+        if (pinned === row){ forceHide(); row.setAttribute('aria-expanded', 'false'); }
+        else { open(); }
+      });
+      row.addEventListener('keydown', function(e){
+        if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); row.click(); }
+        if (e.key === 'Escape'){ forceHide(); row.setAttribute('aria-expanded', 'false'); }
+      });
+    });
+
+    /* dismiss a pinned risk popover on outside click / Escape */
+    document.addEventListener('click', function(){
+      if (pinned){
+        pinned.setAttribute('aria-expanded', 'false');
+        forceHide();
+      }
+    });
+    document.addEventListener('keydown', function(e){ if (e.key === 'Escape'){ if(pinned) pinned.setAttribute('aria-expanded','false'); forceHide(); } });
+  }
+
+  /* ----------------------------- wireThemeSwitch() ----------------------------- */
+  function wireThemeSwitch(){
+    var rcSel = document.querySelector('.rc-theme-sel');
+    /* restore persisted theme (falls back to meta.theme set during render) */
+    var saved = null;
+    try { saved = localStorage.getItem('one-pager-theme'); } catch (e) {}
+    if (saved){ document.documentElement.setAttribute('data-theme', saved); }
+    if (rcSel) rcSel.value = document.documentElement.getAttribute('data-theme') || 'plum';
+    if (rcSel){
+      rcSel.addEventListener('change', function(){
+        var t = rcSel.value;
+        document.documentElement.setAttribute('data-theme', t);
+        try { localStorage.setItem('one-pager-theme', t); } catch (e) {}
+        forceHide();   /* close any open popover so it re-anchors with fresh colours */
+      });
+    }
+  }
+
+  /* ----------------------------- boot ----------------------------- */
+  function boot(){ render(); wireInteractions(); wireThemeSwitch(); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
+
+  /* keep popovers correctly anchored if the window resizes (screen only) */
+  window.addEventListener('resize', forceHide);
+})();
+</script>
+</body>
+</html>

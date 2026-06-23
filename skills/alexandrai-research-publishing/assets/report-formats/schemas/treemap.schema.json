@@ -1,0 +1,213 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://html-report-design/schemas/treemap.schema.json",
+  "title": "Treemap (hierarchical area treemap) report",
+  "description": "Data contract for the treemap format: a hierarchical AREA treemap where nested rectangles are sized by a quantitative metric and nesting encodes containment. The renderer reads exactly these fields, computes a SQUARIFIED layout in JS (rows that minimise tile aspect ratio), and wires zoom-by-tile-click drill-down, a clickable breadcrumb trail to ascend, a 'colour by' metric select that recolours tiles, a depth slider that renders 1..N nested levels, and per-tile hover tooltips showing the exact value + share-of-parent + colour-metric value. Area encodes magnitude; nesting encodes hierarchy. The sample's #report-data is the canonical instance of this schema.",
+  "type": "object",
+  "required": ["meta", "sizeMetric", "colorMetric", "root"],
+  "additionalProperties": false,
+  "properties": {
+    "meta": {
+      "type": "object",
+      "description": "Shared report chrome metadata (brand-neutral). org/project/author stay as {{…}} placeholders unless real values are supplied.",
+      "required": ["org", "project", "reportType", "title", "theme"],
+      "additionalProperties": false,
+      "properties": {
+        "org": { "type": "string", "description": "Owning organisation. Keep the literal placeholder {{ORG}} when brand-neutral.", "examples": ["{{ORG}}"] },
+        "project": { "type": "string", "description": "Project / programme name. Keep the literal placeholder {{PROJECT}} when brand-neutral.", "examples": ["{{PROJECT}}"] },
+        "reportType": { "type": "string", "description": "Short label for the kind of breakdown the treemap shows (e.g. 'Cost Allocation', 'Portfolio Composition', 'Capacity Map').", "examples": ["Cloud Cost Allocation"] },
+        "title": { "type": "string", "description": "Title shown in the toolbar.", "examples": ["Cloud Spend — Hierarchical Cost Map"] },
+        "subtitle": { "type": "string", "description": "Optional one-line standfirst / scope note shown beside the title.", "examples": ["FY2026 H1 · 4 levels · sized by monthly spend"] },
+        "date": { "type": "string", "description": "As-of date (ISO yyyy-mm-dd or display string).", "examples": ["2026-06-22"] },
+        "author": { "type": "string", "description": "Preparer. Keep the literal placeholder {{AUTHOR}} when brand-neutral.", "examples": ["{{AUTHOR}}"] },
+        "theme": { "type": "string", "description": "Initial brand theme; sets <html data-theme>. Default for this format is indigo.", "enum": ["blue", "purple", "indigo", "teal", "cyan", "green", "plum", "slate", "black"], "default": "indigo" }
+      }
+    },
+    "sizeMetric": {
+      "type": "object",
+      "description": "Describes the quantitative metric that drives tile AREA. Every leaf carries this as its 'value'; an internal node's value is the sum of its children (the renderer rolls it up when omitted).",
+      "required": ["label", "unit"],
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "description": "Human label for the size metric (shown in the toolbar and tooltips).", "examples": ["Monthly spend"] },
+        "unit": { "type": "string", "description": "Unit / prefix string for the size metric. Use a leading symbol like '$' or a trailing unit; the renderer concatenates it with the value.", "examples": ["$", " req/s", " GB"] },
+        "unitPosition": { "type": "string", "description": "Where the unit sits relative to the number. 'prefix' (e.g. $1,200) or 'suffix' (e.g. 42 GB). Defaults to prefix when the unit is a currency-like symbol, else suffix.", "enum": ["prefix", "suffix"], "default": "prefix" }
+      }
+    },
+    "colorMetric": {
+      "type": "object",
+      "description": "Describes the SECONDARY metric that drives tile TINT (distinct from area). The 'color by' select lets the reader switch between this metric, the size metric itself, and flat category tint. Each node supplies the raw colour value in its own 'color' field.",
+      "required": ["label", "type"],
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "description": "Human label for the colour metric (shown in the 'colour by' select and tooltips).", "examples": ["MoM growth"] },
+        "unit": { "type": "string", "description": "Optional unit string for the colour-metric value shown in tooltips (e.g. '%').", "examples": ["%"] },
+        "type": { "type": "string", "description": "Colour-scale kind. 'diverging' = ok↔neutral↔risk around a midpoint (e.g. growth, variance); 'sequential' = a single-hue ramp from low to high on the brand accent; 'category' = a discrete categorical tint keyed off node.color as a category id.", "enum": ["diverging", "sequential", "category"] },
+        "thresholds": {
+          "type": "object",
+          "description": "For type 'diverging' or 'sequential': the numeric domain. 'min'/'max' bound the scale; for diverging, 'mid' is the neutral pivot (values below pivot tint toward ok, above toward risk — or invert with 'goodHigh').",
+          "additionalProperties": false,
+          "properties": {
+            "min": { "type": "number", "description": "Low end of the colour domain.", "examples": [-20] },
+            "mid": { "type": "number", "description": "Neutral pivot for a diverging scale (ignored for sequential).", "examples": [0] },
+            "max": { "type": "number", "description": "High end of the colour domain.", "examples": [40] },
+            "goodHigh": { "type": "boolean", "description": "If true, HIGH values are 'good' (tint toward ok) and low values 'bad' (tint toward risk). If false (default), high values tint toward risk. Applies to diverging and sequential.", "default": true }
+          }
+        },
+        "scale": {
+          "type": "array",
+          "description": "For type 'category': the legend mapping discrete category ids to a label + a palette role. Each node's 'color' field holds the category id matched here.",
+          "items": {
+            "type": "object",
+            "required": ["id", "label"],
+            "additionalProperties": false,
+            "properties": {
+              "id": { "type": "string", "description": "Category id referenced by a node's 'color' field.", "examples": ["compute"] },
+              "label": { "type": "string", "description": "Human label for the category shown in the legend / tooltip.", "examples": ["Compute"] },
+              "role": { "type": "string", "description": "Which palette token tints this category. 'accent' = brand accent, 'accent-soft' = accent line, plus the three semantics; multiple categories may share a role (tiles are disambiguated by tint step).", "enum": ["accent", "accent-soft", "ok", "hold", "risk", "neutral"], "default": "accent" }
+            }
+          }
+        }
+      }
+    },
+    "root": {
+      "$ref": "#/$defs/node",
+      "description": "The single top node of the hierarchy — the initial focus root. Its 'children' recurse to form the whole tree. Recommended depth 3–4 with a fan-out of 3–8 per node so tiles stay legible."
+    }
+  },
+  "$defs": {
+    "node": {
+      "type": "object",
+      "description": "One node of the hierarchy. A LEAF must carry 'value' (its area). An INTERNAL node carries 'children'; its value is the sum of its children (the renderer rolls it up if 'value' is omitted). 'color' supplies the colour-metric reading for this node (a number for diverging/sequential scales, or a category id for the category scale).",
+      "required": ["id", "label"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "description": "Stable unique node id (DOM key + breadcrumb/zoom state). Must be unique across the whole tree.", "examples": ["compute", "svc-ledger"] },
+        "label": { "type": "string", "description": "Tile label — a category, team, service, or account name.", "examples": ["Compute", "Ledger Service"] },
+        "value": { "type": "number", "description": "Magnitude in the size metric's unit, driving tile AREA. Required on leaves; on internal nodes it is optional and defaults to the sum of descendants.", "minimum": 0, "examples": [184000] },
+        "color": { "description": "Colour-metric reading for this tile: a NUMBER for diverging/sequential scales, or a category-id STRING for the category scale. Omit to render neutral.", "type": ["number", "string"], "examples": [12.4, "compute"] },
+        "note": { "type": "string", "description": "Optional one-line descriptor shown in the right-rail summary when this node is focused.", "examples": ["Managed instance groups + serverless"] },
+        "children": {
+          "type": "array",
+          "description": "Child nodes (recurse with the same shape). Omit or leave empty for a leaf.",
+          "items": { "$ref": "#/$defs/node" }
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "meta": {
+        "org": "{{ORG}}",
+        "project": "{{PROJECT}}",
+        "reportType": "Cloud Cost Allocation",
+        "title": "Cloud Spend — Hierarchical Cost Map",
+        "subtitle": "FY2026 H1 · 4 levels · sized by monthly spend",
+        "date": "2026-06-22",
+        "author": "{{AUTHOR}}",
+        "theme": "indigo"
+      },
+      "sizeMetric": { "label": "Monthly spend", "unit": "$", "unitPosition": "prefix" },
+      "colorMetric": {
+        "label": "MoM change",
+        "unit": "%",
+        "type": "diverging",
+        "thresholds": { "min": -25, "mid": 0, "max": 40, "goodHigh": false }
+      },
+      "root": {
+        "id": "root",
+        "label": "All cloud spend",
+        "note": "Consolidated FY2026 H1 monthly run-rate across 3 platforms",
+        "children": [
+          {
+            "id": "platform",
+            "label": "Core Platform",
+            "color": 9.4,
+            "note": "Shared banking platform services",
+            "children": [
+              {
+                "id": "compute",
+                "label": "Compute",
+                "color": 14.2,
+                "note": "Managed instance groups + serverless",
+                "children": [
+                  { "id": "mig", "label": "Instance groups", "value": 184000, "color": 11.0 },
+                  { "id": "serverless", "label": "Serverless / Run", "value": 96000, "color": 38.5 },
+                  { "id": "batch", "label": "Batch compute", "value": 42000, "color": -8.0 }
+                ]
+              },
+              {
+                "id": "data",
+                "label": "Data & Analytics",
+                "color": 6.1,
+                "children": [
+                  { "id": "warehouse", "label": "Warehouse", "value": 128000, "color": 4.2 },
+                  { "id": "streaming", "label": "Event streaming", "value": 71000, "color": 19.6 },
+                  { "id": "ml", "label": "ML pipelines", "value": 38000, "color": 27.0 }
+                ]
+              },
+              {
+                "id": "storage",
+                "label": "Storage",
+                "color": -3.4,
+                "children": [
+                  { "id": "object", "label": "Object storage", "value": 64000, "color": -6.0 },
+                  { "id": "block", "label": "Block volumes", "value": 41000, "color": 2.1 },
+                  { "id": "backup", "label": "Backup & archive", "value": 23000, "color": -12.0 }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "channels",
+            "label": "Digital Channels",
+            "color": 18.0,
+            "note": "Mobile, web & open-banking estate",
+            "children": [
+              {
+                "id": "edge",
+                "label": "Edge & CDN",
+                "color": 22.4,
+                "children": [
+                  { "id": "cdn", "label": "CDN egress", "value": 88000, "color": 31.0 },
+                  { "id": "waf", "label": "WAF / gateway", "value": 34000, "color": 9.0 }
+                ]
+              },
+              {
+                "id": "api",
+                "label": "API tier",
+                "color": 12.7,
+                "children": [
+                  { "id": "gw", "label": "API gateway", "value": 52000, "color": 8.5 },
+                  { "id": "auth", "label": "Auth service", "value": 29000, "color": 15.0 },
+                  { "id": "notif", "label": "Notifications", "value": 18000, "color": 44.0 }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "observability",
+            "label": "Observability & Ops",
+            "color": -9.0,
+            "note": "Telemetry, logging, on-call tooling",
+            "children": [
+              { "id": "logs", "label": "Log pipeline", "value": 73000, "color": -14.0 },
+              { "id": "metrics", "label": "Metrics & APM", "value": 46000, "color": -4.0 },
+              { "id": "trace", "label": "Tracing", "value": 21000, "color": 6.0 }
+            ]
+          },
+          {
+            "id": "network",
+            "label": "Network & Interconnect",
+            "color": 3.2,
+            "children": [
+              { "id": "interconnect", "label": "Interconnect", "value": 57000, "color": 1.0 },
+              { "id": "egress", "label": "Inter-region egress", "value": 39000, "color": 12.0 },
+              { "id": "vpn", "label": "VPN / peering", "value": 14000, "color": -2.0 }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}
