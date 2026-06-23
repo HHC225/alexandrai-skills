@@ -262,6 +262,11 @@ async function versionPaper(auth, paperId, filePath) {
 // results come back grouped per query.
 async function search(auth, queries, limit) {
   if (queries.length === 0) throw new UsageError('Missing search query.');
+  queries.forEach((query, index) => {
+    if (!isEnglishText(query)) {
+      throw new UsageError(`NON_ENGLISH_SEARCH_QUERY: query ${index + 1} must use English ASCII terms only.`);
+    }
+  });
   const url = apiUrl(auth.site, 'papers');
   for (const query of queries) url.searchParams.append('q', query);
   if (limit) url.searchParams.set('limit', limit);
@@ -299,6 +304,12 @@ async function validateData(data, errors) {
     }
     if (!isStringArray(data.paper.keywords) || data.paper.keywords.length === 0) {
       errors.push(error('MISSING_KEYWORDS', 'paper.keywords', 'non-empty array of keyword strings', data.paper.keywords, 'Keywords are required — they index the paper for keyword search in the knowledge graph.'));
+    } else {
+      data.paper.keywords.forEach((keyword, index) => {
+        if (!isEnglishText(keyword)) {
+          errors.push(error('NON_ENGLISH_KEYWORD', `paper.keywords[${index}]`, 'English ASCII keyword text', keyword, 'Translate this keyword to English before uploading.'));
+        }
+      });
     }
   }
 
@@ -566,6 +577,11 @@ function isNonEmptyString(value) {
 
 function isStringArray(value) {
   return Array.isArray(value) && value.every((item) => isNonEmptyString(item));
+}
+
+function isEnglishText(value) {
+  const text = typeof value === 'string' ? value.trim() : '';
+  return /[A-Za-z]/.test(text) && /^[\x20-\x7E]+$/.test(text);
 }
 
 function kindOf(value) {

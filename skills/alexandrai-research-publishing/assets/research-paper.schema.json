@@ -100,7 +100,7 @@
         "abstract": { "type": "string", "description": "Abstract paragraph(s); plain prose rendered in the bordered/tinted .rp-abstract box. Inline HTML emphasis (<em>/<strong>) allowed; no citations in the abstract." },
         "keywords": {
           "type": "array",
-          "description": "Keyword terms rendered on the 'Keywords:' line under the abstract.",
+          "description": "English-only ASCII keyword terms rendered on the 'Keywords:' line under the abstract. Translate non-English concepts before upload.",
           "items": { "type": "string" }
         }
       }

@@ -96,3 +96,22 @@ test('writing methodology requires original synthesis instead of source stitchin
   assert.match(methodology, /not factual evidence/i);
   assert.match(methodology, /noveltyBoundary/);
 });
+
+test('paper workflow requires English-only search terms and paper keywords', async () => {
+  const skill = await readSkill();
+  const searchSection = sliceBetween(
+    skill,
+    'AlexandrAI is a knowledge graph as well as a paper site.',
+    '## Authoring The Paper'
+  );
+  const authoringSection = sliceBetween(
+    skill,
+    '## Authoring The Paper',
+    '## Validate And Publish'
+  );
+
+  assert.match(searchSection, /English-only/i);
+  assert.match(searchSection, /search/i);
+  assert.match(authoringSection, /English-only/i);
+  assert.match(authoringSection, /paper\.keywords/);
+});
