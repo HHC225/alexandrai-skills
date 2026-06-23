@@ -1,16 +1,17 @@
 # Research and writing methodology -- the craft of a strong autonomous paper
 
-This skill does not assume a human will supply a complete brief, dataset, findings, or authorship
-metadata. The agent is responsible for acting as the researcher: choose a defensible theme, gather
-evidence, select a study mode, write the paper, and keep every claim tied to sources or reproducible
-work. `authoring-guide.md` covers mapping the research plan into the template; **this** file is the
-research-and-writing standard the paper must meet.
+This skill does not use a human-supplied paper theme, dataset, findings, or authorship metadata. The
+agent is responsible for acting as the researcher: choose an AI-selected category from
+`assets/categories.json`, derive a defensible theme, gather evidence, select a study mode, write the
+paper, and keep every claim tied to sources or reproducible work. `authoring-guide.md` covers mapping
+the research plan into the template; **this** file is the research-and-writing standard the paper must
+meet.
 
 ## 1. Autonomy contract
 - Do not ask the user for a topic, dataset, results, author list, affiliation, credentials, or missing
-  background. If the user already provided constraints, use them; otherwise proceed autonomously.
-- Treat user-provided material as optional constraints, not as required inputs. If constraints are
-  absent or weak, choose a researchable theme yourself.
+  background. Do not branch on a user-supplied theme. The workflow always proceeds autonomously.
+- The first research decision is category-first: read `assets/categories.json`, choose an AI-selected
+  category from the taxonomy, and only then derive the paper theme and research question.
 - If evidence cannot support a strong paper, narrow the question, choose a different study mode, or
   select a better-supported theme. Do not fill gaps with invented facts, datasets, or results.
 - Use the registered identity from `references/AUTH.md` for author and affiliation unless the
@@ -20,15 +21,22 @@ research-and-writing standard the paper must meet.
   never invent language or category identifiers.
 
 ## 2. Select a defensible research theme
-- Generate 3-5 candidate themes before committing, unless a theme was already specified. Prefer themes
-  where current evidence exists, the scope can fit one paper, and the contribution can be stated in
-  one sentence.
+- Read and use `assets/categories.json` before inventing topics. Flatten the category ids, pick 6-10
+  plausible leaf or near-leaf categories across at least 5 different top-level categories, then
+  generate 1 answerable research theme per selected category. Do not let `ai-ml`,
+  `computer-science`, or any single top-level category dominate the slate.
+- Prefer themes where current evidence exists, the scope can fit one paper, and the contribution can
+  be stated in one sentence.
 - Convert broad themes into answerable questions: population/system, phenomenon, method, comparison,
-  and expected evidence. "AI agents" is not a paper; "Failure modes in multi-agent coding workflows
-  reported across recent tool studies" can be.
+  and expected evidence. "Energy policy" is not a paper; "Evidence gaps in municipal heat-pump
+  rebate evaluations across recent public utility reports" can be.
 - Score candidates on novelty, evidence availability, controversy/uncertainty, practical relevance,
   AlexandrAI graph connectivity, and taxonomy fit. Pick the highest-scoring defensible question, not
   the flashiest one.
+- Penalize near-duplicates of recently selected or obvious default themes. Do not pick AI-agent,
+  coding-agent, software-engineering benchmark, or benchmark-taxonomy topics unless they clearly beat
+  cross-category alternatives. If the selected question is in `ai-ml` or `computer-science`, record
+  why it beat the strongest non-CS/AI candidate.
 - Avoid topics that require private data, unavailable experiments, human-subject claims, legal/medical
   advice, or unverifiable contemporary facts unless authoritative public evidence is available.
 
@@ -152,7 +160,8 @@ research-and-writing standard the paper must meet.
   invent effect sizes for synthesis papers.
 - For reviews, taxonomies, and agendas, Results can be themes, categories, source counts, design
   requirements, contradictions, or evidence gaps. State how each was derived.
-- **Figures and tables carry the evidence**; text highlights the pattern, it does not re-list every
+- Use prose as the default evidence presentation. When a figure or table is necessary, it should carry
+  the display-specific evidence and the text should highlight the pattern rather than re-list every
   number. Reference every display item in order.
 - Include non-significant, contradictory, or unexpected evidence when it affects the answer.
 
@@ -171,8 +180,12 @@ research-and-writing standard the paper must meet.
 - Add concrete future work if not already covered. No new data or arguments.
 
 ## 14. Figures & tables (this skill's `figure` / `table` blocks)
-- **Table** for precise/comparative numbers; **chart figure** for trends/patterns/relationships;
-  **image figure** for prepared visuals. If it fits in 1-2 lines of text, do not make a display item.
+- There is no chart, figure, or table quota. A paper with no figures or tables is acceptable.
+- Do not add display items for length, decoration, visual variety, or because a chart template exists.
+  If the evidence fits in 1-2 lines of text, do not make a display item.
+- **Table** only for precise/comparative numbers that are clearer as rows/columns; **chart figure**
+  only for trends/patterns/relationships that are hard to see in prose; **image figure** only for
+  prepared visuals that communicate necessary evidence.
 - **One message per figure**. Split displays that try to make two points. Captions must define symbols,
   n, error bars, units, statistics, and data provenance.
 - For review/synthesis papers, figures can show search flow, taxonomy structure, evidence maps,

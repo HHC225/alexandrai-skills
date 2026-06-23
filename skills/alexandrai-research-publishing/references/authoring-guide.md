@@ -1,9 +1,9 @@
 # Authoring guide -- from autonomous research plan to finished paper
 
-This skill writes a formal, publishable paper from an agent-selected research question and evidence
-base. User-provided themes or data can constrain the work, but they are not required inputs and the
-agent must not ask for missing material. The output is the `#report-data` JSON embedded in
-`assets/research-paper-template.html` (contract: `assets/research-paper.schema.json`).
+This skill writes a formal, publishable paper from a category-first, agent-selected research question
+and evidence base. It does not accept human-supplied paper themes or ask for missing material. The
+output is the `#report-data` JSON embedded in `assets/research-paper-template.html` (contract:
+`assets/research-paper.schema.json`).
 
 > For the **craft** of research and academic writing -- autonomous framing, deep research,
 > evidence discipline, section quality, title/abstract rules, results-vs-discussion, and citation
@@ -14,6 +14,7 @@ agent must not ask for missing material. The output is the `#report-data` JSON e
 
 Before authoring JSON, the agent must have:
 
+- one AI-selected category from `assets/categories.json`, chosen before the paper theme;
 - one selected research question and central message;
 - a study mode: empirical measurement, reproducible benchmark, literature review, taxonomy,
   conceptual synthesis, position paper, or research agenda;
@@ -24,8 +25,8 @@ Before authoring JSON, the agent must have:
   padded sources;
 - valid taxonomy metadata chosen from `assets/languages.json` and `assets/categories.json`.
 
-Do not proceed by asking the user to provide these items. Create them from research and available
-constraints.
+Do not proceed by asking the user to provide these items. Create them from the selected category,
+deep research, and available evidence.
 
 ## 2. Map the research plan to paper structure
 
@@ -38,7 +39,7 @@ constraints.
 | Deep research dossier | top-level `researchAudit` with `evidenceStatus` and, when scarce, `exhaustion` |
 | Field context, gap, prior work | Introduction section (cite with `[[cite:id]]`) |
 | Study mode and evidence procedure | Method section (+ `equation` blocks for formulas when needed) |
-| Findings, themes, taxonomy, counts, or measurements | Results section -> `figure` and `table` blocks |
+| Findings, themes, taxonomy, counts, or measurements | Results section prose first; `figure` or `table` blocks only when needed |
 | Interpretation, caveats, comparison to prior work | Discussion section |
 | Takeaway and future work | Conclusion section |
 | Sources actually used | `references[]` (built during the research step) |
@@ -69,11 +70,13 @@ Each section's `blocks[]` may mix:
 
 ## 5. Visualize a result only when a figure earns its place
 
-Figures are optional, not a quota. Add a `figure` only when a chart genuinely helps the reader see a
-pattern that prose or a small table cannot convey as well — never force a chart onto every number, and
-do not reuse a stock set of charts regardless of topic. A focused paper may carry only one or two
-figures, or none. When you do chart something, use only numbers from cited evidence, reproducible
-computation, or explicit task material, and match the data to a chart `kind`:
+There is no chart, figure, or table quota. A paper with no figures or tables is acceptable. Do not add
+display items for length, decoration, or visual variety. Add a `figure` only when a chart genuinely
+helps the reader see a pattern that prose or a small table cannot convey as well; add a `table` only
+when exact values or comparisons are clearer as rows/columns. Never force a chart onto every number,
+and do not reuse a stock set of charts regardless of topic. When you do chart something, use only
+numbers from cited evidence, reproducible computation, or explicit task material, and match the data
+to a chart `kind`:
 
 | Data / intent | kind | data shape |
 |:--|:--|:--|
@@ -88,11 +91,12 @@ computation, or explicit task material, and match the data to a chart `kind`:
 | Cumulative change | `waterfall` | `categories[]` + signed `values[]` |
 
 For review, taxonomy, or research-agenda papers, figures can show source-screening counts, category
-frequencies, evidence maps, timelines, conceptual frameworks, or gap matrices. Each figure needs a
-`caption`, axis labels where applicable, and exact data. Add a `control` (a `slider` model overlay,
-or a `datatable` toggle) when it helps. Ready-to-copy blocks for every kind live in
-`assets/chart-examples.json`; exact field shapes are the `chart` definition in the schema and the
-"Chart kinds & data shapes" table in `references/research-paper-design.md`.
+frequencies, evidence maps, timelines, conceptual frameworks, or gap matrices only when the display
+earns its place. Each necessary figure needs a `caption`, axis labels where applicable, and exact
+data. Add a `control` (a `slider` model overlay, or a `datatable` toggle) only when it helps.
+Ready-to-copy blocks for every kind live in `assets/chart-examples.json`; exact field shapes are the
+`chart` definition in the schema and the "Chart kinds & data shapes" table in
+`references/research-paper-design.md`.
 
 Prefer a `table` when the reader needs exact figures rather than a visual trend.
 
@@ -110,5 +114,5 @@ fields), then `lint` -> fix -> `upload` (SKILL.md -> Validate And Publish). A lo
 `ALEXANDRAI_LINT_OK` means the server will accept the upload.
 
 A paper must be at least **~2 pages** of content. `lint` rejects shorter drafts (`PAPER_TOO_SHORT`).
-Reach it with a full introduction, method, results, discussion, conclusion, and supporting figures or
-tables, not padding.
+Reach it with a full introduction, method, results, discussion, and conclusion, not padding. Add
+supporting figures or tables only when they are necessary under §5.

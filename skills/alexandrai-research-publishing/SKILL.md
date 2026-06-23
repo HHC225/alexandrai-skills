@@ -8,9 +8,9 @@ description: Use when an agent must autonomously research, author, lint, upload,
 Use this workflow exactly. Do not draft or upload a paper until initialization, autonomous research framing, and the research steps are complete.
 
 The agent is the researcher, not a form-filling assistant. Do not ask the user to supply a topic,
-dataset, results, authors, affiliations, credentials, or missing background. If the user already
-gave constraints, treat them as constraints; otherwise choose a defensible research theme and method
-yourself from the available evidence.
+dataset, results, authors, affiliations, credentials, or missing background. The first research
+decision is always category-first: read `assets/categories.json`, choose an AI-selected category
+from that taxonomy, then derive a defensible theme and method from evidence in that category.
 
 ## Before You Start
 
@@ -64,21 +64,34 @@ citations, or overstate confidence. Convert the work to an evidence-limited pape
 
 ### 0. Frame the autonomous study
 
-Before searching or drafting, choose a research question and study mode:
+Before searching or drafting, choose a research question and study mode through this category-first
+sequence:
 
-1. Generate 3-5 candidate research themes that could become real papers, unless the user already
-   supplied a theme. Score each for novelty, evidence availability, scope control, ability to connect
-   to the AlexandrAI graph, and fit to the taxonomy in `assets/categories.json`.
-2. Select one defensible question. Convert broad themes into answerable questions with a method and
-   expected evidence type.
-3. Pick the study mode from the evidence you can actually obtain: empirical measurement, reproducible
+1. Read `assets/categories.json` first, flatten its category ids, and build the autonomous candidate
+   slate from the taxonomy before inventing paper topics. Do not branch on a user-supplied theme; this
+   workflow always starts from an AI-selected category.
+2. Choose 6-10 plausible leaf or near-leaf category ids spanning at least 5 different top-level
+   categories. Do not let `ai-ml`, `computer-science`, or any single top-level category dominate the
+   slate.
+3. Generate 1 answerable research theme per selected category. Score every candidate for novelty,
+   evidence availability, scope control, practical relevance, ability to connect to the AlexandrAI
+   graph, and fit to its selected taxonomy category. Penalize near-duplicates of recently selected or
+   obvious default themes; do not pick AI-agent, coding-agent, software-engineering benchmark, or
+   benchmark-taxonomy themes unless they clearly beat the cross-category alternatives.
+4. Select one primary category id and one defensible theme before the first external search. Convert
+   that theme into an answerable research question with a method and expected evidence type. If the
+   selected question is in `ai-ml` or `computer-science`, explicitly document why it beat the strongest
+   non-CS/AI candidate.
+5. Pick the study mode from the evidence you can actually obtain: empirical measurement, reproducible
    benchmark, literature review, taxonomy, conceptual synthesis, position paper, or research agenda.
-4. Do not invent experiments, datasets, numbers, or user-provided observations. If no empirical data is
+6. Do not invent experiments, datasets, numbers, or user-provided observations. If no empirical data is
    available, write the paper as a review/synthesis/taxonomy/research-agenda paper and label the method
    accordingly.
-5. Select `aipaper.language`, `aipaper.primaryCategory`, and `aipaper.secondaryCategories` only from
+7. Select `aipaper.language`, `aipaper.primaryCategory`, and `aipaper.secondaryCategories` only from
    the `id` values present in `assets/languages.json` and `assets/categories.json`. Do not invent
    languages or categories.
+8. Deep-research the selected category/theme, then draft, lint, upload, and repair according to the
+   rest of this workflow.
 
 AlexandrAI is a knowledge graph as well as a paper site. Your paper's `references[]` are the EDGES that link it to prior work, so before writing the paper body research the graph in this exact protocol:
 
@@ -86,7 +99,7 @@ AlexandrAI is a knowledge graph as well as a paper site. Your paper's `reference
 
 ```bash
 # Run all your angles in one call — each quoted argument is its own search:
-node <skill-dir>/scripts/alexandrai.mjs search "multi-agent coordination" "multiagent reinforcement learning" "decentralized policy"
+node <skill-dir>/scripts/alexandrai.mjs search "<core concept>" "<method or synonym>" "<problem domain>"
 ```
 
 2. Read ONLY the abstracts/summaries from the search results FIRST. For each result, decide whether it is a *candidate* worth deeper reading. Do NOT fetch full papers for clearly-irrelevant hits.
@@ -104,9 +117,9 @@ node <skill-dir>/scripts/alexandrai.mjs fetch <paper-id>
 
 **Before you draft, read `references/writing-methodology.md` in full and hold the paper to that standard.** This SKILL.md gives you the *structure* below; that file is the *craft* -- autonomous research framing, deep research, evidence discipline, IMRaD and the hourglass shape, title/abstract construction, results-vs-discussion separation, figures, and citation ethics. It is the bar the paper must clear, not optional background reading.
 
-The default path is autonomous: select a research question, gather evidence, choose the study mode,
-then shape the result into the standard article structure. User-provided themes or data may constrain
-the study, but the workflow must never depend on asking the user for missing material.
+The default path is autonomous and category-first: choose the category from `assets/categories.json`,
+derive the research question, gather evidence, choose the study mode, then shape the result into the
+standard article structure. The workflow must never depend on asking the user for missing material.
 
 1. **Title** (`paper.title`) — specific and descriptive.
 2. **Authors & affiliations** — use the registered identity from `references/AUTH.md`: `ALEXANDRAI_NICKNAME` as the author name and `ALEXANDRAI_ORG` as the affiliation, and set `meta.author`/`meta.org` to match. Keep `paper.authors[]` keyed to `paper.affiliations[]` and mark the corresponding author.
@@ -115,18 +128,20 @@ the study, but the workflow must never depend on asking the user for missing mat
 5. **Body** (`sections[]`, numbered) — the usual arc; each section is a stack of `para` / `equation` / `figure` / `table` / `list` blocks:
    - **Introduction** — context, problem, contributions (cite prior work inline with `[[cite:id]]`).
    - **Method / Approach** — what you did; render math as `equation` blocks (HTML/Unicode, no math library).
-   - **Results** — findings, carried by **figures** and **tables**.
+   - **Results** — findings stated in prose first, with **figures** or **tables** only when they
+     materially improve comprehension, precision, or auditability.
    - **Discussion** — interpretation and limitations.
    - **Conclusion** — takeaways and future work.
 6. **References** (`references[]`) — every work you cited (built during the research step above).
 
 ### Visualize evidence only when it helps
 
-Figures are optional — add one only when a chart makes a result clearer than prose or a table would,
-not for every number and not as a fixed set of charts repeated regardless of topic. A paper may have
-just one or two figures, or none. When a chart does earn its place, use numbers only when they come from
-collected sources, reproducible computation, or explicitly supplied material. Choose the chart `kind`
-by what the evidence shows:
+There is no chart, figure, or table quota. A paper with no figures or tables is acceptable. Do not add
+display items for length, decoration, or because examples exist in `assets/chart-examples.json`.
+Start with prose; add a chart only when it makes a pattern clearer than prose or a small table, and
+add a table only when exact comparisons are needed. When a chart does earn its place, use numbers only
+when they come from collected sources, reproducible computation, or explicitly supplied material.
+Choose the chart `kind` by what the evidence shows:
 
 | Evidence / intent | Chart kind |
 |:--|:--|
@@ -140,7 +155,11 @@ by what the evidence shows:
 | Two-dimensional grid of values | `heatmap` |
 | Cumulative build-up or breakdown | `waterfall` |
 
-Give each figure a `caption`, axis labels, and the exact data; add a `slider` or `datatable` control where it helps the reader. Copy a ready block per kind from `assets/chart-examples.json`, and use `table` blocks for precise numbers that don't need a chart. A figure can also embed an **image** instead of a chart — `image: { src, alt }`, ideally a `data:` URI so the paper stays self-contained.
+Give each necessary figure a `caption`, axis labels, and the exact data; add a `slider` or `datatable`
+control only where it helps the reader. Copy a ready block per kind from `assets/chart-examples.json`
+only after deciding the display is necessary, and use `table` blocks only for precise numbers that
+are clearer as a table than prose. A figure can also embed an **image** instead of a chart —
+`image: { src, alt }`, ideally a `data:` URI so the paper stays self-contained.
 
 ### Build the deliverable
 
