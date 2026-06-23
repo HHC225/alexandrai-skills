@@ -133,6 +133,12 @@ Reused family primitives: `.st-badge` (figure state), `.chip` (keyword / id chip
   from `assets/languages.json`, and choose `primaryCategory` / `secondaryCategories[]` only from
   `assets/categories.json`; use existing `id` values exactly and do not invent metadata. `topics` is
   a string array for discovery labels derived from the research question.
+- **`researchAudit`** — required Deep Research Gate dossier. It records the selected question, study
+  mode, search date, internal/external search log, screened sources, full-read sources,
+  citation-chasing records, contradictory evidence, claim ledger, and `evidenceStatus`. `sufficient`
+  is the normal route. `scarce` is allowed only with an `exhaustion` audit for evidence-limited papers.
+  The renderer does not display it, but local and server lint use it to reject shallow, fabricated, or
+  ungrounded papers.
 - **`meta`** — shared chrome object (`org`/`project`/`reportType`/`title`/`subtitle`/`date`/`author`/
   `theme`); `theme` sets the initial accent.
 - **`paper`** — `title`; `authors[]{name, affil:[ids], corresponding?, email?}`;

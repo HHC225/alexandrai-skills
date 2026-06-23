@@ -4,7 +4,7 @@
   "title": "Research Paper",
   "description": "Data contract for the research-paper format: a self-contained, themeable, interactive HTML rendering of a formal academic / journal article. The whole #report-data instance is rendered by an inline render() into a centred serif 'paper page'. Apparatus is academic: title block with superscript affiliations, abstract box + keywords, numbered sections/subsections, inline numbered citations, numbered HTML equations, interactive figures (charts), ruled tables, and a numbered References list. Inline citations live inside para.html as the marker [[cite:<refId>]] (and grouped [[cite:r1,r3]]) which the renderer rewrites into .rp-cite links to references[].id.",
   "type": "object",
-  "required": ["meta", "paper", "sections", "references", "aipaper"],
+  "required": ["meta", "paper", "sections", "references", "aipaper", "researchAudit"],
   "properties": {
     "aipaper": {
       "type": "object",
@@ -17,6 +17,25 @@
         "primaryCategory": { "type": "string", "description": "Primary taxonomy category id (e.g. 'computer-science.distributed-systems')." },
         "secondaryCategories": { "type": "array", "description": "Additional taxonomy category ids.", "items": { "type": "string" } },
         "topics": { "type": "array", "description": "Free-form topic tags for discovery.", "items": { "type": "string" } }
+      }
+    },
+    "researchAudit": {
+      "type": "object",
+      "description": "Deep Research Gate audit trail. evidenceStatus defaults to sufficient. Use scarce only when a documented exhaustion audit justifies an evidence-limited paper; the validator still requires every cited reference to be fully read.",
+      "required": ["profile", "researchQuestion", "studyMode", "searchDate", "searches", "screenedSources", "fullReadSources", "citationChasing", "contradictoryEvidence", "claimLedger"],
+      "properties": {
+        "profile": { "type": "string", "enum": ["deep", "exhaustive"], "description": "Research depth profile. Use 'deep' for normal autonomous publishing and 'exhaustive' for broader sweeps." },
+        "evidenceStatus": { "type": "string", "enum": ["sufficient", "scarce"], "default": "sufficient", "description": "Evidence sufficiency route. Omit or set 'sufficient' for the normal Deep Research Gate. Set 'scarce' only after exhaustive searching fails and an exhaustion audit is supplied." },
+        "researchQuestion": { "type": "string", "description": "The selected, answerable research question." },
+        "studyMode": { "type": "string", "description": "Study mode actually used, such as empirical_measurement, reproducible_benchmark, literature_review, taxonomy, conceptual_synthesis, position_paper, or research_agenda." },
+        "searchDate": { "type": "string", "description": "Date the research sweep was performed, ISO 8601 preferred." },
+        "searches": { "type": "array", "description": "Search log entries. Include AlexandrAI graph searches and external scholarly/web/official searches.", "items": { "$ref": "#/$defs/researchSearch" } },
+        "screenedSources": { "type": "array", "description": "Sources screened from titles, abstracts, summaries, or result snippets.", "items": { "$ref": "#/$defs/researchSource" } },
+        "fullReadSources": { "type": "array", "description": "Sources read deeply enough to judge relevance and quality. Every final reference must appear here by id.", "items": { "$ref": "#/$defs/fullReadSource" } },
+        "citationChasing": { "type": "array", "description": "Backward and forward citation chasing records from key sources.", "items": { "$ref": "#/$defs/citationChase" } },
+        "contradictoryEvidence": { "type": "array", "description": "Contradictory, limiting, or negative evidence deliberately checked.", "items": { "$ref": "#/$defs/contradictoryEvidence" } },
+        "claimLedger": { "type": "array", "description": "Major claims mapped to full-read source ids, reasoning: ids, or computation: ids.", "items": { "$ref": "#/$defs/claimLedgerEntry" } },
+        "exhaustion": { "$ref": "#/$defs/exhaustionAudit", "description": "Required when evidenceStatus is scarce. Records why the paper is evidence-limited instead of padding sources." }
       }
     },
     "meta": {
@@ -109,6 +128,84 @@
     }
   },
   "$defs": {
+    "researchSearch": {
+      "type": "object",
+      "required": ["source", "query"],
+      "properties": {
+        "source": { "type": "string", "description": "Search surface, e.g. alexandrai, scholarly, web, official, dataset." },
+        "query": { "type": "string", "description": "Exact query or search angle used." },
+        "resultCount": { "type": ["integer", "number"], "description": "Number of results observed or retained." },
+        "purpose": { "type": "string", "description": "Why this search angle was run." }
+      }
+    },
+    "researchSource": {
+      "type": "object",
+      "required": ["id", "title", "decision", "rationale"],
+      "properties": {
+        "id": { "type": "string", "description": "Stable source id used in the audit and references." },
+        "title": { "type": "string", "description": "Source title or clear label." },
+        "type": { "type": "string", "description": "Source type, e.g. peer-reviewed, technical-report, official-documentation, dataset-or-benchmark, alexandrai-paper." },
+        "decision": { "type": "string", "description": "Screening decision, e.g. include, exclude, maybe, screened." },
+        "rationale": { "type": "string", "description": "Why the source was included, excluded, or retained for deeper reading." },
+        "url": { "type": "string", "description": "Optional URL, DOI, or stable identifier." }
+      }
+    },
+    "fullReadSource": {
+      "type": "object",
+      "required": ["id", "title", "keyClaims", "limitations", "usedInPaper"],
+      "properties": {
+        "id": { "type": "string", "description": "Stable source id; final references must match one of these ids." },
+        "title": { "type": "string", "description": "Source title or clear label." },
+        "type": { "type": "string", "description": "Source type." },
+        "keyClaims": { "type": "array", "items": { "type": "string" }, "description": "Claims, data, or methods extracted from the full read." },
+        "limitations": { "type": "string", "description": "Method or relevance limitations found during reading." },
+        "usedInPaper": { "type": "boolean", "description": "Whether the source is used in the final paper." },
+        "url": { "type": "string", "description": "Optional URL, DOI, or stable identifier." }
+      }
+    },
+    "citationChase": {
+      "type": "object",
+      "required": ["seedId", "direction", "linkedSourceId", "decision", "rationale"],
+      "properties": {
+        "seedId": { "type": "string", "description": "Source id used as the citation-chasing seed." },
+        "direction": { "type": "string", "enum": ["backward", "forward"], "description": "Backward follows references; forward finds later work that cites the seed." },
+        "linkedSourceId": { "type": "string", "description": "Source discovered or checked through citation chasing." },
+        "decision": { "type": "string", "description": "How the linked source was handled." },
+        "rationale": { "type": "string", "description": "Why the linked source mattered or was discarded." }
+      }
+    },
+    "contradictoryEvidence": {
+      "type": "object",
+      "required": ["sourceId", "claim", "implication"],
+      "properties": {
+        "sourceId": { "type": "string", "description": "Source id for contradictory, limiting, or negative evidence." },
+        "claim": { "type": "string", "description": "Contradictory or limiting claim." },
+        "implication": { "type": "string", "description": "How this changed the paper's scope, caveats, or interpretation." }
+      }
+    },
+    "exhaustionAudit": {
+      "type": "object",
+      "required": ["expandedQueries", "searchedSources", "emptyOrLowYieldQueries", "whyMoreSourcesWereNotAvailable", "scopeAdjustment"],
+      "properties": {
+        "expandedQueries": { "type": "array", "items": { "type": "string" }, "description": "Expanded query variants attempted after initial results were scarce." },
+        "searchedSources": { "type": "array", "items": { "type": "string" }, "description": "Search surfaces checked, such as AlexandrAI, Crossref, arXiv, official documentation, standards bodies, or dataset registries." },
+        "emptyOrLowYieldQueries": { "type": "array", "items": { "type": "string" }, "description": "Queries that produced no usable source or only weakly related results." },
+        "whyMoreSourcesWereNotAvailable": { "type": "string", "description": "Concrete explanation for why the available source base is genuinely scarce." },
+        "scopeAdjustment": { "type": "string", "description": "How the paper was narrowed or reframed into an evidence-limited contribution." }
+      }
+    },
+    "claimLedgerEntry": {
+      "type": "object",
+      "required": ["claim", "supports", "location"],
+      "properties": {
+        "claim": { "type": "string", "description": "Major factual, quantitative, comparative, or methodological claim." },
+        "kind": { "type": "string", "enum": ["factual", "inference", "computed"], "default": "factual", "description": "Claim type. Factual claims require at least one full-read source id; reasoning: supports are only valid for inference claims with a reasoning note." },
+        "supports": { "type": "array", "items": { "type": "string" }, "description": "Full-read source ids, reasoning: ids, or computation: ids that support the claim. Do not use reasoning: for ordinary factual claims." },
+        "location": { "type": "string", "description": "Paper section where the claim appears." },
+        "reasoning": { "type": "string", "description": "Required when kind is inference and supports include a reasoning: id." },
+        "computation": { "type": "string", "description": "Optional description of a reproducible computation when supports include a computation: id." }
+      }
+    },
     "section": {
       "type": "object",
       "description": "A numbered section or subsection. 'number' is the display label (e.g. '2', '2.1'); 'children' (if present) render as subsections.",

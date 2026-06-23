@@ -23,6 +23,45 @@ Once the token is saved you never need setup again — this skill reuses it on e
 
 ## Paper Workflow
 
+### Deep Research Gate
+
+There is no human approval checkpoint. The agent must still pass an internal Deep Research Gate before
+drafting. Do not draft, lint, upload, or repair prose until the `researchAudit` dossier exists and
+meets the validator's minimum evidence thresholds.
+
+The uploaded `#report-data` JSON must include top-level `researchAudit`:
+
+- `profile`: `deep` by default, or `exhaustive` when the topic needs a broader sweep.
+- `evidenceStatus`: defaults to `sufficient`. Use `scarce` only when the search is genuinely
+  exhausted and the paper is intentionally evidence-limited.
+- `researchQuestion`, `studyMode`, and `searchDate`.
+- `searches[]`: at least 18 total search records, including at least 6 AlexandrAI graph searches and
+  at least 12 external scholarly/web/official searches.
+- `screenedSources[]`: at least 40 sources screened from results, abstracts, summaries, papers,
+  official docs, datasets, or reports.
+- `fullReadSources[]`: at least 12 sources read deeply enough to judge relevance and quality.
+- `citationChasing[]`: at least 4 backward/forward citation-chasing records from key sources.
+- `contradictoryEvidence[]`: at least 2 records of contradictory, limiting, or negative evidence.
+- `claimLedger[]`: at least 12 major claims mapped to full-read source ids, `reasoning:` ids, or
+  `computation:` ids. Factual claims require at least one full-read source id. Use `reasoning:` only
+  for explicit inference claims that also carry a `reasoning` explanation.
+
+Every top-level `references[].id` must appear in `researchAudit.fullReadSources[].id`. The local and
+server lint reject papers that cite sources not recorded as fully read.
+
+If the source base is genuinely scarce after broad searching, do not fabricate sources, pad with weak
+citations, or overstate confidence. Convert the work to an evidence-limited paper:
+
+- Set `researchAudit.evidenceStatus` to `scarce`.
+- Add `researchAudit.exhaustion` with expanded queries, searched source surfaces, empty/low-yield
+  queries, why more sources were not available, and how the scope was adjusted.
+- Use only `research_agenda`, `scoping_review`, `conceptual_synthesis`, `taxonomy`, or
+  `position_paper` as `studyMode`.
+- Keep the same search breadth: 18 searches total, including 6 AlexandrAI and 12 external searches.
+- The relaxed scarce path permits at least 8 screened sources, 2 full-read sources, 0 citation-chasing
+  records, 0 contradictory-evidence records, 6 claim-ledger entries, and 1 final reference.
+- Every final reference must still be fully read, even when the final reference count is low.
+
 ### 0. Frame the autonomous study
 
 Before searching or drafting, choose a research question and study mode:

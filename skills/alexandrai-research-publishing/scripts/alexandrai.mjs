@@ -13,6 +13,41 @@ const languagesPath = join(skillRoot, 'assets', 'languages.json');
 const reportDataRe = /(<script type="application\/json" id="report-data">\s*)[\s\S]*?(\s*<\/script>)/;
 const rejectedMessage = 'ALEXANDRAI_UPLOAD_REJECTED_FIX_AND_RETRY';
 const TEMPLATE_VERSION = 'research-paper@1';
+const DEEP_RESEARCH_MIN = {
+  searches: 18,
+  alexandraiSearches: 6,
+  externalSearches: 12,
+  screenedSources: 40,
+  fullReadSources: 12,
+  citationChasing: 4,
+  contradictoryEvidence: 2,
+  claimLedger: 12,
+  references: 8
+};
+const SCARCE_RESEARCH_MIN = {
+  searches: 18,
+  alexandraiSearches: 6,
+  externalSearches: 12,
+  screenedSources: 8,
+  fullReadSources: 2,
+  citationChasing: 0,
+  contradictoryEvidence: 0,
+  claimLedger: 6,
+  references: 1
+};
+const EXHAUSTION_MIN = {
+  expandedQueries: 12,
+  searchedSources: 3,
+  emptyOrLowYieldQueries: 6
+};
+const SCARCE_STUDY_MODES = new Set([
+  'research_agenda',
+  'scoping_review',
+  'conceptual_synthesis',
+  'taxonomy',
+  'position_paper'
+]);
+const CLAIM_LEDGER_KINDS = new Set(['factual', 'inference', 'computed']);
 // Must match the server's upload cap (apps/web .../routes/papers.ts MAX_UPLOAD_BYTES)
 // so oversize papers fail locally with a clear message instead of a server 413.
 const MAX_UPLOAD_BYTES = 10_000_000;
@@ -317,6 +352,8 @@ async function validateData(data, errors) {
     scanCitations(data.sections, 'sections', referenceIds, errors);
   }
 
+  validateResearchAudit(data, errors);
+
   // Minimum length: a paper must be at least ~2 rendered pages.
   const pages = proseChars(data) / 2800 + countFigsTables(data.sections) * 0.4;
   if (pages < 2) {
@@ -326,6 +363,197 @@ async function validateData(data, errors) {
 
 function flatten(categories) {
   return categories.flatMap((category) => [category, ...flatten(category.children || [])]);
+}
+
+function validateResearchAudit(data, errors) {
+  if (!isObject(data.researchAudit)) {
+    errors.push(error(
+      'MISSING_RESEARCH_AUDIT',
+      'researchAudit',
+      'deep research audit object',
+      kindOf(data.researchAudit),
+      'Complete the Deep Research Gate before drafting: search, screen, full-read, citation-chase, record contradictions, and map claims to evidence.'
+    ));
+    return;
+  }
+
+  const audit = data.researchAudit;
+  const evidenceStatus = isNonEmptyString(audit.evidenceStatus) ? audit.evidenceStatus : 'sufficient';
+  const minimums = evidenceStatus === 'scarce' ? SCARCE_RESEARCH_MIN : DEEP_RESEARCH_MIN;
+
+  requireAuditString(audit.profile, 'researchAudit.profile', errors);
+  requireAuditString(audit.researchQuestion, 'researchAudit.researchQuestion', errors);
+  requireAuditString(audit.studyMode, 'researchAudit.studyMode', errors);
+  requireAuditString(audit.searchDate, 'researchAudit.searchDate', errors);
+
+  if (!['sufficient', 'scarce'].includes(evidenceStatus)) {
+    errors.push(error(
+      'INVALID_EVIDENCE_STATUS',
+      'researchAudit.evidenceStatus',
+      'sufficient or scarce',
+      audit.evidenceStatus,
+      'Use sufficient for normal deep research, or scarce when a documented exhaustion audit justifies an evidence-limited paper.'
+    ));
+  }
+
+  if (isNonEmptyString(audit.profile) && !['deep', 'exhaustive'].includes(audit.profile)) {
+    errors.push(error('INVALID_RESEARCH_PROFILE', 'researchAudit.profile', 'deep or exhaustive', audit.profile, 'Use the deep research profile for autonomous paper generation.'));
+  }
+
+  if (evidenceStatus === 'scarce') {
+    validateExhaustionAudit(audit, errors);
+    if (isNonEmptyString(audit.studyMode) && !SCARCE_STUDY_MODES.has(audit.studyMode)) {
+      errors.push(error(
+        'INVALID_SCARCE_STUDY_MODE',
+        'researchAudit.studyMode',
+        [...SCARCE_STUDY_MODES].join(', '),
+        audit.studyMode,
+        'Evidence-scarce papers must be framed as an evidence-limited agenda, scoping review, taxonomy, synthesis, or position paper.'
+      ));
+    }
+  }
+
+  const searches = arrayField(audit.searches);
+  const alexandraiSearches = searches.filter((entry) => field(entry, 'source') === 'alexandrai');
+  const externalSearches = searches.filter((entry) => field(entry, 'source') !== 'alexandrai');
+  requireMinimum(searches, minimums.searches, 'INSUFFICIENT_RESEARCH_SEARCHES', 'researchAudit.searches', 'search records across internal and external sources', errors);
+  requireMinimum(alexandraiSearches, minimums.alexandraiSearches, 'INSUFFICIENT_ALEXANDRAI_SEARCHES', 'researchAudit.searches', 'AlexandrAI graph search records', errors);
+  requireMinimum(externalSearches, minimums.externalSearches, 'INSUFFICIENT_EXTERNAL_SEARCHES', 'researchAudit.searches', 'external scholarly/web/official search records', errors);
+
+  const screenedSources = arrayField(audit.screenedSources);
+  const fullReadSources = arrayField(audit.fullReadSources);
+  const citationChasing = arrayField(audit.citationChasing);
+  const contradictoryEvidence = arrayField(audit.contradictoryEvidence);
+  const claimLedger = arrayField(audit.claimLedger);
+
+  requireMinimum(screenedSources, minimums.screenedSources, 'INSUFFICIENT_SCREENED_SOURCES', 'researchAudit.screenedSources', 'screened source records', errors);
+  requireMinimum(fullReadSources, minimums.fullReadSources, 'INSUFFICIENT_FULL_READ_SOURCES', 'researchAudit.fullReadSources', 'full-read source records', errors);
+  requireMinimum(citationChasing, minimums.citationChasing, 'INSUFFICIENT_CITATION_CHASING', 'researchAudit.citationChasing', 'citation-chasing records', errors);
+  requireMinimum(contradictoryEvidence, minimums.contradictoryEvidence, 'INSUFFICIENT_CONTRADICTORY_EVIDENCE', 'researchAudit.contradictoryEvidence', 'contradictory or limiting evidence records', errors);
+  requireMinimum(claimLedger, minimums.claimLedger, 'INSUFFICIENT_CLAIM_LEDGER', 'researchAudit.claimLedger', 'claim-to-evidence ledger entries', errors);
+
+  const fullReadIds = new Set(fullReadSources.map((entry) => field(entry, 'id')).filter(isNonEmptyString));
+  const references = Array.isArray(data.references) ? data.references : [];
+  requireMinimum(references, minimums.references, 'INSUFFICIENT_CITED_REFERENCES', 'references', 'cited references in the final paper', errors);
+
+  references.forEach((reference, index) => {
+    if (isObject(reference) && isNonEmptyString(reference.id) && !fullReadIds.has(reference.id)) {
+      errors.push(error(
+        'CITED_SOURCE_NOT_FULL_READ',
+        `references[${index}].id`,
+        'reference id present in researchAudit.fullReadSources',
+        reference.id,
+        'Only cite sources that were fully read and judged relevant during the Deep Research Gate.'
+      ));
+    }
+  });
+
+  claimLedger.forEach((claim, index) => {
+    const supports = isObject(claim) ? claim.supports : undefined;
+    if (!Array.isArray(supports) || supports.length === 0 || supports.some((support) => !isKnownSupport(support, fullReadIds))) {
+      errors.push(error(
+        'INVALID_CLAIM_LEDGER_SUPPORT',
+        `researchAudit.claimLedger[${index}].supports`,
+        'non-empty array of full-read source ids or reasoning:/computation: support ids',
+        supports,
+        'Map every major claim to source evidence, reproducible computation, or explicit reasoning.'
+      ));
+    }
+    if (!Array.isArray(supports)) return;
+
+    const claimKind = field(claim, 'kind');
+    const kind = isNonEmptyString(claimKind) ? claimKind : 'factual';
+    const hasSourceSupport = supports.some((support) => isNonEmptyString(support) && fullReadIds.has(support));
+    const hasReasoningSupport = supports.some((support) => isNonEmptyString(support) && support.startsWith('reasoning:'));
+
+    if (!CLAIM_LEDGER_KINDS.has(kind)) {
+      errors.push(error(
+        'INVALID_CLAIM_LEDGER_KIND',
+        `researchAudit.claimLedger[${index}].kind`,
+        [...CLAIM_LEDGER_KINDS].join(', '),
+        kind,
+        'Use factual for source-backed claims, inference for explicit reasoning, or computed for reproducible computation.'
+      ));
+    }
+
+    if (kind === 'factual' && !hasSourceSupport) {
+      errors.push(error(
+        'FACTUAL_CLAIM_REQUIRES_SOURCE',
+        `researchAudit.claimLedger[${index}].supports`,
+        'at least one full-read source id for factual claims',
+        supports,
+        'Do not support factual claims with reasoning-only entries; cite a full-read source or reframe the claim as an explicit inference.'
+      ));
+    }
+
+    if (hasReasoningSupport && (kind !== 'inference' || !isNonEmptyString(field(claim, 'reasoning')))) {
+      errors.push(error(
+        'REASONING_SUPPORT_REQUIRES_INFERENCE',
+        `researchAudit.claimLedger[${index}]`,
+        'kind:"inference" with a non-empty reasoning field',
+        claim,
+        'reasoning: supports are only allowed for explicitly marked inference claims with the reasoning written out.'
+      ));
+    }
+  });
+}
+
+function validateExhaustionAudit(audit, errors) {
+  if (!isObject(audit.exhaustion)) {
+    errors.push(error(
+      'MISSING_EXHAUSTION_AUDIT',
+      'researchAudit.exhaustion',
+      'object documenting exhausted search effort',
+      kindOf(audit.exhaustion),
+      'Evidence-scarce papers must document expanded queries, low-yield searches, searched sources, why more sources were unavailable, and the scope adjustment.'
+    ));
+    return;
+  }
+
+  const exhaustion = audit.exhaustion;
+  const expandedQueries = arrayField(exhaustion.expandedQueries).filter(isNonEmptyString);
+  const searchedSources = arrayField(exhaustion.searchedSources).filter(isNonEmptyString);
+  const emptyOrLowYieldQueries = arrayField(exhaustion.emptyOrLowYieldQueries).filter(isNonEmptyString);
+
+  requireMinimum(expandedQueries, EXHAUSTION_MIN.expandedQueries, 'INSUFFICIENT_EXHAUSTION_QUERIES', 'researchAudit.exhaustion.expandedQueries', 'expanded query records', errors);
+  requireMinimum(searchedSources, EXHAUSTION_MIN.searchedSources, 'INSUFFICIENT_EXHAUSTION_SOURCES', 'researchAudit.exhaustion.searchedSources', 'searched source surfaces', errors);
+  requireMinimum(emptyOrLowYieldQueries, EXHAUSTION_MIN.emptyOrLowYieldQueries, 'INSUFFICIENT_LOW_YIELD_QUERIES', 'researchAudit.exhaustion.emptyOrLowYieldQueries', 'empty or low-yield query records', errors);
+  requireAuditString(exhaustion.whyMoreSourcesWereNotAvailable, 'researchAudit.exhaustion.whyMoreSourcesWereNotAvailable', errors);
+  requireAuditString(exhaustion.scopeAdjustment, 'researchAudit.exhaustion.scopeAdjustment', errors);
+}
+
+function requireAuditString(value, path, errors) {
+  if (!isNonEmptyString(value)) {
+    errors.push(error('MISSING_RESEARCH_AUDIT_FIELD', path, 'non-empty string', value, 'Complete all required Deep Research Gate metadata fields.'));
+  }
+}
+
+function requireMinimum(values, minimum, code, path, expectedLabel, errors) {
+  if (values.length < minimum) {
+    errors.push(error(
+      code,
+      path,
+      `at least ${minimum} ${expectedLabel}`,
+      values.length,
+      'Deep research papers must show substantial search, screening, reading, and evidence-mapping work before upload.'
+    ));
+  }
+}
+
+function arrayField(value) {
+  return Array.isArray(value) ? value : [];
+}
+
+function field(value, name) {
+  return isObject(value) ? value[name] : undefined;
+}
+
+function isKnownSupport(value, fullReadIds) {
+  return isNonEmptyString(value) && (
+    fullReadIds.has(value) ||
+    value.startsWith('reasoning:') ||
+    value.startsWith('computation:')
+  );
 }
 
 function isObject(value) {

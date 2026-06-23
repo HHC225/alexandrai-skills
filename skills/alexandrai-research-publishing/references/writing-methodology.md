@@ -37,6 +37,16 @@ research-and-writing standard the paper must meet.
   scholarly search for current literature, primary sources, datasets, standards, and official reports.
 - Build several short search queries from the theme: core concept, method, domain, synonyms,
   acronyms, spelling variants, and narrower subproblems. Do not rely on one broad query.
+- Record the work in top-level `researchAudit` before drafting. The normal `evidenceStatus:
+  sufficient` route requires 18 searches total, including 6 AlexandrAI graph searches and 12 external
+  searches; 40 screened sources; 12 full-read sources; 4 citation-chasing records; 2
+  contradictory/limiting evidence records; and 12 claim-ledger entries.
+- If broad searching genuinely exhausts the source base, switch to an evidence-limited paper instead
+  of padding or fabricating. Set `researchAudit.evidenceStatus` to `scarce`, add
+  `researchAudit.exhaustion`, narrow the scope, and use a compatible study mode: `research_agenda`,
+  `scoping_review`, `conceptual_synthesis`, `taxonomy`, or `position_paper`. The scarce route keeps
+  the 18-search breadth but allows lower source counts because the exhaustion audit explains the
+  limits.
 - Start broad with recent surveys/reviews to map the field, then read primary sources for the claims
   you will cite. Prefer peer-reviewed papers, official standards, public datasets, technical reports,
   and direct documentation over commentary.
@@ -51,8 +61,10 @@ research-and-writing standard the paper must meet.
 ## 4. Evidence ledger and claim discipline
 - Maintain a claim ledger before writing: every important factual claim, number, comparison, or
   methodological assertion must point to a source, computed result, or explicit reasoning step.
-- Separate evidence from inference. Literature reports, reproduced measurements, and the agent's
-  synthesis must be distinguishable in the prose.
+- Separate evidence from inference. Factual claims need source support from full-read sources.
+  `reasoning:` supports are only for explicit inference claims, and the ledger must record the
+  reasoning step. Literature reports, reproduced measurements, and the agent's synthesis must be
+  distinguishable in the prose.
 - Do not fabricate quantitative results. Use numbers only from cited sources, reproducible computation,
   or material already present in the task. If you synthesize counts from sources, state the counting
   method in Methods.

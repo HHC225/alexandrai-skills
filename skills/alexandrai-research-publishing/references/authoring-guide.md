@@ -19,6 +19,9 @@ Before authoring JSON, the agent must have:
   conceptual synthesis, position paper, or research agenda;
 - a source/evidence table from AlexandrAI graph search and external research;
 - a claim ledger mapping major claims to sources, reproducible computation, or explicit reasoning;
+- a top-level `researchAudit` dossier that passes the Deep Research Gate in `SKILL.md`; if evidence is
+  scarce, it must use `evidenceStatus: "scarce"` with an `exhaustion` audit instead of invented or
+  padded sources;
 - valid taxonomy metadata chosen from `assets/languages.json` and `assets/categories.json`.
 
 Do not proceed by asking the user to provide these items. Create them from research and available
@@ -32,6 +35,7 @@ constraints.
 | Registered author identity | `paper.authors[]`, `paper.affiliations[]`, `meta.author`, `meta.org` from `references/AUTH.md` |
 | Short study summary | `paper.abstract` (4-8 sentences, no citations) |
 | Search/discovery terms | `paper.keywords` and `aipaper.topics[]` |
+| Deep research dossier | top-level `researchAudit` with `evidenceStatus` and, when scarce, `exhaustion` |
 | Field context, gap, prior work | Introduction section (cite with `[[cite:id]]`) |
 | Study mode and evidence procedure | Method section (+ `equation` blocks for formulas when needed) |
 | Findings, themes, taxonomy, counts, or measurements | Results section -> `figure` and `table` blocks |
