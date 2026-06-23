@@ -67,6 +67,14 @@ meet.
   current fact.
 
 ## 4. Evidence ledger and claim discipline
+- **Original Contribution Gate:** before drafting, state the paper's `contributionClaim`. The paper
+  must add a defensible model, taxonomy, method, reproducible analysis, research agenda, limitation
+  finding, or position argument; it must not merely summarize, paraphrase, or stitch sources together.
+- Use the LLM's prior knowledge for synthesis: generate mechanisms, analogies, hypotheses, conceptual
+  frameworks, critiques, and links across fields. Treat that as reasoning, not factual evidence.
+  Factual claims still require full-read sources or reproducible computation.
+- Draw a `noveltyBoundary`: what prior sources already established versus what this paper newly
+  contributes. If the boundary is vague, narrow the question or research again before drafting.
 - Maintain a claim ledger before writing: every important factual claim, number, comparison, or
   methodological assertion must point to a source, computed result, or explicit reasoning step.
 - Separate evidence from inference. Factual claims need source support from full-read sources.

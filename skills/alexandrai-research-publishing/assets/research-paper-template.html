@@ -173,15 +173,6 @@ body{
 .rp-affil{ margin:6px 0 0; padding:0; list-style:none; font:400 11.5px/1.55 var(--serif); color:var(--ink-soft); }
 .rp-affil li{ display:flex; gap:6px; }
 .rp-affil li sup{ font:700 9px/1.6 var(--mono); color:var(--navy-deep); min-width:9px; }
-.rp-masthead{
-  display:flex; flex-wrap:wrap; gap:7px 16px; align-items:center;
-  margin:14px 0 0; padding:9px 0 0; border-top:1px solid var(--rule-soft);
-  font:600 11px/1.4 var(--sans); color:var(--ink-soft);
-}
-.rp-masthead .m-id{ font:600 11px/1 var(--mono); color:var(--navy-deep); background:var(--navy-bg); border:1px solid var(--navy-line); padding:3px 8px; border-radius:6px; }
-.rp-masthead .m-corr b{ color:var(--ink-mid); font-weight:700; }
-.rp-masthead .sep{ color:var(--ink-faint); }
-
 /* ---- abstract + keywords ---- */
 .rp-abstract{
   margin:22px 0 0; padding:16px 20px;
@@ -195,6 +186,7 @@ body{
 .rp-keywords b{ font:700 9.5px/1 var(--mono); letter-spacing:.1em; text-transform:uppercase; color:var(--ink-faint); margin-right:8px; }
 .rp-keywords .kw{ color:var(--navy-deep); }
 .rp-keywords .kw + .kw::before{ content:" · "; color:var(--ink-faint); }
+.rp-keywords + .rp-abstract{ margin-top:10px; }
 
 /* ============================================================
    4. SECTIONS — numbered serif headings + justified prose
@@ -1934,14 +1926,6 @@ ol.rp-reflist{ margin:0; padding:0; list-style:none; counter-reset:ref; }
     var affHTML = aff.map(function(f){
       return '<li><sup>'+esc(f.id)+'</sup><span>'+esc(f.name)+'</span></li>';
     }).join('');
-    var corr = (p.authors||[]).filter(function(a){ return a.corresponding; })[0];
-    var mast = [];
-    if(corr) mast.push('<span class="m-corr"><b>'+esc(corr.name)+'</b>'+(corr.email?' · '+esc(corr.email):'')+'</span>');
-    if(p.venue) mast.push('<span>'+esc(p.venue)+'</span>');
-    mast.push('<span>'+esc(p.date || m.date || '')+'</span>');
-    var masthead = mast.join('<span class="sep">|</span>')
-      + (p.articleId?'<span class="m-id">'+esc(p.articleId)+'</span>':'');
-
     var kw = (p.keywords||[]).map(function(k){ return '<span class="kw">'+esc(k)+'</span>'; }).join('');
 
     var head = '<div class="rp-tools">'+colToggle+themeSwitcher+'</div>'
@@ -1949,9 +1933,8 @@ ol.rp-reflist{ margin:0; padding:0; list-style:none; counter-reset:ref; }
       + '<h1 class="rp-title">'+esc(p.title||'')+'</h1>'
       + '<p class="rp-authors">'+authorsHTML+'</p>'
       + '<ul class="rp-affil">'+affHTML+'</ul>'
-      + '<div class="rp-masthead">'+masthead+'</div>'
-      + '<div class="rp-abstract"><h3>Abstract</h3><p>'+(p.abstract||'')+'</p></div>'
-      + (kw?'<p class="rp-keywords"><b>Keywords</b>'+kw+'</p>':'');
+      + (kw?'<p class="rp-keywords"><b>Keywords</b>'+kw+'</p>':'')
+      + '<div class="rp-abstract"><h3>Abstract</h3><p>'+(p.abstract||'')+'</p></div>';
 
     /* ---- sections ---- */
     var body = '<div class="rp-body" id="rp-body"><div class="rp-flow">'
