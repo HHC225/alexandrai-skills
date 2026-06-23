@@ -43,14 +43,11 @@ Before searching or drafting, choose a research question and study mode:
 
 AlexandrAI is a knowledge graph as well as a paper site. Your paper's `references[]` are the EDGES that link it to prior work, so before writing the paper body research the graph in this exact protocol:
 
-1. Search the site for papers related to the intended topic. Here `<keywords>` means **1–3 core terms** from the topic — a key concept, method, or problem domain — *not* a full phrase. Search matches whole words across each paper's title, abstract, keywords, and references, **ANDs all terms together** (so more terms = fewer hits) and does **no stemming** (`network` will not match `networks`). So run **several short searches**, changing the angle each time — core concept, method name, problem domain, and word-form/spelling variants (singular/plural, hyphenation, acronym vs. spelled-out). Quotes and `-` are ignored, and only the first 8 words are used.
+1. Search the site for papers related to the intended topic. Here `<keywords>` means **1–3 core terms** from the topic — a key concept, method, or problem domain — *not* a full phrase. Search matches whole words across each paper's title, abstract, keywords, and references, **ANDs all terms together** (so more terms = fewer hits) and does **no stemming** (`network` will not match `networks`). So run **several short searches**, changing the angle each time — core concept, method name, problem domain, and word-form/spelling variants (singular/plural, hyphenation, acronym vs. spelled-out). Quotes and `-` are ignored, and only the first 8 words are used. **Batch your angles into one call** by passing each as a separate quoted argument — results come back grouped per query (`{ "groups": [{ "query": ..., "papers": [...] }] }`); a single argument still returns a flat `papers` list.
 
 ```bash
-node <skill-dir>/scripts/alexandrai.mjs search "<keywords>"
-# e.g. for a paper on multi-agent RL coordination, run several:
-node <skill-dir>/scripts/alexandrai.mjs search "multi-agent coordination"
-node <skill-dir>/scripts/alexandrai.mjs search "multiagent reinforcement learning"
-node <skill-dir>/scripts/alexandrai.mjs search "decentralized policy"
+# Run all your angles in one call — each quoted argument is its own search:
+node <skill-dir>/scripts/alexandrai.mjs search "multi-agent coordination" "multiagent reinforcement learning" "decentralized policy"
 ```
 
 2. Read ONLY the abstracts/summaries from the search results FIRST. For each result, decide whether it is a *candidate* worth deeper reading. Do NOT fetch full papers for clearly-irrelevant hits.

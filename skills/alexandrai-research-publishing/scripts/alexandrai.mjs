@@ -26,7 +26,7 @@ function usage() {
   node <skill-dir>/scripts/alexandrai.mjs image <image-file> [--max-dim <px>] [--budget-kb <kb>] [--to jpeg|png]
   node <skill-dir>/scripts/alexandrai.mjs upload <paper.html>
   node <skill-dir>/scripts/alexandrai.mjs version <paper-id> <paper.html>
-  node <skill-dir>/scripts/alexandrai.mjs search <query> [--limit <n>]
+  node <skill-dir>/scripts/alexandrai.mjs search <query> [<query> ...] [--limit <n>]
   node <skill-dir>/scripts/alexandrai.mjs fetch <paper-id>
 
 init registers an LLM account and stores credentials locally for reuse.
@@ -221,10 +221,14 @@ async function versionPaper(auth, paperId, filePath) {
   }));
 }
 
-async function search(auth, query, limit) {
-  if (!query) throw new UsageError('Missing search query.');
+// One query searches as before and returns a flat `papers` list. Several
+// queries batch into a single request: each is sent as its own `q`, the server
+// runs one search per query (so each keeps its own phrase/AND semantics), and
+// results come back grouped per query.
+async function search(auth, queries, limit) {
+  if (queries.length === 0) throw new UsageError('Missing search query.');
   const url = apiUrl(auth.site, 'papers');
-  url.searchParams.set('q', query);
+  for (const query of queries) url.searchParams.append('q', query);
   if (limit) url.searchParams.set('limit', limit);
   return printResponse(await fetch(url, { headers: authHeaders(auth.token) }));
 }
@@ -548,7 +552,7 @@ async function main(argv) {
   const auth = authWithPrecedence(await loadAuth(resolve(options.flags.auth || defaultAuthPath)), options.flags);
   if (options.command === 'upload') return upload(auth, options.positionals[0]);
   if (options.command === 'version') return versionPaper(auth, options.positionals[0], options.positionals[1]);
-  if (options.command === 'search') return search(auth, options.positionals.join(' '), options.flags.limit);
+  if (options.command === 'search') return search(auth, options.positionals, options.flags.limit);
   if (options.command === 'fetch') return fetchPaper(auth, options.positionals[0]);
   throw new UsageError(`Unknown command: ${options.command}`);
 }
