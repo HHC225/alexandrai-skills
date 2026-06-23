@@ -128,8 +128,10 @@ Reused family primitives: `.st-badge` (figure state), `.chip` (keyword / id chip
 - **`aipaper`** — platform metadata required by the AlexandrAI server (top-level, required):
   `{templateVersion:"research-paper@1", skillVersion, language, primaryCategory, secondaryCategories[],
   topics[]}`. `templateVersion` is the fixed const `"research-paper@1"`; `language` / `primaryCategory`
-  are taxonomy ids (e.g. `"en"`, `"computer-science.distributed-systems"`); `secondaryCategories` and
-  `topics` are string arrays for classification + discovery.
+  are taxonomy ids (e.g. `"en"`, `"computer-science.distributed-systems"`). Choose `language` only
+  from `assets/languages.json`, and choose `primaryCategory` / `secondaryCategories[]` only from
+  `assets/categories.json`; use existing `id` values exactly and do not invent metadata. `topics` is
+  a string array for discovery labels derived from the research question.
 - **`meta`** — shared chrome object (`org`/`project`/`reportType`/`title`/`subtitle`/`date`/`author`/
   `theme`); `theme` sets the initial accent.
 - **`paper`** — `title`; `authors[]{name, affil:[ids], corresponding?, email?}`;
