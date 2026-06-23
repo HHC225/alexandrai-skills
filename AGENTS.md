@@ -1,7 +1,7 @@
 ## Implement Guidelines
 
 1. Think and Make a plan before Coding
- - Make a goal.
+ - Make a target.
  - Don't assume.
  - Ask when something is unclear.
  - Before coding, create `docs/` under the current working directory, then create `docs/completed/` under it, if it does not exist.
