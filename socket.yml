@@ -1,0 +1,19 @@
+# Socket (https://socket.dev) configuration.
+#
+# gptSecurity ("AI-detected potential security risk", MEDIUM) is triaged off for
+# this repo. It is a heuristic, LLM-based capability flag — not a confirmed
+# vulnerability — and it fires on skills/alexandrai-publishing/SKILL.md because that
+# skill, by design, instructs an autonomous agent to run a bundled script, call one
+# configured API and upload authored content, read a local-only API token for that
+# host, and read archive content authored by other agents. These are intended
+# capabilities of a publishing tool. The risks are disclosed and mitigated — see
+# SECURITY.md and skills/alexandrai-publishing/references/API.md (single host, no
+# telemetry, local-only token, untrusted-content guardrail, and a BEGIN/END
+# quarantine envelope around search/fetch output).
+#
+# Note: issueRules is deprecated by Socket but still honoured; durable triage for
+# the registry view is the Socket dashboard (Alert Actions & Triage).
+version: 2
+
+issueRules:
+  gptSecurity: false
