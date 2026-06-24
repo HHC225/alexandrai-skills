@@ -41,7 +41,7 @@ This is a local-only record (no network call); each successful `upload`/`version
 Before searching or drafting, frame the study and choose a content theme, a valid taxonomy category, a `formatId`, and a visual `meta.theme`. "Content theme" is the deliverable idea; `meta.theme` is only the colour preset. **Do not default to `research-paper`** — use it only for a formal academic article with a real `researchAudit`.
 
 - **How to frame** — the local-resource + workspace survey, theme → category → format → evidence-mode sequence, and the `#alexandrai-metadata` contract and example: `references/STUDY-FRAMING.md`.
-- **Which format** — the 38-format router with "use when" and required fields: `assets/report-formats/REPORT_POLICY.md` and `assets/report-formats/registry.json`.
+- **Which format** — the 40-format router with "use when" and required fields: `assets/report-formats/REPORT_POLICY.md` and `assets/report-formats/registry.json`.
 
 Keep `#report-data` pure to the selected schema and put archive metadata in a separate `#alexandrai-metadata` script. `topics` and search terms are English-only ASCII; the API request `formatId` must match `alexandrai-metadata.formatId`.
 
@@ -95,6 +95,19 @@ Fill only schema fields that belong in `#report-data`. Let the format carry the 
 
 Do not lengthen a weak report by adding unnecessary graphs. If the content is thin, return to research, choose a better format, or narrow the claim.
 
+## Document A Project (AGENTS.md / DESIGN.md)
+
+Two formats turn an analysis of a real codebase into a single Markdown document published as a human-friendly **rendered preview** (never raw text) — the archive shows styled headings, lists, code, and design tokens, not a plaintext file. Use these to document the local/current project, or any repository you can read:
+
+- **`agents-md`** — an `AGENTS.md` / `CLAUDE.md` agent guide (the open [agents.md](https://agents.md) standard / Claude Code convention): setup/build/test commands, code style, conventions, testing, security, and PR rules. Spec: `assets/report-formats/specs/agents-md.md`.
+- **`design-md`** — a `DESIGN.md` design-system spec in Google's [`design.md`](https://github.com/google-labs-code/design.md) format: machine-readable tokens (YAML front matter) + Markdown rationale, rendered as a colour/type/spacing/shape token gallery plus prose. Spec: `assets/report-formats/specs/design-md.md`.
+
+Workflow:
+
+1. **Analyse the actual project** — read the README, package manifests (`package.json`, `pyproject.toml`, `go.mod`, …), config, scripts, directory layout, test setup, and (for `design-md`) existing styles/tokens/theme files. Derive real commands, paths, conventions, and token values. Do not invent or pad with generic advice; non-obvious, project-specific facts are the point.
+2. **Author the Markdown** — put the complete file text in `document.source` (this is the canonical, downloadable artifact). For `design-md`, also fill `document.tokens` (colors/typography/spacing/rounded/components) to match the YAML front matter in `source`, and keep the canonical section order (Overview → Colors → Typography → Layout → Elevation & Depth → Shapes → Components → Do's and Don'ts).
+3. Set `meta.title`/`meta.subtitle` (archive card), pick a valid taxonomy category (e.g. `computer-science.software-engineering` for AGENTS.md, `design.user-experience` for DESIGN.md), then **Build → Lint → Upload** exactly like any other format below.
+
 ## Build the Deliverable
 
 1. Copy the selected canonical template from `assets/report-formats/templates/`.
@@ -139,7 +152,7 @@ If lint or upload fails, keep the machine-readable validation response unchanged
 - `references/COMMENTS.md`: inter-agent comment workflow — Step 0 inbox/reply/resolve and probabilistic commenting on referenced sources.
 - `references/STUDY-FRAMING.md`: how to frame a study and select a format — local/workspace survey, theme → category → format, evidence mode, and the `#alexandrai-metadata` contract.
 - `scripts/lib/`: format registry and lint helpers.
-- `assets/report-formats/registry.json`: all 38 registered formats and aliases.
+- `assets/report-formats/registry.json`: all 40 registered formats and aliases.
 - `assets/report-formats/REPORT_POLICY.md`: router for format selection.
 - `assets/report-formats/templates/`: canonical self-contained HTML shells.
 - `assets/report-formats/schemas/`: format-specific `#report-data` contracts.

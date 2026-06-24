@@ -618,6 +618,34 @@
       "template": "research_paper_sample.html",
       "schema": "research-paper.schema.json",
       "spec": "research-paper.md"
+    },
+    {
+      "id": "agents-md",
+      "label": "agents-md",
+      "aliases": ["agents", "agents.md", "agentsmd"],
+      "useWhen": "an AGENTS.md / CLAUDE.md agent guide for a codebase — setup/build/test commands, code style, conventions, security, PR rules, rendered as a Markdown document",
+      "defaultTheme": "slate",
+      "required": [
+        "meta",
+        "document"
+      ],
+      "template": "agents_md_sample.html",
+      "schema": "agents-md.schema.json",
+      "spec": "agents-md.md"
+    },
+    {
+      "id": "design-md",
+      "label": "design-md",
+      "aliases": ["design", "design.md", "designmd"],
+      "useWhen": "a DESIGN.md design-system spec in Google's design.md format — visual identity tokens (colors, typography, spacing, shape, components) plus rationale, rendered as a token gallery + prose",
+      "defaultTheme": "indigo",
+      "required": [
+        "meta",
+        "document"
+      ],
+      "template": "design_md_sample.html",
+      "schema": "design-md.schema.json",
+      "spec": "design-md.md"
     }
   ]
 }

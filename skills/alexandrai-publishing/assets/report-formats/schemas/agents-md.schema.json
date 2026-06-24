@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://genesis.local/html_report_design/schemas/agents-md.schema.json",
+  "title": "AGENTS.md project guide",
+  "description": "Data contract for the agents-md format: a single Markdown document (AGENTS.md, the open agents.md / Claude Code memory-file convention) that tells coding agents how to work on a project — setup/build/test commands, code style, conventions, testing, security, and PR rules. The template renders the Markdown as a human-friendly, themeable preview (NOT raw text) with an auto-generated heading outline; the exact file text is preserved in document.source for download/round-trip. The sample's #report-data is a valid instance of this schema.",
+  "type": "object",
+  "required": ["meta", "document"],
+  "additionalProperties": false,
+  "properties": {
+    "meta": {
+      "type": "object",
+      "description": "Shared archive chrome. Brand-neutral: keep {{ORG}} / {{PROJECT}} / {{AUTHOR}} placeholders unless real values are supplied. meta.title and meta.subtitle drive the archive card title/abstract; meta.theme sets the initial brand colour.",
+      "required": ["org", "project", "title", "theme"],
+      "additionalProperties": false,
+      "properties": {
+        "org": { "type": "string", "description": "Organisation / owner name or {{ORG}} placeholder.", "default": "{{ORG}}" },
+        "project": { "type": "string", "description": "Project / repository name the guide is for, e.g. 'acme-web' or {{PROJECT}}." },
+        "reportType": { "type": "string", "description": "Eyebrow label shown above the title, e.g. 'Agent guide'. Defaults to 'AGENTS.md' when omitted." },
+        "title": { "type": "string", "description": "Document title shown in the masthead H1, e.g. 'acme-web — agent guide'." },
+        "subtitle": { "type": "string", "description": "Optional one-line summary shown under the title and used as the archive abstract." },
+        "date": { "type": "string", "description": "ISO date the guide was generated (YYYY-MM-DD).", "format": "date" },
+        "author": { "type": "string", "description": "Author / generator shown in the footer or {{AUTHOR}} placeholder.", "default": "{{AUTHOR}}" },
+        "theme": {
+          "type": "string",
+          "description": "Initial brand theme applied as <html data-theme>. Default for this format is 'slate'.",
+          "enum": ["blue", "purple", "indigo", "teal", "cyan", "green", "plum", "slate"],
+          "default": "slate"
+        }
+      }
+    },
+    "document": {
+      "type": "object",
+      "description": "The Markdown document itself. The template renders document.source as styled HTML; the heading outline (TOC) is derived from its headings automatically.",
+      "required": ["filename", "source"],
+      "additionalProperties": false,
+      "properties": {
+        "filename": {
+          "type": "string",
+          "description": "The file name this document would be saved as in the repo. Conventionally 'AGENTS.md'. Must end in .md.",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._/-]*\\.md$",
+          "default": "AGENTS.md"
+        },
+        "source": {
+          "type": "string",
+          "description": "The COMPLETE Markdown text of AGENTS.md (CommonMark / GitHub-flavoured: headings, lists, fenced code, tables, blockquotes, links, bold/italic). This is the canonical, downloadable artifact and the only content source for the rendered preview. Base it on the agents.md open standard / Claude Code CLAUDE.md conventions: project overview, setup/build/test commands, code style, testing, security, and commit/PR rules."
+        },
+        "summary": {
+          "type": "string",
+          "description": "Optional one-line description of what the project is, surfaced near the top of the preview."
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "meta": {
+        "org": "{{ORG}}",
+        "project": "acme-web",
+        "reportType": "Agent guide",
+        "title": "acme-web — agent guide",
+        "subtitle": "How coding agents should set up, build, test, and contribute to the acme-web monorepo.",
+        "date": "2026-06-24",
+        "author": "{{AUTHOR}}",
+        "theme": "slate"
+      },
+      "document": {
+        "filename": "AGENTS.md",
+        "summary": "acme-web is a TypeScript pnpm monorepo: a Next.js app (apps/web) and shared packages (packages/*).",
+        "source": "# AGENTS.md\n\nGuidance for coding agents working on **acme-web**. Human contributors should read `README.md`; this file holds the build, test, and convention details an agent needs.\n\n## Project overview\n\n- **Stack:** TypeScript, Next.js (App Router), PostgreSQL via Prisma.\n- **Layout:** pnpm workspace — `apps/web` (the app), `packages/ui` (component library), `packages/config` (shared lint/tsconfig).\n- **Entry point:** `apps/web/src/app`.\n\n## Setup commands\n\n- Install deps: `pnpm install`\n- Start dev server: `pnpm dev`\n- Build: `pnpm build`\n- Run tests: `pnpm test`\n- Lint + typecheck: `pnpm lint && pnpm typecheck`\n\n## Code style\n\n- TypeScript **strict** mode; no `any` without a `// why:` comment.\n- Single quotes, no semicolons, 2-space indent (enforced by Prettier — run `pnpm format`).\n- Prefer functional components and hooks; colocate a component's styles and tests beside it.\n- Name files `kebab-case.ts`; export one component per file.\n\n## Testing\n\n- Framework: Vitest + Testing Library.\n- Write the failing test first, then make it pass.\n- A change is not done until `pnpm test` is green and coverage on touched files does not drop.\n\n## Security\n\n- Never commit secrets; read config from environment variables.\n- Validate all external input at the route boundary with `zod`.\n- Server-only code stays under `src/server/**` and is never imported by client components.\n\n## Commit & PR rules\n\n1. Branch from `main`; keep each PR focused on one change.\n2. Conventional commit messages (`feat:`, `fix:`, `chore:` …).\n3. PRs must pass CI (lint, typecheck, test) before review.\n\n> **Note:** nested `AGENTS.md` files override this one for their subtree — agents read the nearest file first.\n"
+      }
+    }
+  ]
+}

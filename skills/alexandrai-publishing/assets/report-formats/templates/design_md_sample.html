@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="indigo">
+<head>
+<meta charset="UTF-8">
+<!--
+  design-md format — a DESIGN.md file in Google's design.md format (YAML token front matter +
+  Markdown rationale) rendered as a human-friendly PREVIEW: a visual token gallery (colour
+  swatches, type specimens, spacing & radius scales, components) plus the styled prose. All
+  content comes from #report-data (valid vs schemas/design-md.schema.json). Self-contained:
+  inline <style> + inline <svg> + system fonts, NO external requests.
+-->
+<meta name="viewport" content="width=1440">
+<title>DESIGN.md preview</title>
+<style>
+:root{
+  --bg:#fff; --bg-band:#f6f6f8; --bg-subtle:#fafafb; --bg-deep:#15131a;
+  --rule:#dcdce2; --rule-soft:#ebebef;
+  --ink:#11131a; --ink-mid:#33363f; --ink-soft:#5a5e68; --ink-faint:#868b95;
+  --navy:#4338ca; --navy-deep:#312c92; --navy-bg:#ebebfb; --navy-line:#c7c3f0;
+  --ok:#3730a3; --ok-bg:#ebeaf7; --ok-line:#c5c2ea;
+  --risk:#b3261e; --risk-bg:#fbeceb; --risk-line:#edc7c4;
+  --hold:#8a6d00; --hold-bg:#fbf3da; --hold-line:#e7d8a4;
+  --mono:ui-monospace,"JetBrains Mono","SFMono-Regular",Menlo,Consolas,monospace;
+  --sans:-apple-system,"Segoe UI",system-ui,Roboto,"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic UI","Apple SD Gothic Neo","Malgun Gothic","PingFang SC","Microsoft YaHei","Noto Sans CJK JP","Noto Sans CJK KR","Noto Sans CJK SC","Noto Sans JP","Noto Sans KR","Noto Sans SC","Noto Sans",sans-serif;
+}
+html[data-theme="blue"]{   --navy:#0b5fd4; --navy-deep:#0842a0; --navy-bg:#e8f1fc; --navy-line:#bcd6f5; --ok:#1a4f9c; --ok-bg:#e9f0fa; --ok-line:#b7cdea; }
+html[data-theme="purple"]{ --navy:#a100ff; --navy-deep:#7a00c2; --navy-bg:#f3e8ff; --navy-line:#d9bef5; --ok:#5a2f8a; --ok-bg:#efe8f5; --ok-line:#d0b5e0; }
+html[data-theme="indigo"]{ --navy:#4338ca; --navy-deep:#312c92; --navy-bg:#ebebfb; --navy-line:#c7c3f0; --ok:#3730a3; --ok-bg:#ebeaf7; --ok-line:#c5c2ea; }
+html[data-theme="teal"]{   --navy:#0e7c86; --navy-deep:#095861; --navy-bg:#e0f3f4; --navy-line:#a9dade; --ok:#0f5d54; --ok-bg:#e3f3ef; --ok-line:#b3ddd4; }
+html[data-theme="cyan"]{   --navy:#0891b2; --navy-deep:#0e6f88; --navy-bg:#e2f4f9; --navy-line:#abdde9; --ok:#0e6b7a; --ok-bg:#e4f3f4; --ok-line:#b0dde2; }
+html[data-theme="green"]{  --navy:#1f7a44; --navy-deep:#155730; --navy-bg:#e6f4ea; --navy-line:#b3dcc1; --ok:#2f6b3c; --ok-bg:#e9f3ea; --ok-line:#bedcc4; }
+html[data-theme="plum"]{   --navy:#a21d6e; --navy-deep:#7c1450; --navy-bg:#fbe8f2; --navy-line:#e8b9d4; --ok:#6d2356; --ok-bg:#f6e8f0; --ok-line:#e3bcd5; }
+html[data-theme="slate"]{  --navy:#3f4f63; --navy-deep:#29384b; --navy-bg:#eef1f5; --navy-line:#c2ccd8; --ok:#34495e; --ok-bg:#eef1f5; --ok-line:#c2ccd8; }
+html[data-theme="black"]{  --navy:#000000; --navy-deep:#000; --navy-bg:#f1f1f3; --navy-line:#d6d6db; --ok:#3f3f46; --ok-bg:#f1f1f3; --ok-line:#cfcfd6; }
+
+*{box-sizing:border-box;}
+html,body{margin:0;}
+body{font:13px/1.6 var(--sans);color:var(--ink);background:var(--bg-band);-webkit-font-smoothing:antialiased;}
+
+.topbar{position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:14px;
+  padding:9px 22px;background:rgba(255,255,255,.94);backdrop-filter:saturate(1.4) blur(6px);
+  border-bottom:1px solid var(--rule);box-shadow:0 1px 3px rgba(17,19,26,.05);}
+.brand{display:inline-flex;align-items:center;gap:8px;font:800 13px/1 var(--sans);color:var(--ink);}
+.brand .sq{width:13px;height:13px;border-radius:4px;background:var(--navy);display:inline-block;}
+.file-chip{font:600 11.5px/1 var(--mono);color:var(--navy-deep);background:var(--navy-bg);
+  border:1px solid var(--navy-line);border-radius:6px;padding:4px 8px;display:inline-flex;align-items:center;gap:6px;}
+.file-chip .icon{width:1.05em;height:1.05em;}
+.tb-spacer{flex:1;}
+.tb-tools{display:flex;align-items:center;gap:8px;}
+.btn{font:600 11px/1 var(--mono);color:var(--ink-mid);background:var(--bg);border:1px solid var(--rule);
+  border-radius:7px;padding:6px 10px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;}
+.btn:hover{border-color:var(--navy-line);color:var(--navy-deep);}
+.btn .icon{width:1.1em;height:1.1em;}
+.rc-theme{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--rule);border-radius:7px;padding:3px 4px 3px 7px;background:var(--bg);}
+.rc-theme-sw{width:12px;height:12px;border-radius:50%;background:var(--navy);box-shadow:0 0 0 1px var(--rule);flex:none;}
+.rc-theme-sel{border:0;background:none;font:600 11px/1 var(--mono);color:var(--ink-mid);cursor:pointer;outline:none;padding:2px;}
+
+.wrap{max-width:1240px;margin:0 auto;padding:0 22px;}
+.hero{padding:26px 4px 16px;}
+.eyebrow{font:700 10px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-faint);}
+.hero h1{margin:9px 0 0;font:800 26px/1.16 var(--sans);letter-spacing:-.01em;color:var(--ink);}
+.hero .subtitle{margin:8px 0 0;font:400 14.5px/1.5 var(--sans);color:var(--ink-mid);max-width:76ch;}
+.hero .metaline{margin:13px 0 0;display:flex;flex-wrap:wrap;gap:7px;}
+.metaline .m{font:600 10.5px/1 var(--mono);letter-spacing:.04em;text-transform:uppercase;color:var(--ink-soft);background:var(--bg-band);border:1px solid var(--rule-soft);border-radius:5px;padding:5px 8px;}
+.summary{margin:14px 0 0;padding:11px 14px;background:var(--navy-bg);border:1px solid var(--navy-line);border-radius:10px;font:400 13px/1.55 var(--sans);color:var(--navy-deep);display:flex;gap:9px;align-items:flex-start;}
+.summary .icon{width:1.2em;height:1.2em;flex:none;margin-top:.1em;}
+
+/* ===== token gallery ===== */
+.gallery{padding:14px 4px 6px;}
+.gal-cols{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.panel{background:var(--bg);border:1px solid var(--rule);border-radius:12px;padding:16px 18px;margin-bottom:16px;box-shadow:0 1px 2px rgba(17,19,26,.045);}
+.gal-cols .panel{margin-bottom:0;}
+.panel > h2{margin:0 0 13px;font:700 10px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint);
+  display:flex;align-items:center;gap:8px;}
+.panel > h2::before{content:"";width:8px;height:8px;border-radius:3px;background:var(--navy);}
+
+.sw-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(146px,1fr));gap:11px;}
+.sw{border:1px solid var(--rule);border-radius:10px;overflow:hidden;cursor:pointer;text-align:left;padding:0;background:var(--bg);font:inherit;}
+.sw:hover{border-color:var(--navy-line);box-shadow:0 1px 4px rgba(17,19,26,.07);}
+.sw-color{display:block;height:58px;border-bottom:1px solid rgba(17,19,26,.06);}
+.sw-meta{display:block;padding:8px 10px 9px;}
+.sw-name{display:block;font:700 12px/1.2 var(--sans);color:var(--ink);}
+.sw-val{display:block;font:600 10.5px/1.3 var(--mono);color:var(--ink-soft);margin-top:2px;text-transform:uppercase;}
+.sw-note{display:block;font:400 10.5px/1.35 var(--sans);color:var(--ink-faint);margin-top:4px;}
+
+.type-row{display:flex;align-items:baseline;justify-content:space-between;gap:18px;padding:11px 0;border-bottom:1px solid var(--rule-soft);}
+.type-row:last-child{border-bottom:0;}
+.type-sample{color:var(--ink);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.type-meta{text-align:right;flex:none;}
+.type-name{display:block;font:700 11.5px/1.2 var(--mono);color:var(--navy-deep);}
+.type-spec{display:block;font:500 10.5px/1.4 var(--mono);color:var(--ink-faint);margin-top:2px;}
+.type-note{display:block;font:400 10.5px/1.4 var(--sans);color:var(--ink-faint);margin-top:1px;}
+
+.scale-row{display:flex;align-items:center;gap:12px;padding:6px 0;}
+.scale-name{flex:none;width:40px;font:700 11px/1 var(--mono);color:var(--ink-soft);text-transform:uppercase;}
+.scale-bar{height:14px;border-radius:4px;background:var(--navy);min-width:2px;}
+.scale-val{flex:none;font:600 11px/1 var(--mono);color:var(--ink-faint);}
+
+.round-grid{display:flex;flex-wrap:wrap;gap:18px;}
+.round-item{display:flex;flex-direction:column;align-items:center;gap:7px;}
+.round-box{width:58px;height:58px;background:var(--navy-bg);border:1.5px solid var(--navy);}
+.round-name{font:700 11px/1 var(--mono);color:var(--ink-soft);text-transform:uppercase;}
+.round-val{font:600 10px/1 var(--mono);color:var(--ink-faint);}
+
+.comp-grid{display:flex;flex-wrap:wrap;gap:10px;}
+.comp{border:1px solid var(--rule);border-radius:9px;padding:9px 12px;background:var(--bg-subtle);min-width:130px;}
+.comp-name{display:block;font:700 12px/1.2 var(--mono);color:var(--navy-deep);}
+.comp-note{display:block;font:400 10.5px/1.4 var(--sans);color:var(--ink-faint);margin-top:3px;}
+
+.sec-sep{display:flex;align-items:center;gap:12px;margin:14px 4px 2px;}
+.sec-sep .ln{flex:1;height:1px;background:var(--rule);}
+.sec-sep .lbl{font:700 9.5px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--ink-faint);}
+
+/* ===== prose ===== */
+.doc{max-width:920px;margin:8px auto 0;background:var(--bg);border:1px solid var(--rule);border-radius:12px;padding:28px 36px 34px;box-shadow:0 1px 2px rgba(17,19,26,.045);}
+.md{color:var(--ink-mid);font-size:14px;}
+.md > :first-child{margin-top:0;}
+.md h1,.md h2,.md h3,.md h4{color:var(--ink);font-family:var(--sans);line-height:1.3;scroll-margin-top:70px;font-weight:800;}
+.md h1{font-size:23px;margin:0 0 13px;padding-bottom:9px;border-bottom:2px solid var(--ink);}
+.md h2{font-size:16.5px;margin:28px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--rule);}
+.md h3{font-size:14px;margin:20px 0 7px;}
+.md h4{font-size:12.5px;margin:16px 0 6px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-soft);}
+.md p{margin:0 0 12px;}
+.md a{color:var(--navy-deep);text-decoration:none;border-bottom:1px solid var(--navy-line);}
+.md a:hover{border-bottom-color:var(--navy);}
+.md strong{color:var(--ink);font-weight:700;}
+.md ul,.md ol{margin:0 0 12px;padding-left:22px;}
+.md li{margin:3px 0;}
+.md blockquote{margin:0 0 13px;padding:9px 15px;border-left:3px solid var(--navy);background:var(--bg-subtle);border-radius:0 8px 8px 0;color:var(--ink-soft);}
+.md blockquote p:last-child{margin:0;}
+.md hr{border:0;border-top:1px solid var(--rule);margin:20px 0;}
+.md code{font-family:var(--mono);font-size:.88em;background:var(--bg-band);border:1px solid var(--rule-soft);border-radius:5px;padding:1px 5px;color:var(--navy-deep);}
+.md pre{margin:0 0 14px;background:var(--bg-deep);border-radius:10px;padding:14px 16px;overflow:auto;position:relative;}
+.md pre code{display:block;background:none;border:0;padding:0;color:#e7e7ee;font-size:12.5px;line-height:1.6;}
+.md pre .lang{position:absolute;top:8px;right:10px;font:600 9px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:#7d7d8c;}
+.md table{border-collapse:collapse;width:100%;margin:0 0 15px;font-size:13px;}
+.md th{text-align:left;font:700 9.5px/1.3 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-faint);border-bottom:2px solid var(--ink);padding:7px 10px;}
+.md td{border-bottom:1px solid var(--rule-soft);padding:7px 10px;vertical-align:top;}
+.md tbody tr:hover,.md tr:hover td{background:var(--bg-subtle);}
+
+.foot{background:var(--bg-deep);color:#c9c9d2;margin-top:24px;}
+.foot .wrap{display:flex;align-items:center;gap:12px;padding:16px 22px;}
+.foot .wordmark{display:inline-flex;align-items:center;gap:7px;font:800 12px/1 var(--sans);color:#fff;}
+.foot .wordmark .sq{width:11px;height:11px;border-radius:3px;background:var(--navy);}
+.foot .fmeta{font:600 10px/1.4 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:#8a8a98;}
+.foot .fspace{flex:1;}
+
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);opacity:0;background:var(--ink);color:#fff;font:600 12px/1 var(--mono);padding:10px 16px;border-radius:8px;transition:opacity .15s,transform .15s;pointer-events:none;z-index:60;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.nojs{max-width:920px;margin:18px auto;padding:14px 18px;border:1px solid var(--hold-line);border-left:3px solid var(--hold);border-radius:10px;background:var(--hold-bg);color:var(--ink-mid);font-size:13px;}
+
+@media (max-width:820px){ .gal-cols{grid-template-columns:1fr;} .doc{padding:22px;} }
+@media print{
+  body{background:#fff;}
+  .topbar,.tb-tools,.no-print{display:none!important;}
+  .panel,.doc{break-inside:avoid;box-shadow:none;}
+  .doc{border:0;max-width:none;padding:0;}
+  .foot{background:#fff;color:#555;border-top:1px solid var(--rule);}
+  .foot .wordmark{color:#111;}
+}
+</style>
+</head>
+<body>
+
+<script type="application/json" id="report-data">
+{
+  "meta": {
+    "org": "{{ORG}}",
+    "project": "Acme",
+    "reportType": "DESIGN.md",
+    "title": "Acme Design System",
+    "subtitle": "The visual identity tokens and rationale agents use to build on-brand Acme UI.",
+    "date": "2026-06-24",
+    "author": "{{AUTHOR}}",
+    "theme": "indigo"
+  },
+  "document": {
+    "filename": "DESIGN.md",
+    "summary": "Calm, precise, trustworthy — a productivity brand for focused work. Indigo primary on near-white surfaces, generous spacing, soft corners.",
+    "tokens": {
+      "name": "Acme Design System",
+      "description": "Calm, precise, trustworthy productivity UI.",
+      "colors": [
+        { "name": "primary", "value": "#4338ca", "note": "Brand indigo — primary actions, links, focus." },
+        { "name": "secondary", "value": "#0e7c86", "note": "Teal accent for secondary emphasis." },
+        { "name": "tertiary", "value": "#a21d6e", "note": "Plum — sparingly, for highlights." },
+        { "name": "neutral", "value": "#33363f", "note": "Body ink." },
+        { "name": "surface", "value": "#ffffff", "note": "Cards and sheets." },
+        { "name": "surface-muted", "value": "#f6f6f8", "note": "App background / bands." },
+        { "name": "success", "value": "#1f7a44", "note": "Positive state." },
+        { "name": "danger", "value": "#b3261e", "note": "Destructive / error state." }
+      ],
+      "typography": [
+        { "name": "display", "fontFamily": "Inter, system-ui, sans-serif", "fontSize": "40px", "fontWeight": 800, "lineHeight": "1.1", "letterSpacing": "-0.02em", "note": "Marketing hero only." },
+        { "name": "headline-lg", "fontFamily": "Inter, system-ui, sans-serif", "fontSize": "28px", "fontWeight": 800, "lineHeight": "1.2", "letterSpacing": "-0.01em" },
+        { "name": "title-md", "fontFamily": "Inter, system-ui, sans-serif", "fontSize": "18px", "fontWeight": 700, "lineHeight": "1.3" },
+        { "name": "body-md", "fontFamily": "Inter, system-ui, sans-serif", "fontSize": "15px", "fontWeight": 400, "lineHeight": "1.6", "note": "Default reading size." },
+        { "name": "label-sm", "fontFamily": "ui-monospace, SFMono-Regular, Menlo, monospace", "fontSize": "11px", "fontWeight": 600, "lineHeight": "1", "letterSpacing": "0.08em", "note": "Uppercase eyebrows / chips." }
+      ],
+      "spacing": [
+        { "name": "xs", "value": "4px" },
+        { "name": "sm", "value": "8px" },
+        { "name": "md", "value": "16px" },
+        { "name": "lg", "value": "24px" },
+        { "name": "xl", "value": "40px" }
+      ],
+      "rounded": [
+        { "name": "sm", "value": "6px" },
+        { "name": "md", "value": "12px" },
+        { "name": "lg", "value": "18px" },
+        { "name": "full", "value": "9999px" }
+      ],
+      "components": [
+        { "name": "button", "note": "Filled primary; radius md; label-sm; 40px tall." },
+        { "name": "input", "note": "1px neutral border; radius sm; focus ring primary." },
+        { "name": "chip", "note": "surface-muted bg; radius full; label-sm." },
+        { "name": "card", "note": "surface bg; radius md; 1px hairline; lg padding." }
+      ]
+    },
+    "source": "---\nname: Acme Design System\ndescription: Calm, precise, trustworthy productivity UI.\ncolors:\n  primary: \"#4338ca\"\n  secondary: \"#0e7c86\"\n  tertiary: \"#a21d6e\"\n  neutral: \"#33363f\"\n  surface: \"#ffffff\"\n  surface-muted: \"#f6f6f8\"\n  success: \"#1f7a44\"\n  danger: \"#b3261e\"\ntypography:\n  display: { fontFamily: \"Inter, system-ui, sans-serif\", fontSize: 40px, fontWeight: 800, lineHeight: 1.1, letterSpacing: -0.02em }\n  headline-lg: { fontFamily: \"Inter, system-ui, sans-serif\", fontSize: 28px, fontWeight: 800, lineHeight: 1.2, letterSpacing: -0.01em }\n  title-md: { fontFamily: \"Inter, system-ui, sans-serif\", fontSize: 18px, fontWeight: 700, lineHeight: 1.3 }\n  body-md: { fontFamily: \"Inter, system-ui, sans-serif\", fontSize: 15px, fontWeight: 400, lineHeight: 1.6 }\n  label-sm: { fontFamily: \"ui-monospace, monospace\", fontSize: 11px, fontWeight: 600, lineHeight: 1, letterSpacing: 0.08em }\nspacing:\n  xs: 4px\n  sm: 8px\n  md: 16px\n  lg: 24px\n  xl: 40px\nrounded:\n  sm: 6px\n  md: 12px\n  lg: 18px\n  full: 9999px\n---\n\n## Overview\n\n**Acme** is a productivity brand: calm, precise, and trustworthy. The UI should feel focused and quiet — it gets out of the way so the work is the loudest thing on screen. Lead with **indigo** on near-white surfaces, lean on generous spacing, and keep corners soft but not playful.\n\n## Colors\n\n`primary` indigo carries every primary action, link, and focus ring. `secondary` teal and `tertiary` plum are accents — use them sparingly and never together in the same component. Body text is `neutral`; backgrounds alternate `surface` (white) and `surface-muted`. Reserve `success` and `danger` for state only.\n\n## Typography\n\nOne family — **Inter** — across the product; mono only for labels, code, and numeric chips. The scale runs `display` -> `headline-lg` -> `title-md` -> `body-md` -> `label-sm`. Default reading size is `body-md` (15px / 1.6). Tighten letter-spacing on large headings; track `label-sm` wide and uppercase.\n\n## Layout\n\nAn 8px spacing grid (`xs`-`xl`). Content max-width 1200px with `lg` gutters; card padding `lg`; stack rhythm `md`. Prefer a clear single-column reading measure over dense multi-column dashboards.\n\n## Elevation & Depth\n\nFlat by default. Convey hierarchy with hairline `1px` borders and `surface-muted` bands, not shadows. At most a whisper shadow on raised cards; never stacked drop-shadows or neumorphism.\n\n## Shapes\n\nSoft, consistent corners: `sm` for inputs/chips edges, `md` for cards and buttons, `lg` for large panels, `full` for pills and avatars. Do not mix radii within one component.\n\n## Components\n\n- **button** — filled `primary`, radius `md`, `label-sm` text, 40px tall; hover darkens primary.\n- **input** — `1px` neutral border, radius `sm`, primary focus ring.\n- **chip** — `surface-muted` background, radius `full`, `label-sm`.\n- **card** — `surface` background, radius `md`, `1px` hairline, `lg` padding.\n\n## Do's and Don'ts\n\n- **Do** keep indigo as the single dominant accent; let whitespace do the work.\n- **Do** use state colours (`success`/`danger`) only for state, never decoration.\n- **Don't** introduce gradients on text, heavy shadows, or a fourth accent hue.\n- **Don't** mix corner radii or tighten spacing below the 8px grid.\n"
+  }
+}
+</script>
+
+<script type="application/json" id="alexandrai-metadata">
+{
+  "formatId": "design-md",
+  "templateVersion": "design-md@1",
+  "skillVersion": "alexandrai-publishing@0.2.0",
+  "language": "en",
+  "primaryCategory": "design.user-experience",
+  "secondaryCategories": ["design.design-theory"],
+  "topics": ["design system", "design tokens", "design.md", "visual identity", "brand guidelines"]
+}
+</script>
+
+<noscript>
+  <div class="nojs"><strong>This DESIGN.md preview renders from embedded JSON and needs JavaScript.</strong>
+  The full DESIGN.md source (YAML tokens + Markdown) lives in the <code>#report-data</code> block above (field <code>document.source</code>) and is valid against <code>schemas/design-md.schema.json</code>. Enable JavaScript, or read that source directly.</div>
+</noscript>
+
+<header class="topbar">
+  <span class="brand"><i class="sq"></i> AlexandrAI</span>
+  <span class="file-chip"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5l7 3.2v5c0 4-3 7-7 8.3-4-1.3-7-4.3-7-8.3v-5Z"/><path d="M9.2 11.8l2 2 3.6-4"/></svg><span id="r-filename">DESIGN.md</span></span>
+  <span class="tb-spacer"></span>
+  <span class="tb-tools no-print">
+    <label class="rc-theme" title="Brand colour">
+      <span class="rc-theme-sw" aria-hidden="true"></span>
+      <select class="rc-theme-sel" aria-label="Brand theme">
+        <option value="blue">Blue</option><option value="purple">Purple</option>
+        <option value="indigo">Indigo</option><option value="teal">Teal</option>
+        <option value="cyan">Cyan</option><option value="green">Green</option>
+        <option value="plum">Plum</option><option value="slate">Slate</option>
+        <option value="black">Black</option>
+      </select>
+    </label>
+    <button type="button" class="btn" id="copy-btn"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="8.5" y="8.5" width="11" height="11" rx="2"/><path d="M15.5 8.5V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v7.5a2 2 0 0 0 2 2h2.5"/></svg>Copy DESIGN.md</button>
+    <button type="button" class="btn" onclick="window.print()"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M7 9V4h10v5"/><rect x="5" y="9" width="14" height="7" rx="1.5"/><path d="M7 14h10v6H7z"/></svg>Print</button>
+  </span>
+</header>
+
+<div class="wrap">
+  <section class="hero">
+    <div class="eyebrow" id="r-eyebrow">DESIGN.md</div>
+    <h1 id="r-title">Design System</h1>
+    <p class="subtitle" id="r-subtitle"></p>
+    <div class="metaline" id="r-metaline"></div>
+    <div class="summary" id="r-summary" hidden><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.01"/></svg><span id="r-summary-text"></span></div>
+  </section>
+
+  <section class="gallery" id="r-gallery" aria-label="Design tokens"></section>
+
+  <div class="sec-sep"><span class="lbl">Rationale</span><span class="ln"></span></div>
+  <main class="doc"><article class="md" id="r-md"></article></main>
+</div>
+
+<footer class="foot">
+  <div class="wrap">
+    <span class="wordmark"><i class="sq"></i> AlexandrAI</span>
+    <span class="fspace"></span>
+    <span class="fmeta" id="r-foot"></span>
+  </div>
+</footer>
+
+<div class="toast" id="toast">Copied</div>
+
+<script>
+/* ============================================================================
+   DATA-DRIVEN design-md preview. Reads #report-data (valid vs design-md.schema.json),
+   renders document.tokens as a visual gallery (swatches, type specimens, spacing &
+   radius scales, components) and the prose (document.source with YAML front matter
+   stripped) via a compact inline Markdown renderer. Click a swatch to copy its value.
+   No libraries, no external requests.
+   ============================================================================ */
+(function(){
+  "use strict";
+
+  function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function attr(s){ return esc(s).replace(/"/g,'&quot;'); }
+  function slug(s){ return String(s).toLowerCase().trim().replace(/[^\w\s-]/g,'').replace(/\s+/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,'') || 'section'; }
+
+  function inline(s){
+    return s.split(/(`[^`]+`)/g).map(function(part){
+      if(part.length>1 && part.charAt(0)==='`' && part.charAt(part.length-1)==='`'){
+        return '<code>'+part.slice(1,-1)+'</code>';
+      }
+      part = part.replace(/!?\[([^\]]+)\]\(([^)\s]+)\)/g, function(m,t,u){
+        var safe = /^(https?:|mailto:|#|\/|\.\/|\.\.\/)/i.test(u) ? u : '#';
+        return '<a href="'+attr(safe)+'" target="_blank" rel="noopener noreferrer">'+t+'</a>';
+      });
+      part = part.replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>')
+                 .replace(/__([^_]+)__/g,'<strong>$1</strong>')
+                 .replace(/~~([^~]+)~~/g,'<del>$1</del>')
+                 .replace(/(^|[^\*])\*([^\*\s][^\*]*?)\*(?!\*)/g,'$1<em>$2</em>')
+                 .replace(/(^|[^_\w])_([^_\s][^_]*?)_(?![\w_])/g,'$1<em>$2</em>');
+      return part;
+    }).join('');
+  }
+  function renderList(items){
+    var html='', stack=[];
+    function open(ordered){ var t=ordered?'ol':'ul'; html+='<'+t+'>'; stack.push(t); }
+    function close(){ html+='</'+stack.pop()+'>'; }
+    var prevIndent=-1;
+    items.forEach(function(it){
+      if(it.indent>prevIndent){ open(it.ordered); }
+      else if(it.indent<prevIndent){ while(stack.length>it.level+1){ html+='</li>'; close(); } html+='</li>'; }
+      else { html+='</li>'; }
+      html+='<li>'+inline(it.text);
+      prevIndent=it.indent;
+    });
+    while(stack.length){ html+='</li>'; close(); }
+    return html;
+  }
+  function splitRow(line){ return line.trim().replace(/^\||\|$/g,'').split('|').map(function(c){return c.trim();}); }
+
+  function renderMarkdown(src){
+    var lines=String(src).replace(/\r\n/g,'\n').replace(/\t/g,'  ').split('\n');
+    var out=[], i=0;
+    function flushPara(buf){ if(buf.length){ out.push('<p>'+inline(esc(buf.join(' ').trim()))+'</p>'); } }
+    while(i<lines.length){
+      var line=lines[i];
+      var fence=line.match(/^```+\s*([\w.+-]*)\s*$/);
+      if(fence){
+        var lang=fence[1]||'', code=[]; i++;
+        while(i<lines.length && !/^```+\s*$/.test(lines[i])){ code.push(lines[i]); i++; }
+        i++;
+        out.push('<pre>'+(lang?'<span class="lang">'+esc(lang)+'</span>':'')+'<code>'+esc(code.join('\n'))+'</code></pre>');
+        continue;
+      }
+      var h=line.match(/^(#{1,6})\s+(.*)$/);
+      if(h){
+        var lvl=h[1].length, txt=h[2].replace(/\s+#+\s*$/,'').trim(), id=slug(txt);
+        out.push('<h'+lvl+' id="'+attr(id)+'">'+inline(esc(txt))+'</h'+lvl+'>');
+        i++; continue;
+      }
+      if(/^\s*([-*_])(\s*\1){2,}\s*$/.test(line)){ out.push('<hr>'); i++; continue; }
+      if(/^\s*\|.*\|\s*$/.test(line) && i+1<lines.length && /^\s*\|?[\s:|-]+\|?\s*$/.test(lines[i+1]) && lines[i+1].indexOf('-')>=0){
+        var head=splitRow(line); i+=2; var rows=[];
+        while(i<lines.length && /^\s*\|.*\|\s*$/.test(lines[i])){ rows.push(splitRow(lines[i])); i++; }
+        var t='<table><thead><tr>'+head.map(function(c){return '<th>'+inline(esc(c))+'</th>';}).join('')+'</tr></thead><tbody>';
+        rows.forEach(function(r){ t+='<tr>'+r.map(function(c){return '<td>'+inline(esc(c))+'</td>';}).join('')+'</tr>'; });
+        out.push(t+'</tbody></table>'); continue;
+      }
+      if(/^\s*>/.test(line)){
+        var q=[]; while(i<lines.length && /^\s*>/.test(lines[i])){ q.push(lines[i].replace(/^\s*>\s?/,'')); i++; }
+        out.push('<blockquote>'+renderMarkdown(q.join('\n'))+'</blockquote>'); continue;
+      }
+      var lm=line.match(/^(\s*)([-*+]|\d+[.)])\s+(.*)$/);
+      if(lm){
+        var items=[];
+        while(i<lines.length){
+          var m=lines[i].match(/^(\s*)([-*+]|\d+[.)])\s+(.*)$/);
+          if(!m){ if(/^\s+\S/.test(lines[i]) && items.length){ items[items.length-1].text+=' '+lines[i].trim(); i++; continue; } break; }
+          var indent=Math.floor(m[1].length/2);
+          items.push({indent:indent, level:indent, ordered:/\d/.test(m[2]), text:m[3]});
+          i++;
+        }
+        out.push(renderList(items));
+        continue;
+      }
+      if(/^\s*$/.test(line)){ i++; continue; }
+      var para=[];
+      while(i<lines.length && !/^\s*$/.test(lines[i]) && !/^(#{1,6})\s/.test(lines[i]) && !/^```/.test(lines[i])
+            && !/^\s*([-*_])(\s*\1){2,}\s*$/.test(lines[i]) && !/^\s*>/.test(lines[i])
+            && !/^(\s*)([-*+]|\d+[.)])\s+/.test(lines[i]) && !/^\s*\|.*\|\s*$/.test(lines[i])){
+        para.push(lines[i]); i++;
+      }
+      flushPara(para);
+    }
+    return out.join('\n');
+  }
+
+  function el(id){ return document.getElementById(id); }
+  function text(id,v){ var n=el(id); if(n) n.textContent=v; }
+
+  var DATA={};
+  try{ DATA=JSON.parse(el('report-data').textContent); }catch(e){ DATA={}; }
+  var meta=DATA.meta||{}, doc=DATA.document||{}, T=doc.tokens||{};
+
+  document.documentElement.setAttribute('data-theme', meta.theme||'indigo');
+
+  var fname=doc.filename||'DESIGN.md';
+  text('r-filename', fname);
+  text('r-eyebrow', meta.reportType||fname);
+  text('r-title', meta.title||T.name||fname);
+  var sub=el('r-subtitle'); if(meta.subtitle){ sub.textContent=meta.subtitle; } else { sub.hidden=true; }
+  if(doc.summary){ text('r-summary-text', doc.summary); el('r-summary').hidden=false; }
+
+  var metaItems=[];
+  if(meta.org && meta.org!=='{{ORG}}') metaItems.push(meta.org);
+  if(meta.project) metaItems.push(meta.project);
+  if(meta.date) metaItems.push(meta.date);
+  if(meta.author && meta.author!=='{{AUTHOR}}') metaItems.push(meta.author);
+  el('r-metaline').innerHTML=metaItems.map(function(m){return '<span class="m">'+esc(m)+'</span>';}).join('');
+
+  // ---- token gallery ----
+  function panel(title, inner){ return '<section class="panel"><h2>'+esc(title)+'</h2>'+inner+'</section>'; }
+  function colorPanel(list){
+    return panel('Colors', '<div class="sw-grid">'+list.map(function(c){
+      return '<button type="button" class="sw" data-copy="'+attr(c.value)+'" title="Copy '+attr(c.value)+'">'
+        +'<span class="sw-color" style="background:'+attr(c.value)+'"></span>'
+        +'<span class="sw-meta"><span class="sw-name">'+esc(c.name)+'</span>'
+        +'<span class="sw-val">'+esc(c.value)+'</span>'
+        +(c.note?'<span class="sw-note">'+esc(c.note)+'</span>':'')+'</span></button>';
+    }).join('')+'</div>');
+  }
+  function typePanel(list){
+    return panel('Typography', list.map(function(t){
+      var style=[t.fontFamily?'font-family:'+t.fontFamily:'', t.fontSize?'font-size:'+t.fontSize:'',
+        t.fontWeight?'font-weight:'+t.fontWeight:'', t.lineHeight?'line-height:'+t.lineHeight:'',
+        t.letterSpacing?'letter-spacing:'+t.letterSpacing:''].filter(Boolean).join(';');
+      var spec=[t.fontSize||'', t.fontWeight?('w'+t.fontWeight):'', t.lineHeight?('lh '+t.lineHeight):''].filter(Boolean).join('  ·  ');
+      return '<div class="type-row"><div class="type-sample" style="'+attr(style)+'">'+esc(t.name)+'</div>'
+        +'<div class="type-meta"><span class="type-name">'+esc(t.name)+'</span>'
+        +'<span class="type-spec">'+esc(spec)+'</span>'
+        +(t.note?'<span class="type-note">'+esc(t.note)+'</span>':'')+'</div></div>';
+    }).join(''));
+  }
+  function spacePanel(list){
+    return panel('Spacing', '<div class="scale">'+list.map(function(s){
+      return '<div class="scale-row"><span class="scale-name">'+esc(s.name)+'</span>'
+        +'<span class="scale-bar" style="width:'+attr(s.value)+'"></span>'
+        +'<span class="scale-val">'+esc(s.value)+'</span></div>';
+    }).join('')+'</div>');
+  }
+  function roundPanel(list){
+    return panel('Shapes', '<div class="round-grid">'+list.map(function(r){
+      return '<div class="round-item"><span class="round-box" style="border-radius:'+attr(r.value)+'"></span>'
+        +'<span class="round-name">'+esc(r.name)+'</span><span class="round-val">'+esc(r.value)+'</span></div>';
+    }).join('')+'</div>');
+  }
+  function compPanel(list){
+    return panel('Components', '<div class="comp-grid">'+list.map(function(c){
+      return '<div class="comp"><span class="comp-name">'+esc(c.name)+'</span>'
+        +(c.note?'<span class="comp-note">'+esc(c.note)+'</span>':'')+'</div>';
+    }).join('')+'</div>');
+  }
+  var g='';
+  if(Array.isArray(T.colors) && T.colors.length) g+=colorPanel(T.colors);
+  if(Array.isArray(T.typography) && T.typography.length) g+=typePanel(T.typography);
+  var pair='';
+  if(Array.isArray(T.spacing) && T.spacing.length) pair+=spacePanel(T.spacing);
+  if(Array.isArray(T.rounded) && T.rounded.length) pair+=roundPanel(T.rounded);
+  if(pair) g+='<div class="gal-cols">'+pair+'</div>';
+  if(Array.isArray(T.components) && T.components.length) g+=compPanel(T.components);
+  var gal=el('r-gallery');
+  if(g){ gal.innerHTML=g; } else { gal.style.display='none'; }
+
+  // ---- prose (strip YAML front matter, render Markdown) ----
+  var body=String(doc.source||'').replace(/^﻿?\s*---\r?\n[\s\S]*?\r?\n---[ \t]*\r?\n?/, '');
+  el('r-md').innerHTML=renderMarkdown(body);
+  text('r-foot', [meta.project||'', fname, meta.date||''].filter(Boolean).join('  ·  '));
+
+  // theme switch
+  var sel=document.querySelector('.rc-theme-sel');
+  if(sel){
+    sel.value=document.documentElement.getAttribute('data-theme')||'indigo';
+    sel.addEventListener('change', function(){ document.documentElement.setAttribute('data-theme', sel.value); });
+  }
+
+  // copy interactions
+  var toast=el('toast');
+  function ping(msg){ toast.textContent=msg; toast.classList.add('show'); setTimeout(function(){toast.classList.remove('show');},1300); }
+  function copy(str, label){
+    if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(str).then(function(){ping(label);},function(){ping('Copy failed');}); }
+    else { ping('Copy unavailable'); }
+  }
+  gal.addEventListener('click', function(e){
+    var b=e.target.closest ? e.target.closest('.sw') : null;
+    if(b && b.getAttribute('data-copy')){ copy(b.getAttribute('data-copy'), 'Copied '+b.getAttribute('data-copy')); }
+  });
+  var cb=el('copy-btn');
+  if(cb){ cb.addEventListener('click', function(){ copy(doc.source||'', 'Copied '+fname); }); }
+})();
+</script>
+</body>
+</html>
