@@ -88,6 +88,7 @@ html[data-theme="black"]{--navy:#000;--navy-deep:#000;--navy-bg:#f1f1f3;--navy-l
   const $ = (id) => document.getElementById(id);
   const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const cls = (s) => s === 'ok' ? 'ok' : s === 'risk' ? 'risk' : s === 'hold' ? 'hold' : 'neutral';
+  const clampLabel = (s, w) => { s = String(s ?? ''); const max = Math.max(3, Math.floor((w - 20) / 6.4)); return s.length > max ? s.slice(0, Math.max(1, max - 1)) + '…' : s; };
   let activeLayer = 'all', activeType = 'all', selected = null;
   let view = { zoom: 1, panX: 0, panY: 0 };
 
@@ -143,10 +144,11 @@ html[data-theme="black"]{--navy:#000;--navy-deep:#000;--navy-bg:#f1f1f3;--navy-l
       edges.map(e => {
         const a = pos(byId[e.from]), b = pos(byId[e.to]), mx=(a.x+b.x)/2, my=(a.y+b.y)/2;
         const hot = selected && (e.from === selected || e.to === selected);
-        const label = String(e.label || e.kind || 'link');
-        const pillW = Math.min(180, Math.max(60, label.length * 6.4 + 22));
+        const raw = String(e.label || e.kind || 'link');
+        const pillW = Math.min(180, Math.max(60, raw.length * 6.4 + 22));
+        const label = clampLabel(raw, pillW);
         return '<path class="edge '+esc(e.kind||'call')+' '+(hot?'hot ':'')+cls(e.status)+'" d="M'+a.x+','+a.y+' L'+b.x+','+b.y+'"/>' +
-          '<g><rect class="edge-pill" x="'+(mx-pillW/2)+'" y="'+(my-12)+'" width="'+pillW+'" height="22" rx="7"/><text class="edge-label" x="'+mx+'" y="'+(my+4)+'" text-anchor="middle">'+esc(label)+'</text></g>';
+          '<g><title>'+esc(raw)+'</title><rect class="edge-pill" x="'+(mx-pillW/2)+'" y="'+(my-12)+'" width="'+pillW+'" height="22" rx="7"/><text class="edge-label" x="'+mx+'" y="'+(my+4)+'" text-anchor="middle">'+esc(label)+'</text></g>';
       }).join('');
   }
   function componentHtml(c){

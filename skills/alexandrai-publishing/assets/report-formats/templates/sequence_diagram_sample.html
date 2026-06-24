@@ -72,6 +72,7 @@ html[data-theme="blue"]{--navy:#0b5fd4;--navy-deep:#0842a0;--navy-bg:#e8f1fc;--n
   const $ = (id) => document.getElementById(id);
   const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const cls = (s) => s === 'ok' ? 'ok' : s === 'risk' ? 'risk' : s === 'hold' ? 'hold' : 'neutral';
+  const clampLabel = (s, w) => { s = String(s ?? ''); const max = Math.max(3, Math.floor((w - 20) / 6.4)); return s.length > max ? s.slice(0, Math.max(1, max - 1)) + '…' : s; };
   const W = 1280, H = 860, x0 = 135, gap = 190, y0 = 128, row = 74;
   let index = 0, traceHeight = H, view = { zoom: 1 };
   function init(){
@@ -110,9 +111,10 @@ html[data-theme="blue"]{--navy:#0b5fd4;--navy-deep:#0842a0;--navy-bg:#e8f1fc;--n
   function drawMessages(){
     $('msgs').innerHTML = '<defs><marker id="arrow" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8 z" fill="var(--navy)"/></marker></defs>' + data.messages.map((m,i) => {
       const a = px(m.from), b = px(m.to), y = py(i), dir = a < b ? 1 : -1, mx = (a+b)/2;
-      const label = String(m.label || '');
-      const pillW = Math.min(260, Math.max(72, label.length * 6.4 + 24));
-      return '<path class="msg-line '+esc(m.kind||'sync')+'" d="M'+a+','+y+' L'+(b-14*dir)+','+y+'"/><g><rect class="msg-pill" x="'+(mx-pillW/2)+'" y="'+(y-15)+'" width="'+pillW+'" height="26" rx="8"/><text class="msg-label" x="'+mx+'" y="'+(y+3)+'" text-anchor="middle">'+esc(label)+'</text></g>';
+      const raw = String(m.label || '');
+      const pillW = Math.min(260, Math.max(72, raw.length * 6.4 + 24));
+      const label = clampLabel(raw, pillW);
+      return '<path class="msg-line '+esc(m.kind||'sync')+'" d="M'+a+','+y+' L'+(b-14*dir)+','+y+'"/><g><title>'+esc(raw)+'</title><rect class="msg-pill" x="'+(mx-pillW/2)+'" y="'+(y-15)+'" width="'+pillW+'" height="26" rx="8"/><text class="msg-label" x="'+mx+'" y="'+(y+3)+'" text-anchor="middle">'+esc(label)+'</text></g>';
     }).join('');
   }
   function select(i){

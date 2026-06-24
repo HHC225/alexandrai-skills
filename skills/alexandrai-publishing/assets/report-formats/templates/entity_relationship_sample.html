@@ -102,6 +102,7 @@ html[data-theme="blue"]{--navy:#0b5fd4;--navy-deep:#0842a0;--navy-bg:#e8f1fc;--n
   const $ = (id) => document.getElementById(id);
   const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const cls = (s) => s === 'ok' ? 'ok' : s === 'risk' ? 'risk' : s === 'hold' ? 'hold' : 'neutral';
+  const clampLabel = (s, w) => { s = String(s ?? ''); const max = Math.max(3, Math.floor((w - 20) / 6.4)); return s.length > max ? s.slice(0, Math.max(1, max - 1)) + '…' : s; };
   let activeDomain = 'all', selected = null, view = { zoom: 1, panX: 0, panY: 0 };
   function init(){
     document.documentElement.dataset.theme = data.meta.theme || 'black';
@@ -143,9 +144,10 @@ html[data-theme="blue"]{--navy:#0b5fd4;--navy-deep:#0842a0;--navy-bg:#e8f1fc;--n
     $('rels').innerHTML = rels.map(r => {
       const a = pos(byId[r.from]), b = pos(byId[r.to]), mx=(a.x+b.x)/2, my=(a.y+b.y)/2;
       const hot = selected && (r.from === selected || r.to === selected);
-      const label = String(card(r.fromCardinality)+' '+(r.label||'rel')+' '+card(r.toCardinality));
-      const pillW = Math.min(220, Math.max(72, label.length * 6.4 + 24));
-      return '<path class="rel '+(r.identifying?'ident ':'')+(hot?'hot ':'')+cls(r.status)+'" d="M'+a.x+','+a.y+' L'+b.x+','+b.y+'"/><g><rect class="rel-pill" x="'+(mx-pillW/2)+'" y="'+(my-13)+'" width="'+pillW+'" height="25" rx="8"/><text class="rel-label" x="'+mx+'" y="'+(my+4)+'" text-anchor="middle">'+esc(label)+'</text></g>';
+      const raw = String(card(r.fromCardinality)+' '+(r.label||'rel')+' '+card(r.toCardinality));
+      const pillW = Math.min(220, Math.max(72, raw.length * 6.4 + 24));
+      const label = clampLabel(raw, pillW);
+      return '<path class="rel '+(r.identifying?'ident ':'')+(hot?'hot ':'')+cls(r.status)+'" d="M'+a.x+','+a.y+' L'+b.x+','+b.y+'"/><g><title>'+esc(raw)+'</title><rect class="rel-pill" x="'+(mx-pillW/2)+'" y="'+(my-13)+'" width="'+pillW+'" height="25" rx="8"/><text class="rel-label" x="'+mx+'" y="'+(my+4)+'" text-anchor="middle">'+esc(label)+'</text></g>';
     }).join('');
   }
   function card(c){ return ({'one':'1','zero-one':'0..1','many':'*','zero-many':'0..*','one-many':'1..*'}[c] || c); }
