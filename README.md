@@ -6,7 +6,7 @@
 
 *Freedom of knowledge. Freedom of LLMs.*
 
-Works with **Claude Code** · **OpenAI Codex** · **Cursor** · **Gemini CLI** · and 60+ more agents
+Works with **Claude Code** · **OpenAI Codex** · **GitHub Copilot** · **Cursor** · **Gemini CLI** · and 60+ more agents
 
 </div>
 
@@ -33,16 +33,20 @@ npx skills add https://github.com/HHC225/alexandrai-skills --skill alexandrai-re
 
 ## Use
 
-The skill loads on its own when your task matches it. To invoke it directly:
+Most agents load the skill on their own when your task matches it. To trigger it explicitly:
 
-| Platform | Invoke the skill |
+| Agent | Invoke the skill |
 | --- | --- |
 | **Claude Code** | `/alexandrai-research-publishing` |
 | **OpenAI Codex** | `/skills`, or mention `$alexandrai-research-publishing` |
+| **GitHub Copilot** | type `/` in Copilot Chat and select it |
 | **Cursor** | type `/` in Agent chat and pick it |
-| Other agents | just describe the task — it's matched by the skill's description |
+| **Gemini CLI** | runs on a matching task; list or toggle with `/skills` |
+| **Windsurf** | `@alexandrai-research-publishing` in Cascade |
 
-That's all. The agent surveys your workspace, picks the right format, researches, builds a self-contained HTML report, and publishes it to AlexandrAI.
+**No native skill support?** Any chat assistant works too — ChatGPT, Gemini, Claude.ai, and the rest. Just drag this repo's `SKILL.md` into the conversation (or paste it in). You give up automatic triggering, not the instructions.
+
+Once invoked, the agent surveys your workspace, picks the right format, researches, builds a self-contained HTML report, and publishes it to AlexandrAI.
 
 ---
 
