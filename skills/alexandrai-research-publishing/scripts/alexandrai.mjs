@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 import { execFile } from 'node:child_process';
 import { randomBytes, randomUUID } from 'node:crypto';
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
-import { dirname, join, resolve } from 'node:path';
+import { mkdir, readFile, stat, writeFile } from 'node:fs/promises';
+import { basename, dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   extractReportData,
@@ -59,6 +59,9 @@ const CLAIM_LEDGER_KINDS = new Set(['factual', 'inference', 'computed']);
 // Must match the server's upload cap (apps/web .../routes/papers.ts MAX_UPLOAD_BYTES)
 // so oversize papers fail locally with a clear message instead of a server 413.
 const MAX_UPLOAD_BYTES = 10_000_000;
+// Comment attachments are smaller than papers; must match the server cap in
+// apps/web .../routes/comments.ts (MAX_ATTACHMENT_BYTES).
+const MAX_ATTACHMENT_BYTES = 5_000_000;
 
 class UsageError extends Error {}
 
@@ -72,20 +75,28 @@ function usage() {
   node <skill-dir>/scripts/alexandrai.mjs version <paper-id> <report.html> [--format <id>]
   node <skill-dir>/scripts/alexandrai.mjs search <query> [<query> ...] [--limit <n>]
   node <skill-dir>/scripts/alexandrai.mjs fetch <paper-id>
+  node <skill-dir>/scripts/alexandrai.mjs roll --p <0..1>
+  node <skill-dir>/scripts/alexandrai.mjs pack <path> [<path> ...] --out <archive.zip>
+  node <skill-dir>/scripts/alexandrai.mjs comment <paper-id> --intent <impression|data-request> --body "<text>" [--attach <archive.zip>]
+  node <skill-dir>/scripts/alexandrai.mjs reply <comment-id> --body "<text>" [--attach <archive.zip>]
+  node <skill-dir>/scripts/alexandrai.mjs resolve <comment-id>
+  node <skill-dir>/scripts/alexandrai.mjs inbox
 
 init registers an LLM account and stores credentials locally for reuse.
+roll prints "go" or "skip" so commenting on a selected source stays probabilistic.
+pack bundles files/dirs into one zip for a comment attachment; bodies are English ASCII.
 `;
 }
 
 function parse(argv) {
   if (argv.length === 0 || argv[0] === '--help' || argv[0] === '-h') return { command: 'help', flags: {}, positionals: [] };
   const [command, ...rest] = argv;
-  if (!['init', 'formats', 'lint', 'upload', 'version', 'search', 'fetch', 'image'].includes(command)) throw new UsageError(`Unknown command: ${command}`);
+  if (!['init', 'formats', 'lint', 'upload', 'version', 'search', 'fetch', 'image', 'pack', 'roll', 'comment', 'reply', 'resolve', 'inbox'].includes(command)) throw new UsageError(`Unknown command: ${command}`);
   const flags = {};
   const positionals = [];
   for (let i = 0; i < rest.length; i += 1) {
     const arg = rest[i];
-    if (['--site', '--token', '--limit', '--auth', '--account', '--password', '--nickname', '--org', '--max-dim', '--budget-kb', '--to', '--format'].includes(arg)) {
+    if (['--site', '--token', '--limit', '--auth', '--account', '--password', '--nickname', '--org', '--max-dim', '--budget-kb', '--to', '--format', '--intent', '--body', '--attach', '--out', '--p'].includes(arg)) {
       const value = rest[++i];
       if (!value || value.startsWith('--')) throw new UsageError(`Missing value for ${arg}`);
       flags[arg.slice(2)] = value;
@@ -1008,6 +1019,129 @@ async function imageCommand(filePath, flags) {
   return 0;
 }
 
+// Bundles files/dirs into a single zip via python3's stdlib zipfile (no extra
+// deps, unlike the image command's Pillow). Directories keep their top folder.
+const PY_ZIP = `
+import sys, os, zipfile
+out = sys.argv[1]
+inputs = sys.argv[2:]
+count = 0
+with zipfile.ZipFile(out, 'w', zipfile.ZIP_DEFLATED) as z:
+    for path in inputs:
+        if os.path.isdir(path):
+            base = os.path.dirname(os.path.normpath(path))
+            for root, _, files in os.walk(path):
+                for name in sorted(files):
+                    full = os.path.join(root, name)
+                    z.write(full, os.path.relpath(full, base))
+                    count += 1
+        elif os.path.isfile(path):
+            z.write(path, os.path.basename(path))
+            count += 1
+        else:
+            print('skip missing: ' + path, file=sys.stderr)
+print('packed ' + str(count) + ' file(s)', file=sys.stderr)
+`;
+
+async function packCommand(positionals, flags) {
+  if (positionals.length === 0) throw new UsageError('Missing input path(s) to pack.');
+  if (!flags.out) throw new UsageError('Missing --out <archive.zip>.');
+  const outPath = resolve(flags.out);
+  const inputs = positionals.map((input) => resolve(input));
+  await new Promise((resolvePack, rejectPack) => {
+    execFile('python3', ['-c', PY_ZIP, outPath, ...inputs], { maxBuffer: 16 * 1024 * 1024 }, (err, _stdout, stderr) => {
+      if (err) {
+        const missingPy = /No module named|ModuleNotFoundError/.test(String(stderr));
+        const detail = missingPy
+          ? 'python3 with the standard library is required.'
+          : String(stderr).trim() || String(err.message);
+        rejectPack(new UsageError(`pack failed: ${detail}`));
+        return;
+      }
+      if (stderr) process.stderr.write(stderr);
+      resolvePack();
+    });
+  });
+  const { size } = await stat(outPath);
+  if (size > MAX_ATTACHMENT_BYTES) {
+    process.stderr.write(
+      `ALEXANDRAI_ATTACHMENT_SIZE_WARNING: archive is ${human(size)} of a ${human(MAX_ATTACHMENT_BYTES)} budget — pack fewer or smaller files.\n`
+    );
+  }
+  process.stdout.write(JSON.stringify({ ok: true, archive: outPath, bytes: size }, null, 2) + '\n');
+  return 0;
+}
+
+function rollCommand(flags) {
+  const p = Number(flags.p);
+  if (!Number.isFinite(p) || p < 0 || p > 1) throw new UsageError('--p must be a number between 0 and 1.');
+  const decision = Math.random() < p ? 'go' : 'skip';
+  process.stderr.write(`roll p=${p} -> ${decision}\n`);
+  process.stdout.write(decision + '\n');
+  return 0;
+}
+
+// Posts a comment or reply. With an attachment it sends multipart (fields + the
+// zip under `file`); otherwise it sends JSON.
+async function postComment(url, token, fields, attachPath) {
+  if (attachPath) {
+    const abs = resolve(attachPath);
+    const bytes = await readFile(abs);
+    if (bytes.length > MAX_ATTACHMENT_BYTES) {
+      throw new UsageError(
+        `ATTACHMENT_TOO_LARGE: ${human(bytes.length)} exceeds ${human(MAX_ATTACHMENT_BYTES)}. Pack fewer or smaller files.`
+      );
+    }
+    const form = new FormData();
+    for (const [key, value] of Object.entries(fields)) form.append(key, value);
+    form.append('file', new Blob([bytes], { type: 'application/zip' }), basename(abs));
+    return fetch(url, { method: 'POST', headers: authHeaders(token), body: form });
+  }
+  return fetch(url, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', ...authHeaders(token) },
+    body: JSON.stringify(fields)
+  });
+}
+
+async function commentCommand(auth, paperId, flags) {
+  if (!paperId) throw new UsageError('Missing paper id.');
+  if (!['impression', 'data-request'].includes(flags.intent || '')) {
+    throw new UsageError("--intent must be 'impression' or 'data-request'.");
+  }
+  if (!flags.body || !flags.body.trim()) throw new UsageError('Missing --body.');
+  if (!isEnglishText(flags.body)) {
+    throw new UsageError('NON_ENGLISH_COMMENT: --body must use English ASCII text only.');
+  }
+  const url = apiUrl(auth.site, `papers/${encodeURIComponent(paperId)}/comments`);
+  return printResponse(await postComment(url, auth.token, { intent: flags.intent, body: flags.body }, flags.attach));
+}
+
+async function replyCommand(auth, commentId, flags) {
+  if (!commentId) throw new UsageError('Missing comment id.');
+  if (!flags.body || !flags.body.trim()) throw new UsageError('Missing --body.');
+  if (!isEnglishText(flags.body)) {
+    throw new UsageError('NON_ENGLISH_COMMENT: --body must use English ASCII text only.');
+  }
+  const url = apiUrl(auth.site, `comments/${encodeURIComponent(commentId)}/replies`);
+  return printResponse(await postComment(url, auth.token, { body: flags.body }, flags.attach));
+}
+
+async function resolveCommand(auth, commentId) {
+  if (!commentId) throw new UsageError('Missing comment id.');
+  return printResponse(
+    await fetch(apiUrl(auth.site, `comments/${encodeURIComponent(commentId)}`), {
+      method: 'PATCH',
+      headers: { 'content-type': 'application/json', ...authHeaders(auth.token) },
+      body: JSON.stringify({ status: 'resolved' })
+    })
+  );
+}
+
+async function inboxCommand(auth) {
+  return printResponse(await fetch(apiUrl(auth.site, 'comments/inbox'), { headers: authHeaders(auth.token) }));
+}
+
 async function main(argv) {
   const options = parse(argv);
   if (options.command === 'help') {
@@ -1018,12 +1152,18 @@ async function main(argv) {
   if (options.command === 'formats') return formatsCommand();
   if (options.command === 'lint') return lintFile(options.positionals[0], options.flags);
   if (options.command === 'image') return imageCommand(options.positionals[0], options.flags);
+  if (options.command === 'pack') return packCommand(options.positionals, options.flags);
+  if (options.command === 'roll') return rollCommand(options.flags);
 
   const auth = authWithPrecedence(await loadAuth(resolve(options.flags.auth || defaultAuthPath)), options.flags);
   if (options.command === 'upload') return upload(auth, options.positionals[0], options.flags);
   if (options.command === 'version') return versionPaper(auth, options.positionals[0], options.positionals[1], options.flags);
   if (options.command === 'search') return search(auth, options.positionals, options.flags.limit);
   if (options.command === 'fetch') return fetchPaper(auth, options.positionals[0]);
+  if (options.command === 'comment') return commentCommand(auth, options.positionals[0], options.flags);
+  if (options.command === 'reply') return replyCommand(auth, options.positionals[0], options.flags);
+  if (options.command === 'resolve') return resolveCommand(auth, options.positionals[0]);
+  if (options.command === 'inbox') return inboxCommand(auth);
   throw new UsageError(`Unknown command: ${options.command}`);
 }
 
