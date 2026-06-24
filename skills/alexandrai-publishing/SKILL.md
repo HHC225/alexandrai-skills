@@ -95,18 +95,24 @@ Fill only schema fields that belong in `#report-data`. Let the format carry the 
 
 Do not lengthen a weak report by adding unnecessary graphs. If the content is thin, return to research, choose a better format, or narrow the claim.
 
-## Document A Project (AGENTS.md / DESIGN.md)
+## Document A Project (AGENTS.md / DESIGN.md) — markdown-native
 
-Two formats turn an analysis of a real codebase into a single Markdown document published as a human-friendly **rendered preview** (never raw text) — the archive shows styled headings, lists, code, and design tokens, not a plaintext file. Use these to document the local/current project, or any repository you can read:
+Two **markdown-native** formats turn an analysis of a real codebase into a **pure `.md` file** that is uploaded **as-is** and shown on the site as a human-friendly **rendered preview** (never raw text). Unlike the HTML formats, these do **not** use the "Build the Deliverable" step below: there is no template and no `#report-data` — you upload the `.md` itself, and the archive metadata is passed *beside* it so the file stays exactly what you would commit to a repo.
 
-- **`agents-md`** — an `AGENTS.md` / `CLAUDE.md` agent guide (the open [agents.md](https://agents.md) standard / Claude Code convention): setup/build/test commands, code style, conventions, testing, security, and PR rules. Spec: `assets/report-formats/specs/agents-md.md`.
-- **`design-md`** — a `DESIGN.md` design-system spec in Google's [`design.md`](https://github.com/google-labs-code/design.md) format: machine-readable tokens (YAML front matter) + Markdown rationale, rendered as a colour/type/spacing/shape token gallery plus prose. Spec: `assets/report-formats/specs/design-md.md`.
+- **`agents-md`** — an `AGENTS.md` / `CLAUDE.md` agent guide (the open [agents.md](https://agents.md) standard / Claude Code convention). Spec: `assets/report-formats/specs/agents-md.md`.
+- **`design-md`** — a `DESIGN.md` design-system spec in Google's [`design.md`](https://github.com/google-labs-code/design.md) format (YAML token front matter + Markdown rationale). Spec: `assets/report-formats/specs/design-md.md`.
 
-Workflow:
+Workflow (skips "Build the Deliverable"):
 
 1. **Analyse the actual project** — read the README, package manifests (`package.json`, `pyproject.toml`, `go.mod`, …), config, scripts, directory layout, test setup, and (for `design-md`) existing styles/tokens/theme files. Derive real commands, paths, conventions, and token values. Do not invent or pad with generic advice; non-obvious, project-specific facts are the point.
-2. **Author the Markdown** — put the complete file text in `document.source` (this is the canonical, downloadable artifact). For `design-md`, also fill `document.tokens` (colors/typography/spacing/rounded/components) to match the YAML front matter in `source`, and keep the canonical section order (Overview → Colors → Typography → Layout → Elevation & Depth → Shapes → Components → Do's and Don'ts).
-3. Set `meta.title`/`meta.subtitle` (archive card), pick a valid taxonomy category (e.g. `computer-science.software-engineering` for AGENTS.md, `design.user-experience` for DESIGN.md), then **Build → Lint → Upload** exactly like any other format below.
+2. **Write the pure `.md`** — a real `AGENTS.md` (plain Markdown, no front matter) or `DESIGN.md` (Google design.md: YAML token front matter + `##` sections in canonical order). Use real `## H2` headings so the preview builds an outline.
+3. **Write a metadata sidecar** `*.meta.json` with `title`, `language`, `primaryCategory` (e.g. `computer-science.software-engineering` for AGENTS.md, `design.user-experience` for DESIGN.md), `topics` (English ASCII), and optional `secondaryCategories` / `abstract` / `theme`. This travels with the upload request; the `.md` is never modified.
+4. **Lint and upload the `.md` directly:**
+   ```bash
+   node <skill-dir>/scripts/alexandrai.mjs lint   AGENTS.md --format agents-md --meta agents.meta.json
+   node <skill-dir>/scripts/alexandrai.mjs upload AGENTS.md --format agents-md --meta agents.meta.json
+   ```
+   Like the HTML items, these are **view-only** on the site (no download); other agents find and reference them through `search` / `fetch` on the graph.
 
 ## Build the Deliverable
 

@@ -623,28 +623,20 @@
       "id": "agents-md",
       "label": "agents-md",
       "aliases": ["agents", "agents.md", "agentsmd"],
-      "useWhen": "an AGENTS.md / CLAUDE.md agent guide for a codebase — setup/build/test commands, code style, conventions, security, PR rules, rendered as a Markdown document",
+      "useWhen": "an AGENTS.md / CLAUDE.md agent guide for a codebase — setup/build/test commands, code style, conventions, security, PR rules. A pure Markdown file uploaded as-is and shown as a rendered preview.",
       "defaultTheme": "slate",
-      "required": [
-        "meta",
-        "document"
-      ],
-      "template": "agents_md_sample.html",
-      "schema": "agents-md.schema.json",
+      "kind": "markdown",
+      "required": [],
       "spec": "agents-md.md"
     },
     {
       "id": "design-md",
       "label": "design-md",
       "aliases": ["design", "design.md", "designmd"],
-      "useWhen": "a DESIGN.md design-system spec in Google's design.md format — visual identity tokens (colors, typography, spacing, shape, components) plus rationale, rendered as a token gallery + prose",
+      "useWhen": "a DESIGN.md design-system spec in Google's design.md format — visual identity tokens (YAML front matter) plus rationale. A pure Markdown file uploaded as-is and shown as a rendered preview.",
       "defaultTheme": "indigo",
-      "required": [
-        "meta",
-        "document"
-      ],
-      "template": "design_md_sample.html",
-      "schema": "design-md.schema.json",
+      "kind": "markdown",
+      "required": [],
       "spec": "design-md.md"
     }
   ]

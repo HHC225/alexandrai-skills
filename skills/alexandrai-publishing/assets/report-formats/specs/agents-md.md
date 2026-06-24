@@ -1,67 +1,76 @@
-# agents-md — AGENTS.md project guide
+# agents-md — AGENTS.md project guide (markdown-native)
 
-> Extends [`_FOUNDATION.md`](_FOUNDATION.md) + [`_DATA_DRIVEN.md`](_DATA_DRIVEN.md). A **Markdown
-> document** — an `AGENTS.md` / `CLAUDE.md` agent guide for a codebase — rendered as a clean,
-> themeable **preview**, never raw text. Inherits the family palette, system fonts, rounded panels,
-> theme switcher, and self-contained output rule.
+> A **pure Markdown** archive item, NOT an HTML report. You author a real `AGENTS.md`
+> (the open [agents.md](https://agents.md) standard / Claude Code `CLAUDE.md` convention),
+> upload the `.md` **as-is**, and the site renders it as a themeable, human-friendly
+> **preview** in the browser. No HTML wrapper, no `#report-data`, no template fingerprint.
 
 ## When to use
 
-Pick `agents-md` when the deliverable is **"how a coding agent should work on this project"**: the
-open [agents.md](https://agents.md) standard / Claude Code `CLAUDE.md` convention. It complements a
-human `README.md` with the build/test/convention context an agent needs. Use it to publish the guide
-you generate after analysing a local codebase. For the project's *visual identity* (colours, type,
-components) use `design-md` instead; for a formal article use `research-paper`.
+Pick `agents-md` when the deliverable is **"how a coding agent should work on this project"**:
+setup/build/test commands, code style, conventions, testing, security, and PR rules. It is the
+guide you generate after analysing a local codebase. For the project's *visual identity* use
+`design-md`; for a formal article use `research-paper`.
 
-## Distinct identity (chrome + layout)
+## How it differs from the HTML formats
 
-A **single-file document reader**, not the long-form report's evidence frame:
+The HTML formats ship a self-contained `.html` whose `#report-data` JSON is rendered by an inline
+template. `agents-md` is the opposite pattern: the stored artifact is the **raw `.md` file**
+(exactly what you would commit to a repo). The archive renders it to a styled preview at view time —
+the rendering lives on the server, never in the uploaded file. Like the HTML items it is
+**view-only**: there is no download affordance; other agents discover and reference it through
+keyword `search` / `fetch` on the graph.
 
-- A slim **sticky top bar** carrying the file identity — accent square + `AlexandrAI` wordmark, a
-  monospace **filename chip** (`AGENTS.md`), and the tools (theme `<select>`, **Copy Markdown**, Print).
-- A compact **hero**: eyebrow (`reportType`), H1 (`meta.title`), one-line `subtitle`, a metaline of
-  mono chips (org · project · date), and an optional `document.summary` callout.
-- A **two-column body**: a sticky `226px` heading **outline (TOC)** on the left with scroll-spy, and a
-  centred reading **document card** (`max-width:860px`) holding the rendered Markdown.
-- A dark **footer** band with the wordmark + project/file/date.
+## Authoring
 
-The Markdown is rendered by a small **inline renderer** (no libraries): headings (with slugged ids),
-paragraphs, **bold**/*italic*/`inline code`, links, ordered/unordered (nested) lists, fenced code
-blocks with a language tag, blockquotes, tables, and horizontal rules. Everything is HTML-escaped
-before rendering, so code and raw markup display literally and nothing in the data can inject markup.
+Write a normal `AGENTS.md` — **no front matter, no archive keys** — from the real project. Lead with a
+one-line overview, then the sections agents actually need, with concrete, copy-pasteable commands:
 
-## Signature components
+```markdown
+# AGENTS.md
 
-- `.topbar` + `.file-chip` — the persistent file identity.
-- `.toc` — auto-generated `<h2>/<h3>` outline with `.active` scroll-spy.
-- `.doc .md` — the rendered Markdown reading column (the family's prose styling).
-- `#copy-btn` — copies the exact `document.source` to the clipboard (round-trips the real `.md`).
+Guidance for coding agents working on **<project>**. Humans read README.md; this holds the
+build/test/convention detail an agent needs.
 
-## Data fields (see `schemas/agents-md.schema.json`)
+## Project overview
+## Setup commands
+## Code style
+## Testing
+## Security
+## Commit & PR rules
+```
 
-- `meta` — `org`, `project`, `reportType?`, `title`, `subtitle?`, `date?`, `author?`, `theme`
-  (default `slate`). `title`/`subtitle` become the archive card title/abstract.
-- `document.filename` — what the file is saved as (conventionally `AGENTS.md`; must end `.md`).
-- `document.source` — the **complete** Markdown text (the canonical, downloadable artifact and the
-  only content source for the preview).
-- `document.summary?` — one-line "what is this project".
+Use real `## H2` headings (the preview builds an outline from them). Keep it signal-dense and
+specific — non-obvious, project-specific facts beat generic advice. CommonMark / GFM is supported:
+headings, nested lists, fenced code with a language tag, tables, blockquotes, links, bold/italic.
 
-## Interactions (per `_DATA_DRIVEN.md`)
+## Upload
 
-Theme `<select>` recolours live; the TOC jumps to sections and highlights the current one on scroll;
-**Copy Markdown** yields the raw file; Print expands to a clean static snapshot (chrome hidden).
+The archive metadata travels **beside** the file (it is never injected into the `.md`). Write a small
+JSON sidecar, then lint and upload:
 
-## Authoring the source
+```bash
+# AGENTS.md          <- the pure markdown document
+# agents.meta.json   <- archive metadata (below)
+node <skill-dir>/scripts/alexandrai.mjs lint   AGENTS.md --format agents-md --meta agents.meta.json
+node <skill-dir>/scripts/alexandrai.mjs upload AGENTS.md --format agents-md --meta agents.meta.json
+```
 
-Write `document.source` like a real `AGENTS.md`: lead with a one-line project overview, then the
-sections agents actually need — **Setup/build/test commands**, **Code style**, **Testing**,
-**Security**, **Commit & PR rules** — using concrete, copy-pasteable commands. Keep it signal-dense
-and specific to the analysed repo; non-obvious, project-specific facts beat generic advice. Use real
-`## H2` headings so the outline is meaningful (the TOC needs ≥2).
+`--meta` JSON fields:
+
+| field | required | notes |
+| --- | --- | --- |
+| `title` | yes | Archive card title, e.g. `"acme-web — agent guide"`. |
+| `language` | yes | Language id from `assets/languages.json` (usually `en`). |
+| `primaryCategory` | yes | Category id from `assets/categories.json`, e.g. `computer-science.software-engineering`. |
+| `topics` | yes | Non-empty array of English ASCII topics (drive keyword search). |
+| `secondaryCategories` | no | Array of category ids (default `[]`). |
+| `abstract` | no | One-line summary shown under the title. |
+| `theme` | no | Initial brand preset (default `slate`); the reader can switch live. |
+| `filename` | no | Defaults to `AGENTS.md`. |
 
 ## Do / Don't
 
-- **Do** derive the content from the actual project (real commands, real paths, real conventions).
-- **Do** keep the file brand-neutral (`{{ORG}}` / `{{AUTHOR}}`) unless real values are supplied.
-- **Don't** paste raw, unstyled Markdown into the body — the renderer styles it; just supply `source`.
-- **Don't** wrap this in the long-form report's rails/facts chrome — it is a single-document reader.
+- **Do** derive content from the actual project (real commands, paths, conventions).
+- **Do** keep the `.md` pure — archive metadata goes in `--meta`, not in the file.
+- **Don't** wrap the markdown in HTML or add a `#report-data` block — upload the `.md` itself.

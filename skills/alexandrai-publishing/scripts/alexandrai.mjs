@@ -119,7 +119,7 @@ function parse(argv) {
   const positionals = [];
   for (let i = 0; i < rest.length; i += 1) {
     const arg = rest[i];
-    if (['--site', '--token', '--limit', '--auth', '--account', '--password', '--nickname', '--org', '--max-dim', '--budget-kb', '--to', '--format', '--intent', '--body', '--attach', '--out', '--p'].includes(arg)) {
+    if (['--site', '--token', '--limit', '--auth', '--account', '--password', '--nickname', '--org', '--max-dim', '--budget-kb', '--to', '--format', '--meta', '--intent', '--body', '--attach', '--out', '--p'].includes(arg)) {
       const value = rest[++i];
       if (!value || value.startsWith('--')) throw new UsageError(`Missing value for ${arg}`);
       flags[arg.slice(2)] = value;
@@ -270,7 +270,8 @@ async function formatsCommand() {
 }
 
 async function lintFile(filePath, flags = {}) {
-  if (!filePath) throw new UsageError('Missing HTML file.');
+  if (!filePath) throw new UsageError('Missing file.');
+  if (isMarkdownPath(filePath)) return lintMarkdown(filePath, flags);
   const html = await readFile(resolve(filePath), 'utf8');
   const errors = [];
   let data;
@@ -316,6 +317,14 @@ async function lintFile(filePath, flags = {}) {
 }
 
 async function upload(auth, filePath, flags = {}) {
+  if (isMarkdownPath(filePath)) {
+    const inputs = await readMarkdownInputs(filePath, flags);
+    if (!inputs.ok) {
+      process.stderr.write(JSON.stringify({ ok: false, message: rejectedMessage, errors: inputs.errors }, null, 2) + '\n');
+      return 1;
+    }
+    return publishMarkdown(auth, inputs.markdown, inputs.metadata, inputs.format, apiUrl(auth.site, 'papers'), { kind: 'upload' });
+  }
   const lintCode = await lintFile(filePath, flags);
   if (lintCode !== 0) return lintCode;
   const html = await readFile(resolve(filePath), 'utf8');
@@ -327,11 +336,153 @@ async function upload(auth, filePath, flags = {}) {
 // the same way as upload, then posts to the versioning endpoint.
 async function versionPaper(auth, paperId, filePath, flags = {}) {
   if (!paperId) throw new UsageError('Missing paper id.');
+  if (isMarkdownPath(filePath)) {
+    const inputs = await readMarkdownInputs(filePath, flags);
+    if (!inputs.ok) {
+      process.stderr.write(JSON.stringify({ ok: false, message: rejectedMessage, errors: inputs.errors }, null, 2) + '\n');
+      return 1;
+    }
+    return publishMarkdown(auth, inputs.markdown, inputs.metadata, inputs.format, apiUrl(auth.site, `papers/${encodeURIComponent(paperId)}/versions`), { kind: 'version', versionOf: paperId });
+  }
   const lintCode = await lintFile(filePath, flags);
   if (lintCode !== 0) return lintCode;
   const html = await readFile(resolve(filePath), 'utf8');
   const format = await selectedFormatFromHtml(html, flags.format);
   return publishAndRecord(auth, html, format, apiUrl(auth.site, `papers/${encodeURIComponent(paperId)}/versions`), { kind: 'version', versionOf: paperId });
+}
+
+function isMarkdownPath(filePath) {
+  return /\.md$/i.test(String(filePath || ''));
+}
+
+// Loads a markdown-native upload: the raw .md plus archive metadata from --meta <json>.
+// The .md is never mutated — metadata travels in the request, so the stored file is exactly
+// what you would commit to a repo. Returns { ok, markdown, metadata, format, errors } with
+// the same validation discipline as the HTML lint.
+async function readMarkdownInputs(filePath, flags = {}) {
+  const errors = [];
+  const markdown = await readFile(resolve(filePath), 'utf8');
+  let metaRaw = {};
+  if (!flags.meta) {
+    errors.push(error('MISSING_META', '--meta', 'path to metadata JSON', 'missing', 'Markdown uploads need --meta <file.json> with title/language/primaryCategory/topics.'));
+  } else {
+    try {
+      metaRaw = JSON.parse(await readFile(resolve(flags.meta), 'utf8'));
+    } catch (cause) {
+      errors.push(error('INVALID_META_JSON', '--meta', 'valid JSON file', String(cause?.message || cause), 'Fix the metadata JSON file.'));
+    }
+  }
+  const formatId = flags.format || metaRaw.formatId;
+  let format;
+  if (!formatId) {
+    errors.push(error('ALEXANDRAI_FORMAT_REQUIRED', '--format', 'known format id', 'missing', 'Pass --format (e.g. agents-md) or set formatId in --meta.'));
+  } else {
+    format = await resolveFormat(formatId);
+    if (!format) errors.push(error('UNKNOWN_FORMAT', '--format', 'known format id', formatId, 'Run `alexandrai.mjs formats` and choose a registered format id.'));
+  }
+  if (!markdown.trim()) errors.push(error('EMPTY_MARKDOWN', 'markdown', 'non-empty markdown', 'empty', 'Author the .md document before uploading.'));
+  await validateMarkdownMetadata(metaRaw, errors);
+  checkUploadSize(markdown, errors);
+  return { ok: errors.length === 0, markdown, metadata: buildMarkdownMetadata(metaRaw, format), format, errors };
+}
+
+async function validateMarkdownMetadata(meta, errors) {
+  const categoriesDoc = JSON.parse(await readFile(categoriesPath, 'utf8'));
+  const categories = flatten(categoriesDoc.categories || categoriesDoc);
+  const languagesDoc = JSON.parse(await readFile(languagesPath, 'utf8'));
+  const languages = languagesDoc.languages || languagesDoc;
+  const knownCategory = (id) => categories.some((category) => category.id === id);
+  const knownLanguage = (id) => languages.some((language) => language.id === id);
+  const p = 'meta';
+  if (!isNonEmptyString(meta.title)) errors.push(error('MISSING_META_FIELD', `${p}.title`, 'non-empty string', meta.title, 'Provide a document title for the archive card.'));
+  if (!isNonEmptyString(meta.language)) errors.push(error('MISSING_META_FIELD', `${p}.language`, 'known language id', meta.language, 'Use assets/languages.json.'));
+  else if (!knownLanguage(meta.language)) errors.push(error('UNKNOWN_LANGUAGE', `${p}.language`, 'known language id', meta.language, 'Use assets/languages.json.'));
+  if (!isNonEmptyString(meta.primaryCategory)) errors.push(error('MISSING_META_FIELD', `${p}.primaryCategory`, 'known category id', meta.primaryCategory, 'Use assets/categories.json.'));
+  else if (!knownCategory(meta.primaryCategory)) errors.push(error('UNKNOWN_CATEGORY', `${p}.primaryCategory`, 'known category id', meta.primaryCategory, 'Use assets/categories.json.'));
+  if (meta.secondaryCategories !== undefined && !isStringArray(meta.secondaryCategories)) {
+    errors.push(error('INVALID_META_FIELD', `${p}.secondaryCategories`, 'array of known category ids', meta.secondaryCategories, 'Provide [] or omit.'));
+  } else if (Array.isArray(meta.secondaryCategories)) {
+    meta.secondaryCategories.forEach((category, index) => {
+      if (!knownCategory(category)) errors.push(error('UNKNOWN_CATEGORY', `${p}.secondaryCategories[${index}]`, 'known category id', category, 'Use assets/categories.json.'));
+    });
+  }
+  if (!isStringArray(meta.topics) || meta.topics.length === 0) {
+    errors.push(error('MISSING_META_FIELD', `${p}.topics`, 'non-empty array of English topics', meta.topics, 'Provide English topics used for archive search.'));
+  } else {
+    meta.topics.forEach((topic, index) => {
+      if (!isEnglishText(topic)) errors.push(error('NON_ENGLISH_TOPIC', `${p}.topics[${index}]`, 'English ASCII topic text', topic, 'Translate this topic to English before upload.'));
+    });
+  }
+}
+
+function buildMarkdownMetadata(meta, format) {
+  const out = {
+    formatId: format?.id,
+    language: meta.language,
+    primaryCategory: meta.primaryCategory,
+    secondaryCategories: Array.isArray(meta.secondaryCategories) ? meta.secondaryCategories : [],
+    topics: Array.isArray(meta.topics) ? meta.topics : [],
+    title: meta.title,
+    skillVersion: 'alexandrai-publishing@0.2.0'
+  };
+  if (isNonEmptyString(meta.abstract)) out.abstract = meta.abstract;
+  if (isNonEmptyString(meta.theme)) out.theme = meta.theme;
+  else if (format?.defaultTheme) out.theme = format.defaultTheme;
+  if (isNonEmptyString(meta.filename)) out.filename = meta.filename;
+  return out;
+}
+
+async function lintMarkdown(filePath, flags = {}) {
+  const inputs = await readMarkdownInputs(filePath, flags);
+  if (!inputs.ok) {
+    process.stderr.write(JSON.stringify({ ok: false, message: rejectedMessage, errors: inputs.errors }, null, 2) + '\n');
+    return 1;
+  }
+  process.stdout.write(JSON.stringify({ ok: true, message: 'ALEXANDRAI_LINT_OK', formatId: inputs.format?.id, contentKind: 'markdown' }, null, 2) + '\n');
+  return 0;
+}
+
+// Posts a markdown-native item ({ formatId, markdown, metadata }), prints the server's
+// machine-readable response unchanged, and on success records the publication locally.
+async function publishMarkdown(auth, markdown, metadata, format, url, meta) {
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', ...authHeaders(auth.token) },
+    body: JSON.stringify({ formatId: format.id, markdown, metadata })
+  });
+  const body = await response.text();
+  const stream = response.ok ? process.stdout : process.stderr;
+  stream.write(body || `${response.status} ${response.statusText}`);
+  stream.write('\n');
+  if (response.ok) await recordMarkdownPublication(auth, metadata, format, body, meta);
+  return response.ok ? 0 : 1;
+}
+
+async function recordMarkdownPublication(auth, metadata, format, responseText, meta) {
+  try {
+    let responseBody = {};
+    try { responseBody = JSON.parse(responseText); } catch { responseBody = {}; }
+    const record = {
+      id: responseBody.id ?? responseBody.paperId ?? responseBody.paper?.id ?? responseBody.data?.id ?? null,
+      kind: meta.kind,
+      ...(meta.versionOf ? { versionOf: meta.versionOf } : {}),
+      formatId: format.id,
+      title: metadata.title || (Array.isArray(metadata.topics) ? metadata.topics.join(', ') : '') || '(untitled)',
+      topics: Array.isArray(metadata.topics) ? metadata.topics : [],
+      primaryCategory: metadata.primaryCategory || null,
+      site: auth.site,
+      publishedAt: new Date().toISOString()
+    };
+    let log = [];
+    try { log = JSON.parse(await readFile(historyPath, 'utf8')); } catch { log = []; }
+    if (!Array.isArray(log)) log = [];
+    log.push(record);
+    await mkdir(credentialsDir, { recursive: true });
+    await writeFile(historyPath, JSON.stringify(log, null, 2) + '\n');
+    await chmod(historyPath, 0o600).catch(() => {});
+  } catch {
+    // Local logging is best-effort; the published item still exists on the server.
+  }
 }
 
 // Posts the report, prints the server's machine-readable response unchanged (exactly

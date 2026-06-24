@@ -63,8 +63,8 @@
 | **status-page** | service uptime history + incident communications | `schemas/status-page.schema.json` | meta, windows, groups, components, incidents | cyan | status, infra, time, nav |
 | **bracket** | a knockout tournament / elimination | `schemas/bracket.schema.json` | meta, format, rounds, matches | plum | people, process, status, nav |
 | **research-paper** | a formal academic / journal article (abstract, citations, equations, figures) | `schemas/research-paper.schema.json` | meta, paper, sections, references, aipaper, researchAudit | indigo | editorial, science-rnd, data, document |
-| **agents-md** | an AGENTS.md / CLAUDE.md agent guide for a codebase (setup/build/test commands, code style, conventions, security, PR rules) — rendered Markdown | `schemas/agents-md.schema.json` | meta, document | slate | code, document, process, status |
-| **design-md** | a DESIGN.md design-system spec in Google's design.md format (visual identity tokens + rationale) — rendered as a token gallery + prose | `schemas/design-md.schema.json` | meta, document | indigo | editorial, document, data, status |
+| **agents-md** | an AGENTS.md / CLAUDE.md agent guide for a codebase (setup/build/test commands, code style, conventions, security, PR rules) | _markdown-native_ (no schema) | pure `.md` + `--meta` json | slate | code, document, process, status |
+| **design-md** | a DESIGN.md design-system spec in Google's design.md format (YAML token front matter + rationale) | _markdown-native_ (no schema) | pure `.md` + `--meta` json | indigo | editorial, document, data, status |
 
 (Default themes above are suggestions; any of the 9 presets — **Black always available** — may be set
 via `meta.theme`. Every sample ships the in-report 9-dot switcher so the reader can recolour live.)
