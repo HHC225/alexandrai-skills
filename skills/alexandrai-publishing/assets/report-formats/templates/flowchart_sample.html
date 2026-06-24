@@ -570,6 +570,21 @@ var DATA = JSON.parse(document.getElementById('report-data').textContent);
 var NODE_BY_ID = {}; DATA.nodes.forEach(function(n){ NODE_BY_ID[n.id] = n; });
 var LANE_BY_ID = {}; DATA.lanes.forEach(function(l,i){ l._idx = i; LANE_BY_ID[l.id] = l; });
 
+/* ---- per-cell stacking ----
+   Nodes that land on the SAME (lane,col) would otherwise render exactly on top
+   of each other. Group them per cell, give each a vertical slot, and let a lane
+   grow tall enough for its densest cell. Well-formed flows (<=1 node per cell)
+   are pixel-identical to before. */
+var CELL = {};                 /* "lane|col" -> [node,...] in data order */
+DATA.nodes.forEach(function(n){ var k=n.lane+'|'+n.col; (CELL[k]=CELL[k]||[]).push(n); });
+var LANE_ROWS = {};            /* lane id -> max nodes stacked in any one column */
+DATA.lanes.forEach(function(l){ LANE_ROWS[l.id] = 1; });
+Object.keys(CELL).forEach(function(k){
+  var lane=k.slice(0,k.lastIndexOf('|')), c=CELL[k].length;
+  if(LANE_ROWS[lane]!=null && c>LANE_ROWS[lane]) LANE_ROWS[lane]=c;
+});
+function nodeSlot(n){ var a=CELL[n.lane+'|'+n.col]||[n]; return { idx:Math.max(0,a.indexOf(n)), count:a.length }; }
+
 /* ---- layout geometry (the swimlane grid; lane+col -> px) ---- */
 var COL_W = 230, LANE_H = 130, LANE_H_COLLAPSED = 40, PAD_X = 150, PAD_TOP = 22;
 var maxCol = DATA.nodes.reduce(function(m,n){ return Math.max(m, n.col); }, 0);
@@ -624,9 +639,10 @@ function reach(id, map){
 function laneLayout(){
   var y = PAD_TOP, map = {};
   DATA.lanes.forEach(function(l){
-    if(activeLanes[l.id]===false){ map[l.id] = { top:y, h:0, hidden:true }; return; }
-    var h = collapsed[l.id] ? LANE_H_COLLAPSED : LANE_H;
-    map[l.id] = { top:y, h:h, hidden:false, collapsed:collapsed[l.id] };
+    if(activeLanes[l.id]===false){ map[l.id] = { top:y, h:0, hidden:true, rows:1 }; return; }
+    var rows = LANE_ROWS[l.id] || 1;
+    var h = collapsed[l.id] ? LANE_H_COLLAPSED : LANE_H * rows;
+    map[l.id] = { top:y, h:h, hidden:false, collapsed:collapsed[l.id], rows:rows };
     y += h;
   });
   return { map:map, bottom:y };
@@ -637,8 +653,14 @@ function worldH(){ return laneLayout().bottom + 30; }
 
 /* px centre of a node from (lane,col) */
 function nodePos(n){
-  var L = laneLayout().map[n.lane] || { top:PAD_TOP, h:LANE_H };
-  return { x: PAD_X + n.col*COL_W + COL_W/2, y: L.top + (L.h||LANE_H)/2 };
+  var L = laneLayout().map[n.lane] || { top:PAD_TOP, h:LANE_H, rows:1 };
+  var laneH = L.h || LANE_H, rows = L.rows || 1, x = PAD_X + n.col*COL_W + COL_W/2;
+  if(L.collapsed || rows<=1){ return { x:x, y: L.top + laneH/2 }; }
+  var s = nodeSlot(n);
+  if(s.count<=1){ return { x:x, y: L.top + laneH/2 }; }
+  /* centre this cell's stack of `count` nodes among the lane's `rows` rows */
+  var off = (rows - s.count)/2;
+  return { x:x, y: L.top + LANE_H*(off + s.idx + 0.5) };
 }
 function nodeVisible(n){ return activeLanes[n.lane] !== false; }
 function edgeVisible(e){ return nodeVisible(NODE_BY_ID[e.from]) && nodeVisible(NODE_BY_ID[e.to]); }
@@ -1226,27 +1248,37 @@ function wireInteractions(){
     });
   });
 
-  /* PAN */
-  var dragging=false, moved=false, sx=0, sy=0, sp={};
+  /* PAN — capture the pointer only AFTER a real drag starts. Capturing on
+     pointerdown retargets the follow-up `click` to the canvas (Pointer Events
+     spec), which silently swallowed every node + toolbar-button click. */
+  var dragging=false, moved=false, captured=false, pid=null, sx=0, sy=0, sp={};
   canvas.addEventListener('pointerdown', function(ev){
     if(ev.button!==0) return;
-    dragging=true; moved=false; sx=ev.clientX; sy=ev.clientY; sp={x:view.panX,y:view.panY};
-    canvas.classList.add('is-panning'); canvas.setPointerCapture(ev.pointerId);
+    dragging=true; moved=false; captured=false; pid=ev.pointerId;
+    sx=ev.clientX; sy=ev.clientY; sp={x:view.panX,y:view.panY};
   });
   canvas.addEventListener('pointermove', function(ev){
     if(!dragging) return;
     var dx=ev.clientX-sx, dy=ev.clientY-sy;
-    if(Math.abs(dx)+Math.abs(dy)>3) moved=true;
+    if(!moved && Math.abs(dx)+Math.abs(dy)>3){
+      moved=true; canvas.classList.add('is-panning');
+      try{ canvas.setPointerCapture(pid); captured=true; }catch(e){}
+    }
+    if(!moved) return;
     view.panX=sp.x+dx; view.panY=sp.y+dy; applyTransform();
   });
-  function endPan(){ if(!dragging) return; dragging=false; canvas.classList.remove('is-panning'); }
+  function endPan(){
+    if(!dragging) return;
+    dragging=false; canvas.classList.remove('is-panning');
+    if(captured){ try{ canvas.releasePointerCapture(pid); }catch(e){} captured=false; }
+  }
   canvas.addEventListener('pointerup', endPan);
   canvas.addEventListener('pointercancel', endPan);
 
   /* click empty canvas clears selection */
   canvas.addEventListener('click', function(ev){
     if(moved) return;
-    if(ev.target===canvas || ev.target===world || ev.target.tagName==='svg' ||
+    if(ev.target===canvas || ev.target===world ||
        ev.target.classList.contains('fc-edges') || ev.target.classList.contains('lane-band') ||
        ev.target.classList.contains('col-rules') || ev.target.classList.contains('col-rule')){
       stopPlay(); clearStep();
