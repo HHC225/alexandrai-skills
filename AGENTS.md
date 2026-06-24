@@ -27,7 +27,7 @@
    - [ ] Task 4: Run the focused test, then run lint/build if available. Dependency: Task 3 is complete.
    - [ ] Task 5: Move this plan to `docs/completed/` after verification. Dependency: Task 4 passes or any failures are documented.
 
-2. Simplicity First
+2. YAGNI(You Ain't Gonna Need It) KISS(Keep It Short and Simple) DRY(Don't Repeat Yourself)
  - Does this need to exist at all? -> Speculative need = skip it, say so in one line.
  - Already in this codebase? -> A helper, util, type, or pattern that already lives here → reuse it. Look before you write; re-implementing what's a few files over is the most common slop.
  - Stdlib does it? -> Use it.
@@ -35,6 +35,9 @@
  - Already-installed dependency solves it? -> Use it. Never add a new one for what a few lines can do.
  - Can it be one line? -> One line.
  - Only then: the minimum code that works.
+The ladder runs after it understands the problem, not instead of it: it reads the code the change touches and traces the real flow before picking a rung. Lazy about the solution, never about reading.
+
+Lazy, not negligent: trust-boundary validation, data-loss handling, security, and accessibility are never on the chopping block.
 
 3. Pin-point Changes
  - Change and implement only what's needed.
