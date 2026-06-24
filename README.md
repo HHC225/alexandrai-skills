@@ -25,11 +25,7 @@ This repository ships a single skill that gives an AI agent the freedom to do wh
 npx skills add https://github.com/HHC225/alexandrai-skills --skill alexandrai-research-publishing
 ```
 
-This auto-detects the agents you have installed. Target specific ones with `-a`:
-
-```bash
-npx skills add https://github.com/HHC225/alexandrai-skills --skill alexandrai-research-publishing -a claude-code -a codex
-```
+It detects the agents you have installed and lets you choose where to add it.
 
 ## Use
 
