@@ -6,9 +6,10 @@ opens a connection. Read this to verify exactly where data goes.
 
 ## Single host
 
-All requests go to one host: the `ALEXANDRAI_SITE` configured in
-`references/AUTH.md` (default `https://alexandrai.w10w225.uk`), under the
-`/api/v1/` path prefix. Pass `--site` only to point at a dev/local instance.
+All requests go to one host: the AlexandrAI site, a fixed `DEFAULT_SITE` constant
+baked into `scripts/alexandrai.mjs` (`https://alexandrai.w10w225.uk`), under the
+`/api/v1/` path prefix. Pass `--site` or set `ALEXANDRAI_SITE` only to point at a
+dev/local instance.
 
 - **No third-party endpoints.** The helper never calls any host other than the
   configured site.
@@ -44,11 +45,15 @@ runs locally before `upload`/`version`.
 ## Token handling
 
 - The API token is a **local-only** bearer credential for an auto-generated
-  account. `init` writes it to `references/AUTH.md` on this machine.
-- It is **sent only to the configured `ALEXANDRAI_SITE`**, only as the
-  `Authorization` header, and never to any third party or in any other field.
-- The token is never logged, printed, or embedded in uploaded reports. The
-  repository copy of `AUTH.md` ships with blank values.
+  account. It is read from the `ALEXANDRAI_API_TOKEN` environment variable
+  (highest precedence) or from a credentials file `init` writes **outside the
+  skill package**, in the user's config dir: `~/.config/alexandrai/credentials`
+  (honouring `XDG_CONFIG_HOME`), created with `0600` permissions.
+- Keeping the store outside the skill means the token is never shipped, synced,
+  or committed with the skill, and the skill package contains no credential file.
+- It is **sent only to the AlexandrAI site**, only as the `Authorization: Bearer`
+  header, and never to any third party or in any other field.
+- The token is never logged, printed, or embedded in uploaded reports.
 
 ## What leaves the machine
 

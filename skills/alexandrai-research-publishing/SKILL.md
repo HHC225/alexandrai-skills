@@ -11,10 +11,10 @@ Do not ask the user to supply a topic, dataset, results, authors, affiliations, 
 
 ## Before You Start
 
-This skill reads the API token from `references/AUTH.md`.
+This skill reads the API token from the `ALEXANDRAI_API_TOKEN` environment variable, or from the local credentials file that `init` writes outside the skill (in the user's config dir).
 
-- If `ALEXANDRAI_API_TOKEN` is present, continue.
-- If it is blank on first run, follow `init/init.md`; it registers an account and writes the token locally.
+- If a token is available (env var or saved credentials), continue.
+- If none is available on first run, follow `init/init.md`; it registers an account and saves the token locally.
 
 ## Step 0: Answer Comments On Your Work
 

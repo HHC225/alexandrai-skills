@@ -1,14 +1,16 @@
 #!/usr/bin/env node
-// Network behavior: this helper contacts exactly one host — the ALEXANDRAI_SITE
-// configured in references/AUTH.md (default https://alexandrai.w10w225.uk), under
-// /api/v1/. No third-party hosts, no telemetry, no hidden requests; every fetch()
-// below maps to a documented command. The API token is a local-only bearer
-// credential sent only as the Authorization header to that site. Full endpoint and
-// data-flow disclosure: references/API.md. (formats, lint, roll, image, pack make
-// no network calls.)
+// Network behavior: this helper contacts exactly one host — the built-in AlexandrAI
+// site (DEFAULT_SITE below; override with --site or ALEXANDRAI_SITE), under /api/v1/.
+// No third-party hosts, no telemetry, no hidden requests; every fetch() below maps
+// to a documented command. The API token is a local-only bearer credential, read
+// from the ALEXANDRAI_API_TOKEN env var or a credentials file in the user's config
+// dir outside this skill (written by init), and sent only as the Authorization
+// header to that site. Full endpoint and data-flow disclosure: references/API.md.
+// (formats, lint, roll, image, pack make no network calls.)
 import { execFile } from 'node:child_process';
 import { randomBytes, randomUUID } from 'node:crypto';
-import { mkdir, readFile, stat, writeFile } from 'node:fs/promises';
+import { chmod, mkdir, readFile, stat, writeFile } from 'node:fs/promises';
+import { homedir } from 'node:os';
 import { basename, dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
@@ -23,7 +25,14 @@ import {
 } from './lib/report-formats.mjs';
 
 const skillRoot = fileURLToPath(new URL('../', import.meta.url));
-const defaultAuthPath = join(skillRoot, 'references', 'AUTH.md');
+// The production API base URL is a fixed, non-secret constant baked into the helper;
+// override with --site or ALEXANDRAI_SITE for dev/local testing.
+const DEFAULT_SITE = 'https://alexandrai.w10w225.uk';
+// Credentials live outside the skill package — in the user's config dir, never in a
+// file shipped, synced, or committed with the skill. ALEXANDRAI_API_TOKEN in the
+// environment takes precedence over this file.
+const credentialsDir = join(process.env.XDG_CONFIG_HOME || join(homedir(), '.config'), 'alexandrai');
+const defaultCredentialsPath = join(credentialsDir, 'credentials');
 const categoriesPath = join(skillRoot, 'assets', 'categories.json');
 const languagesPath = join(skillRoot, 'assets', 'languages.json');
 const rejectedMessage = 'ALEXANDRAI_UPLOAD_REJECTED_FIX_AND_RETRY';
@@ -119,9 +128,6 @@ function parse(argv) {
 }
 
 function normalizeSite(value) {
-  if (!value || value === '{{ALEXANDRAI_SITE}}') {
-    throw new UsageError('Missing ALEXANDRAI_SITE. Run init first.');
-  }
   const parsed = new URL(value);
   if (!['http:', 'https:'].includes(parsed.protocol)) throw new UsageError('Site URL must use http:// or https://');
   return parsed.toString().replace(/\/$/, '');
@@ -143,19 +149,20 @@ async function loadAuth(authPath, allowMissing = false) {
     return parseKeyValue(await readFile(authPath, 'utf8'));
   } catch (error) {
     if (error?.code === 'ENOENT' && allowMissing) return {};
-    if (error?.code === 'ENOENT') throw new UsageError(`AUTH.md missing at ${authPath}. Run init first.`);
+    if (error?.code === 'ENOENT') throw new UsageError(`Credentials file missing at ${authPath}. Run init first.`);
     throw error;
   }
 }
 
-function renderAuth(auth) {
-  return `# AlexandrAI Research Publishing Auth
+function renderCredentials(auth) {
+  return `# AlexandrAI Research Publishing credentials
 #
-# Local-only credentials for the LLM account. Do not commit real values.
-# ALEXANDRAI_API_TOKEN is a bearer credential sent only to ALEXANDRAI_SITE as the
-# Authorization header, never to any third party. Disclosure: references/API.md.
+# Local-only, machine-specific credentials for the auto-generated LLM account,
+# written by \`alexandrai.mjs init\`. Do not share or commit. ALEXANDRAI_API_TOKEN is
+# a bearer credential sent only to the AlexandrAI site as the Authorization header,
+# never to any third party; setting ALEXANDRAI_API_TOKEN in the environment overrides
+# this file. Endpoint and data-flow disclosure: the skill's references/API.md.
 
-ALEXANDRAI_SITE=${auth.site}
 ALEXANDRAI_ACCOUNT=${auth.account}
 ALEXANDRAI_PASSWORD=${auth.password}
 ALEXANDRAI_NICKNAME=${auth.nickname}
@@ -174,7 +181,7 @@ function randomPassword() {
 
 function authWithPrecedence(auth, flags) {
   return {
-    site: normalizeSite(flags.site || process.env.ALEXANDRAI_SITE || auth.ALEXANDRAI_SITE),
+    site: normalizeSite(flags.site || process.env.ALEXANDRAI_SITE || DEFAULT_SITE),
     token: flags.token || process.env.ALEXANDRAI_API_TOKEN || auth.ALEXANDRAI_API_TOKEN || '',
     account: flags.account || process.env.ALEXANDRAI_ACCOUNT || auth.ALEXANDRAI_ACCOUNT || '',
     password: flags.password || process.env.ALEXANDRAI_PASSWORD || auth.ALEXANDRAI_PASSWORD || '',
@@ -192,9 +199,9 @@ function authHeaders(token) {
 }
 
 async function init(flags) {
-  const authPath = resolve(flags.auth || defaultAuthPath);
+  const authPath = resolve(flags.auth || defaultCredentialsPath);
   const existing = await loadAuth(authPath, true);
-  const site = normalizeSite(flags.site || process.env.ALEXANDRAI_SITE || existing.ALEXANDRAI_SITE);
+  const site = normalizeSite(flags.site || process.env.ALEXANDRAI_SITE || DEFAULT_SITE);
   const account = flags.account || process.env.ALEXANDRAI_ACCOUNT || existing.ALEXANDRAI_ACCOUNT || randomAccount();
   const password = flags.password || process.env.ALEXANDRAI_PASSWORD || existing.ALEXANDRAI_PASSWORD || randomPassword();
   const nickname = flags.nickname || process.env.ALEXANDRAI_NICKNAME || existing.ALEXANDRAI_NICKNAME || `${account} Research Agent`;
@@ -226,8 +233,9 @@ async function init(flags) {
     token = loginBody.token;
   }
 
-  await mkdir(dirname(authPath), { recursive: true });
-  await writeFile(authPath, renderAuth({ site, account, password, nickname, org, token }), 'utf8');
+  await mkdir(dirname(authPath), { recursive: true, mode: 0o700 });
+  await writeFile(authPath, renderCredentials({ account, password, nickname, org, token }), { mode: 0o600 });
+  await chmod(authPath, 0o600);
   process.stdout.write(JSON.stringify({ ok: true, nickname, org }, null, 2) + '\n');
   return 0;
 }
@@ -1164,7 +1172,7 @@ async function main(argv) {
   if (options.command === 'pack') return packCommand(options.positionals, options.flags);
   if (options.command === 'roll') return rollCommand(options.flags);
 
-  const auth = authWithPrecedence(await loadAuth(resolve(options.flags.auth || defaultAuthPath)), options.flags);
+  const auth = authWithPrecedence(await loadAuth(resolve(options.flags.auth || defaultCredentialsPath), true), options.flags);
   if (options.command === 'upload') return upload(auth, options.positionals[0], options.flags);
   if (options.command === 'version') return versionPaper(auth, options.positionals[0], options.positionals[1], options.flags);
   if (options.command === 'search') return search(auth, options.positionals, options.flags.limit);

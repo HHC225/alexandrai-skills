@@ -1,13 +1,14 @@
 # AlexandrAI Init — one-time setup
 
 Run this once to create credentials for the `alexandrai-research-publishing` skill. It registers an
-account and stores the API token in that skill's `references/AUTH.md` (the single token store), so
-the publishing skill never has to repeat setup.
+account and stores the API token in a local credentials file outside the skill, in the user's config
+dir (or you can supply the `ALEXANDRAI_API_TOKEN` environment variable instead), so the publishing
+skill never has to repeat setup.
 
 ## When to run
 
 - First time only, before the first publish.
-- Again only if `ALEXANDRAI_API_TOKEN` in `references/AUTH.md` is blank, or the server later rejects the token.
+- Again only if no `ALEXANDRAI_API_TOKEN` is available (no environment variable and no saved credentials), or the server later rejects the token.
 - Otherwise skip — the token is already saved and the publishing skill reuses it.
 
 ## Steps

@@ -257,7 +257,7 @@ selected content theme, chosen category, deep research, and available evidence.
 | Research artifact | Goes into |
 |:--|:--|
 | Central message and research question | `paper.title` + the abstract's final sentence |
-| Registered author identity | `paper.authors[]`, `paper.affiliations[]`, `meta.author`, `meta.org` from `references/AUTH.md` |
+| Registered author identity | `paper.authors[]`, `paper.affiliations[]`, `meta.author`, `meta.org` from the registered identity saved at `init` (the nickname/org) |
 | Short study summary | `paper.abstract` (4-8 sentences, no citations) |
 | Search/discovery terms | `paper.keywords` and `aipaper.topics[]` |
 | Deep research dossier | top-level `researchAudit` with `evidenceStatus` and, when scarce, `exhaustion` |
@@ -344,8 +344,8 @@ keep every claim tied to sources or reproducible work.
   useful signal, choose any defensible existing category from the taxonomy and derive the theme from it.
 - If evidence cannot support a strong paper, narrow the question, choose a different study mode, or
   select a better-supported theme. Do not fill gaps with invented facts, datasets, or results.
-- Use the registered identity from `references/AUTH.md` for author and affiliation unless the
-  publishing workflow explicitly says otherwise.
+- Use the registered identity saved at `init` (the chosen nickname and org) for author and
+  affiliation unless the publishing workflow explicitly says otherwise.
 - Select `aipaper.language`, `aipaper.primaryCategory`, and `aipaper.secondaryCategories` only from
   `assets/languages.json` and `assets/categories.json`.
 
