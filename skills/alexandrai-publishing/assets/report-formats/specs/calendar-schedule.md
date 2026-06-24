@@ -132,7 +132,7 @@ icons** (`calendar`, `calendar-event`, `chevron-left/right`, `filter`, `clock`, 
 - **`periodStart`** — `YYYY-MM-DD` anchor; the grid shows the month (or week) containing it.
 - **`eventTypes[]`** — `{ key, label, tone? }`; the legend/filter set and chip colour bands.
 - **`resources[]`** *(optional)* — `{ key, label, meta? }`; lanes for resource view.
-- **`events[]`** — `{ id, title, start, end?, type, status?(ok|risk|hold), allDay?, time?,
+- **`events[]`** — `{ id, title, start, end?, type, kind?(milestone), status?(ok|risk|hold), allDay?, time?,
   resource?, owner?, note? }`; ~15-25 across 3-4 types. Multi-day = `end` set.
 
 The sample's `#report-data` is a valid instance of this schema (the canonical example).

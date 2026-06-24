@@ -724,6 +724,9 @@ function validateJsonSchema(schema, value, path, rootSchema, errors) {
   if (schema.enum && !schema.enum.includes(value)) {
     errors.push(error('SCHEMA_ENUM', path, schema.enum.join(' | '), value, 'Use one of the allowed values.'));
   }
+  if ('const' in schema && value !== schema.const) {
+    errors.push(error('SCHEMA_CONST', path, schema.const, value, 'Use the exact value required by this format schema.'));
+  }
 
   if (isObject(value)) {
     for (const required of schema.required || []) {

@@ -98,7 +98,7 @@ static snapshot, and hide the compare bar / toggles / theme switcher.
 
 ## Data fields (see `schemas/comparison-grid.schema.json`)
 `meta` (shared chrome + `theme`) · `options[]` `{id,name,tagline?,price?,unit?,badges[]?,recommended?}` ·
-`criteriaGroups[]` `{id,name,icon?,criteria[]{key,label,hint?,unit?,kind:"bool|text|number|rating",betterWhen?}}` ·
+`criteriaGroups[]` `{id,name,icon?,criteria[]{key,label,hint?,unit?,kind:"bool|text|number|rating",betterWhen?,weight?}}` · (set `weight` > 0 on scorable criteria to drive the **Weighted score** overall row) ·
 `cells` (`optionId → {criterionKey → value}`, value shaped by `kind`; object form `{value,note}` allowed) ·
 optional `verdict` `{winnerId?,headline?,text}`. The sample's `#report-data` is a valid instance.
 

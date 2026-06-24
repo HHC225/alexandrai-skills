@@ -89,6 +89,7 @@
           "start": { "type": "string", "format": "date", "description": "Start date (YYYY-MM-DD)." },
           "end": { "type": "string", "format": "date", "description": "Optional inclusive end date (YYYY-MM-DD) for multi-day events. Omit or equal to start for single-day events." },
           "type": { "type": "string", "description": "Event-type key; must match one eventTypes[].key. Drives colour band and legend filtering." },
+          "kind": { "type": "string", "enum": ["milestone"], "description": "Optional event sub-kind. 'milestone' renders a single-day event as a diamond/flag gate glyph instead of a bar (independent of type colour and status). Omit for ordinary bar/point events." },
           "status": {
             "type": "string",
             "description": "Optional family semantic state, surfaced as a status dot/badge on the chip and in the popover. 'ok' = on track / done, 'risk' = at risk, 'hold' = blocked / on hold.",

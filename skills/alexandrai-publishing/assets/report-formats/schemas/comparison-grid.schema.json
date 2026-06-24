@@ -89,7 +89,8 @@
                   "description": "How every cell in this row is rendered & compared. 'bool' = check / cross / partial; 'text' = short text value; 'number' = numeric value (sortable; higher-is-better unless betterWhen='low'); 'rating' = 0-5 star rating (sortable).",
                   "enum": ["bool", "text", "number", "rating"]
                 },
-                "betterWhen": { "type": "string", "description": "For kind=number only: whether a lower or higher value is better (drives the 'sort by this row' direction and best-in-row emphasis). Defaults to 'high'.", "enum": ["high", "low"], "default": "high" }
+                "betterWhen": { "type": "string", "description": "For kind=number only: whether a lower or higher value is better (drives the 'sort by this row' direction and best-in-row emphasis). Defaults to 'high'.", "enum": ["high", "low"], "default": "high" },
+                "weight": { "type": "number", "minimum": 0, "description": "Optional relative importance for the weighted overall-fit score. Criteria with weight > 0 and a scorable kind (bool/number/rating) contribute to the 'Weighted score' row (Σ weight·score over visible options); omit or 0 to exclude from scoring." }
               }
             }
           }
