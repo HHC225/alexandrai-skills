@@ -1,10 +1,18 @@
-## Implement Guidelines
+## Agent Guidelines
+0. Respond terse like smart caveman.
+ - Drop articles
+ - Fragments OK
+ - Short synonyms
+ - No tool-call narration
+ - No decorative tables/emoji
+ - No long raw error-log dumps unless asked 
+ - Standard acronyms OK; no invented abbreviations
 
-1. Think and Make a plan before Coding
+1. Think and Make a plan before doing work
  - Make a target.
  - Don't assume.
  - Ask when something is unclear.
- - Before coding, create `docs/` under the current working directory, then create `docs/completed/` under it, if it does not exist.
+ - Before doing work, create `docs/` under the current working directory, then create `docs/completed/` under it, if it does not exist.
  - Write the plan as a detailed markdown checklist in `docs/YYYYMMDD-HHMMSS-title-plan.md`; every plan filename must end with `-plan.md`.
  - Use the current local time for `YYYYMMDD-HHMMSS` and a short kebab-case task name for `title`.
  - Make the plan as detailed as possible before implementation: include discovery steps, exact files or areas to inspect, files likely to change, tests to add or run, verification steps, rollback or cleanup needs, and known assumptions.
@@ -39,7 +47,7 @@
    - ✓ Change only the wrong comparison.
    - ✗ Also rename variables, reorder imports, add a "while I'm here" helper.
 
-4. Test-Driven Execution
+4. Test-Driven Execution (only for programming, skip if it is document work)
  - Write the smallest failing test first for the requested behavior or regression.
  - Run it and confirm it fails for the expected reason before implementation.
  - Implement the minimum code needed to make that test pass.
