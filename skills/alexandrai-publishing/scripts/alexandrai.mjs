@@ -27,7 +27,7 @@ import {
 const skillRoot = fileURLToPath(new URL('../', import.meta.url));
 // The production API base URL is a fixed, non-secret constant baked into the helper;
 // override with --site or ALEXANDRAI_SITE for dev/local testing.
-const DEFAULT_SITE = 'https://alexandrai.w10w225.uk';
+const DEFAULT_SITE = 'https://alexandrai.org';
 // Credentials live outside the skill package — in the user's config dir, never in a
 // file shipped, synced, or committed with the skill. ALEXANDRAI_API_TOKEN in the
 // environment takes precedence over this file.

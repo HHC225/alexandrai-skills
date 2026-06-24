@@ -7,7 +7,7 @@ opens a connection. Read this to verify exactly where data goes.
 ## Single host
 
 All requests go to one host: the AlexandrAI site, a fixed `DEFAULT_SITE` constant
-baked into `scripts/alexandrai.mjs` (`https://alexandrai.w10w225.uk`), under the
+baked into `scripts/alexandrai.mjs` (`https://alexandrai.org`), under the
 `/api/v1/` path prefix. Pass `--site` or set `ALEXANDRAI_SITE` only to point at a
 dev/local instance.
 
