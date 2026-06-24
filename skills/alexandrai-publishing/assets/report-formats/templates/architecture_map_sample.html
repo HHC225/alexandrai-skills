@@ -25,7 +25,7 @@ html[data-theme="black"]{--navy:#000;--navy-deep:#000;--navy-bg:#f1f1f3;--navy-l
 <div class="app">
   <header class="bar"><div class="mark">AM</div><div class="titles"><div class="eyebrow" id="eyebrow"></div><div class="title" id="title"></div></div><div class="bar-spacer"></div><div class="date" id="date"></div><label class="rc-theme"><span class="rc-theme-sw"></span><select class="rc-theme-sel" id="theme"><option>blue</option><option>purple</option><option>indigo</option><option>teal</option><option>cyan</option><option>green</option><option>plum</option><option>slate</option><option>black</option></select></label></header>
   <aside class="side left"><div class="group"><div class="label">Layers</div><div id="layers" class="list"></div></div><div class="group"><div class="label">Component types</div><div id="types"></div></div><div class="group"><div class="label">Relationships</div><span class="chip"><span class="sw"></span>call</span><span class="chip"><span class="sw"></span>event</span><span class="chip"><span class="sw"></span>data</span><span class="chip"><span class="sw"></span>imports</span></div></aside>
-  <main class="canvas" id="canvas"><div class="world" id="world"><svg class="edges" id="edges" viewBox="0 0 1400 820"><defs><marker id="arrow" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8 z" fill="var(--ink-soft)"/></marker></defs></svg><div id="bands"></div><div id="components"></div></div><div class="toolbar" role="group" aria-label="zoom controls"><button class="tool-btn" id="zoom-out" type="button" title="Zoom out" aria-label="Zoom out"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6.5"/><path d="M16 16 20.5 20.5M8.5 11h5"/></svg></button><span class="zoom-readout" id="zoom-readout">100%</span><button class="tool-btn" id="zoom-in" type="button" title="Zoom in" aria-label="Zoom in"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6.5"/><path d="M16 16 20.5 20.5M11 8.5v5M8.5 11h5"/></svg></button><span class="tool-sep"></span><button class="tool-btn" id="fit" type="button" title="Fit to view" aria-label="Fit to view"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3.5H4.5V7M16 3.5h3.5V7M19.5 17v3.5H16M8 20.5H4.5V17"/><path d="M8.5 12h7"/></svg></button></div></main>
+  <main class="canvas" id="canvas"><div class="world" id="world"><div id="bands"></div><svg class="edges" id="edges" viewBox="0 0 1400 820"><defs><marker id="arrow" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8 z" fill="var(--ink-soft)"/></marker></defs></svg><div id="components"></div></div><div class="toolbar" role="group" aria-label="zoom controls"><button class="tool-btn" id="zoom-out" type="button" title="Zoom out" aria-label="Zoom out"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6.5"/><path d="M16 16 20.5 20.5M8.5 11h5"/></svg></button><span class="zoom-readout" id="zoom-readout">100%</span><button class="tool-btn" id="zoom-in" type="button" title="Zoom in" aria-label="Zoom in"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6.5"/><path d="M16 16 20.5 20.5M11 8.5v5M8.5 11h5"/></svg></button><span class="tool-sep"></span><button class="tool-btn" id="fit" type="button" title="Fit to view" aria-label="Fit to view"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3.5H4.5V7M16 3.5h3.5V7M19.5 17v3.5H16M8 20.5H4.5V17"/><path d="M8.5 12h7"/></svg></button></div></main>
   <aside class="side right"><div class="group"><div class="label">Selected component</div><div id="detail" class="detail"><p>Select a component to inspect interfaces, paths and direct dependencies.</p></div></div><div class="group"><div class="label">Architecture findings</div><div id="findings"></div></div></aside>
 </div>
 <script type="application/json" id="report-data">
@@ -84,7 +84,11 @@ html[data-theme="black"]{--navy:#000;--navy-deep:#000;--navy-bg:#f1f1f3;--navy-l
 <script>
 (function(){
   const data = JSON.parse(document.getElementById('report-data').textContent);
-  const W = 1400, H = 820;
+  let W = 1400, H = 820;
+  const CW = 220, CH = 104;                 // card footprint used for layout + edge clipping
+  const GAP_X = 30, MARGIN_X = 36;          // MARGIN_X matches the .band left/right inset
+  const BAND_PAD_X = 30, BAND_PAD_TOP = 38, BAND_PAD_BOTTOM = 24, BAND_GAP_Y = 26, MARGIN_Y = 28;
+  let posMap = {}, bandGeom = [];
   const $ = (id) => document.getElementById(id);
   const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const cls = (s) => s === 'ok' ? 'ok' : s === 'risk' ? 'risk' : s === 'hold' ? 'hold' : 'neutral';
@@ -99,6 +103,10 @@ html[data-theme="black"]{--navy:#000;--navy-deep:#000;--navy-bg:#f1f1f3;--navy-l
     $('eyebrow').textContent = data.meta.reportType || 'Architecture Map';
     $('title').innerHTML = '<b>'+esc(data.meta.project)+'</b> - '+esc(data.meta.title);
     $('date').textContent = data.meta.date || '';
+    computeLayout();
+    $('world').style.width = W + 'px';
+    $('world').style.height = H + 'px';
+    $('edges').setAttribute('viewBox', '0 0 ' + W + ' ' + H);
     renderFilters();
     render();
     fitToView(false);
@@ -119,7 +127,7 @@ html[data-theme="black"]{--navy:#000;--navy-deep:#000;--navy-bg:#f1f1f3;--navy-l
 
   function count(k,v){ return data.components.filter(c => c[k] === v).length; }
   function visible(c){ return (activeLayer === 'all' || c.layer === activeLayer) && (activeType === 'all' || c.type === activeType); }
-  function pos(c){ return { x: c.x * W / 100, y: c.y * H / 100 }; }
+  function pos(c){ return posMap[c.id] || { x: W / 2, y: H / 2 }; }
 
   function render(){
     const comps = data.components.filter(visible);
@@ -133,23 +141,77 @@ html[data-theme="black"]{--navy:#000;--navy-deep:#000;--navy-bg:#f1f1f3;--navy-l
     renderFindings();
   }
 
+  // Auto-layout: each layer is a horizontal band; its components sit inside it as an
+  // evenly-spaced row (ordered by the authored x), so cards never overflow their band.
+  function computeLayout(){
+    const known = new Set(data.layers.map(l => l.id));
+    const groups = data.layers.map(l => ({ label: l.label, items: data.components.filter(c => c.layer === l.id) }));
+    const orphans = data.components.filter(c => !known.has(c.layer));
+    if(orphans.length) groups.push({ label: 'Other', items: orphans });
+    groups.forEach(g => g.items.sort((a,b) => (a.x ?? 50) - (b.x ?? 50) || (a.id < b.id ? -1 : 1)));
+
+    const maxCount = Math.max(1, ...groups.map(g => g.items.length));
+    const rowW = maxCount * CW + (maxCount - 1) * GAP_X;
+    const bandH = BAND_PAD_TOP + CH + BAND_PAD_BOTTOM;
+    W = Math.max(1180, rowW + 2 * MARGIN_X + 2 * BAND_PAD_X + 80);
+    H = MARGIN_Y * 2 + groups.length * bandH + (groups.length - 1) * BAND_GAP_Y;
+
+    const innerLeft = MARGIN_X + BAND_PAD_X, innerW = W - 2 * MARGIN_X - 2 * BAND_PAD_X;
+    posMap = {}; bandGeom = [];
+    groups.forEach((g, i) => {
+      const top = MARGIN_Y + i * (bandH + BAND_GAP_Y);
+      bandGeom.push({ top, height: bandH, label: g.label });
+      const m = g.items.length, thisW = m * CW + (m - 1) * GAP_X;
+      const startX = innerLeft + Math.max(0, (innerW - thisW) / 2);
+      const cy = top + BAND_PAD_TOP + CH / 2;
+      g.items.forEach((c, k) => { posMap[c.id] = { x: startX + k * (CW + GAP_X) + CW / 2, y: cy }; });
+    });
+  }
   function renderBands(){
-    const h = H / data.layers.length;
-    $('bands').innerHTML = data.layers.map((l,i) => '<div class="band" style="top:'+(i*h+22)+'px;height:'+(h-26)+'px"><div class="band-title">'+esc(l.label)+'</div></div>').join('');
+    $('bands').innerHTML = bandGeom.map(b => '<div class="band" style="top:'+b.top+'px;height:'+b.height+'px"><div class="band-title">'+esc(b.label)+'</div></div>').join('');
+  }
+  // Clip an edge to the card borders so the line starts/ends just outside each card
+  // (arrowheads stay visible instead of hiding under the box).
+  function edgeEnds(a, b){
+    const hw = CW / 2 + 10, hh = CH / 2 + 8;
+    const dx = b.x - a.x, dy = b.y - a.y, adx = Math.abs(dx), ady = Math.abs(dy);
+    let s = Math.min(adx > 0.01 ? hw / adx : 1e9, ady > 0.01 ? hh / ady : 1e9);
+    s = Math.min(s, 0.46);
+    return { ax: a.x + dx * s, ay: a.y + dy * s, bx: b.x - dx * s, by: b.y - dy * s };
   }
   function renderEdges(edges){
     const byId = Object.fromEntries(data.components.map(c => [c.id,c]));
-    const hotIds = selected ? new Set(edges.filter(e => e.from === selected || e.to === selected).flatMap(e => [e.from,e.to])) : new Set();
-    $('edges').innerHTML = '<defs><marker id="arrow" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8 z" fill="var(--ink-soft)"/></marker></defs>' +
-      edges.map(e => {
-        const a = pos(byId[e.from]), b = pos(byId[e.to]), mx=(a.x+b.x)/2, my=(a.y+b.y)/2;
-        const hot = selected && (e.from === selected || e.to === selected);
-        const raw = String(e.label || e.kind || 'link');
-        const pillW = Math.min(180, Math.max(60, raw.length * 6.4 + 22));
-        const label = clampLabel(raw, pillW);
-        return '<path class="edge '+esc(e.kind||'call')+' '+(hot?'hot ':'')+cls(e.status)+'" d="M'+a.x+','+a.y+' L'+b.x+','+b.y+'"/>' +
-          '<g><title>'+esc(raw)+'</title><rect class="edge-pill" x="'+(mx-pillW/2)+'" y="'+(my-12)+'" width="'+pillW+'" height="22" rx="7"/><text class="edge-label" x="'+mx+'" y="'+(my+4)+'" text-anchor="middle">'+esc(label)+'</text></g>';
-      }).join('');
+    const defs = '<defs><marker id="arrow" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8 z" fill="var(--ink-soft)"/></marker></defs>';
+    const items = edges.map(e => {
+      const a = pos(byId[e.from]), b = pos(byId[e.to]);
+      const { ax, ay, bx, by } = edgeEnds(a, b);
+      const label = String(e.label || e.kind || 'link');
+      const pillW = Math.min(180, Math.max(60, label.length * 6.4 + 22));
+      const hot = selected && (e.from === selected || e.to === selected);
+      return { e, ax, ay, bx, by, mx: (ax + bx) / 2, my: (ay + by) / 2, pillW, label, text: clampLabel(label, pillW), hot };
+    });
+    // Place each label at the clear spot nearest its edge midpoint. Cards and
+    // already-placed pills are obstacles; the search tries straight up/down first (keeps
+    // the pill on the edge's x) then sideways, so text never covers a card or a pill.
+    const cards = data.components.map(c => { const q = pos(c); return { x: q.x - CW / 2, y: q.y - CH / 2, w: CW, h: CH }; });
+    const hit = (b, r, mx, my) => b.x < r.x + r.w + mx && b.x + b.w + mx > r.x && b.y < r.y + r.h + my && b.y + b.h + my > r.y;
+    const offsets = [[0, 0]];
+    for(let d = 6; d <= 180; d += 6) offsets.push([0, -d], [0, d], [-d, 0], [d, 0], [-d, -d], [d, -d], [-d, d], [d, d]);
+    const placed = [];
+    items.slice().sort((p, q) => p.my - q.my || p.mx - q.mx).forEach(p => {
+      const ox = p.mx - p.pillW / 2, oy = p.my - 11;
+      let spot = { x: ox, y: oy, w: p.pillW, h: 22 };
+      for(const [dx, dy] of offsets){
+        const box = { x: ox + dx, y: oy + dy, w: p.pillW, h: 22 };
+        if(cards.every(r => !hit(box, r, 6, 10)) && placed.every(o => !hit(box, o, 6, 5))){ spot = box; break; }
+      }
+      placed.push(spot);
+      p.lx = spot.x + p.pillW / 2; p.ly = spot.y + 11;
+    });
+    $('edges').innerHTML = defs + items.map(p =>
+      '<path class="edge '+esc(p.e.kind||'call')+' '+(p.hot?'hot ':'')+cls(p.e.status)+'" d="M'+p.ax+','+p.ay+' L'+p.bx+','+p.by+'"/>' +
+      '<g><title>'+esc(p.label)+'</title><rect class="edge-pill" x="'+(p.lx-p.pillW/2)+'" y="'+(p.ly-11)+'" width="'+p.pillW+'" height="22" rx="8"/><text class="edge-label" x="'+p.lx+'" y="'+(p.ly+4)+'" text-anchor="middle">'+esc(p.text)+'</text></g>'
+    ).join('');
   }
   function componentHtml(c){
     const p = pos(c);

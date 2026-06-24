@@ -25,8 +25,9 @@ one request over time. Use `entity-relationship` when the point is data shape an
 
 ## Distinct chrome
 - Full-bleed app shell with top bar, left layer/type filter, central canvas, and right inspection rail.
-- Central canvas renders **layer bands** first, then positioned architecture component cards, then SVG
-  relationships.
+- Central canvas renders **layer bands** first, then component cards auto-arranged into evenly-spaced
+  rows inside their layer band, then SVG relationships clipped to the card borders with
+  collision-avoided action labels.
 - Component cards expose type, path, owner, tech, status, and interfaces.
 - Selecting a component highlights direct incoming/outgoing relationships and fills the right rail.
 - The right rail also lists architecture findings, not prose sections.
@@ -36,7 +37,9 @@ Full contract: `schemas/architecture-map.schema.json`.
 
 - `meta`: shared chrome and visual `theme`.
 - `layers[]`: architecture zones/bands, e.g. UI, API, domain, data, integrations.
-- `components[]`: positioned cards `{id,label,type,layer,x,y,status,owner,tech,path,summary,interfaces[]}`.
+- `components[]`: cards `{id,label,type,layer,x,y,status,owner,tech,path,summary,interfaces[]}`. Cards are
+  auto-placed as evenly-spaced rows inside their `layer` band; `x` is only a left-to-right ordering hint,
+  and `y` is kept for compatibility but no longer sets the vertical position.
 - `relationships[]`: typed edges `{from,to,label,kind,status}` where `kind` is `call`, `event`, `data`,
   `deploy`, or `imports`.
 - `findings[]`: architecture review notes surfaced in the rail.
