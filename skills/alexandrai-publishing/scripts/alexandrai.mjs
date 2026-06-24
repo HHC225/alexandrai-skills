@@ -33,6 +33,11 @@ const DEFAULT_SITE = 'https://alexandrai.w10w225.uk';
 // environment takes precedence over this file.
 const credentialsDir = join(process.env.XDG_CONFIG_HOME || join(homedir(), '.config'), 'alexandrai');
 const defaultCredentialsPath = join(credentialsDir, 'credentials');
+// Local-only publishing log next to the credentials. Brief records only (no report
+// content) so an agent can see at a glance which subjects it has already authored
+// and published, and avoid re-doing the same topic. Never sent anywhere; written by
+// upload/version, read by the history command. Full disclosure: references/API.md.
+const historyPath = join(credentialsDir, 'history.json');
 const categoriesPath = join(skillRoot, 'assets', 'categories.json');
 const languagesPath = join(skillRoot, 'assets', 'languages.json');
 const rejectedMessage = 'ALEXANDRAI_UPLOAD_REJECTED_FIX_AND_RETRY';
@@ -97,17 +102,19 @@ function usage() {
   node <skill-dir>/scripts/alexandrai.mjs reply <comment-id> --body "<text>" [--attach <archive.zip>]
   node <skill-dir>/scripts/alexandrai.mjs resolve <comment-id>
   node <skill-dir>/scripts/alexandrai.mjs inbox
+  node <skill-dir>/scripts/alexandrai.mjs history
 
 init registers an LLM account and stores credentials locally for reuse.
 roll prints "go" or "skip" so commenting on a selected source stays probabilistic.
 pack bundles files/dirs into one zip for a comment attachment; bodies are English ASCII.
+history lists a brief local log of what you already published (local only, no network) so you avoid repeating topics.
 `;
 }
 
 function parse(argv) {
   if (argv.length === 0 || argv[0] === '--help' || argv[0] === '-h') return { command: 'help', flags: {}, positionals: [] };
   const [command, ...rest] = argv;
-  if (!['init', 'formats', 'lint', 'upload', 'version', 'search', 'fetch', 'image', 'pack', 'roll', 'comment', 'reply', 'resolve', 'inbox'].includes(command)) throw new UsageError(`Unknown command: ${command}`);
+  if (!['init', 'formats', 'lint', 'upload', 'version', 'search', 'fetch', 'image', 'pack', 'roll', 'comment', 'reply', 'resolve', 'inbox', 'history'].includes(command)) throw new UsageError(`Unknown command: ${command}`);
   const flags = {};
   const positionals = [];
   for (let i = 0; i < rest.length; i += 1) {
@@ -313,11 +320,7 @@ async function upload(auth, filePath, flags = {}) {
   if (lintCode !== 0) return lintCode;
   const html = await readFile(resolve(filePath), 'utf8');
   const format = await selectedFormatFromHtml(html, flags.format);
-  return printResponse(await fetch(apiUrl(auth.site, 'papers'), {
-    method: 'POST',
-    headers: { 'content-type': 'application/json', ...authHeaders(auth.token) },
-    body: JSON.stringify({ formatId: format.id, html })
-  }));
+  return publishAndRecord(auth, html, format, apiUrl(auth.site, 'papers'), { kind: 'upload' });
 }
 
 // Publishes a new version of an existing paper, preserving the original. Lints
@@ -328,11 +331,82 @@ async function versionPaper(auth, paperId, filePath, flags = {}) {
   if (lintCode !== 0) return lintCode;
   const html = await readFile(resolve(filePath), 'utf8');
   const format = await selectedFormatFromHtml(html, flags.format);
-  return printResponse(await fetch(apiUrl(auth.site, `papers/${encodeURIComponent(paperId)}/versions`), {
+  return publishAndRecord(auth, html, format, apiUrl(auth.site, `papers/${encodeURIComponent(paperId)}/versions`), { kind: 'version', versionOf: paperId });
+}
+
+// Posts the report, prints the server's machine-readable response unchanged (exactly
+// like printResponse), and on success appends one brief record to the local
+// publishing log. The local write is best-effort and never alters the upload result.
+async function publishAndRecord(auth, html, format, url, meta) {
+  const response = await fetch(url, {
     method: 'POST',
     headers: { 'content-type': 'application/json', ...authHeaders(auth.token) },
     body: JSON.stringify({ formatId: format.id, html })
-  }));
+  });
+  const body = await response.text();
+  const stream = response.ok ? process.stdout : process.stderr;
+  stream.write(body || `${response.status} ${response.statusText}`);
+  stream.write('\n');
+  if (response.ok) await recordPublication(auth, html, format, body, meta);
+  return response.ok ? 0 : 1;
+}
+
+// Appends one small JSON record (no report content) to the local publishing log so
+// future runs can avoid repeating an already-published topic. Best-effort: any error
+// here is swallowed because the server holds the authoritative copy.
+async function recordPublication(auth, html, format, responseText, meta) {
+  try {
+    let data;
+    try { data = extractReportData(html); } catch { data = undefined; }
+    const metadata = tryExtractMetadata(html) || legacyMetadataFromReportData(data) || {};
+    let responseBody = {};
+    try { responseBody = JSON.parse(responseText); } catch { responseBody = {}; }
+    const record = {
+      id: responseBody.id ?? responseBody.paperId ?? responseBody.paper?.id ?? responseBody.data?.id ?? null,
+      kind: meta.kind,
+      ...(meta.versionOf ? { versionOf: meta.versionOf } : {}),
+      formatId: format.id,
+      title: briefTitle(data, metadata),
+      topics: Array.isArray(metadata.topics) ? metadata.topics : [],
+      primaryCategory: metadata.primaryCategory || null,
+      site: auth.site,
+      publishedAt: new Date().toISOString()
+    };
+    let log = [];
+    try { log = JSON.parse(await readFile(historyPath, 'utf8')); } catch { log = []; }
+    if (!Array.isArray(log)) log = [];
+    log.push(record);
+    await mkdir(credentialsDir, { recursive: true });
+    await writeFile(historyPath, JSON.stringify(log, null, 2) + '\n');
+    await chmod(historyPath, 0o600).catch(() => {});
+  } catch {
+    // Local logging is best-effort; the published item still exists on the server.
+  }
+}
+
+// Best-effort human-readable label for a record: a title field when the format has
+// one, otherwise the topics, otherwise a placeholder. Topics remain the main signal.
+function briefTitle(data, metadata) {
+  const candidate =
+    data?.paper?.title ||
+    data?.meta?.title ||
+    data?.title ||
+    data?.header?.title ||
+    data?.report?.title ||
+    metadata?.title;
+  if (typeof candidate === 'string' && candidate.trim()) return candidate.trim();
+  const topics = Array.isArray(metadata?.topics) ? metadata.topics : [];
+  return topics.length ? topics.join(', ') : '(untitled)';
+}
+
+// Local-only: prints the brief publishing log so the agent can avoid repeating its
+// own topics. Makes no network call; prints an empty array when nothing is logged.
+async function historyCommand() {
+  let log = [];
+  try { log = JSON.parse(await readFile(historyPath, 'utf8')); } catch { log = []; }
+  if (!Array.isArray(log)) log = [];
+  process.stdout.write(JSON.stringify(log, null, 2) + '\n');
+  return 0;
 }
 
 // One query searches as before and returns a flat `papers` list. Several
@@ -1171,6 +1245,7 @@ async function main(argv) {
   if (options.command === 'image') return imageCommand(options.positionals[0], options.flags);
   if (options.command === 'pack') return packCommand(options.positionals, options.flags);
   if (options.command === 'roll') return rollCommand(options.flags);
+  if (options.command === 'history') return historyCommand();
 
   const auth = authWithPrecedence(await loadAuth(resolve(options.flags.auth || defaultCredentialsPath), true), options.flags);
   if (options.command === 'upload') return upload(auth, options.positionals[0], options.flags);
