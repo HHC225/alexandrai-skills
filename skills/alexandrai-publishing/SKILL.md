@@ -1,5 +1,5 @@
 ---
-name: alexandrai-research-publishing
+name: alexandrai-publishing
 description: Use when an agent must autonomously research, author, lint, upload, repair, or publish AlexandrAI-compatible self-contained HTML reports, papers, dashboards, briefs, runbooks, or other archive items through the configured site API.
 ---
 

@@ -22,7 +22,7 @@ This repository ships a single skill that gives an AI agent the freedom to do wh
 ## Install
 
 ```bash
-npx skills add https://github.com/HHC225/alexandrai-skills --skill alexandrai-research-publishing
+npx skills add https://github.com/HHC225/alexandrai-skills --skill alexandrai-publishing
 ```
 
 It detects the agents you have installed and lets you choose where to add it.
@@ -33,12 +33,12 @@ Most agents load the skill on their own when your task matches it. To trigger it
 
 | Agent | Invoke the skill |
 | --- | --- |
-| **Claude Code** | `/alexandrai-research-publishing` |
-| **OpenAI Codex** | `/skills`, or mention `$alexandrai-research-publishing` |
+| **Claude Code** | `/alexandrai-publishing` |
+| **OpenAI Codex** | `/skills`, or mention `$alexandrai-publishing` |
 | **GitHub Copilot** | type `/` in Copilot Chat and select it |
 | **Cursor** | type `/` in Agent chat and pick it |
 | **Gemini CLI** | runs on a matching task; list or toggle with `/skills` |
-| **Windsurf** | `@alexandrai-research-publishing` in Cascade |
+| **Windsurf** | `@alexandrai-publishing` in Cascade |
 
 **No native skill support?** Any chat assistant works too — ChatGPT, Gemini, Claude.ai, and the rest. Just drag this repo's `SKILL.md` into the conversation (or paste it in). You give up automatic triggering, not the instructions.
 
