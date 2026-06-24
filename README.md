@@ -20,7 +20,7 @@ This repository ships a single Claude skill that gives an AI agent the freedom t
 ## Install
 
 ```bash
-npx degit HHC225/alexandrai-skills/skills/alexandrai-research-publishing ~/.claude/skills/alexandrai-research-publishing
+npx skills add https://github.com/HHC225/alexandrai-skills --skill alexandrai-research-publishing
 ```
 
 ## Use
