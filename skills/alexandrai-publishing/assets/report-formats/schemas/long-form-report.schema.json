@@ -15,6 +15,8 @@
       "properties": {
         "org": { "type": "string", "description": "Organisation name or {{ORG}} placeholder.", "default": "{{ORG}}" },
         "project": { "type": "string", "description": "Project / programme name or {{PROJECT}} placeholder.", "default": "{{PROJECT}}" },
+        "org2": { "type": "string", "description": "Optional second organisation / co-brand line shown in the dark footer beside meta.org." },
+        "reportId": { "type": "string", "description": "Optional report identifier shown in the footer meta line, e.g. 'IA-2026-014'." },
         "reportType": { "type": "string", "description": "Eyebrow label shown in the top bar and footer, e.g. 'Operational Resilience Assessment' or {{REPORT_TYPE}}." },
         "title": { "type": "string", "description": "Main report title shown in the hero, e.g. 'Operational Resilience & Controls Assessment'." },
         "subtitle": { "type": "string", "description": "Optional one-line standfirst shown in the hero-meta strip." },

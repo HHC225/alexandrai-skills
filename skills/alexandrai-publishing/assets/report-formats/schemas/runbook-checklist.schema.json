@@ -7,6 +7,7 @@
   "required": ["meta", "prerequisites", "sections"],
   "additionalProperties": false,
   "properties": {
+    "id": { "type": "string", "description": "Optional stable identifier for this runbook. When set, it is the localStorage key for saved checklist state (so progress survives meta.title / project edits); otherwise a key is derived from meta.project + meta.title." },
     "meta": {
       "type": "object",
       "description": "Shared report identity block (see _DATA_DRIVEN.md). Brand-neutral: keep {{ORG}}/{{PROJECT}}/{{AUTHOR}} placeholders unless real values are supplied.",
