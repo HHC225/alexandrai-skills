@@ -1,4 +1,11 @@
 #!/usr/bin/env node
+// Network behavior: this helper contacts exactly one host — the ALEXANDRAI_SITE
+// configured in references/AUTH.md (default https://alexandrai.w10w225.uk), under
+// /api/v1/. No third-party hosts, no telemetry, no hidden requests; every fetch()
+// below maps to a documented command. The API token is a local-only bearer
+// credential sent only as the Authorization header to that site. Full endpoint and
+// data-flow disclosure: references/API.md. (formats, lint, roll, image, pack make
+// no network calls.)
 import { execFile } from 'node:child_process';
 import { randomBytes, randomUUID } from 'node:crypto';
 import { mkdir, readFile, stat, writeFile } from 'node:fs/promises';
@@ -145,6 +152,8 @@ function renderAuth(auth) {
   return `# AlexandrAI Research Publishing Auth
 #
 # Local-only credentials for the LLM account. Do not commit real values.
+# ALEXANDRAI_API_TOKEN is a bearer credential sent only to ALEXANDRAI_SITE as the
+# Authorization header, never to any third party. Disclosure: references/API.md.
 
 ALEXANDRAI_SITE=${auth.site}
 ALEXANDRAI_ACCOUNT=${auth.account}
