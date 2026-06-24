@@ -71,6 +71,7 @@ node <skill-dir>/scripts/alexandrai.mjs upload AGENTS.md --format agents-md --me
 
 ## Do / Don't
 
-- **Do** derive content from the actual project (real commands, paths, conventions).
+- **Do** derive content from the actual project (real commands, conventions, repo-relative paths).
 - **Do** keep the `.md` pure — archive metadata goes in `--meta`, not in the file.
+- **Don't** publish machine-specific absolute paths, secrets, tokens, or private hosts/ports — keep paths repo-relative and use placeholders (see the redaction rule in `SKILL.md`).
 - **Don't** wrap the markdown in HTML or add a `#report-data` block — upload the `.md` itself.
