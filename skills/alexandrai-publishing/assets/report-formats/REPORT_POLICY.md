@@ -46,9 +46,9 @@
 | **incident-timeline** | chronological incident / postmortem event log | `schemas/incident-timeline.schema.json` | meta, incident, events | plum | time, status, bug-qa, people |
 | **heatmap-grid** | N×M graded matrix (risk likelihood×impact / correlation / activity) | `schemas/heatmap-grid.schema.json` | meta, mode, rows, cols, cells, scale | teal | data, status, math-units, nav |
 | **flowchart** | structured process flow with swimlanes + decisions | `schemas/flowchart.schema.json` | meta, lanes, nodes, edges | indigo | process, status, nav, code |
-| **architecture-map** | repository/system architecture structure (layers, components, interfaces, dependencies) | `schemas/architecture-map.schema.json` | meta, layers, components, relationships | slate | code, infra, process, status, nav |
-| **sequence-diagram** | ordered request/event trace across participants and lifelines | `schemas/sequence-diagram.schema.json` | meta, participants, messages | indigo | code, process, infra, nav, status |
-| **entity-relationship** | ER/data-model diagram (entities, attributes, keys, cardinality) | `schemas/entity-relationship.schema.json` | meta, entities, relationships | teal | data, code, document, nav |
+| **architecture-map** | repository/system architecture structure (layers, components, interfaces, dependencies) | `schemas/architecture-map.schema.json` | meta, layers, components, relationships | black | code, infra, process, status, nav |
+| **sequence-diagram** | ordered request/event trace across participants and lifelines | `schemas/sequence-diagram.schema.json` | meta, participants, messages | black | code, process, infra, nav, status |
+| **entity-relationship** | ER/data-model diagram (entities, attributes, keys, cardinality) | `schemas/entity-relationship.schema.json` | meta, entities, relationships | black | data, code, document, nav |
 | **survey-results** | question-by-question survey / poll results | `schemas/survey-results.schema.json` | meta, summary, segments, questions | green | data, status, people, editorial |
 | **leaderboard** | ranked entities by a metric (podium + bars + tiers) | `schemas/leaderboard.schema.json` | meta, metric, tiers, entries | cyan | data, status, people, nav |
 | **changelog** | reverse-chronological release feed | `schemas/changelog.schema.json` | meta, product, versions | slate | code, status, nav, editorial |

@@ -49,9 +49,9 @@ sample. Default themes are spread across the palette so the gallery shows the ra
 | **Incident timeline** | vertical postmortem event log + phase markers + MTTR | [`incident-timeline.md`](incident-timeline.md) | `sample/incident_timeline_sample.html` | Plum |
 | **Heatmap grid** | dense N×M graded colour matrix (risk/correlation/activity) | [`heatmap-grid.md`](heatmap-grid.md) | `sample/heatmap_grid_sample.html` | Teal |
 | **Flowchart** | BPMN-style process flow: swimlanes + decisions + routed connectors | [`flowchart.md`](flowchart.md) | `sample/flowchart_sample.html` | Indigo |
-| **Architecture map** | repository/system architecture: layers + components + interfaces + dependency lines | [`architecture-map.md`](architecture-map.md) | `sample/architecture_map_sample.html` | Slate |
-| **Sequence diagram** | ordered request/event trace: participants + lifelines + message arrows + notes | [`sequence-diagram.md`](sequence-diagram.md) | `sample/sequence_diagram_sample.html` | Indigo |
-| **Entity relationship** | ER/data model: entity cards + attributes + keys/indexes + cardinality connectors | [`entity-relationship.md`](entity-relationship.md) | `sample/entity_relationship_sample.html` | Teal |
+| **Architecture map** | repository/system architecture: layers + components + interfaces + dependency lines | [`architecture-map.md`](architecture-map.md) | `sample/architecture_map_sample.html` | Black |
+| **Sequence diagram** | ordered request/event trace: participants + lifelines + message arrows + notes | [`sequence-diagram.md`](sequence-diagram.md) | `sample/sequence_diagram_sample.html` | Black |
+| **Entity relationship** | ER/data model: entity cards + attributes + keys/indexes + cardinality connectors | [`entity-relationship.md`](entity-relationship.md) | `sample/entity_relationship_sample.html` | Black |
 | **Survey results** | per-question distributions, Likert, NPS, sentiment, segments | [`survey-results.md`](survey-results.md) | `sample/survey_results_sample.html` | Green |
 | **Leaderboard** | podium + ranked value bars + tiers + movement | [`leaderboard.md`](leaderboard.md) | `sample/leaderboard_sample.html` | Cyan |
 | **Changelog** | reverse-chron release feed + typed change chips + jump rail | [`changelog.md`](changelog.md) | `sample/changelog_sample.html` | Slate |

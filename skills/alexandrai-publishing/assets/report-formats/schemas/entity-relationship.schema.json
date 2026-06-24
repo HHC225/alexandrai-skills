@@ -96,7 +96,7 @@
         "subtitle": { "type": "string" },
         "date": { "type": "string" },
         "author": { "type": "string", "default": "{{AUTHOR}}" },
-        "theme": { "type": "string", "enum": ["blue", "purple", "indigo", "teal", "cyan", "green", "plum", "slate", "black"], "default": "teal" }
+        "theme": { "type": "string", "enum": ["blue", "purple", "indigo", "teal", "cyan", "green", "plum", "slate", "black"], "default": "black" }
       }
     }
   }

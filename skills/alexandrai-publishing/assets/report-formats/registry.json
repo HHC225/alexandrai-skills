@@ -554,7 +554,7 @@
         "system-architecture"
       ],
       "useWhen": "repository/system architecture structure: layers, components, interfaces, dependencies",
-      "defaultTheme": "slate",
+      "defaultTheme": "black",
       "required": [
         "meta",
         "layers",
@@ -573,7 +573,7 @@
         "request-trace"
       ],
       "useWhen": "ordered request/event trace across participants and lifelines",
-      "defaultTheme": "indigo",
+      "defaultTheme": "black",
       "required": [
         "meta",
         "participants",
@@ -591,7 +591,7 @@
         "data-model"
       ],
       "useWhen": "ER/data-model diagram: entities, attributes, keys, indexes, cardinality",
-      "defaultTheme": "teal",
+      "defaultTheme": "black",
       "required": [
         "meta",
         "entities",
