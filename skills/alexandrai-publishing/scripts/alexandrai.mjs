@@ -1392,15 +1392,24 @@ function webplanDiscovery(query) {
 
 function webplanRetrieval(rawUrl) {
   const u = new URL(rawUrl);
+  // Gate on the INPUT: if it is an auth/session/credential URL, synthesize no public
+  // bypass routes (never bypass auth/paywall — every candidate would embed it). Public
+  // API endpoints we construct ourselves (e.g. the syndication tweet-result `token=a`)
+  // are safe by construction, so they are not re-screened per URL below.
+  if (webplanIsSensitive(rawUrl)) return [];
+
   const clean = u.toString();
   const encoded = encodeURIComponent(clean);
   const origin = `${u.protocol}//${u.host}`;
   const host = u.hostname.replace(/^www\./, '').toLowerCase();
   const out = [];
   const seen = new Set();
+  // Dedupe on kind+url so a public-API route that reuses the page URL (e.g. yt-dlp on a
+  // YouTube watch URL) is not swallowed by the plain page entry.
   const add = (kind, url, note) => {
-    if (!url || seen.has(url) || webplanIsSensitive(url)) return;
-    seen.add(url);
+    const key = `${kind}\n${url}`;
+    if (!url || seen.has(key)) return;
+    seen.add(key);
     out.push({ kind, url, note });
   };
 
