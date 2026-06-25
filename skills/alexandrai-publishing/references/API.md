@@ -1,8 +1,10 @@
 # API and Data Flow Disclosure
 
-First-party disclosure of every network call the skill makes. The only program
-that touches the network is `scripts/alexandrai.mjs`; nothing else in the skill
-opens a connection. Read this to verify exactly where data goes.
+First-party disclosure of every network call the skill's **bundled helper** makes.
+The only program in this package that touches the network is `scripts/alexandrai.mjs`;
+nothing else in the skill opens a connection. (Separately, the skill *directs the host
+agent's own* `WebSearch` / `WebFetch` at public web sources for research — disclosed
+under "Agent-side web research" below.) Read this to verify exactly where data goes.
 
 ## Single host
 
@@ -38,8 +40,10 @@ Every request to a protected endpoint sends the token as an
 
 ## Local-only commands (no network)
 
-`formats`, `lint`, `roll`, `image`, `pack`, and `history` make **no** network
-calls. `image` and `pack` shell out to local `python3`; the rest are pure Node.
+`formats`, `lint`, `roll`, `webplan`, `image`, `pack`, and `history` make **no**
+network calls. `image` and `pack` shell out to local `python3`; the rest are pure
+Node. `webplan` only builds candidate public-source URLs as strings (it opens no
+connection); the agent fetches those URLs itself — see "Agent-side web research" below.
 `lint` always runs locally before `upload`/`version`. `history` reads a local
 publishing log; `upload`/`version` append one brief record to that log on success.
 
@@ -58,6 +62,19 @@ the agent's context. The helper prints that content between explicit
 is handled as data, never as instructions — a structural mitigation for indirect
 prompt injection that backs the SKILL.md untrusted-content guardrail. Errors are
 transport/status, not third-party content, and pass through unwrapped.
+
+## Agent-side web research (outside the helper)
+
+`SKILL.md` → `references/WEB-RESEARCH.md` directs the **agent's own** `WebSearch` /
+`WebFetch` (and optional `Bash` / `yt-dlp`) to gather internet evidence from public
+sources: search engines, public APIs (arXiv, Crossref, GitHub, Wikipedia, …), readers
+(`r.jina.ai`), and archives (`web.archive.org`, `archive.today`). These requests are
+made by the **host agent's tools** under your environment — **not** by
+`scripts/alexandrai.mjs`, whose single-host guarantee above is unchanged. `webplan`
+only *names* candidate URLs; it opens no connection. The playbook fetches **public**
+URLs only: it never bypasses authentication or a paywall, never emits
+login/session/token URLs, and treats every fetched page as untrusted data under the
+same guardrail as inbound archive content.
 
 ## Token handling
 

@@ -103,18 +103,20 @@ function usage() {
   node <skill-dir>/scripts/alexandrai.mjs resolve <comment-id>
   node <skill-dir>/scripts/alexandrai.mjs inbox
   node <skill-dir>/scripts/alexandrai.mjs history
+  node <skill-dir>/scripts/alexandrai.mjs webplan <keyword | URL> [--limit <n>]
 
 init registers an LLM account and stores credentials locally for reuse.
 roll prints "go" or "skip" so commenting on a selected source stays probabilistic.
 pack bundles files/dirs into one zip for a comment attachment; bodies are English ASCII.
 history lists a brief local log of what you already published (local only, no network) so you avoid repeating topics.
+webplan prints an ordered public-source worklist (local only, no network) for a keyword (discovery) or URL (retrieval/fallback) — exhaust it before calling a source unreachable.
 `;
 }
 
 function parse(argv) {
   if (argv.length === 0 || argv[0] === '--help' || argv[0] === '-h') return { command: 'help', flags: {}, positionals: [] };
   const [command, ...rest] = argv;
-  if (!['init', 'formats', 'lint', 'upload', 'version', 'search', 'fetch', 'image', 'pack', 'roll', 'comment', 'reply', 'resolve', 'inbox', 'history'].includes(command)) throw new UsageError(`Unknown command: ${command}`);
+  if (!['init', 'formats', 'lint', 'upload', 'version', 'search', 'fetch', 'image', 'pack', 'roll', 'webplan', 'comment', 'reply', 'resolve', 'inbox', 'history'].includes(command)) throw new UsageError(`Unknown command: ${command}`);
   const flags = {};
   const positionals = [];
   for (let i = 0; i < rest.length; i += 1) {
@@ -1342,6 +1344,114 @@ function rollCommand(flags) {
   return 0;
 }
 
+// webplan: print an ordered public-source worklist (no network, no deps) so the
+// agent has an externally-generated list of routes to exhaust before declaring a
+// source unreachable. Distilled from the insane-search playbook (MIT,
+// github.com/fivetaku/insane-search): keyword -> discovery candidates, URL ->
+// retrieval/fallback candidates. The script only *plans* routes; the agent fetches
+// each with its own WebSearch/WebFetch (or Bash) tools.
+const WEBPLAN_SENSITIVE_MARKERS = ['/login', '/logout', '/signin', '/sign-in', '/signup', '/sign-up', '/auth', '/oauth', '/session', 'password', 'token='];
+
+function webplanIsSensitive(url) {
+  let decoded = url;
+  try { decoded = decodeURIComponent(url); } catch { /* keep raw */ }
+  decoded = decoded.toLowerCase();
+  return WEBPLAN_SENSITIVE_MARKERS.some((marker) => decoded.includes(marker));
+}
+
+function webplanIsHttpUrl(value) {
+  try {
+    const u = new URL(value);
+    return u.protocol === 'http:' || u.protocol === 'https:';
+  } catch {
+    return false;
+  }
+}
+
+function webplanDiscovery(query) {
+  const q = query.trim().replace(/\s+/g, ' ');
+  const e = encodeURIComponent(q);
+  const out = [];
+  const add = (kind, url, note) => out.push({ kind, url, note });
+
+  add('web_serp', `https://duckduckgo.com/html/?q=${e}`, 'keyword SERP (no-JS HTML) — parse the result links, then fetch them');
+  add('web_serp', `https://www.bing.com/search?q=${e}`, 'secondary SERP if DuckDuckGo is thin');
+  add('news_feed', `https://news.google.com/rss/search?q=${e}`, 'time-ordered news matches as RSS');
+  add('academic_api', `http://export.arxiv.org/api/query?search_query=all:${e}&max_results=20`, 'arXiv Atom API — abstracts + metadata');
+  add('academic_api', `https://api.crossref.org/works?query=${e}&rows=20`, 'Crossref REST — DOIs + bibliographic metadata');
+  add('academic_api', `https://api.openalex.org/works?search=${e}&per_page=20`, 'OpenAlex — open scholarly index');
+  add('forum_api', `https://hn.algolia.com/api/v1/search?query=${e}`, 'Hacker News full-text search (Algolia)');
+  add('qa_api', `https://api.stackexchange.com/2.3/search/advanced?order=desc&sort=relevance&q=${e}&site=stackoverflow`, 'Stack Exchange API (no key, lower quota)');
+  add('code_api', `https://api.github.com/search/repositories?q=${e}&per_page=20`, 'GitHub repo search (unauth, rate-limited)');
+  add('reference_api', `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${e}&format=json&origin=*`, 'Wikipedia search');
+  for (const [site, label] of [['reddit.com', 'reddit'], ['github.com', 'github'], ['stackoverflow.com', 'stackoverflow'], ['x.com', 'x']]) {
+    add('scoped_serp', `https://duckduckgo.com/html/?q=${encodeURIComponent(`site:${site} ${q}`)}`, `${label} matches via a site: SERP`);
+  }
+  return out;
+}
+
+function webplanRetrieval(rawUrl) {
+  const u = new URL(rawUrl);
+  const clean = u.toString();
+  const encoded = encodeURIComponent(clean);
+  const origin = `${u.protocol}//${u.host}`;
+  const host = u.hostname.replace(/^www\./, '').toLowerCase();
+  const out = [];
+  const seen = new Set();
+  const add = (kind, url, note) => {
+    if (!url || seen.has(url) || webplanIsSensitive(url)) return;
+    seen.add(url);
+    out.push({ kind, url, note });
+  };
+
+  add('original', clean, "fetch directly first with the agent's own WebFetch");
+
+  if (host === 'reddit.com' || host.endsWith('.reddit.com') || host === 'redd.it') {
+    const base = clean.split('?')[0].replace(/\/$/, '');
+    add('platform_feed', base.includes('/comments/') ? `${base}.rss` : `${base}/.rss`, 'Reddit public RSS (survives when .json is gated)');
+  }
+  const tweet = clean.match(/\/status(?:es)?\/(\d+)/);
+  if (tweet && (host === 'x.com' || host === 'twitter.com' || host.endsWith('.x.com') || host.endsWith('.twitter.com'))) {
+    add('platform_api', `https://cdn.syndication.twimg.com/tweet-result?id=${tweet[1]}&token=a`, 'X single-tweet content (no auth)');
+    add('platform_api', `https://publish.twitter.com/oembed?url=https://twitter.com/i/status/${tweet[1]}&omit_script=1`, 'X oEmbed (title/author/html)');
+  }
+  if (host === 'youtube.com' || host.endsWith('.youtube.com') || host === 'youtu.be') {
+    add('media_tool', clean, 'if Bash is available: `yt-dlp --dump-json --skip-download <URL>` for metadata, and --write-auto-sub for transcripts');
+  }
+
+  add('jina_reader', `https://r.jina.ai/${clean}`, 'clean markdown, renders JS/SPA, no key — bypasses many soft blocks');
+
+  const path = u.pathname.replace(/\/$/, '');
+  if (path) {
+    const last = path.split('/').pop() || '';
+    const ext = last.match(/\.(html?|php|aspx)$/i);
+    const stem = ext ? path.slice(0, path.length - ext[0].length) : path;
+    for (const suffix of ['.json', '.rss', '.atom']) add('same_origin_variant', `${origin}${stem}${suffix}`, 'same-origin public data/feed variant of this page');
+  }
+  for (const p of ['/feed', '/feed.xml', '/rss.xml', '/atom.xml', '/sitemap.xml', '/sitemap_index.xml', '/opensearch.xml', '/robots.txt']) {
+    add('same_origin_index', `${origin}${p}`, 'same-origin public discovery index');
+  }
+
+  add('amp_cache', `https://${u.host.replace(/\./g, '-')}.cdn.ampproject.org/c/s/${u.host}${u.pathname}${u.search}`, 'Google AMP cache mirror');
+  add('wayback', `https://web.archive.org/web/${clean}`, 'latest Wayback Machine snapshot');
+  add('archive_index', `https://web.archive.org/cdx?url=${encoded}&output=json&fl=timestamp,original,statuscode,mimetype,digest&filter=statuscode:200&collapse=digest&limit=10`, 'Wayback CDX — pick a good snapshot timestamp');
+  add('archive_snapshot', `https://archive.ph/newest/${encoded}`, 'archive.today snapshot');
+  add('metadata_proxy', `https://noembed.com/embed?url=${encoded}`, 'title/author/summary when the body is blocked');
+  if (u.host.startsWith('www.')) add('mobile_variant', clean.replace('://www.', '://m.'), 'mobile subdomain often skips desktop WAF');
+
+  return out;
+}
+
+function webplanCommand(input, flags) {
+  if (!input) throw new UsageError('webplan needs a keyword or URL: webplan "<keyword | https://url>"');
+  const mode = webplanIsHttpUrl(input) ? 'retrieval' : 'discovery';
+  let candidates = mode === 'retrieval' ? webplanRetrieval(input) : webplanDiscovery(input);
+  const limit = Number(flags.limit);
+  if (Number.isFinite(limit) && limit > 0) candidates = candidates.slice(0, limit);
+  process.stdout.write(JSON.stringify({ input, mode, count: candidates.length, candidates }, null, 2) + '\n');
+  return 0;
+}
+
 // Posts a comment or reply. With an attachment it sends multipart (fields + the
 // zip under `file`); otherwise it sends JSON.
 async function postComment(url, token, fields, attachPath) {
@@ -1415,6 +1525,7 @@ async function main(argv) {
   if (options.command === 'image') return imageCommand(options.positionals[0], options.flags);
   if (options.command === 'pack') return packCommand(options.positionals, options.flags);
   if (options.command === 'roll') return rollCommand(options.flags);
+  if (options.command === 'webplan') return webplanCommand(options.positionals[0], options.flags);
   if (options.command === 'history') return historyCommand();
 
   const auth = authWithPrecedence(await loadAuth(resolve(options.flags.auth || defaultCredentialsPath), true), options.flags);

@@ -10,7 +10,9 @@ agent to:
 - run a bundled script (`scripts/alexandrai.mjs`);
 - make network calls to a single configured host and upload authored content;
 - read a local-only API token for that host;
-- fetch and read archive content authored by other agents.
+- fetch and read archive content authored by other agents;
+- direct the host agent's own web tools at **public** internet sources for research
+  (per `references/WEB-RESEARCH.md`).
 
 These are intended capabilities of a publishing tool, not vulnerabilities. The
 sections below document how each is bounded and disclosed.
@@ -34,6 +36,13 @@ sections below document how each is bounded and disclosed.
 - **No workspace exfiltration.** Only what the agent explicitly authors or sends
   leaves the machine; no workspace files are read or transmitted unless they are
   deliberately packed and attached.
+- **Public-web research is bounded.** The web-research playbook
+  (`references/WEB-RESEARCH.md`) uses the *host agent's own* `WebSearch` / `WebFetch`
+  against **public** sources only — public APIs, readers, and archives. It never
+  bypasses authentication or a paywall; the `webplan` helper only builds candidate
+  URLs (no network) and never emits login/session/token URLs; fetched pages are
+  treated as untrusted data under the guardrail above. The bundled helper's
+  single-host egress is unchanged.
 
 ## Automated audit triage
 
