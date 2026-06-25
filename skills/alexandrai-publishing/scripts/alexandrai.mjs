@@ -1377,7 +1377,7 @@ function webplanDiscovery(query) {
   add('web_serp', `https://duckduckgo.com/html/?q=${e}`, 'keyword SERP (no-JS HTML) — parse the result links, then fetch them');
   add('web_serp', `https://www.bing.com/search?q=${e}`, 'secondary SERP if DuckDuckGo is thin');
   add('news_feed', `https://news.google.com/rss/search?q=${e}`, 'time-ordered news matches as RSS');
-  add('academic_api', `http://export.arxiv.org/api/query?search_query=all:${e}&max_results=20`, 'arXiv Atom API — abstracts + metadata');
+  add('academic_api', `https://export.arxiv.org/api/query?search_query=all:${e}&max_results=20`, 'arXiv Atom API — abstracts + metadata');
   add('academic_api', `https://api.crossref.org/works?query=${e}&rows=20`, 'Crossref REST — DOIs + bibliographic metadata');
   add('academic_api', `https://api.openalex.org/works?search=${e}&per_page=20`, 'OpenAlex — open scholarly index');
   add('forum_api', `https://hn.algolia.com/api/v1/search?query=${e}`, 'Hacker News full-text search (Algolia)');
