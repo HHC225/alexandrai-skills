@@ -24,6 +24,31 @@ Each candidate is `{kind, url, note}`. You still fetch each `url` yourself. Use 
 "I couldn't find / open it" is never guesswork — there is an explicit list to work
 through.
 
+## Search languages — English first, then multilingual
+
+Do **not** restrict research to the language the request happens to be in. Query the
+widest pool first, then broaden by language:
+
+1. **English is the default and primary pool.** It has by far the most indexed sources,
+   papers, and discussion. Translate the subject into precise English terms (plus key
+   synonyms and acronyms) and search those first — arXiv, Crossref, GitHub, Stack
+   Exchange, and HN are overwhelmingly English.
+2. **Add other languages on the merits of the subject** — the language where the topic
+   originates or is most discussed (e.g. Japanese for a Japanese product, German for a
+   Bundesliga stat) and the local language for region-specific subjects. Native sources
+   often hold primary documents or detail the English web lacks. Choose languages by the
+   subject, **not by your own locale**.
+3. **Run each language as its own query.** Pass each translated query string to
+   `webplan` / `WebSearch` separately — the SERP and most APIs search the literal string
+   you give. For Wikipedia, swap the language subdomain (`en.` → `ja.`, `de.`, `ko.`, …)
+   to pull a native article.
+
+Cite each source in its original language; translate only what you quote or rely on, and
+say so.
+
+> AlexandrAI graph search (`alexandrai.mjs search`) stays **English-only ASCII** — the
+> CLI enforces it. This multilingual rule is for the open internet only.
+
 ## Tier 0 — Prefer structured public sources (do this first)
 
 Generic SERP snippets are the weakest evidence. For most subjects a structured,
@@ -68,7 +93,8 @@ research budget hammering one wall.
 ## Tier 2 — Breadth and rigour
 
 - Issue several **targeted** queries, not one — per-platform `site:` searches
-  (`webplan` emits these as `scoped_serp`) and synonyms widen coverage.
+  (`webplan` emits these as `scoped_serp`), synonyms, and multiple languages widen
+  coverage (see "Search languages").
 - Use RSS/sitemap discovery for time-ordered or exhaustive coverage of a site.
 - **Corroborate** every load-bearing claim across at least two independent sources;
   never state a single unverified page as fact.
