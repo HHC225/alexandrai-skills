@@ -50,13 +50,19 @@ Lazy, not negligent: trust-boundary validation, data-loss handling, security, an
    - ✓ Change only the wrong comparison.
    - ✗ Also rename variables, reorder imports, add a "while I'm here" helper.
 
-4. Test-Driven Execution (only for programming, skip if it is document work)
- - Write the smallest failing test first for the requested behavior or regression.
- - Run it and confirm it fails for the expected reason before implementation.
- - Implement the minimum code needed to make that test pass.
- - Add edge-case tests only when required by the request or discovered risk.
- - Refactor only after tests are green, then rerun the relevant tests.
- - Build while following your plan md, checking off boxes as you go.
+4. Work through real tools
+ - Read relevant skills before producing specialized files or using specialized workflows.
+ - Implement the requested outcome unless the user asked only for analysis.
+ - For debugging, reproduce first, keep competing hypotheses, gather disconfirming evidence, and trace the cause.
+ - For renderable or executable artifacts, run or view them in their natural environment before completion.
+
+ 4.1 Test-Driven Execution (only for programming, skip if it is document work)
+  - Write the smallest failing test first for the requested behavior or regression.
+  - Run it and confirm it fails for the expected reason before implementation.
+  - Implement the minimum code needed to make that test pass.
+  - Add edge-case tests only when required by the request or discovered risk.
+  - Refactor only after tests are green, then rerun the relevant tests.
+  - Build while following your plan md, checking off boxes as you go.
 
    Example (red → green):
    - Write the smallest test first — parseDate("2026-13-01") should throw
@@ -73,6 +79,7 @@ Lazy, not negligent: trust-boundary validation, data-loss handling, security, an
  - Move the plan markdown file into `docs/completed/` only after verification is complete and all applicable checkboxes are checked.
  - Re-read the original request; confirm every item is met.
  - Report honestly — if something fails or was skipped, say so.
+ - Final response: outcome first, changed files or behavior, verification evidence, and residual risk. Do not end with plans for required work that remains undone.
 
    Example report:
    - ✓ "Initial goal confirmed; added validation; build + 12 tests pass; plan checklist verified and moved to docs/completed/; skipped the email case — needs a config I don't have."
