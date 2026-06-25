@@ -867,8 +867,8 @@ tr.ev-flash td{animation:evflash 1.4s ease;}
         + (b.headLink?linkIcon(b.headLink):'')+'</div>'
       + '<div class="fc-current"><h4 class="fc-label">Current behaviour</h4><p class="fc-text">'+raw(b.current)+'</p></div>'
       + '<div class="fc-proposal"><h4 class="fc-label">Recommended change</h4><p class="fc-text">'+raw(b.proposal)+'</p></div>'
-      + '<div class="fc-tldr"><h4 class="fc-label">Three-line summary</h4><ol class="fc-tldr-list">'
-        + (b.tldr||[]).map(function(t){ return '<li>'+raw(t)+'</li>'; }).join('')+'</ol></div>'
+      + (b.tldr&&b.tldr.length ? '<div class="fc-tldr"><h4 class="fc-label">Three-line summary</h4><ol class="fc-tldr-list">'
+        + b.tldr.map(function(t){ return '<li>'+raw(t)+'</li>'; }).join('')+'</ol></div>' : '')
       + (b.diff?blDiff(b.diff):'')
       + '</div>';
   }

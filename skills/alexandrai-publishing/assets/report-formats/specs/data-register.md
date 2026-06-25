@@ -98,10 +98,12 @@ Inline house SVG icons (`search`, `filter`, `sort-asc/desc`, `chevron-right`, `c
 - **Do** keep `<thead>` and the toolbar **sticky** so controls and headers never scroll away.
 - **Do** top-align multi-line cells and put long content into the drawer, not the row.
 - **Do** keep the live result count honest as filters/search change.
+- **Do** fill **every** row's `detail` richly — a `heading`, 2 `notes` (Finding + Required action), a 4–6-row `kv` grid, and `refs`. The drawer is this format's core value; a thin or empty detail wastes the drill-down and the row may as well not open.
 - **Don't** wrap the register in a hero, standfirst, TOC, or stacked prose sections — that is long-form.
 - **Don't** centre the content in a reading column or cap it at article width; the grid spans the viewport.
 - **Don't** split one register into many small tables when a single sortable/filterable grid serves.
 - **Don't** invent a 4th status colour or use emoji icons; obey the foundation palette + house icon set.
+- **Don't** ship rows with empty or partial `detail`. A missing `kv` array used to render as a hollow bordered box on the right of the drawer; the template now collapses gracefully (single column / muted line), but the *point* is rich drill-down — populate all four sub-fields.
 
 ## Exemplar
 `sample/data_register_sample.html` — a third-party **risk & control register** (Slate theme): sticky app
@@ -122,7 +124,7 @@ Full field contract: [`schemas/data-register.schema.json`](schemas/data-register
 
 **Optional top-level fields:** `facets[]` — left rail filter groups. Each facet: `key`, `label`, `options[]` (`value`, optional `label`).
 
-**Row `detail` object:** `heading` (string), `notes[]` (`lead` + `text`), `kv[]` (`k` + `v`), `refs[]` (`label`, optional `icon` + `href`).
+**Row `detail` object:** `heading` (string), `notes[]` (`lead` + `text`), `kv[]` (`k` + `v`), `refs[]` (`label`, optional `icon` + `href`). Schema-optional, but **populate all four for every row** — the drawer is the format's core value, and a partial `detail` renders a sparse drawer (an empty `kv` no longer draws a hollow box, it simply collapses).
 
 ## Icons
 

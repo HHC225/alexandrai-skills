@@ -142,6 +142,8 @@ body{ font:13px/1.55 var(--sans); color:var(--ink); -webkit-font-smoothing:antia
 .visual .vsub b{ color:var(--navy-deep); font-weight:700; font-family:var(--mono); font-feature-settings:"tnum" 1; }
 .bars{ position:relative; flex:1; display:grid; grid-template-columns:repeat(var(--ncols,6),1fr); align-items:end; gap:9px;
   border-bottom:1.5px solid var(--ink); padding-bottom:0; min-height:0; }
+.bars.is-empty{ flex:0; min-height:0; border-bottom:0; display:block; }
+.vis-empty{ margin:0; color:var(--ink-soft); font-size:11.5px; }
 .bar{ position:relative; display:flex; flex-direction:column; align-items:center; justify-content:flex-end;
   height:100%; cursor:pointer; }
 .bar .col{ width:62%; border-radius:5px 5px 0 0; background:var(--navy-line); transition:opacity .12s ease, filter .12s ease; }
@@ -540,10 +542,11 @@ body{ font:13px/1.55 var(--sans); color:var(--ink); -webkit-font-smoothing:antia
     var bars = (vis.data || []);
     var max = bars.reduce(function(a, d){ return Math.max(a, +d.value || 0); }, 0) || 100;
     var barsEl = $('r-bars');
+    barsEl.classList.toggle('is-empty', !bars.length);
     barsEl.style.setProperty('--ncols', bars.length || 1);
     barsEl.setAttribute('aria-label',
       (vis.title || 'Chart') + ': ' + bars.map(function(d){ return d.label + ' ' + d.value; }).join(', '));
-    barsEl.innerHTML = bars.map(function(d, i){
+    barsEl.innerHTML = bars.length ? bars.map(function(d, i){
       var cls = d.state === 'plan' ? 'is-plan' : (d.state === 'proj' ? 'is-proj' : '');
       var h = Math.max(2, Math.round((+d.value || 0) / max * 100));
       var prev = i > 0 ? bars[i - 1] : null;
@@ -556,7 +559,7 @@ body{ font:13px/1.55 var(--sans); color:var(--ink); -webkit-font-smoothing:antia
            +   '<div class="col" style="height:' + h + '%"></div>'
            +   '<div class="x">' + esc(d.label) + '</div>'
            + '</div>';
-    }).join('');
+    }).join('') : '<p class="vis-empty">No chart data provided.</p>';
 
     /* legend */
     var swMap = { brand:'s-act', projected:'s-proj', base:'s-base' };

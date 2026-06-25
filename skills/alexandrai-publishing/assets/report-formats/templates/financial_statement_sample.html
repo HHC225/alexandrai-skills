@@ -632,7 +632,9 @@ tr.fs-item:hover .fs-label, tr.fs-item:hover td{ background:var(--bg-subtle); }
         (s.note?'<div class="so"><div class="so-k">Note</div><div class="so-v" style="border:0">'+esc(s.note)+'</div></div>':'')+
         '</div>';
     }
-    document.getElementById('footWrap').innerHTML = html;
+    const fw = document.getElementById('footWrap');
+    fw.innerHTML = html;
+    fw.hidden = !html;          // no empty bordered band when there are no notes / signoff
   }
 
   function renderTable(){ renderHead(); renderBody(); }
