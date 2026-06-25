@@ -15,9 +15,12 @@ import { basename, dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   extractReportData,
+  extractHtmlTitle,
   expectedFingerprints,
+  hasTemplatePlaceholder,
   legacyMetadataFromReportData,
   listFormats,
+  prepareHtmlForPublish,
   readFormatSchema,
   resolveFormat,
   templateFingerprint,
@@ -293,6 +296,7 @@ async function lintFile(filePath, flags = {}) {
   }
 
   selectedFormat = await validateSelectedFormat(flags.format, metadata, errors);
+  validateStaticBrowserTitle(html, errors);
   if (selectedFormat) {
     const fingerprints = await expectedFingerprints(selectedFormat);
     if (!fingerprints.has(templateFingerprint(html))) {
@@ -308,7 +312,7 @@ async function lintFile(filePath, flags = {}) {
     const researchData = isObject(data.aipaper) ? data : { ...data, aipaper: metadata };
     await validateData(researchData, errors);
   }
-  checkUploadSize(html, errors);
+  checkUploadSize(data && selectedFormat ? prepareHtmlForPublish(html, selectedFormat) : html, errors);
 
   if (errors.length) {
     process.stderr.write(JSON.stringify({ ok: false, message: rejectedMessage, errors }, null, 2) + '\n');
@@ -331,7 +335,7 @@ async function upload(auth, filePath, flags = {}) {
   if (lintCode !== 0) return lintCode;
   const html = await readFile(resolve(filePath), 'utf8');
   const format = await selectedFormatFromHtml(html, flags.format);
-  return publishAndRecord(auth, html, format, apiUrl(auth.site, 'papers'), { kind: 'upload' });
+  return publishAndRecord(auth, prepareHtmlForPublish(html, format), format, apiUrl(auth.site, 'papers'), { kind: 'upload' });
 }
 
 // Publishes a new version of an existing paper, preserving the original. Lints
@@ -350,7 +354,7 @@ async function versionPaper(auth, paperId, filePath, flags = {}) {
   if (lintCode !== 0) return lintCode;
   const html = await readFile(resolve(filePath), 'utf8');
   const format = await selectedFormatFromHtml(html, flags.format);
-  return publishAndRecord(auth, html, format, apiUrl(auth.site, `papers/${encodeURIComponent(paperId)}/versions`), { kind: 'version', versionOf: paperId });
+  return publishAndRecord(auth, prepareHtmlForPublish(html, format), format, apiUrl(auth.site, `papers/${encodeURIComponent(paperId)}/versions`), { kind: 'version', versionOf: paperId });
 }
 
 function isMarkdownPath(filePath) {
@@ -646,6 +650,15 @@ async function validateSelectedFormat(requestedFormatId, metadata, errors) {
   }
 
   return requestedFormat || metadataFormat;
+}
+
+function validateStaticBrowserTitle(html, errors) {
+  const title = extractHtmlTitle(html);
+  if (!isNonEmptyString(title)) {
+    errors.push(error('MISSING_BROWSER_TITLE', 'html.title', 'non-empty <title>', title, 'Add a placeholder-free browser title to the HTML head.'));
+  } else if (hasTemplatePlaceholder(title)) {
+    errors.push(error('UNRESOLVED_TITLE_PLACEHOLDER', 'html.title', 'no {{...}} placeholders', title, 'Use a concrete title or a neutral fallback; report-data drives the final published tab title.'));
+  }
 }
 
 async function validateAlexandrAiMetadata(metadata, format, errors) {
