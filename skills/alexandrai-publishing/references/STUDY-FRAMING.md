@@ -6,7 +6,7 @@ an evidence mode. "Content theme" is the subject/deliverable idea; `meta.theme` 
 only the colour preset.
 
 Pick the format from the router in `assets/report-formats/REPORT_POLICY.md`
-(all 38 formats, "use when", required fields). Research-paper specifics live in
+(all 40 formats, "use when", required fields). Research-paper specifics live in
 `assets/report-formats/specs/research-paper.md`.
 
 ## 1. Survey local resources first
