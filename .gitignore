@@ -2,3 +2,6 @@
 .claude/
 docs/
 tests/
+
+# Generated report output — a runtime artifact written under the installed skill
+skills/alexandrai-publishing/output/

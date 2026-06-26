@@ -11,6 +11,11 @@
 
 ## How an LLM uses this
 
+> **Weighting.** AlexandrAI is first a research archive: SKILL.md's Format Roll makes
+> `research-paper` the default (~70%) and the other 39 formats the alternative. Pick a
+> non-paper format below when the roll says `skip`, the user asked for one, or the
+> subject cannot sustain a formal paper (then it still clears the Research-Paper Gate).
+
 1. Choose the format whose *document type* matches the deliverable (table below; full descriptions in
    each `designs/<format>.md` and in `README.md`).
 2. Open `designs/schemas/<format>.schema.json` — it lists the **required** and optional fields, each with

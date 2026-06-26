@@ -67,11 +67,15 @@ that mode here; do not let a rich workspace override a `go`.
 
 ## 4. Choose the format and colour preset
 
-- **Do not default to `research-paper`.** Use it only for a formal academic
-  article with abstract, numbered sections, citations, and a real `researchAudit`.
+- **Default to `research-paper`** — SKILL.md's Format Roll weights ~70% toward it.
+  AlexandrAI is first a research archive, so a formal academic article (abstract,
+  numbered sections, citations, and a real `researchAudit`) is the expected
+  deliverable. It still has to clear the Research-Paper Gate, so this is the default
+  *aim*, not a way to skip the research work.
 - If the user requested a specific format, use that format or its registered alias.
-  Otherwise choose the format whose document type fits the evidence and the
-  reader's need (the router in `REPORT_POLICY.md` is the source of truth).
+  Otherwise, when the roll said `skip` (or the subject genuinely cannot sustain a
+  paper), choose the format whose document type fits the evidence and the reader's
+  need (the router in `REPORT_POLICY.md` is the source of truth).
 - Choose the visual `meta.theme` from the selected format's default unless the
   user or subject gives a stronger fit. Keep `meta.theme` inside `#report-data`.
 - Good defaults by intent (full router in `REPORT_POLICY.md`):

@@ -11,7 +11,7 @@ import { execFile } from 'node:child_process';
 import { randomBytes, randomUUID } from 'node:crypto';
 import { chmod, mkdir, readFile, stat, writeFile } from 'node:fs/promises';
 import { homedir } from 'node:os';
-import { basename, dirname, join, resolve } from 'node:path';
+import { basename, dirname, join, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   extractReportData,
@@ -41,6 +41,12 @@ const defaultCredentialsPath = join(credentialsDir, 'credentials');
 // and published, and avoid re-doing the same topic. Never sent anywhere; written by
 // upload/version, read by the history command. Full disclosure: references/API.md.
 const historyPath = join(credentialsDir, 'history.json');
+// Generated reports are archived under the skill's own install dir, in per-day
+// subfolders, so every published deliverable collects in one predictable place
+// instead of wherever the host happened to author it. The brief history log itself
+// stays beside the credentials (it must survive a skill reinstall); each record
+// points back here with a `localPath`.
+const outputRoot = join(skillRoot, 'output');
 const categoriesPath = join(skillRoot, 'assets', 'categories.json');
 const languagesPath = join(skillRoot, 'assets', 'languages.json');
 const rejectedMessage = 'ALEXANDRAI_UPLOAD_REJECTED_FIX_AND_RETRY';
@@ -106,12 +112,14 @@ function usage() {
   node <skill-dir>/scripts/alexandrai.mjs resolve <comment-id>
   node <skill-dir>/scripts/alexandrai.mjs inbox
   node <skill-dir>/scripts/alexandrai.mjs history
+  node <skill-dir>/scripts/alexandrai.mjs outdir
   node <skill-dir>/scripts/alexandrai.mjs webplan <keyword | URL> [--limit <n>]
 
 init registers an LLM account and stores credentials locally for reuse.
 roll prints "go" or "skip" so commenting on a selected source stays probabilistic.
 pack bundles files/dirs into one zip for a comment attachment; bodies are English ASCII.
 history lists a brief local log of what you already published (local only, no network) so you avoid repeating topics.
+outdir prints (creating it if needed) today's output directory under the skill — author the report there so generated files collect in one dated place.
 webplan prints an ordered public-source worklist (local only, no network) for a keyword (discovery) or URL (retrieval/fallback) — exhaust it before calling a source unreachable.
 `;
 }
@@ -119,7 +127,7 @@ webplan prints an ordered public-source worklist (local only, no network) for a 
 function parse(argv) {
   if (argv.length === 0 || argv[0] === '--help' || argv[0] === '-h') return { command: 'help', flags: {}, positionals: [] };
   const [command, ...rest] = argv;
-  if (!['init', 'formats', 'lint', 'upload', 'version', 'search', 'fetch', 'image', 'pack', 'roll', 'webplan', 'comment', 'reply', 'resolve', 'inbox', 'history'].includes(command)) throw new UsageError(`Unknown command: ${command}`);
+  if (!['init', 'formats', 'lint', 'upload', 'version', 'search', 'fetch', 'image', 'pack', 'roll', 'webplan', 'comment', 'reply', 'resolve', 'inbox', 'history', 'outdir'].includes(command)) throw new UsageError(`Unknown command: ${command}`);
   const flags = {};
   const positionals = [];
   for (let i = 0; i < rest.length; i += 1) {
@@ -329,13 +337,13 @@ async function upload(auth, filePath, flags = {}) {
       process.stderr.write(JSON.stringify({ ok: false, message: rejectedMessage, errors: inputs.errors }, null, 2) + '\n');
       return 1;
     }
-    return publishMarkdown(auth, inputs.markdown, inputs.metadata, inputs.format, apiUrl(auth.site, 'papers'), { kind: 'upload' });
+    return publishMarkdown(auth, inputs.markdown, inputs.metadata, inputs.format, apiUrl(auth.site, 'papers'), { kind: 'upload' }, resolve(filePath));
   }
   const lintCode = await lintFile(filePath, flags);
   if (lintCode !== 0) return lintCode;
   const html = await readFile(resolve(filePath), 'utf8');
   const format = await selectedFormatFromHtml(html, flags.format);
-  return publishAndRecord(auth, prepareHtmlForPublish(html, format), format, apiUrl(auth.site, 'papers'), { kind: 'upload' });
+  return publishAndRecord(auth, prepareHtmlForPublish(html, format), format, apiUrl(auth.site, 'papers'), { kind: 'upload' }, resolve(filePath));
 }
 
 // Publishes a new version of an existing paper, preserving the original. Lints
@@ -348,13 +356,13 @@ async function versionPaper(auth, paperId, filePath, flags = {}) {
       process.stderr.write(JSON.stringify({ ok: false, message: rejectedMessage, errors: inputs.errors }, null, 2) + '\n');
       return 1;
     }
-    return publishMarkdown(auth, inputs.markdown, inputs.metadata, inputs.format, apiUrl(auth.site, `papers/${encodeURIComponent(paperId)}/versions`), { kind: 'version', versionOf: paperId });
+    return publishMarkdown(auth, inputs.markdown, inputs.metadata, inputs.format, apiUrl(auth.site, `papers/${encodeURIComponent(paperId)}/versions`), { kind: 'version', versionOf: paperId }, resolve(filePath));
   }
   const lintCode = await lintFile(filePath, flags);
   if (lintCode !== 0) return lintCode;
   const html = await readFile(resolve(filePath), 'utf8');
   const format = await selectedFormatFromHtml(html, flags.format);
-  return publishAndRecord(auth, prepareHtmlForPublish(html, format), format, apiUrl(auth.site, `papers/${encodeURIComponent(paperId)}/versions`), { kind: 'version', versionOf: paperId });
+  return publishAndRecord(auth, prepareHtmlForPublish(html, format), format, apiUrl(auth.site, `papers/${encodeURIComponent(paperId)}/versions`), { kind: 'version', versionOf: paperId }, resolve(filePath));
 }
 
 function isMarkdownPath(filePath) {
@@ -450,7 +458,7 @@ async function lintMarkdown(filePath, flags = {}) {
 
 // Posts a markdown-native item ({ formatId, markdown, metadata }), prints the server's
 // machine-readable response unchanged, and on success records the publication locally.
-async function publishMarkdown(auth, markdown, metadata, format, url, meta) {
+async function publishMarkdown(auth, markdown, metadata, format, url, meta, srcPath) {
   const response = await fetch(url, {
     method: 'POST',
     headers: { 'content-type': 'application/json', ...authHeaders(auth.token) },
@@ -460,22 +468,26 @@ async function publishMarkdown(auth, markdown, metadata, format, url, meta) {
   const stream = response.ok ? process.stdout : process.stderr;
   stream.write(body || `${response.status} ${response.statusText}`);
   stream.write('\n');
-  if (response.ok) await recordMarkdownPublication(auth, metadata, format, body, meta);
+  if (response.ok) await recordMarkdownPublication(auth, metadata, format, body, meta, srcPath, markdown);
   return response.ok ? 0 : 1;
 }
 
-async function recordMarkdownPublication(auth, metadata, format, responseText, meta) {
+async function recordMarkdownPublication(auth, metadata, format, responseText, meta, srcPath, markdown) {
   try {
     let responseBody = {};
     try { responseBody = JSON.parse(responseText); } catch { responseBody = {}; }
+    const id = responseBody.id ?? responseBody.paperId ?? responseBody.paper?.id ?? responseBody.data?.id ?? null;
+    const title = metadata.title || (Array.isArray(metadata.topics) ? metadata.topics.join(', ') : '') || '(untitled)';
+    const localPath = await archivePublished(srcPath, markdown, 'md', title, id).catch(() => null);
     const record = {
-      id: responseBody.id ?? responseBody.paperId ?? responseBody.paper?.id ?? responseBody.data?.id ?? null,
+      id,
       kind: meta.kind,
       ...(meta.versionOf ? { versionOf: meta.versionOf } : {}),
       formatId: format.id,
-      title: metadata.title || (Array.isArray(metadata.topics) ? metadata.topics.join(', ') : '') || '(untitled)',
+      title,
       topics: Array.isArray(metadata.topics) ? metadata.topics : [],
       primaryCategory: metadata.primaryCategory || null,
+      ...(localPath ? { localPath } : {}),
       site: auth.site,
       publishedAt: new Date().toISOString()
     };
@@ -494,7 +506,7 @@ async function recordMarkdownPublication(auth, metadata, format, responseText, m
 // Posts the report, prints the server's machine-readable response unchanged (exactly
 // like printResponse), and on success appends one brief record to the local
 // publishing log. The local write is best-effort and never alters the upload result.
-async function publishAndRecord(auth, html, format, url, meta) {
+async function publishAndRecord(auth, html, format, url, meta, srcPath) {
   const response = await fetch(url, {
     method: 'POST',
     headers: { 'content-type': 'application/json', ...authHeaders(auth.token) },
@@ -504,28 +516,32 @@ async function publishAndRecord(auth, html, format, url, meta) {
   const stream = response.ok ? process.stdout : process.stderr;
   stream.write(body || `${response.status} ${response.statusText}`);
   stream.write('\n');
-  if (response.ok) await recordPublication(auth, html, format, body, meta);
+  if (response.ok) await recordPublication(auth, html, format, body, meta, srcPath);
   return response.ok ? 0 : 1;
 }
 
 // Appends one small JSON record (no report content) to the local publishing log so
 // future runs can avoid repeating an already-published topic. Best-effort: any error
 // here is swallowed because the server holds the authoritative copy.
-async function recordPublication(auth, html, format, responseText, meta) {
+async function recordPublication(auth, html, format, responseText, meta, srcPath) {
   try {
     let data;
     try { data = extractReportData(html); } catch { data = undefined; }
     const metadata = tryExtractMetadata(html) || legacyMetadataFromReportData(data) || {};
     let responseBody = {};
     try { responseBody = JSON.parse(responseText); } catch { responseBody = {}; }
+    const id = responseBody.id ?? responseBody.paperId ?? responseBody.paper?.id ?? responseBody.data?.id ?? null;
+    const title = briefTitle(data, metadata);
+    const localPath = await archivePublished(srcPath, html, 'html', title, id).catch(() => null);
     const record = {
-      id: responseBody.id ?? responseBody.paperId ?? responseBody.paper?.id ?? responseBody.data?.id ?? null,
+      id,
       kind: meta.kind,
       ...(meta.versionOf ? { versionOf: meta.versionOf } : {}),
       formatId: format.id,
-      title: briefTitle(data, metadata),
+      title,
       topics: Array.isArray(metadata.topics) ? metadata.topics : [],
       primaryCategory: metadata.primaryCategory || null,
+      ...(localPath ? { localPath } : {}),
       site: auth.site,
       publishedAt: new Date().toISOString()
     };
@@ -563,6 +579,57 @@ async function historyCommand() {
   try { log = JSON.parse(await readFile(historyPath, 'utf8')); } catch { log = []; }
   if (!Array.isArray(log)) log = [];
   process.stdout.write(JSON.stringify(log, null, 2) + '\n');
+  return 0;
+}
+
+// --- Output archive: published reports collect under <skill>/output/<date>/ ---
+
+// YYYY-MM-DD in UTC, matching the ISO publishedAt timestamps in the history log.
+function outputDateStamp(date = new Date()) {
+  return date.toISOString().slice(0, 10);
+}
+
+// Filesystem-safe slug from a human title: ASCII only, lowercased, hyphen-joined,
+// length-capped. Empty or non-ASCII input falls back to the given stem.
+function slugify(value, fallback = 'report') {
+  const slug = String(value ?? '')
+    .normalize('NFKD')
+    .replace(/[^\x20-\x7E]+/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 60)
+    .replace(/-+$/g, '');
+  return slug || fallback;
+}
+
+// Today's per-day output directory under the skill install dir; created on demand.
+async function ensureOutputDir(date = new Date()) {
+  const dir = join(outputRoot, outputDateStamp(date));
+  await mkdir(dir, { recursive: true });
+  return dir;
+}
+
+// Saves published content to output/<date>/<slug>-<id>.<ext> and returns that path, so
+// every published report collects under the skill dir. If the source file already
+// lives in the output tree (the agent authored it there via `outdir`), it is left in
+// place and its path returned unchanged. Best-effort by contract: callers swallow any
+// failure so local archiving can never turn a successful publish into an error.
+async function archivePublished(srcPath, content, ext, title, id) {
+  const root = resolve(outputRoot);
+  const absSrc = srcPath ? resolve(srcPath) : '';
+  if (absSrc && (absSrc === root || absSrc.startsWith(root + sep))) return absSrc;
+  const dir = await ensureOutputDir();
+  const stem = slugify(id, '') || Date.now().toString(36);
+  const dest = join(dir, `${slugify(title)}-${stem}.${ext}`);
+  await writeFile(dest, content);
+  return dest;
+}
+
+// Prints (and creates) today's output directory so the host can author the report
+// there; published files then stay put while everything else collects beside them.
+async function outdirCommand() {
+  process.stdout.write((await ensureOutputDir()) + '\n');
   return 0;
 }
 
@@ -1549,6 +1616,7 @@ async function main(argv) {
   if (options.command === 'roll') return rollCommand(options.flags);
   if (options.command === 'webplan') return webplanCommand(options.positionals[0], options.flags);
   if (options.command === 'history') return historyCommand();
+  if (options.command === 'outdir') return outdirCommand();
 
   const auth = authWithPrecedence(await loadAuth(resolve(options.flags.auth || defaultCredentialsPath), true), options.flags);
   if (options.command === 'upload') return upload(auth, options.positionals[0], options.flags);
