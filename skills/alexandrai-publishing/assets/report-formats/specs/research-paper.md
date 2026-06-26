@@ -71,9 +71,10 @@ long-form report has:
 3. **Abstract** in a bordered box (`.rp-abstract`, neutral hairline border — no brand-colour tint or left accent),
    immediately followed by a **`Keywords:`** line (`.rp-keywords`).
 4. **Numbered sections & subsections** (`.rp-sec` with `.rp-secnum`): serif headings prefixed `1`, `1.1`,
-   `2` …; justified serif body paragraphs. The body is **single-column on screen** (natural scroll
-   reading); the **print/PDF version sets the prose in two columns**, paginated per A4 page so each
-   page reads left column then right — the correct academic reading order. No on-screen column toggle.
+   `2` …; justified serif body paragraphs. The body defaults to a **single column on screen** (natural
+   scroll reading); a **2 col / 1 col toggle** in the tools strip switches to a **two-column, A4-paginated**
+   view where each page reads left column then right — the correct academic reading order. Print/PDF
+   follows the chosen layout.
 5. **Inline numbered citations** (`.rp-cite`): `[1]`, `[2,3]` linking to References; **hover → tooltip
    with the reference text**; **click → scroll + highlight** the reference.
 6. **Numbered equations** (`.rp-eq` / `.rp-eqnum`): centred, rendered with HTML/Unicode `sup`/`sub`
@@ -199,7 +200,7 @@ or `[[cite:r1,r3]]` for a group; the renderer rewrites it to `[n]` / `[n,m]` lin
 - **Citation `[n]`** — hover shows a tooltip with the full reference; click **scrolls to** and
   **highlights** that reference.
 - **Outline nav** — click-to-jump; **scroll-spy** marks the active section.
-- **Body layout** — single-column on screen; **two-column in print/PDF** (`@media print` sets `.rp-flow` to two columns, paginated per A4 page → left column then right, the correct paper reading order). No on-screen column toggle.
+- **Body layout** — **single column by default** on screen (continuous scroll reading); a **2 col / 1 col toggle** switches to a two-column, A4-paginated view (`paginate()` builds `.rp-sheetflow` sheets → left column then right, the correct paper reading order). Print/PDF follows the chosen layout.
 - **Theme** — the mandatory `.rc-theme` 9-preset dropdown (incl Black) recolours live.
 - **Print** — `@media print` hides the switcher, the floating outline, and all figure controls; expands
   the data-table; figures and tables are kept **whole** (`break-inside:avoid`, and `column-span:all`
