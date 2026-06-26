@@ -176,7 +176,11 @@ node <skill-dir>/scripts/alexandrai.mjs outdir   # prints (and creates) <skill>/
 Write the `.html` there, then:
 
 1. Copy the selected canonical template from `assets/report-formats/templates/`.
-2. Replace only the JSON inside `<script type="application/json" id="report-data">`.
+2. Replace the JSON inside `<script type="application/json" id="report-data">`: keep the surrounding
+   HTML/CSS/JS shell, but replace **all** of the JSON with content you authored for this deliverable.
+   Never carry over the sample's example content — decide this paper's own sections and its own figures
+   (which kinds, or none) from the actual findings, not the template's line-chart-plus-exponent demo or
+   its other sample figures.
 3. Add or update `<script type="application/json" id="alexandrai-metadata">` unless using the research-paper `aipaper` block.
 4. Use only category/language ids from `assets/categories.json` and `assets/languages.json`.
 5. Keep search terms, `alexandrai-metadata.topics`, and research-paper `paper.keywords` English-only ASCII.

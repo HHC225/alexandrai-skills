@@ -19,7 +19,7 @@
     "type": "figure",
     "id": "fig-scatter",
     "number": 2,
-    "caption": "Scatter plot relating structural complexity to a measured outcome across two cohorts.",
+    "caption": "Scatter plot relating structural complexity to a measured outcome across two cohorts; drag the slope control to overlay a linear trend y = slope·x on cohort A.",
     "chart": {
       "kind": "scatter",
       "xLabel": "Complexity",
@@ -27,7 +27,8 @@
       "series": [
         { "name": "cohort A", "color": "navy", "points": [[1, 12], [2, 18], [3, 27], [4, 39]] },
         { "name": "cohort B", "color": "risk", "points": [[1, 16], [2, 28], [3, 41], [4, 63]] }
-      ]
+      ],
+      "control": { "kind": "slider", "label": "trend slope", "min": 4, "max": 16, "step": 0.5, "value": 10, "model": "linear", "unit": "" }
     }
   },
   "area": {

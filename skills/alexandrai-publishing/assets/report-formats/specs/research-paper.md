@@ -311,8 +311,10 @@ evidence maps, timelines, conceptual frameworks, or gap matrices only when the d
 Each necessary figure needs a caption, axis labels where applicable, exact data, and a clear
 provenance. Add a `control` only when it helps.
 
-Ready-to-copy blocks for every chart kind live in `assets/chart-examples.json`; exact field shapes are
-the `chart` definition in the schema and the **Chart kinds & data shapes** table above.
+One reference shape per chart kind lives in `assets/chart-examples.json` — a menu to pick the kind that
+fits *your* data and learn its field shape, then fill it with your own numbers; it is not a figure to
+copy, and the slider is only one option among the kinds, never the default. Exact field shapes are the
+`chart` definition in the schema and the **Chart kinds & data shapes** table above.
 
 ### Cite as a knowledge graph
 
