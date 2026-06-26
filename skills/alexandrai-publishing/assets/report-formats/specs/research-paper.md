@@ -78,11 +78,15 @@ long-form report has:
    with the reference text**; **click → scroll + highlight** the reference.
 6. **Numbered equations** (`.rp-eq` / `.rp-eqnum`): centred, rendered with HTML/Unicode `sup`/`sub`
    (**never** KaTeX/MathJax/any math CDN), with a right-aligned `(n)`.
-7. **Figures** (`.rp-fig` / `.rp-figcap`): `Figure N. <caption>`, each an **interactive chart** drawn from
-   data — hover tooltip with exact values, a legend that toggles series, and **≥1 figure with a parameter
-   control** (a slider that re-plots a model overlay, or a show/hide data-table toggle under the chart).
-   Supported kinds: line, scatter, area, stacked-area, step, bubble, bar, stacked-bar, horizontal-bar,
-   pie, donut, radar, histogram, box, heatmap, waterfall (see **Chart kinds & data shapes**).
+7. **Figures** (`.rp-fig` / `.rp-figcap`): `Figure N. <caption>` — **optional**; include one only when it
+   earns its place (a paper with no figures is normal — see *Visualize a result only when a figure earns
+   its place*). When a figure *is* present it is an **interactive chart** built from the paper's own data —
+   hover tooltip with exact values and a legend that toggles series — and **may** carry a **control** where
+   it helps: usually a `datatable` toggle, or a `slider` model overlay on a point kind. No figure, control,
+   or slider is required, and the slider is **not** a default — do not reach for the line-chart-plus-exponent
+   figure reflexively; pick the kind that fits this paper's data. Supported kinds: line, scatter, area,
+   stacked-area, step, bubble, bar, stacked-bar, horizontal-bar, pie, donut, radar, histogram, box, heatmap,
+   waterfall (see **Chart kinds & data shapes**).
 8. **Tables** (`.rp-table`): `Table N. <caption>`, **booktabs-style** (thick top rule, header mid-rule,
    thick bottom rule, no vertical rules), optionally **sortable** numeric columns.
 9. **Floating "Contents" outline** (`.rp-nav`): a small numbered section list with **scroll-spy** active
@@ -188,9 +192,10 @@ or `[[cite:r1,r3]]` for a group; the renderer rewrites it to `[n]` / `[n,m]` lin
 `references[].id` (numbering follows references order).
 
 ## Interactions (all data-driven, vanilla JS, ≤150ms)
-- **Figure chart** — hover **tooltip** with exact `(x, y)` / value; clickable **legend** toggles each
-  series; **≥1 figure** carries a **slider** that recomputes a model overlay live, and **≥1** a
-  **show/hide data-table** toggle exposing the underlying values.
+- **Figure chart** — when a paper includes a figure: hover **tooltip** with exact `(x, y)` / value, and a
+  clickable **legend** that toggles each series. A figure **may** add a **control** where it helps — a
+  **show/hide data-table** toggle, or a **slider** that recomputes a model overlay live on a point kind.
+  Neither control is required, and no paper is obliged to carry a slider figure.
 - **Citation `[n]`** — hover shows a tooltip with the full reference; click **scrolls to** and
   **highlights** that reference.
 - **Outline nav** — click-to-jump; **scroll-spy** marks the active section.
@@ -441,6 +446,16 @@ keep every claim tied to sources or reproducible work.
 
 - Use Introduction -> Methods -> Results -> Discussion, with Abstract on top and Conclusion +
   References at the end.
+- **IMRaD is the minimum skeleton, not a length cap.** When the evidence you actually gathered supports
+  it, add subsections and further sections — Background / Related Work, a multi-theme Results, Limitations,
+  Threats to Validity, Future Work — so the paper's breadth matches its evidence. A study built on more
+  full-read sources and a longer claim ledger must cover materially more ground than a thin one; do not
+  stop at five sections out of habit.
+- **Research depth must surface in the body, not just the audit.** `researchAudit` records your search
+  effort but the renderer never displays it — the reader sees only the paper. So more searching has to
+  translate into more sourced Results themes, comparisons, and Discussion points, not merely a larger audit
+  blob. This is never licence to pad: every added section, paragraph, or figure must carry a distinct,
+  sourced point, and a topic that genuinely yields little stays short.
 - One paper carries one central message. Every section, paragraph, and figure serves it.
 - Use an hourglass shape: field context -> specific question -> methods/results -> implications.
 - Apply Context -> Content -> Conclusion to the whole paper, each section, and each paragraph.
