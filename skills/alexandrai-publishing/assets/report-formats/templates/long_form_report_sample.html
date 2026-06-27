@@ -375,13 +375,13 @@ tr.ev-flash td{animation:evflash 1.4s ease;}
 <script type="application/json" id="report-data">
 {
   "meta": {
-    "org": "{{ORG}}",
-    "project": "{{PROJECT}}",
-    "reportType": "{{REPORT_TYPE}}",
+    "org": "Independent Research",
+    "project": "Open Research",
+    "reportType": "Report",
     "title": "Operational Resilience & Controls Assessment",
     "subtitle": "Settlement orchestrator idempotency review — Q2 2026",
-    "date": "{{DATE}}",
-    "author": "{{AUTHOR}}",
+    "date": "2026-06-22",
+    "author": "Research Desk",
     "theme": "purple"
   },
   "hero": {
@@ -397,7 +397,7 @@ tr.ev-flash td{animation:evflash 1.4s ease;}
     ],
     "metaItems": [
       { "key": "Report ID", "value": "OPS-RES-2026-Q2-047" },
-      { "key": "Owner", "value": "{{AUTHOR}}" },
+      { "key": "Owner", "value": "Research Desk" },
       { "key": "Reviewers", "value": "Controls Assurance · Platform Engineering" },
       { "key": "Classification", "value": "Confidential — Internal" },
       { "key": "Status", "value": "Final · Issued" }
@@ -423,7 +423,7 @@ tr.ev-flash td{animation:evflash 1.4s ease;}
         {
           "kind": "prose",
           "lead": true,
-          "text": "This assessment was commissioned by the Controls Assurance function to review the exactly-once guarantee on the {{PROJECT}} settlement path following two duplicate-disbursement reports. Scope is the production release; the review combines source inspection, control-mapping, and telemetry replay. Findings are evidence-backed and traceable via the appendix index."
+          "text": "This assessment was commissioned by the Controls Assurance function to review the exactly-once guarantee on the Open Research settlement path following two duplicate-disbursement reports. Scope is the production release; the review combines source inspection, control-mapping, and telemetry replay. Findings are evidence-backed and traceable via the appendix index."
         },
         {
           "kind": "kv-grid",
@@ -433,7 +433,7 @@ tr.ev-flash td{animation:evflash 1.4s ease;}
             { "key": "Control mapped", "value": "OR-CTL-118" },
             { "key": "Affected services", "value": "<span class=\"rail-screen\">settle-orchestrator</span><span class=\"rail-screen\">ledger-writer</span>", "html": true },
             { "key": "Review window", "value": "2026-04-01 → 2026-06-15" },
-            { "key": "Owner", "value": "{{AUTHOR}}" },
+            { "key": "Owner", "value": "Research Desk" },
             { "key": "Method", "value": "Source · Control map · Replay" },
             { "key": "Duplicates cleared", "value": "4", "tnum": true },
             { "key": "Entry API", "value": "POST /v1/disbursements" },
@@ -648,8 +648,8 @@ tr.ev-flash td{animation:evflash 1.4s ease;}
       "label": "Report metadata",
       "facts": [
         { "key": "Report ID", "value": "OPS-RES-2026-Q2-047" },
-        { "key": "Type", "value": "{{REPORT_TYPE}}" },
-        { "key": "Owner", "value": "{{AUTHOR}}" },
+        { "key": "Type", "value": "Report" },
+        { "key": "Owner", "value": "Research Desk" },
         { "key": "Window", "value": "2026-04-01 → 2026-06-15" },
         { "key": "Scope", "value": "settle-orchestrator · ledger-writer" },
         { "key": "Classification", "value": "Confidential — Internal" },
@@ -784,9 +784,9 @@ tr.ev-flash td{animation:evflash 1.4s ease;}
     var themeSwitcher = '<label class="rc-theme" title="Brand colour"><span class="rc-theme-sw" aria-hidden="true"></span><select class="rc-theme-sel" aria-label="Brand theme">'+themeOpts+'</select></label>';
     document.getElementById('topbar').innerHTML =
       '<div class="topbar-inner">'
-      + '<div class="logo"><span class="mark">'+ICON.shield+'</span>'+esc(m.org||'{{ORG}}')+' <small>'+esc(m.reportType||'')+'</small></div>'
+      + '<div class="logo"><span class="mark">'+ICON.shield+'</span>'+esc(m.org||'Independent Research')+' <small>'+esc(m.reportType||'')+'</small></div>'
       + '<div class="topbar-right">'
-        + '<span class="crumb">'+esc(m.project||'{{PROJECT}}')+' &nbsp;/&nbsp; Internal Assurance &nbsp;/&nbsp; <b>'+esc(reportId)+'</b></span>'
+        + '<span class="crumb">'+esc(m.project||'Open Research')+' &nbsp;/&nbsp; Internal Assurance &nbsp;/&nbsp; <b>'+esc(reportId)+'</b></span>'
         + '<span class="topbar-gen"><b>Generated</b> '+esc(m.date||'')+'</span>'
         + '<span class="topbar-tools">'
           + '<span class="dens-toggle" id="dens-toggle" role="group" aria-label="density">'
@@ -1021,7 +1021,7 @@ tr.ev-flash td{animation:evflash 1.4s ease;}
   function renderFooter(){
     var m=DATA.meta||{};
     document.getElementById('footer').innerHTML =
-      '<div class="foot-inner"><div class="brand-dk"><span class="sq"></span>'+esc(m.org||'{{ORG}}')+' &nbsp;·&nbsp; '+esc(m.org2||'')+'</div>'
+      '<div class="foot-inner"><div class="brand-dk"><span class="sq"></span>'+esc(m.org||'Independent Research')+' &nbsp;·&nbsp; '+esc(m.org2||'')+'</div>'
       + '<div class="foot-meta">'+esc(m.reportId||'')+' · '+esc(m.project||'')+' · '+esc(m.date||'')
       + '<br>Confidential — Internal · Distribution controlled · '+esc(m.reportType||'')+'</div></div>';
   }
@@ -1030,7 +1030,7 @@ tr.ev-flash td{animation:evflash 1.4s ease;}
   function render(){
     document.documentElement.dataset.theme = (DATA.meta&&DATA.meta.theme)||'purple';
     document.documentElement.dataset.density = 'comfortable';
-    document.title = (DATA.meta&&DATA.meta.title?DATA.meta.title+' — ':'')+((DATA.meta&&DATA.meta.project)||'{{PROJECT}}');
+    document.title = (DATA.meta&&DATA.meta.title?DATA.meta.title+' — ':'')+((DATA.meta&&DATA.meta.project)||'Open Research');
     renderTopbar(); renderHero(); renderContent(); renderFooter();
   }
 

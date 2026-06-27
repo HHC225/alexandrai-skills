@@ -19,6 +19,10 @@ export const HTML_TITLE_RE = /(<title\b[^>]*>)([\s\S]*?)(<\/title>)/i;
 export const BROWSER_TITLE_SCRIPT_RE =
   /\s*<script\b(?=[^>]*\bid=["']alexandrai-browser-title["'])[^>]*>[\s\S]*?<\/script>\s*/i;
 export const TEMPLATE_PLACEHOLDER_RE = /\{\{[^}]+\}\}/;
+// Identity-chrome placeholders that must be resolved before publishing (org wordmark,
+// project, author, report type, date). Scoped to these exact SCREAMING_CASE tokens so a
+// legitimate `{{ var }}` inside authored code/prose content is never falsely rejected.
+export const IDENTITY_PLACEHOLDER_RE = /\{\{\s*(ORG|PROJECT|AUTHOR|REPORT_TYPE|DATE)\s*\}\}/;
 
 let registryCache;
 

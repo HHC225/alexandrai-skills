@@ -9,17 +9,17 @@
   "properties": {
     "meta": {
       "type": "object",
-      "description": "Shared report identity block (see _DATA_DRIVEN.md). Brand-neutral: keep {{ORG}}/{{PROJECT}}/{{AUTHOR}} placeholders unless real values are supplied.",
+      "description": "Shared report identity block (see _DATA_DRIVEN.md). Brand-neutral: use real or brand-neutral values (e.g. Independent Research / Open Research / Research Desk); never leave a {{...}} placeholder.",
       "required": ["org", "project", "reportType", "title", "date", "author", "theme"],
       "additionalProperties": false,
       "properties": {
-        "org": { "type": "string", "description": "Organisation wordmark shown in the masthead + footer. Placeholder: {{ORG}}.", "default": "{{ORG}}" },
-        "project": { "type": "string", "description": "Project / platform whose status is reported. Placeholder: {{PROJECT}}.", "default": "{{PROJECT}}" },
+        "org": { "type": "string", "description": "Organisation wordmark shown in the masthead + footer.", "default": "Independent Research" },
+        "project": { "type": "string", "description": "Project / platform whose status is reported.", "default": "Open Research" },
         "reportType": { "type": "string", "description": "Artefact type label shown in the masthead sub-line.", "examples": ["Service Status", "Platform Status", "Uptime Report"] },
         "title": { "type": "string", "description": "Status-page title shown in the masthead.", "examples": ["Platform Status"] },
         "subtitle": { "type": "string", "description": "Optional one-line description of what this status page covers." },
         "date": { "type": "string", "format": "date", "description": "Report generation date (YYYY-MM-DD). Shown in the footer; distinct from the live 'asOf' timestamp.", "examples": ["2026-06-22"] },
-        "author": { "type": "string", "description": "Owning team / publisher. Placeholder: {{AUTHOR}}.", "default": "{{AUTHOR}}" },
+        "author": { "type": "string", "description": "Owning team / publisher.", "default": "Research Desk" },
         "theme": {
           "type": "string",
           "description": "Initial brand theme; set on <html data-theme>. Live-switchable via the .rc-theme dropdown (9 presets incl. Black). Default cyan for this format.",
@@ -178,13 +178,13 @@
   "examples": [
     {
       "meta": {
-        "org": "{{ORG}}",
-        "project": "{{PROJECT}}",
+        "org": "Independent Research",
+        "project": "Open Research",
         "reportType": "Service Status",
         "title": "Platform Status",
-        "subtitle": "Live operational status, 90-day uptime history, and incident communications for the {{PROJECT}} platform.",
+        "subtitle": "Live operational status, 90-day uptime history, and incident communications for the Open Research platform.",
         "date": "2026-06-22",
-        "author": "{{AUTHOR}}",
+        "author": "Research Desk",
         "theme": "cyan"
       },
       "asOf": "2026-06-22T09:40:00+09:00",

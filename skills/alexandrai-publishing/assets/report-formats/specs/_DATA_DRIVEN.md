@@ -27,11 +27,13 @@ top-level `examples`). It defines **exactly the fields needed to render the form
 
 - Every schema's top level includes a shared **`meta`** object:
   ```jsonc
-  "meta": { "org":"{{ORG}}", "project":"{{PROJECT}}", "reportType":"…",
-            "title":"…", "subtitle":"…", "date":"2026-06-22", "author":"{{AUTHOR}}",
+  "meta": { "org":"Independent Research", "project":"Open Research", "reportType":"…",
+            "title":"…", "subtitle":"…", "date":"2026-06-22", "author":"Research Desk",
             "theme":"blue|purple|indigo|teal|cyan|green|plum|slate" }
   ```
-  Brand-neutral: keep `{{ORG}}` / `{{PROJECT}}` placeholders unless real values are supplied.
+  Brand-neutral: fill `org` / `project` / `author` with the publisher's registered org (default
+  `Independent Research`) or another real/neutral value — never a literal `{{...}}` placeholder
+  (lint rejects unresolved placeholders).
 - Then **format-specific content** fields. Mark `required` vs optional, `description` every field,
   and provide realistic `examples`.
 - The sample's `#report-data` **MUST be a valid instance** of its own schema — it is the canonical example.

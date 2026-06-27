@@ -9,17 +9,17 @@
   "properties": {
     "meta": {
       "type": "object",
-      "description": "Shared report chrome (org / project / title / theme). Brand-neutral: keep {{ORG}} / {{PROJECT}} / {{AUTHOR}} placeholders unless real values are supplied.",
+      "description": "Shared report chrome (org / project / title / theme). Brand-neutral: use real or brand-neutral values (e.g. Independent Research / Open Research / Research Desk); never leave a {{...}} placeholder.",
       "required": ["org", "project", "reportType", "title", "date", "theme"],
       "additionalProperties": false,
       "properties": {
-        "org": { "type": "string", "description": "Organisation name or {{ORG}} placeholder.", "default": "{{ORG}}" },
-        "project": { "type": "string", "description": "Project / programme name or {{PROJECT}} placeholder.", "default": "{{PROJECT}}" },
-        "reportType": { "type": "string", "description": "Register type label shown in the app bar, e.g. 'Third-party risk register', 'Requirements inventory', or {{REPORT_TYPE}}." },
+        "org": { "type": "string", "description": "Organisation name (e.g. Independent Research).", "default": "Independent Research" },
+        "project": { "type": "string", "description": "Project / programme name (e.g. Open Research).", "default": "Open Research" },
+        "reportType": { "type": "string", "description": "Register type label shown in the app bar, e.g. 'Third-party risk register', 'Requirements inventory',." },
         "title": { "type": "string", "description": "Register title displayed in the app bar, e.g. 'Vendor risk & control register'." },
         "subtitle": { "type": "string", "description": "Optional one-line context note shown in the app bar or toolbar." },
         "date": { "type": "string", "description": "ISO date the register was generated or last refreshed (YYYY-MM-DD).", "format": "date" },
-        "author": { "type": "string", "description": "Author / owning team or {{AUTHOR}} placeholder.", "default": "{{AUTHOR}}" },
+        "author": { "type": "string", "description": "Author / owning team (e.g. Research Desk).", "default": "Research Desk" },
         "theme": {
           "type": "string",
           "description": "Initial brand theme; applied as <html data-theme>. Data-register default is 'slate'.",
@@ -150,13 +150,13 @@
   "examples": [
     {
       "meta": {
-        "org": "{{ORG}}",
-        "project": "{{PROJECT}}",
+        "org": "Independent Research",
+        "project": "Open Research",
         "reportType": "Third-party risk register",
         "title": "Vendor risk & control register",
         "subtitle": "Q2 2026 assessment — 24 vendor relationships",
         "date": "2026-06-22",
-        "author": "{{AUTHOR}}",
+        "author": "Research Desk",
         "theme": "slate"
       },
       "columns": [

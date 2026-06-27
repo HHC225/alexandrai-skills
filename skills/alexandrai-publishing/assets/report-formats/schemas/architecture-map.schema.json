@@ -98,13 +98,13 @@
       "required": ["org", "project", "reportType", "title", "date", "theme"],
       "additionalProperties": false,
       "properties": {
-        "org": { "type": "string", "default": "{{ORG}}" },
-        "project": { "type": "string", "default": "{{PROJECT}}" },
+        "org": { "type": "string", "default": "Independent Research" },
+        "project": { "type": "string", "default": "Open Research" },
         "reportType": { "type": "string", "examples": ["Architecture Map"] },
         "title": { "type": "string" },
         "subtitle": { "type": "string" },
         "date": { "type": "string" },
-        "author": { "type": "string", "default": "{{AUTHOR}}" },
+        "author": { "type": "string", "default": "Research Desk" },
         "theme": { "type": "string", "enum": ["blue", "purple", "indigo", "teal", "cyan", "green", "plum", "slate", "black"], "default": "black" }
       }
     }

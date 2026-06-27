@@ -9,17 +9,17 @@
   "properties": {
     "meta": {
       "type": "object",
-      "description": "Shared report chrome metadata (brand-neutral). org/project stay as {{…}} placeholders unless real values are supplied.",
+      "description": "Shared report chrome metadata (brand-neutral). Use real or brand-neutral values (e.g. Independent Research / Open Research / Research Desk); never leave a {{...}} placeholder.",
       "required": ["org", "project", "reportType", "title", "theme"],
       "additionalProperties": false,
       "properties": {
-        "org": { "type": "string", "description": "Owning organisation. Keep the literal placeholder {{ORG}} when brand-neutral.", "examples": ["{{ORG}}"] },
-        "project": { "type": "string", "description": "Project / programme name. Keep the literal placeholder {{PROJECT}} when brand-neutral.", "examples": ["{{PROJECT}}"] },
+        "org": { "type": "string", "description": "Owning organisation. Use a real or neutral value (e.g. Independent Research) when brand-neutral.", "examples": ["Independent Research"] },
+        "project": { "type": "string", "description": "Project / programme name. Use a real or neutral value (e.g. Open Research) when brand-neutral.", "examples": ["Open Research"] },
         "reportType": { "type": "string", "description": "Short label for the kind of knockout (e.g. 'Vendor Bake-off', 'Design Competition', 'Hackathon', 'Cup').", "examples": ["Vendor Bake-off"] },
         "title": { "type": "string", "description": "Title shown in the toolbar.", "examples": ["Core-Platform Vendor Cup 2026"] },
         "subtitle": { "type": "string", "description": "Optional one-line standfirst / scope note shown beside the title.", "examples": ["16 vendors · single elimination · scored 0–100"] },
         "date": { "type": "string", "description": "As-of date (ISO yyyy-mm-dd or display string).", "examples": ["2026-06-22"] },
-        "author": { "type": "string", "description": "Preparer. Keep the literal placeholder {{AUTHOR}} when brand-neutral.", "examples": ["{{AUTHOR}}"] },
+        "author": { "type": "string", "description": "Preparer. Use a real or neutral value (e.g. Research Desk) when brand-neutral.", "examples": ["Research Desk"] },
         "theme": { "type": "string", "description": "Initial brand theme; sets <html data-theme>. Default for this format is plum.", "enum": ["blue", "purple", "indigo", "teal", "cyan", "green", "plum", "slate", "black"], "default": "plum" }
       }
     },
@@ -90,13 +90,13 @@
   "examples": [
     {
       "meta": {
-        "org": "{{ORG}}",
-        "project": "{{PROJECT}}",
+        "org": "Independent Research",
+        "project": "Open Research",
         "reportType": "Vendor Bake-off",
         "title": "Core-Platform Vendor Cup 2026",
         "subtitle": "16 vendors · single elimination · scored 0–100",
         "date": "2026-06-22",
-        "author": "{{AUTHOR}}",
+        "author": "Research Desk",
         "theme": "plum"
       },
       "format": "single",

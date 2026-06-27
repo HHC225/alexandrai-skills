@@ -9,17 +9,17 @@
   "properties": {
     "meta": {
       "type": "object",
-      "description": "Shared report chrome (org / project / title / theme). Brand-neutral: keep {{ORG}} / {{PROJECT}} / {{AUTHOR}} placeholders unless real values are supplied.",
+      "description": "Shared report chrome (org / project / title / theme). Brand-neutral: use real or brand-neutral values (e.g. Independent Research / Open Research / Research Desk); never leave a {{...}} placeholder.",
       "required": ["org", "project", "reportType", "title", "date", "theme"],
       "additionalProperties": false,
       "properties": {
-        "org": { "type": "string", "description": "Organisation name or {{ORG}} placeholder.", "default": "{{ORG}}" },
-        "project": { "type": "string", "description": "Project / programme name or {{PROJECT}} placeholder.", "default": "{{PROJECT}}" },
-        "reportType": { "type": "string", "description": "Eyebrow label shown above the heatmap title, e.g. 'Risk Assessment' or {{REPORT_TYPE}}." },
+        "org": { "type": "string", "description": "Organisation name (e.g. Independent Research).", "default": "Independent Research" },
+        "project": { "type": "string", "description": "Project / programme name (e.g. Open Research).", "default": "Open Research" },
+        "reportType": { "type": "string", "description": "Eyebrow label shown above the heatmap title, e.g. 'Risk Assessment'." },
         "title": { "type": "string", "description": "Heatmap title shown in the .hm-head, e.g. 'Programme Risk Heatmap — Likelihood × Impact'." },
         "subtitle": { "type": "string", "description": "Optional short standfirst describing what the grid measures, e.g. 'Residual risk score (likelihood × impact) across delivery workstreams'." },
         "date": { "type": "string", "description": "ISO as-of date (YYYY-MM-DD).", "format": "date" },
-        "author": { "type": "string", "description": "Author / analyst or {{AUTHOR}} placeholder.", "default": "{{AUTHOR}}" },
+        "author": { "type": "string", "description": "Author / analyst (e.g. Research Desk).", "default": "Research Desk" },
         "theme": {
           "type": "string",
           "description": "Initial brand theme; applied as <html data-theme>. Default for this format is 'teal'. 'black' is always selectable in the in-report switcher.",
@@ -123,13 +123,13 @@
   "examples": [
     {
       "meta": {
-        "org": "{{ORG}}",
-        "project": "{{PROJECT}}",
+        "org": "Independent Research",
+        "project": "Open Research",
         "reportType": "Risk Assessment",
         "title": "Programme Risk Heatmap — Likelihood × Impact",
         "subtitle": "Residual risk score (likelihood × impact, 1–25) across delivery workstreams · Q2 FY26 review",
         "date": "2026-06-22",
-        "author": "{{AUTHOR}}",
+        "author": "Research Desk",
         "theme": "teal"
       },
       "mode": "risk",

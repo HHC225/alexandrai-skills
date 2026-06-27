@@ -1953,8 +1953,8 @@ ol.rp-reflist{ margin:0; padding:0; list-style:none; counter-reset:ref; }
         }).join('')
       + '</ol></section>';
 
-    var foot = '<div class="rp-foot"><span class="wm"><span class="sq"></span>'+esc(m.org||'{{ORG}}')+'</span>'
-      + '<span>'+esc(m.project||'{{PROJECT}}')+' · '+esc(m.date||'')+'</span></div>';
+    var foot = '<div class="rp-foot"><span class="wm"><span class="sq"></span>'+esc(m.org||'Independent Research')+'</span>'
+      + '<span>'+esc(m.project||'Open Research')+' · '+esc(m.date||'')+'</span></div>';
 
     paper.innerHTML = head + body + refsHTML + foot;
 

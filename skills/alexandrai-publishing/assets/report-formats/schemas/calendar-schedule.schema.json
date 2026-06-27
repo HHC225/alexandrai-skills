@@ -9,18 +9,18 @@
   "properties": {
     "meta": {
       "type": "object",
-      "description": "Shared report chrome metadata (brand-neutral). Keep {{ORG}} / {{PROJECT}} placeholders unless real values are supplied.",
+      "description": "Shared report chrome metadata (brand-neutral). Use real or brand-neutral values (e.g. Independent Research / Open Research / Research Desk); never leave a {{...}} placeholder.",
       "required": ["org", "project", "reportType", "title", "theme"],
       "additionalProperties": false,
       "properties": {
-        "org": { "type": "string", "description": "Organisation placeholder, e.g. {{ORG}}.", "default": "{{ORG}}" },
-        "project": { "type": "string", "description": "Project placeholder, e.g. {{PROJECT}}.", "default": "{{PROJECT}}" },
+        "org": { "type": "string", "description": "Organisation (e.g. Independent Research).", "default": "Independent Research" },
+        "project": { "type": "string", "description": "Project (e.g. Open Research).", "default": "Open Research" },
         "reportType": { "type": "string", "description": "Report type label shown in the footer, e.g. 'Release calendar'." },
         "title": { "type": "string", "description": "Calendar title shown in the header, e.g. 'Release & Test Calendar'." },
         "subtitle": { "type": "string", "description": "Optional short standfirst under the title." },
         "date": { "type": "string", "format": "date", "description": "Report generation date (YYYY-MM-DD). Used for footer meta and may seed the 'today' highlight if today is absent.", "examples": ["2026-06-22"] },
         "today": { "type": "string", "format": "date", "description": "Optional explicit 'today' date (YYYY-MM-DD) for the today-cell highlight. If omitted, the renderer uses meta.date, then the real current date.", "examples": ["2026-06-22"] },
-        "author": { "type": "string", "description": "Author placeholder, e.g. {{AUTHOR}}.", "default": "{{AUTHOR}}" },
+        "author": { "type": "string", "description": "Author (e.g. Research Desk).", "default": "Research Desk" },
         "weekStart": { "type": "integer", "minimum": 0, "maximum": 1, "description": "First day of the week column: 0 = Sunday, 1 = Monday. Default 1 (Monday).", "default": 1 },
         "theme": {
           "type": "string",
@@ -107,14 +107,14 @@
   "examples": [
     {
       "meta": {
-        "org": "{{ORG}}",
-        "project": "{{PROJECT}}",
+        "org": "Independent Research",
+        "project": "Open Research",
         "reportType": "Release & test calendar",
         "title": "Release & Test Calendar",
         "subtitle": "Release 3.1 hardening window",
         "date": "2026-06-22",
         "today": "2026-07-14",
-        "author": "{{AUTHOR}}",
+        "author": "Research Desk",
         "weekStart": 1,
         "theme": "green"
       },

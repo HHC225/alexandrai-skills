@@ -14,13 +14,13 @@
 <script type="application/json" id="report-data">
 {
   "meta": {
-    "org": "{{ORG}}",
-    "project": "{{PROJECT}}",
+    "org": "Independent Research",
+    "project": "Open Research",
     "reportType": "Platform Reliability",
     "title": "Operations Console",
     "subtitle": "Platform reliability · on-call view",
     "date": "2026-06-22",
-    "author": "{{AUTHOR}}",
+    "author": "Research Desk",
     "environment": "PROD · ap-northeast-1",
     "theme": "blue"
   },
@@ -815,7 +815,7 @@ body{
     + '<div class="main">'
     +   '<header class="topbar">'
     +     '<div>'
-    +       '<div class="tb-title">'+esc(m.project||'{{PROJECT}}')+' · <b>'+esc(m.title||'Operations Console')+'</b></div>'
+    +       '<div class="tb-title">'+esc(m.project||'Open Research')+' · <b>'+esc(m.title||'Operations Console')+'</b></div>'
     +       '<div class="tb-sub">'+esc(m.org||'')+' · '+esc((m.reportType||'').toUpperCase())+(m.subtitle?' · '+esc(m.subtitle.toUpperCase()):'')+'</div>'
     +     '</div>'
     +     (m.environment ? '<span class="env-chip">'+esc(m.environment)+'</span>' : '')
@@ -835,12 +835,12 @@ body{
     +   '</section>'
 
     +   '<footer class="foot">'
-    +     '<span class="wm"><i></i>'+esc(m.org||'{{ORG}}')+'</span>'
+    +     '<span class="wm"><i></i>'+esc(m.org||'Independent Research')+'</span>'
     +     '<span class="sp"></span>'
-    +     '<span>'+esc(m.project||'{{PROJECT}}')+' OPS CONSOLE · '+esc((m.reportType||'').toUpperCase())+'</span>'
+    +     '<span>'+esc(m.project||'Open Research')+' OPS CONSOLE · '+esc((m.reportType||'').toUpperCase())+'</span>'
     +     '<span>GENERATED '+esc(m.date||'')+'</span>'
     +     '<span>SOURCE · METRICS PIPELINE (READ-ONLY)</span>'
-    +     '<span>'+esc(m.author||'{{AUTHOR}}')+'</span>'
+    +     '<span>'+esc(m.author||'Research Desk')+'</span>'
     +   '</footer>'
     + '</div>';
 

@@ -4,7 +4,7 @@
      A single non-scrolling A4 sheet: masthead · lede · KPI strip · SCR spine + mini visual ·
      ask box · mini risk list · footer. Self-contained per _FOUNDATION §0:
      inline <style> + inline <svg> + system fonts, NO external requests.
-     Brand-neutral chrome — {{ORG}} / {{PROJECT}} left literal. Default theme: Plum.
+     Brand-neutral chrome — Independent Research / Open Research left literal. Default theme: Plum.
 
      DATA-DRIVEN (_DATA_DRIVEN.md §1): all body content lives in #report-data (JSON, a valid
      instance of designs/schemas/one-pager.schema.json); render() builds the sheet on load.
@@ -272,12 +272,12 @@ body{ font:13px/1.55 var(--sans); color:var(--ink); -webkit-font-smoothing:antia
 <script type="application/json" id="report-data">
 {
   "meta": {
-    "org": "{{ORG}}",
-    "project": "{{PROJECT}}",
-    "reportType": "{{REPORT_TYPE}}",
+    "org": "Independent Research",
+    "project": "Open Research",
+    "reportType": "Report",
     "title": "Phase 2 Go / No-Go",
     "date": "2026-06-22",
-    "author": "{{AUTHOR}}",
+    "author": "Research Desk",
     "theme": "plum"
   },
   "verdict": {
@@ -321,7 +321,7 @@ body{ font:13px/1.55 var(--sans); color:var(--ink); -webkit-font-smoothing:antia
     ]
   },
   "ask": {
-    "text": "<strong>Approve</strong> the ¥2.8B staged Phase&nbsp;2 investment (40% now / 60% on the Q3 pilot gate) and <strong>authorise</strong> the hybrid vendor renewal before the September expiry. Full evidence: long-form <i>{{PROJECT}} Investment Business Case</i>.",
+    "text": "<strong>Approve</strong> the ¥2.8B staged Phase&nbsp;2 investment (40% now / 60% on the Q3 pilot gate) and <strong>authorise</strong> the hybrid vendor renewal before the September expiry. Full evidence: long-form <i>Open Research Investment Business Case</i>.",
     "metaItems": [
       { "key": "Owner",   "value": "CFO" },
       { "key": "Sponsor", "value": "COO" },
@@ -478,12 +478,12 @@ body{ font:13px/1.55 var(--sans); color:var(--ink); -webkit-font-smoothing:antia
 
     /* initial theme = meta.theme */
     document.documentElement.setAttribute('data-theme', m.theme || 'plum');
-    document.title = (m.project || '{{PROJECT}}') + ' — ' + (m.title || 'One-Pager');
+    document.title = (m.project || 'Open Research') + ' — ' + (m.title || 'One-Pager');
 
     /* masthead */
     var kick = [m.reportType, 'Decision Brief', 'One-Pager'].filter(Boolean).join(' · ');
     $('r-kicker').textContent = kick;
-    $('r-title').innerHTML = esc(m.project || '{{PROJECT}}') + ' — ' + esc(m.title || '');
+    $('r-title').innerHTML = esc(m.project || 'Open Research') + ' — ' + esc(m.title || '');
     if (m.subtitle) $('r-title').innerHTML += ' <b>' + esc(m.subtitle) + '</b>';
 
     /* verdict pill (state → colour class) */
@@ -587,8 +587,8 @@ body{ font:13px/1.55 var(--sans); color:var(--ink); -webkit-font-smoothing:antia
     }).join('');
 
     /* footer */
-    $('r-foot-l').textContent = 'Confidential · For steering decision · ' + (m.author || '{{AUTHOR}}');
-    $('r-foot-r').textContent = (m.org || '{{ORG}}') + ' · Decision Brief · ' + (m.date || '{{DATE}}');
+    $('r-foot-l').textContent = 'Confidential · For steering decision · ' + (m.author || 'Research Desk');
+    $('r-foot-r').textContent = (m.org || 'Independent Research') + ' · Decision Brief · ' + (m.date || '2026-06-22');
   }
 
   /* ----------------------------- overlay popover engine ----------------------------- */

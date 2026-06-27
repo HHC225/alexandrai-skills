@@ -431,13 +431,13 @@ body{
 <script type="application/json" id="report-data">
 {
   "meta": {
-    "org": "{{ORG}}",
-    "project": "{{PROJECT}}",
+    "org": "Independent Research",
+    "project": "Open Research",
     "reportType": "Sprint 24",
     "title": "Delivery & Defect Board",
     "subtitle": "Sprint 24 · Release 2.7 hardening",
     "date": "2026-06-22",
-    "author": "{{AUTHOR}}",
+    "author": "Research Desk",
     "theme": "teal"
   },
   "lanes": [
@@ -712,13 +712,13 @@ body{
     var themeSwitcher='<label class="rc-theme" title="Brand colour"><span class="rc-theme-sw" aria-hidden="true"></span><select class="rc-theme-sel" aria-label="Brand theme"><option value="blue">Blue</option><option value="purple">Purple</option><option value="indigo">Indigo</option><option value="teal">Teal</option><option value="cyan">Cyan</option><option value="green">Green</option><option value="plum">Plum</option><option value="slate">Slate</option><option value="black">Black</option></select></label>';
     document.getElementById('boardBar').innerHTML =
       '<div class="board-title"><span class="board-mark" aria-hidden="true">'+ICON.board+'</span>'
-        + '<div><div class="board-name">'+esc(m.org||'{{ORG}}')+' · '+esc(m.project||'{{PROJECT}}')+' — '+esc(m.title||'Board')+'</div>'
+        + '<div><div class="board-name">'+esc(m.org||'Independent Research')+' · '+esc(m.project||'Open Research')+' — '+esc(m.title||'Board')+'</div>'
         + (m.subtitle?'<div class="board-sub">'+esc(m.subtitle)+'</div>':'')+'</div></div>'
       + '<span class="board-count">'+DATA.cards.length+' cards</span>'
       + '<div class="board-meta">'
         + '<div><div class="bm-k">Assignees</div></div>'
         + '<div class="avatar-stack" aria-label="Team — click to filter">'+people+'</div>'
-        + '<div><div class="bm-k">Updated</div><div class="bm-v">'+esc(m.date||'{{DATE}}')+' · '+esc(m.author||'{{AUTHOR}}')+'</div></div>'
+        + '<div><div class="bm-k">Updated</div><div class="bm-v">'+esc(m.date||'2026-06-22')+' · '+esc(m.author||'Research Desk')+'</div></div>'
         + themeSwitcher
       + '</div>';
   }
@@ -758,9 +758,9 @@ body{
   function renderFooter(){
     var m=DATA.meta||{};
     document.getElementById('boardFoot').innerHTML =
-      '<span class="fw"><i></i>'+esc(m.org||'{{ORG}}')+'</span>'
-      + '<span>'+esc(m.project||'{{PROJECT}}')+' · '+esc(m.reportType||'{{REPORT_TYPE}}')+'</span>'
-      + '<span class="fmeta"><span>Board · '+esc(m.reportType||'Sprint')+'</span><span>Generated '+esc(m.date||'{{DATE}}')+'</span><span>'+esc(m.author||'{{AUTHOR}}')+'</span></span>';
+      '<span class="fw"><i></i>'+esc(m.org||'Independent Research')+'</span>'
+      + '<span>'+esc(m.project||'Open Research')+' · '+esc(m.reportType||'Report')+'</span>'
+      + '<span class="fmeta"><span>Board · '+esc(m.reportType||'Sprint')+'</span><span>Generated '+esc(m.date||'2026-06-22')+'</span><span>'+esc(m.author||'Research Desk')+'</span></span>';
   }
 
   function render(){ renderBar(); renderCtrl(); renderBoard(); }

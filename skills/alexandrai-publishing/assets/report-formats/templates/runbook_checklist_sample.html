@@ -247,19 +247,19 @@ body.show-empty .rc-empty{display:flex;}
 <script type="application/json" id="report-data">
 {
   "meta": {
-    "org": "{{ORG}}",
-    "project": "{{PROJECT}}",
+    "org": "Independent Research",
+    "project": "Open Research",
     "reportType": "Runbook · Incident Mitigation",
     "title": "Mitigate duplicate-disbursement incident on the settlement path",
     "subtitle": "SEV2 — duplicate payments are clearing under partial-failure retry. Work top to bottom: confirm, stop the bleed, verify, then close out. Tick each step as you complete it.",
     "date": "2026-06-22",
-    "author": "{{AUTHOR}}",
+    "author": "Research Desk",
     "theme": "cyan"
   },
   "severity": "sev2",
   "estDuration": "~45 min",
   "owners": [
-    { "role": "Incident Commander", "name": "{{AUTHOR}}" },
+    { "role": "Incident Commander", "name": "Research Desk" },
     { "role": "On-call SRE", "name": "Payments on-call" },
     { "role": "DBA", "name": "Data Platform on-call" }
   ],
@@ -318,7 +318,7 @@ body.show-empty .rc-empty{display:flex;}
 
 <footer class="rc-footer">
   <div class="rc-foot-inner">
-    <div class="rc-brand"><span class="sq"></span><span id="foot-org">{{ORG}}</span> &nbsp;·&nbsp; Operations Runbook</div>
+    <div class="rc-brand"><span class="sq"></span><span id="foot-org">Independent Research</span> &nbsp;·&nbsp; Operations Runbook</div>
     <div class="rc-foot-meta" id="foot-meta"></div>
   </div>
 </footer>

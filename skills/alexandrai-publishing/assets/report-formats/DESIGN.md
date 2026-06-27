@@ -16,7 +16,7 @@ description: >-
   kanban board, gantt roadmap, presentation deck, one-pager, portfolio, infographic poster,
   matrix canvas, magazine feature) — each with its own chrome and a matching sample. Ships a
   bespoke SVG icon library (icons/) — never generic "AI" iconography. Organisation / project
-  names are supplied at render time via {{ORG}} / {{PROJECT}} placeholders.
+  names are filled at authoring time with brand-neutral defaults (e.g. Independent Research / Open Research).
 
 colors:
   # Surface / page
@@ -92,8 +92,8 @@ rounded:
 # Dense Institutional Report System — Design System
 
 This DESIGN.md is the **shared visual identity** for institutional HTML deliverables. It is
-brand-neutral — the organisation and project names are supplied at render time
-(`{{ORG}}` / `{{PROJECT}}`) and the brand colour is one of eight swappable presets (Blue
+brand-neutral — the organisation and project names are filled at authoring time with brand-neutral
+defaults (`Independent Research` / `Open Research`) and the brand colour is one of eight swappable presets (Blue
 default). It was rebuilt to match a real **reference report** (a Genesis bug-analysis report):
 a **thin sticky top bar**, a **compact hero**, a **3-column content grid with BOTH side rails
 sticky** (left TOC + right metadata rail), **rounded section panels with header bands**, a
@@ -154,20 +154,22 @@ switching. All controls hide in `@media print`.
 
 ## Branding & naming
 
-Ships with **no company name, logo, or product baked in**. Every identity slot is a fill-in
-placeholder substituted at render time:
+Ships with **no company name, logo, or product baked in**. Each identity slot is filled at authoring
+time with a real or brand-neutral value (AlexandrAI publishes straight to a public archive — there is
+no downstream find-and-replace step, so an unfilled slot would render its raw token):
 
-| Placeholder | Appears in | Example |
+| Identity slot | Appears in | Brand-neutral default |
 |:--|:--|:--|
-| `{{ORG}}` | top-bar wordmark, footer brand | `Acme Consulting` |
-| `{{PROJECT}}` | title, breadcrumb, body references | `Payments Platform` |
-| `{{REPORT_TYPE}}` | top-bar sub-label, eyebrow, footer | `Incident Analysis`, `Roadmap` |
-| `{{DATE}}` / `{{AUTHOR}}` | hero / footer meta | `2026-06-22`, `Delivery Office` |
+| `org` | top-bar wordmark, footer brand | `Independent Research` |
+| `project` | title, breadcrumb, body references | `Open Research` |
+| `reportType` | top-bar sub-label, eyebrow, footer | `Incident Analysis`, `Roadmap` |
+| `date` / `author` | hero / footer meta | `2026-06-22`, `Research Desk` |
 
-Rules: a model generating a report MUST (a) use names the user supplied, (b) ask for them, or
-(c) leave the literal `{{ORG}}` / `{{PROJECT}}` placeholders in place — and MUST NOT invent a real
-company's brand. Branding is **text-only** (uppercase wordmark + a brand-accent square in the
-footer); no raster/SVG logo slot.
+Rules: a model generating a report MUST fill every identity slot — using names the user supplied, or
+the publisher's registered org (default `Independent Research`) and neutral project/author values. It
+MUST NOT leave a literal `{{...}}` placeholder in the output (lint rejects unresolved placeholders) and
+MUST NOT invent a real company's brand. Branding is **text-only** (uppercase wordmark + a brand-accent
+square in the footer); no raster/SVG logo slot.
 
 ## Colors
 
@@ -260,7 +262,7 @@ footer (dark)
 ```
 
 - **Thin sticky top bar** — `position:sticky; top:0`, 1px bottom rule, `10px 40px` padding. Uppercase
-  `{{ORG}}` wordmark left; breadcrumb + generated-date right. Pure white, never tinted.
+  `org` wordmark left; breadcrumb + generated-date right. Pure white, never tinted.
 - **Compact hero** — single-column, `30 / 40 / 22` padding, 1px bottom rule. Order: eyebrow (mono,
   tracked) → title (25/800, no `text-wrap:balance`) → badge row (verdict + type + ticket + meta
   chips) → standfirst (14px). No side card.

@@ -13,8 +13,8 @@
       "required": ["org", "project", "kicker", "headline", "deck", "byline", "date", "theme"],
       "additionalProperties": false,
       "properties": {
-        "org": { "type": "string", "description": "Organisation name or {{ORG}} placeholder. Appears in the folio wordmark.", "default": "{{ORG}}" },
-        "project": { "type": "string", "description": "Project / publication name or {{PROJECT}} placeholder. Appears in the kicker.", "default": "{{PROJECT}}" },
+        "org": { "type": "string", "description": "Organisation name (e.g. Independent Research). Appears in the folio wordmark.", "default": "Independent Research" },
+        "project": { "type": "string", "description": "Project / publication name (e.g. Open Research). Appears in the kicker.", "default": "Open Research" },
         "reportType": { "type": "string", "description": "Optional eyebrow section label shown after the project in the kicker, e.g. 'The Field Notebook' or 'Feature'." },
         "kicker": { "type": "string", "description": "Tracked-uppercase mono eyebrow before the hairline rule, e.g. 'Engineering Culture'. The editorial 'section / rubric' voice." },
         "headline": { "type": "string", "description": "The display headline shown large (clamp 38–88px). The ONE big-type moment. Keep it to 1–3 lines. May contain HTML like <em> for italic accent words." },
@@ -25,11 +25,11 @@
           "required": ["author", "date"],
           "additionalProperties": false,
           "properties": {
-            "author": { "type": "string", "description": "Author name or {{AUTHOR}} placeholder.", "default": "{{AUTHOR}}" },
+            "author": { "type": "string", "description": "Author name (e.g. Research Desk).", "default": "Research Desk" },
             "role": { "type": "string", "description": "Optional author role / title, e.g. 'Principal Engineer, Platform'." },
             "date": { "type": "string", "description": "Publication date (ISO YYYY-MM-DD or display string).", "format": "date" },
             "readTime": { "type": "string", "description": "Estimated reading time shown after the date, e.g. '14 min read'." },
-            "issueRef": { "type": "string", "description": "Optional issue/publication reference shown as a .ref-chip, e.g. '{{PROJECT}} · No. 04'." }
+            "issueRef": { "type": "string", "description": "Optional issue/publication reference shown as a .ref-chip, e.g. 'Open Research · No. 04'." }
           }
         },
         "date": { "type": "string", "description": "ISO publication date (YYYY-MM-DD).", "format": "date" },
@@ -141,7 +141,7 @@
       "additionalProperties": false,
       "properties": {
         "publication": { "type": "string", "description": "Publication / series name shown beside the wordmark, e.g. 'The Field Notebook'." },
-        "issue": { "type": "string", "description": "Issue / section reference, e.g. '{{PROJECT}} · No. 04'." },
+        "issue": { "type": "string", "description": "Issue / section reference, e.g. 'Open Research · No. 04'." },
         "section": { "type": "string", "description": "Optional section / category label, e.g. 'Engineering Culture'." },
         "pageLabel": { "type": "string", "description": "Page number text, e.g. 'Page 1 of 1'.", "default": "Page 1 of 1" }
       }
@@ -150,18 +150,18 @@
   "examples": [
     {
       "meta": {
-        "org": "{{ORG}}",
-        "project": "{{PROJECT}}",
+        "org": "Independent Research",
+        "project": "Open Research",
         "reportType": "The Field Notebook",
         "kicker": "Engineering Culture",
         "headline": "The Quiet <em>Rewrite</em>",
         "deck": "For eighteen months the platform team shipped nothing visible — no launch, no headline, no demo. Then the incident graph went quiet. This is the story of how a team replaced its core ledger engine in flight, one careful seam at a time, and what they learned about the unglamorous art of changing everything while breaking nothing.",
         "byline": {
-          "author": "{{AUTHOR}}",
+          "author": "Research Desk",
           "role": "Principal Engineer, Platform",
           "date": "2026-06-22",
           "readTime": "14 min read",
-          "issueRef": "{{PROJECT}} · No. 04"
+          "issueRef": "Open Research · No. 04"
         },
         "date": "2026-06-22",
         "theme": "slate"
@@ -248,7 +248,7 @@
       ],
       "folio": {
         "publication": "The Field Notebook",
-        "issue": "{{PROJECT}} · No. 04",
+        "issue": "Open Research · No. 04",
         "section": "Engineering Culture",
         "pageLabel": "Page 1 of 1"
       }

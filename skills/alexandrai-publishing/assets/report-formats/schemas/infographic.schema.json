@@ -9,17 +9,17 @@
   "properties": {
     "meta": {
       "type": "object",
-      "description": "Shared report chrome (org / project / title / theme). Brand-neutral: keep {{ORG}} / {{PROJECT}} / {{AUTHOR}} placeholders unless real values are supplied.",
+      "description": "Shared report chrome (org / project / title / theme). Brand-neutral: use real or brand-neutral values (e.g. Independent Research / Open Research / Research Desk); never leave a {{...}} placeholder.",
       "required": ["org", "project", "reportType", "title", "date", "theme"],
       "additionalProperties": false,
       "properties": {
-        "org": { "type": "string", "description": "Organisation name or {{ORG}} placeholder.", "default": "{{ORG}}" },
-        "project": { "type": "string", "description": "Project / programme name or {{PROJECT}} placeholder.", "default": "{{PROJECT}}" },
-        "reportType": { "type": "string", "description": "Eyebrow category label shown in the hero band, e.g. 'State of Digital Onboarding' or {{REPORT_TYPE}}." },
+        "org": { "type": "string", "description": "Organisation name (e.g. Independent Research).", "default": "Independent Research" },
+        "project": { "type": "string", "description": "Project / programme name (e.g. Open Research).", "default": "Open Research" },
+        "reportType": { "type": "string", "description": "Eyebrow category label shown in the hero band, e.g. 'State of Digital Onboarding'." },
         "title": { "type": "string", "description": "Poster main title shown oversized in the hero band, e.g. 'The State of Digital Onboarding 2026'." },
         "subtitle": { "type": "string", "description": "Optional standfirst sentence (2–3 lines) that appears directly under the title in the hero band." },
         "date": { "type": "string", "description": "ISO date the infographic was produced (YYYY-MM-DD).", "format": "date" },
-        "author": { "type": "string", "description": "Author / owning team or {{AUTHOR}} placeholder.", "default": "{{AUTHOR}}" },
+        "author": { "type": "string", "description": "Author / owning team (e.g. Research Desk).", "default": "Research Desk" },
         "chips": {
           "type": "array",
           "description": "Optional mono pills shown in the hero band under the standfirst, e.g. survey scope or methodology chips.",
@@ -103,7 +103,7 @@
         "notes": {
           "type": "array",
           "description": "One or more source note lines. Each line is rendered as a small mono paragraph prefixed with 'Source:' or 'Compiled:' as appropriate.",
-          "items": { "type": "string", "description": "A source note line, e.g. '{{PROJECT}} Onboarding Analytics warehouse (event-level, FY2025); KYC decision logs; cohort funnel reconstructed from 4,206,118 sessions across 18 markets. Figures rounded.'." }
+          "items": { "type": "string", "description": "A source note line, e.g. 'Open Research Onboarding Analytics warehouse (event-level, FY2025); KYC decision logs; cohort funnel reconstructed from 4,206,118 sessions across 18 markets. Figures rounded.'." }
         }
       }
     }
@@ -111,14 +111,14 @@
   "examples": [
     {
       "meta": {
-        "org": "{{ORG}}",
-        "project": "{{PROJECT}}",
+        "org": "Independent Research",
+        "project": "Open Research",
         "reportType": "State of Digital Onboarding",
         "title": "The State of Digital Onboarding 2026",
         "subtitle": "How 4.2 million prospective customers moved from first tap to a funded account this year — the numbers, the funnel, and where the journey still leaks.",
         "date": "2026-06-22",
-        "author": "{{AUTHOR}}",
-        "chips": ["SURVEY N = 4,206,118", "FY2025 · 18 MARKETS", "UPDATED {{DATE}}"],
+        "author": "Research Desk",
+        "chips": ["SURVEY N = 4,206,118", "FY2025 · 18 MARKETS", "UPDATED 2026-06-22"],
         "theme": "green"
       },
       "bands": [
@@ -223,8 +223,8 @@
       ],
       "source": {
         "notes": [
-          "{{PROJECT}} Onboarding Analytics warehouse (event-level, FY2025); KYC decision logs; cohort funnel reconstructed from 4,206,118 sessions across 18 markets. Figures rounded.",
-          "Compiled: {{AUTHOR}} · {{DATE}} · figures illustrative / fictional."
+          "Open Research Onboarding Analytics warehouse (event-level, FY2025); KYC decision logs; cohort funnel reconstructed from 4,206,118 sessions across 18 markets. Figures rounded.",
+          "Compiled: Research Desk · 2026-06-22 · figures illustrative / fictional."
         ]
       }
     }

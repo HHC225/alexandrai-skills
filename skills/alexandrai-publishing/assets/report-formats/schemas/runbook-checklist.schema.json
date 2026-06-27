@@ -10,17 +10,17 @@
     "id": { "type": "string", "description": "Optional stable identifier for this runbook. When set, it is the localStorage key for saved checklist state (so progress survives meta.title / project edits); otherwise a key is derived from meta.project + meta.title." },
     "meta": {
       "type": "object",
-      "description": "Shared report identity block (see _DATA_DRIVEN.md). Brand-neutral: keep {{ORG}}/{{PROJECT}}/{{AUTHOR}} placeholders unless real values are supplied.",
+      "description": "Shared report identity block (see _DATA_DRIVEN.md). Brand-neutral: use real or brand-neutral values (e.g. Independent Research / Open Research / Research Desk); never leave a {{...}} placeholder.",
       "required": ["org", "project", "reportType", "title", "date", "author", "theme"],
       "additionalProperties": false,
       "properties": {
-        "org": { "type": "string", "description": "Organisation wordmark shown in header + footer. Placeholder: {{ORG}}.", "default": "{{ORG}}" },
-        "project": { "type": "string", "description": "Project / system this procedure applies to. Placeholder: {{PROJECT}}.", "default": "{{PROJECT}}" },
+        "org": { "type": "string", "description": "Organisation wordmark shown in header + footer.", "default": "Independent Research" },
+        "project": { "type": "string", "description": "Project / system this procedure applies to.", "default": "Open Research" },
         "reportType": { "type": "string", "description": "Artefact type label, e.g. 'Runbook' or 'Operational SOP'.", "examples": ["Runbook · Incident Mitigation", "Release Cutover SOP"] },
         "title": { "type": "string", "description": "Procedure title — the operational objective, stated as a goal.", "examples": ["Mitigate payment-orchestrator duplicate-disbursement incident"] },
         "subtitle": { "type": "string", "description": "Optional one-line context shown under the title (the trigger / scope)." },
         "date": { "type": "string", "format": "date", "description": "Issue / last-reviewed date (YYYY-MM-DD).", "examples": ["2026-06-22"] },
-        "author": { "type": "string", "description": "Procedure owner / author. Placeholder: {{AUTHOR}}.", "default": "{{AUTHOR}}" },
+        "author": { "type": "string", "description": "Procedure owner / author.", "default": "Research Desk" },
         "theme": {
           "type": "string",
           "description": "Initial brand theme; set on <html data-theme>. Live-switchable via .rc-theme. Default cyan for this format.",
@@ -48,7 +48,7 @@
         "additionalProperties": false,
         "properties": {
           "role": { "type": "string", "description": "Role on the procedure.", "examples": ["Incident Commander", "On-call SRE", "DBA"] },
-          "name": { "type": "string", "description": "Person or rota name (placeholder allowed).", "examples": ["{{AUTHOR}}", "Payments on-call"] }
+          "name": { "type": "string", "description": "Person or rota name (placeholder allowed).", "examples": ["Research Desk", "Payments on-call"] }
         }
       }
     },
@@ -122,19 +122,19 @@
   "examples": [
     {
       "meta": {
-        "org": "{{ORG}}",
-        "project": "{{PROJECT}}",
+        "org": "Independent Research",
+        "project": "Open Research",
         "reportType": "Runbook · Incident Mitigation",
         "title": "Mitigate duplicate-disbursement incident on the settlement path",
         "subtitle": "SEV2 — duplicate payments clearing under partial-failure retry. Stabilise, stop the bleed, verify, close.",
         "date": "2026-06-22",
-        "author": "{{AUTHOR}}",
+        "author": "Research Desk",
         "theme": "cyan"
       },
       "severity": "sev2",
       "estDuration": "~45 min",
       "owners": [
-        { "role": "Incident Commander", "name": "{{AUTHOR}}" },
+        { "role": "Incident Commander", "name": "Research Desk" },
         { "role": "On-call SRE", "name": "Payments on-call" },
         { "role": "DBA", "name": "Data Platform on-call" }
       ],

@@ -340,9 +340,9 @@ body{
     <div class="mh-l">
       <span class="wordmark">
         <span class="mark"><svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4V20H20"/><rect x="6.75" y="12" width="3" height="8" rx="1.2"/><rect x="11.5" y="8" width="3" height="12" rx="1.2"/><rect x="16.25" y="14.5" width="3" height="5.5" rx="1.2"/></svg></span>
-        <span id="wmOrg">{{ORG}}</span> <span class="sep">/</span> <span class="proj" id="wmProj">{{PROJECT}}</span>
+        <span id="wmOrg">Independent Research</span> <span class="sep">/</span> <span class="proj" id="wmProj">Open Research</span>
       </span>
-      <div class="mh-eyebrow" id="mhEyebrow">{{REPORT_TYPE}}</div>
+      <div class="mh-eyebrow" id="mhEyebrow">Report</div>
       <h1 class="mh-title" id="mhTitle">Delivery squad standings</h1>
       <p class="mh-sub" id="mhSub"></p>
     </div>
@@ -440,7 +440,7 @@ body{
     <span id="fPeriod">Period · —</span>
     <span id="fSource">Source · standings</span>
     <span class="f-spacer"></span>
-    <span class="wm"><span class="sq"></span><span id="fOrg">{{ORG}}</span></span>
+    <span class="wm"><span class="sq"></span><span id="fOrg">Independent Research</span></span>
   </footer>
 </main>
 
@@ -453,12 +453,12 @@ body{
 <script type="application/json" id="report-data">
 {
   "meta": {
-    "org": "{{ORG}}",
-    "project": "{{PROJECT}}",
-    "reportType": "{{REPORT_TYPE}}",
+    "org": "Independent Research",
+    "project": "Open Research",
+    "reportType": "Report",
     "title": "Delivery squad standings",
     "subtitle": "Quarterly performance standings across the twelve delivery squads, ranked on a composite delivery score. Switch the metric to re-rank on throughput or escaped defects.",
-    "date": "{{DATE}}",
+    "date": "2026-06-22",
     "author": "Delivery PMO",
     "period": "Q2 2026",
     "prevPeriod": "Q1 2026",
@@ -728,8 +728,8 @@ body{
   /* ---- meta / chrome ---- */
   function renderMeta(){
     const set = (id, v) => { const el = document.getElementById(id); if(el) el.textContent = v; };
-    set('wmOrg', META.org || '{{ORG}}'); set('wmProj', META.project || '{{PROJECT}}');
-    set('fOrg', META.org || '{{ORG}}');
+    set('wmOrg', META.org || 'Independent Research'); set('wmProj', META.project || 'Open Research');
+    set('fOrg', META.org || 'Independent Research');
     set('mhEyebrow', META.reportType || ''); set('mhTitle', META.title || 'Standings');
     set('mhSub', META.subtitle || '');
     set('mhPeriod', META.period || (META.date || '—'));

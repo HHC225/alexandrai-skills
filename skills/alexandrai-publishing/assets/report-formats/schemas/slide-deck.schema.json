@@ -9,17 +9,17 @@
   "properties": {
     "meta": {
       "type": "object",
-      "description": "Shared report chrome (org / project / title / theme). Brand-neutral: keep {{ORG}} / {{PROJECT}} / {{AUTHOR}} placeholders unless real values are supplied.",
+      "description": "Shared report chrome (org / project / title / theme). Brand-neutral: use real or brand-neutral values (e.g. Independent Research / Open Research / Research Desk); never leave a {{...}} placeholder.",
       "required": ["org", "project", "reportType", "title", "date", "theme"],
       "additionalProperties": false,
       "properties": {
-        "org": { "type": "string", "description": "Organisation name or {{ORG}} placeholder.", "default": "{{ORG}}" },
-        "project": { "type": "string", "description": "Project / programme name or {{PROJECT}} placeholder.", "default": "{{PROJECT}}" },
-        "reportType": { "type": "string", "description": "Eyebrow label shown above the deck title, e.g. 'Executive Readout' or {{REPORT_TYPE}}." },
+        "org": { "type": "string", "description": "Organisation name (e.g. Independent Research).", "default": "Independent Research" },
+        "project": { "type": "string", "description": "Project / programme name (e.g. Open Research).", "default": "Open Research" },
+        "reportType": { "type": "string", "description": "Eyebrow label shown above the deck title, e.g. 'Executive Readout'." },
         "title": { "type": "string", "description": "Deck title used in the browser <title> and cover slide, e.g. 'FY26 Q2 Executive Readout'." },
         "subtitle": { "type": "string", "description": "Optional one-line standfirst shown on the cover slide below the main title." },
         "date": { "type": "string", "description": "ISO date the deck was produced (YYYY-MM-DD).", "format": "date" },
-        "author": { "type": "string", "description": "Author or owning team, shown in the cover byline or {{AUTHOR}} placeholder.", "default": "{{AUTHOR}}" },
+        "author": { "type": "string", "description": "Author or owning team, shown in the cover byline (e.g. Research Desk).", "default": "Research Desk" },
         "theme": {
           "type": "string",
           "description": "Initial brand theme; applied as <html data-theme>. The in-deck theme picker can change it live. Default for this format is 'purple'.",
@@ -78,7 +78,7 @@
           },
           "byline": {
             "type": "array",
-            "description": "Optional key/value pairs shown in the byline row on the cover slide (e.g. [{key:'Presented by', value:'{{AUTHOR}}'}, {key:'Date', value:'2026-06-22'}]).",
+            "description": "Optional key/value pairs shown in the byline row on the cover slide (e.g. [{key:'Presented by', value:'Research Desk'}, {key:'Date', value:'2026-06-22'}]).",
             "items": {
               "type": "object",
               "required": ["key", "value"],
@@ -355,13 +355,13 @@
   "examples": [
     {
       "meta": {
-        "org": "{{ORG}}",
-        "project": "{{PROJECT}}",
+        "org": "Independent Research",
+        "project": "Open Research",
         "reportType": "Executive Readout",
         "title": "GEN2 Core Banking — FY26 Q2 Readout",
         "subtitle": "Programme health, financials, and vendor decision for committee approval",
         "date": "2026-06-22",
-        "author": "{{AUTHOR}}",
+        "author": "Research Desk",
         "theme": "purple"
       },
       "slides": [
@@ -376,7 +376,7 @@
             { "label": "2026-06-22", "tone": "brand" }
           ],
           "byline": [
-            { "key": "Presented by", "value": "{{AUTHOR}}" },
+            { "key": "Presented by", "value": "Research Desk" },
             { "key": "Prepared for", "value": "Steering Committee" },
             { "key": "Programme", "value": "GEN2 Core Banking" }
           ]
@@ -538,7 +538,7 @@
             { "text": "Approve Phase 2 investment of ¥2.8B.", "owner": "CFO", "due": "This quarter", "tone": "brand" },
             { "text": "Accept or direct a scope re-cut on the compliance exception.", "owner": "Risk & CISO", "due": "Decision today", "tone": "risk" }
           ],
-          "footnote": "{{PROJECT}} · Executive Readout · FY26 Q2 — full evidence in the long-form QBR"
+          "footnote": "Open Research · Executive Readout · FY26 Q2 — full evidence in the long-form QBR"
         }
       ]
     }

@@ -347,13 +347,13 @@ svg.wires path.is-path{ stroke:var(--navy); stroke-width:2.25; }
 <script type="application/json" id="report-data">
 {
   "meta": {
-    "org": "{{ORG}}",
-    "project": "{{PROJECT}}",
+    "org": "Independent Research",
+    "project": "Open Research",
     "reportType": "Delivery Org & Work-Breakdown",
     "title": "Platform Delivery — Org & Work-Breakdown",
     "subtitle": "FY2026 reorg · 17 nodes · depth 4",
     "date": "2026-06-22",
-    "author": "{{AUTHOR}}",
+    "author": "Research Desk",
     "theme": "indigo"
   },
   "orientation": "vertical",
@@ -366,7 +366,7 @@ svg.wires path.is-path{ stroke:var(--navy); stroke-width:2.25; }
   "root": {
     "id": "n-root",
     "name": "Platform Delivery",
-    "role": "Programme · {{PROJECT}}",
+    "role": "Programme · Open Research",
     "meta": "62 FTE",
     "status": "ok",
     "badge": "PROGRAMME",
@@ -601,9 +601,9 @@ svg.wires path.is-path{ stroke:var(--navy); stroke-width:2.25; }
     +   '<div class="node-tip" id="tip" role="tooltip" aria-hidden="true"></div>'
     + '</div>'
     + '<footer class="foot">'
-    +   '<div class="wm"><span class="sq" aria-hidden="true"></span>'+esc(m.org||'{{ORG}}')+'</div>'
-    +   '<div class="fmeta">'+esc(m.reportType||'Hierarchy')+' · '+esc(m.title||'')+'<br>Prepared by '+esc(m.author||'{{AUTHOR}}')+' · '+esc(m.date||'')+'</div>'
-    +   '<div class="fright">Confidential — internal use only<br>'+esc(m.project||'{{PROJECT}}')+' hierarchy</div>'
+    +   '<div class="wm"><span class="sq" aria-hidden="true"></span>'+esc(m.org||'Independent Research')+'</div>'
+    +   '<div class="fmeta">'+esc(m.reportType||'Hierarchy')+' · '+esc(m.title||'')+'<br>Prepared by '+esc(m.author||'Research Desk')+' · '+esc(m.date||'')+'</div>'
+    +   '<div class="fright">Confidential — internal use only<br>'+esc(m.project||'Open Research')+' hierarchy</div>'
     + '</footer>';
 
     org.innerHTML = html;

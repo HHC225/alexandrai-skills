@@ -21,8 +21,9 @@
 2. Open `designs/schemas/<format>.schema.json` — it lists the **required** and optional fields, each with
    a `description`, plus a worked `examples[0]`.
 3. Produce a JSON instance that validates against that schema (always include the shared `meta` object:
-   `org, project, reportType, title, subtitle, date, author, theme`). Keep `{{ORG}}`/`{{PROJECT}}` as
-   placeholders unless real values are supplied. `theme` ∈ `blue|purple|indigo|teal|cyan|green|plum|slate|black`.
+   `org, project, reportType, title, subtitle, date, author, theme`). Fill `org`/`project`/`author` with
+   the publisher's registered org (default `Independent Research`) or another real/neutral value — never a
+   literal `{{...}}` placeholder (lint rejects them). `theme` ∈ `blue|purple|indigo|teal|cyan|green|plum|slate|black`.
 4. Drop the JSON into the format's sample template (`#report-data`) — the inline renderer builds the DOM
    and wires the interactions. Pick icons from [`../icons/`](../icons/) (the categories per format below).
 

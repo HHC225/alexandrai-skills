@@ -9,17 +9,17 @@
   "properties": {
     "meta": {
       "type": "object",
-      "description": "Shared report chrome (org / project / title / theme). Brand-neutral: keep {{ORG}} / {{PROJECT}} / {{AUTHOR}} placeholders unless real values are supplied.",
+      "description": "Shared report chrome (org / project / title / theme). Brand-neutral: use real or brand-neutral values (e.g. Independent Research / Open Research / Research Desk); never leave a {{...}} placeholder.",
       "required": ["org", "project", "reportType", "title", "date", "theme"],
       "additionalProperties": false,
       "properties": {
-        "org": { "type": "string", "description": "Organisation name or {{ORG}} placeholder.", "default": "{{ORG}}" },
-        "project": { "type": "string", "description": "Project / programme name or {{PROJECT}} placeholder.", "default": "{{PROJECT}}" },
-        "reportType": { "type": "string", "description": "Eyebrow label shown in the board bar (e.g. 'Sprint 24' or {{REPORT_TYPE}})." },
+        "org": { "type": "string", "description": "Organisation name (e.g. Independent Research).", "default": "Independent Research" },
+        "project": { "type": "string", "description": "Project / programme name (e.g. Open Research).", "default": "Open Research" },
+        "reportType": { "type": "string", "description": "Eyebrow label shown in the board bar (e.g. 'Sprint 24')." },
         "title": { "type": "string", "description": "Board name shown in the board bar, e.g. 'Delivery & Defect Board'." },
         "subtitle": { "type": "string", "description": "Optional sub-label shown below the board name, e.g. the sprint or date range." },
         "date": { "type": "string", "description": "ISO date the board was generated (YYYY-MM-DD).", "format": "date" },
-        "author": { "type": "string", "description": "Author / team or {{AUTHOR}} placeholder.", "default": "{{AUTHOR}}" },
+        "author": { "type": "string", "description": "Author / team (e.g. Research Desk).", "default": "Research Desk" },
         "theme": {
           "type": "string",
           "description": "Initial brand theme; applied as <html data-theme>. The in-board switcher can change it live. Default for this format is 'teal'.",
@@ -93,13 +93,13 @@
   "examples": [
     {
       "meta": {
-        "org": "{{ORG}}",
-        "project": "{{PROJECT}}",
+        "org": "Independent Research",
+        "project": "Open Research",
         "reportType": "Sprint 24",
         "title": "Delivery & Defect Board",
         "subtitle": "Sprint 24 — 2026-06-09 to 2026-06-22",
         "date": "2026-06-22",
-        "author": "{{AUTHOR}}",
+        "author": "Research Desk",
         "theme": "teal"
       },
       "lanes": [

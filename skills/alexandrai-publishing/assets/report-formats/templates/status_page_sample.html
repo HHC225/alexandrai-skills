@@ -21,13 +21,13 @@
 <script type="application/json" id="report-data">
 {
   "meta": {
-    "org": "{{ORG}}",
-    "project": "{{PROJECT}}",
+    "org": "Independent Research",
+    "project": "Open Research",
     "reportType": "Service Status",
     "title": "Platform Status",
-    "subtitle": "Live operational status, 90-day uptime history, and incident communications for the {{PROJECT}} platform.",
+    "subtitle": "Live operational status, 90-day uptime history, and incident communications for the Open Research platform.",
     "date": "2026-06-22",
-    "author": "{{AUTHOR}}",
+    "author": "Research Desk",
     "theme": "cyan"
   },
   "windows": [90, 60, 30],
@@ -728,7 +728,7 @@ code{ font-family:var(--mono); }
   function render(){
     var m = DATA.meta || {};
     document.documentElement.dataset.theme = m.theme || "cyan";
-    document.title = (m.project || "{{PROJECT}}") + " Status — " + (m.title || "Platform Status") + " · " + (m.org || "{{ORG}}");
+    document.title = (m.project || "Open Research") + " Status — " + (m.title || "Platform Status") + " · " + (m.org || "Independent Research");
 
     root.innerHTML = "";
     root.appendChild(buildMast(m));
@@ -763,7 +763,7 @@ code{ font-family:var(--mono); }
       '<div class="sp-brand">' +
         '<div class="sp-mark">' + esc(mark) + '</div>' +
         '<div><h1>' + esc(m.title || "Platform Status") + '</h1>' +
-          '<div class="sub">' + esc(m.org || "{{ORG}}") + ' · ' + esc(m.project || "{{PROJECT}}") + ' · ' + esc((m.reportType || "Service Status")) + '</div></div>' +
+          '<div class="sub">' + esc(m.org || "Independent Research") + ' · ' + esc(m.project || "Open Research") + ' · ' + esc((m.reportType || "Service Status")) + '</div></div>' +
       '</div>' +
       '<div class="sp-mast-sp"></div>' +
       '<span class="sp-asof">' + ico("i-clock") + 'As of <b>' + esc(asOfStr) + '</b></span>' +
@@ -965,16 +965,16 @@ code{ font-family:var(--mono); }
   function buildFooter(m){
     var f = el("footer", "sp-foot");
     f.innerHTML =
-      '<span class="wm"><i></i>' + esc(m.org || "{{ORG}}") + '</span>' +
+      '<span class="wm"><i></i>' + esc(m.org || "Independent Research") + '</span>' +
       '<span class="legend">' +
         '<span><i style="background:var(--ok)"></i>Operational</span>' +
         '<span><i style="background:var(--hold)"></i>Degraded</span>' +
         '<span><i style="background:var(--risk)"></i>Outage</span>' +
       '</span>' +
       '<span class="sp"></span>' +
-      '<span>' + esc(m.project || "{{PROJECT}}") + ' STATUS</span>' +
+      '<span>' + esc(m.project || "Open Research") + ' STATUS</span>' +
       '<span>GENERATED ' + esc(m.date || "") + '</span>' +
-      '<span>' + esc(m.author || "{{AUTHOR}}") + '</span>';
+      '<span>' + esc(m.author || "Research Desk") + '</span>';
     return f;
   }
 

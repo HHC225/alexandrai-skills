@@ -13,13 +13,13 @@
       "required": ["title", "theme"],
       "additionalProperties": true,
       "properties": {
-        "org": { "type": "string", "description": "Owning organisation; brand-neutral placeholder {{ORG}} unless a real value is supplied." },
-        "project": { "type": "string", "description": "Project / product the knowledge base belongs to; placeholder {{PROJECT}} unless supplied." },
+        "org": { "type": "string", "description": "Owning organisation." },
+        "project": { "type": "string", "description": "Project / product the knowledge base belongs to." },
         "reportType": { "type": "string", "description": "Human label for the artefact kind, e.g. 'Help Centre' or 'Knowledge Base'." },
         "title": { "type": "string", "description": "Knowledge-base title shown in the masthead." },
         "subtitle": { "type": "string", "description": "Optional one-line subtitle / scope under the title." },
         "date": { "type": "string", "description": "Last-updated / publication date (ISO 8601, e.g. 2026-06-22)." },
-        "author": { "type": "string", "description": "Maintainer / owning team; placeholder {{AUTHOR}} unless supplied." },
+        "author": { "type": "string", "description": "Maintainer / owning team." },
         "theme": {
           "type": "string",
           "description": "Initial brand theme applied via <html data-theme>. 'black' is always selectable in the switcher.",
@@ -111,13 +111,13 @@
   "examples": [
     {
       "meta": {
-        "org": "{{ORG}}",
-        "project": "{{PROJECT}}",
+        "org": "Independent Research",
+        "project": "Open Research",
         "reportType": "Help Centre",
         "title": "Platform Knowledge Base",
         "subtitle": "Answers for the ingestion platform — accounts, data, API, and incidents",
         "date": "2026-06-22",
-        "author": "{{AUTHOR}}",
+        "author": "Research Desk",
         "theme": "blue"
       },
       "intro": "Search a question or browse by category. Every answer is self-contained.",

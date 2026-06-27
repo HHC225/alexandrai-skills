@@ -15,13 +15,13 @@
 <script type="application/json" id="report-data">
 {
   "meta": {
-    "org": "{{ORG}}",
-    "project": "{{PROJECT}}",
+    "org": "Independent Research",
+    "project": "Open Research",
     "reportType": "Regional breakdown",
     "title": "Regional Performance — retail network",
     "subtitle": "Net revenue and active accounts across 12 territories",
     "date": "2026-06-22",
-    "author": "{{AUTHOR}}",
+    "author": "Research Desk",
     "asOf": "FY26 Q1",
     "theme": "teal"
   },
@@ -545,12 +545,12 @@ body{
     + '</div>'
 
     + '<footer class="foot">'
-    +   '<span class="wm"><i></i>'+esc(m.org||'{{ORG}}')+'</span>'
+    +   '<span class="wm"><i></i>'+esc(m.org||'Independent Research')+'</span>'
     +   '<span class="sp"></span>'
-    +   '<span>'+esc(m.project||'{{PROJECT}}')+' · '+esc((m.reportType||'REGIONAL BREAKDOWN').toUpperCase())+'</span>'
+    +   '<span>'+esc(m.project||'Open Research')+' · '+esc((m.reportType||'REGIONAL BREAKDOWN').toUpperCase())+'</span>'
     +   '<span>AS OF '+esc(m.asOf||m.date||'')+'</span>'
     +   '<span>'+esc((DATA.regions||[]).length)+' REGIONS · ABSTRACT TILE-GRID (NO MAP DATA)</span>'
-    +   '<span>'+esc(m.author||'{{AUTHOR}}')+'</span>'
+    +   '<span>'+esc(m.author||'Research Desk')+'</span>'
     + '</footer>';
 
     buildTiles();

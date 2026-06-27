@@ -22,9 +22,11 @@ the DNA.
    external images (use CSS/SVG for any graphic). The only allowed external scripts are Mermaid +
    svg-pan-zoom CDNs, and ONLY if the sample actually draws a Mermaid diagram.
 2. **System fonts only** (see §2) — instant render, perfect portability, the dense technical register.
-3. **Brand-neutral.** Never bake in a real company name. Use the placeholders `{{ORG}}`, `{{PROJECT}}`,
-   `{{REPORT_TYPE}}`, `{{DATE}}`, `{{AUTHOR}}` verbatim where an identity would appear. Sample *content*
-   (the body data) may be realistic fictional data, but the org/project chrome stays as placeholders.
+3. **Brand-neutral.** Never bake in a real company's brand. Fill every identity slot (`org`, `project`,
+   `reportType`, `date`, `author`) with the publisher's registered org (default `Independent Research`) or
+   another real/neutral value — never leave a literal `{{...}}` placeholder, which would render verbatim
+   on the published page (lint rejects unresolved placeholders). Sample *content* (the body data) may be
+   realistic fictional data.
 4. **Theme via one attribute.** Put the full default token block in `:root`, and support
    `<html data-theme="…">` swaps (see §1). Each format is assigned a default theme below so the gallery
    shows the palette range.

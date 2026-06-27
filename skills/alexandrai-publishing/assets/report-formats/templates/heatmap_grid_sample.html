@@ -311,7 +311,7 @@ select.tool-sel{ font:600 10.5px/1 var(--mono); letter-spacing:.03em; color:var(
   <!-- ============== HEAD ============== -->
   <header class="hm-head">
     <div class="hh-left">
-      <div class="eyebrow" id="hhEyebrow">Risk Workshop · {{REPORT_TYPE}}</div>
+      <div class="eyebrow" id="hhEyebrow">Risk Workshop · Report</div>
       <h1 class="hm-title">
         <span class="markmini" aria-hidden="true">
           <!-- heatmap mark (house style: stroke 1.75, squared node) -->
@@ -321,14 +321,14 @@ select.tool-sel{ font:600 10.5px/1 var(--mono); letter-spacing:.03em; color:var(
             <rect x="14.83" y="3.5" width="5.67" height="5.67" rx="1" fill="currentColor" stroke="none"/>
           </svg>
         </span>
-        <span id="hhTitle">{{PROJECT}} · Heatmap Grid</span>
+        <span id="hhTitle">Open Research · Heatmap Grid</span>
       </h1>
       <p class="hm-standfirst" id="hhStandfirst"></p>
       <div class="mode-chips" id="modeChips"></div>
     </div>
     <div class="hh-right">
       <div class="asof">
-        <span class="mono" id="hhAsof">as of {{DATE}}</span>
+        <span class="mono" id="hhAsof">as of 2026-06-22</span>
         <label class="rc-theme" id="rcTheme" title="Brand colour">
           <span class="rc-theme-sw" aria-hidden="true"></span>
           <select class="rc-theme-sel" aria-label="Brand theme">
@@ -409,8 +409,8 @@ select.tool-sel{ font:600 10.5px/1 var(--mono); letter-spacing:.03em; color:var(
 
   <!-- ============== FOOTER ============== -->
   <footer class="foot">
-    <div class="wm"><span class="sq" aria-hidden="true"></span><span id="ftOrg">{{ORG}}</span></div>
-    <div class="fmeta" id="ftMeta">{{REPORT_TYPE}} · Heatmap Grid<br>Prepared by {{AUTHOR}} · {{DATE}}</div>
+    <div class="wm"><span class="sq" aria-hidden="true"></span><span id="ftOrg">Independent Research</span></div>
+    <div class="fmeta" id="ftMeta">Report · Heatmap Grid<br>Prepared by Research Desk · 2026-06-22</div>
     <div class="fright" id="ftRight">Confidential — internal use only<br>Mode: risk likelihood × impact</div>
   </footer>
 </main>
@@ -423,13 +423,13 @@ select.tool-sel{ font:600 10.5px/1 var(--mono); letter-spacing:.03em; color:var(
 <script type="application/json" id="report-data">
 {
   "meta": {
-    "org": "{{ORG}}",
-    "project": "{{PROJECT}}",
+    "org": "Independent Research",
+    "project": "Open Research",
     "reportType": "Risk Assessment",
     "title": "Programme Risk Heatmap — Likelihood × Impact",
     "subtitle": "Residual risk score (likelihood × impact, 1–25) across delivery workstreams · Q2 FY26 review",
     "date": "2026-06-22",
-    "author": "{{AUTHOR}}",
+    "author": "Research Desk",
     "theme": "teal"
   },
   "mode": "risk",
@@ -737,11 +737,11 @@ select.tool-sel{ font:600 10.5px/1 var(--mono); letter-spacing:.03em; color:var(
   /* ---------- chrome ---------- */
   function renderChrome(){
     if(m.reportType) document.getElementById('hhEyebrow').textContent = (MODE_LABEL[MODE]||'Risk') + ' Heatmap · ' + m.reportType;
-    document.getElementById('hhTitle').textContent = (m.project||'{{PROJECT}}') + (m.title ? (' · ' + m.title) : ' · Heatmap Grid');
+    document.getElementById('hhTitle').textContent = (m.project||'Open Research') + (m.title ? (' · ' + m.title) : ' · Heatmap Grid');
     document.getElementById('hhStandfirst').textContent = m.subtitle || '';
-    document.getElementById('hhAsof').textContent = 'as of ' + (m.date||'{{DATE}}');
-    document.getElementById('ftOrg').textContent = m.org || '{{ORG}}';
-    document.getElementById('ftMeta').innerHTML = esc(m.reportType||'{{REPORT_TYPE}}') + ' · Heatmap Grid<br>Prepared by ' + esc(m.author||'{{AUTHOR}}') + ' · ' + esc(m.date||'{{DATE}}');
+    document.getElementById('hhAsof').textContent = 'as of ' + (m.date||'2026-06-22');
+    document.getElementById('ftOrg').textContent = m.org || 'Independent Research';
+    document.getElementById('ftMeta').innerHTML = esc(m.reportType||'Report') + ' · Heatmap Grid<br>Prepared by ' + esc(m.author||'Research Desk') + ' · ' + esc(m.date||'2026-06-22');
     document.getElementById('ftRight').innerHTML = 'Confidential — internal use only<br>Mode: ' + esc((MODE_LABEL[MODE]||'Risk').toLowerCase()) + ' · ' + esc(axes.y||'') + ' × ' + esc(axes.x||'');
 
     /* grid frame head */

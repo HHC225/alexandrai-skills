@@ -9,17 +9,17 @@
   "properties": {
     "meta": {
       "type": "object",
-      "description": "Shared report chrome (org / project / title / theme). Brand-neutral: keep {{ORG}} / {{PROJECT}} / {{AUTHOR}} placeholders unless real values are supplied.",
+      "description": "Shared report chrome (org / project / title / theme). Brand-neutral: use real or brand-neutral values (e.g. Independent Research / Open Research / Research Desk); never leave a {{...}} placeholder.",
       "required": ["org", "project", "reportType", "title", "date", "theme"],
       "additionalProperties": false,
       "properties": {
-        "org": { "type": "string", "description": "Organisation name or {{ORG}} placeholder.", "default": "{{ORG}}" },
-        "project": { "type": "string", "description": "Project / programme name or {{PROJECT}} placeholder.", "default": "{{PROJECT}}" },
-        "reportType": { "type": "string", "description": "Eyebrow label shown above the title, e.g. 'Quarterly standings' or {{REPORT_TYPE}}." },
+        "org": { "type": "string", "description": "Organisation name (e.g. Independent Research).", "default": "Independent Research" },
+        "project": { "type": "string", "description": "Project / programme name (e.g. Open Research).", "default": "Open Research" },
+        "reportType": { "type": "string", "description": "Eyebrow label shown above the title, e.g. 'Quarterly standings'." },
         "title": { "type": "string", "description": "Main leaderboard title, e.g. 'Delivery squad standings'." },
         "subtitle": { "type": "string", "description": "Optional one-line standfirst describing what is ranked and over what period." },
         "date": { "type": "string", "description": "ISO date the standings were produced (YYYY-MM-DD).", "format": "date" },
-        "author": { "type": "string", "description": "Owning team / compiler or {{AUTHOR}} placeholder.", "default": "{{AUTHOR}}" },
+        "author": { "type": "string", "description": "Owning team / compiler (e.g. Research Desk).", "default": "Research Desk" },
         "period": { "type": "string", "description": "Optional label for the period these standings cover, e.g. 'Q2 2026' or 'Sprint 41'." },
         "prevPeriod": { "type": "string", "description": "Optional label for the previous period the movement (rank delta + prev value) is measured against, e.g. 'Q1 2026'." },
         "theme": {
@@ -96,13 +96,13 @@
   "examples": [
     {
       "meta": {
-        "org": "{{ORG}}",
-        "project": "{{PROJECT}}",
-        "reportType": "{{REPORT_TYPE}}",
+        "org": "Independent Research",
+        "project": "Open Research",
+        "reportType": "Report",
         "title": "Delivery squad standings",
         "subtitle": "Quarterly performance standings across the twelve delivery squads, ranked on a composite delivery score.",
         "date": "2026-06-22",
-        "author": "{{AUTHOR}}",
+        "author": "Research Desk",
         "period": "Q2 2026",
         "prevPeriod": "Q1 2026",
         "theme": "cyan"

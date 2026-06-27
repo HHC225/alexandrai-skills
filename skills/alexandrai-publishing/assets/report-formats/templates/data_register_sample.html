@@ -341,10 +341,10 @@ details[open] .disclosure summary .icon{ transform:rotate(90deg); color:var(--na
   <header class="register-bar">
     <span class="wordmark">
       <span class="mark"><svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 9.5 12 4.75 20.5 9.5"/><path d="M4.5 9.5H19.5"/><path d="M6.5 11V17.5M10 11V17.5M14 11V17.5M17.5 11V17.5"/><path d="M5 17.5H19"/><path d="M3.75 20.25H20.25"/></svg></span>
-      <span id="wmOrg">{{ORG}}</span> <span class="sep">/</span> <span class="proj" id="wmProj">{{PROJECT}}</span>
+      <span id="wmOrg">Independent Research</span> <span class="sep">/</span> <span class="proj" id="wmProj">Open Research</span>
     </span>
     <span class="bar-title">
-      <span class="eyebrow" id="barEyebrow">{{REPORT_TYPE}}</span>
+      <span class="eyebrow" id="barEyebrow">Report</span>
       <span class="name" id="barName">Third-Party Risk &amp; Control Register</span>
     </span>
     <span class="bar-spacer"></span>
@@ -459,7 +459,7 @@ details[open] .disclosure summary .icon{ transform:rotate(90deg); color:var(--na
     <span>Scale: likelihood × impact (1–5)</span>
     <span class="sb-spacer"></span>
     <span id="sbSource">Source · register</span>
-    <span class="wm"><span class="sq"></span><span id="sbOrg">{{ORG}}</span></span>
+    <span class="wm"><span class="sq"></span><span id="sbOrg">Independent Research</span></span>
   </footer>
 </main>
 
@@ -472,12 +472,12 @@ details[open] .disclosure summary .icon{ transform:rotate(90deg); color:var(--na
 <script type="application/json" id="report-data">
 {
   "meta": {
-    "org": "{{ORG}}",
-    "project": "{{PROJECT}}",
-    "reportType": "{{REPORT_TYPE}}",
+    "org": "Independent Research",
+    "project": "Open Research",
+    "reportType": "Report",
     "title": "Third-Party Risk & Control Register",
     "subtitle": "Q2 2026 assessment — 24 vendor relationships",
-    "date": "{{DATE}}",
+    "date": "2026-06-22",
     "author": "2nd-Line Risk",
     "theme": "slate"
   },
@@ -2357,9 +2357,9 @@ details[open] .disclosure summary .icon{ transform:rotate(90deg); color:var(--na
 
   /* ---- meta / chrome from META ---- */
   function renderMeta(){
-    document.getElementById('wmOrg').textContent  = META.org || '{{ORG}}';
-    document.getElementById('wmProj').textContent = META.project || '{{PROJECT}}';
-    document.getElementById('sbOrg').textContent  = META.org || '{{ORG}}';
+    document.getElementById('wmOrg').textContent  = META.org || 'Independent Research';
+    document.getElementById('wmProj').textContent = META.project || 'Open Research';
+    document.getElementById('sbOrg').textContent  = META.org || 'Independent Research';
     document.getElementById('barEyebrow').textContent = META.reportType || '';
     document.getElementById('barName').textContent    = META.title || '';
     document.title = (META.reportType ? META.reportType + ' — ' : '') + (META.title || 'Register') + (META.project ? ' · ' + META.project : '');

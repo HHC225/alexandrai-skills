@@ -256,13 +256,13 @@ mark.kb-hit{background:var(--hold-bg);color:var(--ink);border-radius:3px;padding
 <script type="application/json" id="report-data">
 {
   "meta": {
-    "org": "{{ORG}}",
-    "project": "{{PROJECT}}",
+    "org": "Independent Research",
+    "project": "Open Research",
     "reportType": "Help Centre",
     "title": "Platform Knowledge Base",
     "subtitle": "Ingestion platform",
-    "date": "{{DATE}}",
-    "author": "{{AUTHOR}}",
+    "date": "2026-06-22",
+    "author": "Research Desk",
     "theme": "blue"
   },
   "intro": "Search a question or browse by category — every answer is self-contained.",
@@ -492,7 +492,7 @@ mark.kb-hit{background:var(--hold-bg);color:var(--ink);border-radius:3px;padding
       '<div class="kb-mast-inner">'
       + '<div class="kb-mast-top">'
         + '<div class="kb-brand"><span class="mark">'+ICON.shield+'</span><div class="kb-brand-txt">'
-          + '<div class="kb-brand-org">'+esc(m.org||'{{ORG}}')+' · '+esc(m.reportType||'Knowledge Base')+'</div>'
+          + '<div class="kb-brand-org">'+esc(m.org||'Independent Research')+' · '+esc(m.reportType||'Knowledge Base')+'</div>'
           + '<div class="kb-brand-title">'+esc(m.title||'Knowledge Base')+sub+'</div>'
         + '</div></div>'
         + dots
@@ -597,15 +597,15 @@ mark.kb-hit{background:var(--hold-bg);color:var(--ink);border-radius:3px;padding
   function renderFooter(){
     var m=DATA.meta||{};
     byId('footer').innerHTML =
-      '<div class="foot-inner"><div class="brand-dk"><span class="sq"></span>'+esc(m.org||'{{ORG}}')+'</div>'
-      + '<div class="foot-meta">'+esc(m.title||'')+' · '+esc(m.project||'{{PROJECT}}')+' · Updated '+esc(m.date||'')
+      '<div class="foot-inner"><div class="brand-dk"><span class="sq"></span>'+esc(m.org||'Independent Research')+'</div>'
+      + '<div class="foot-meta">'+esc(m.title||'')+' · '+esc(m.project||'Open Research')+' · Updated '+esc(m.date||'')
       + '<br>'+esc(m.reportType||'Knowledge Base')+' · '+ARTS.length+' articles · '+CATS.length+' categories</div></div>';
   }
 
   /* ---------- RENDER ---------- */
   function render(){
     document.documentElement.dataset.theme = (DATA.meta&&DATA.meta.theme)||'blue';
-    document.title = (DATA.meta&&DATA.meta.title?DATA.meta.title+' — ':'')+((DATA.meta&&DATA.meta.project)||'{{PROJECT}}');
+    document.title = (DATA.meta&&DATA.meta.title?DATA.meta.title+' — ':'')+((DATA.meta&&DATA.meta.project)||'Open Research');
     renderMasthead(); renderMain(); renderFooter();
   }
 

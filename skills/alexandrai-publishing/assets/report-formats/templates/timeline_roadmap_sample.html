@@ -13,13 +13,13 @@
 <script type="application/json" id="report-data">
 {
   "meta": {
-    "org": "{{ORG}}",
-    "project": "{{PROJECT}}",
+    "org": "Independent Research",
+    "project": "Open Research",
     "reportType": "Platform delivery roadmap",
     "title": "Core Banking Platform — Programme Roadmap",
     "subtitle": "Six-quarter delivery plan across five parallel workstreams. Bars show scheduled work with current status; diamonds mark milestones and go/no-go gates. The dashed line marks today.",
     "date": "2026-06-22",
-    "author": "{{AUTHOR}}",
+    "author": "Research Desk",
     "theme": "indigo"
   },
   "periods": [
@@ -556,7 +556,7 @@ table.gate-table{ width:100%; border-collapse:collapse; font-size:12.5px; }
   function render(){
     var m = DATA.meta || {};
     document.documentElement.setAttribute('data-theme', m.theme || 'indigo');
-    document.title = (m.project||'{{PROJECT}}') + ' — Delivery Roadmap';
+    document.title = (m.project||'Open Research') + ' — Delivery Roadmap';
     document.documentElement.style.setProperty('--cols', NCOLS);
 
     var root = document.getElementById('root');
@@ -568,15 +568,15 @@ table.gate-table{ width:100%; border-collapse:collapse; font-size:12.5px; }
     head.innerHTML =
       '<div class="topline">'+
         '<div>'+
-          '<div class="eyebrow">Delivery roadmap · '+esc(m.reportType||'{{REPORT_TYPE}}')+'</div>'+
+          '<div class="eyebrow">Delivery roadmap · '+esc(m.reportType||'Report')+'</div>'+
           '<div class="wordmark" style="margin-top:5px">'+
             '<span class="sq"></span>'+
-            '<span class="org">'+esc(m.org||'{{ORG}}')+'</span><span class="sep">/</span><span class="proj">'+esc(m.project||'{{PROJECT}}')+'</span>'+
+            '<span class="org">'+esc(m.org||'Independent Research')+'</span><span class="sep">/</span><span class="proj">'+esc(m.project||'Open Research')+'</span>'+
           '</div>'+
         '</div>'+
         '<div class="head-meta">'+
           '<div class="k">Plan period</div><div class="v">'+esc(planSpan)+'</div>'+
-          '<div class="k" style="margin-top:6px">As of</div><div class="v">'+esc(m.date||'{{DATE}}')+'</div>'+
+          '<div class="k" style="margin-top:6px">As of</div><div class="v">'+esc(m.date||'2026-06-22')+'</div>'+
           themeSwitcherHTML()+
         '</div>'+
       '</div>'+
@@ -716,7 +716,7 @@ table.gate-table{ width:100%; border-collapse:collapse; font-size:12.5px; }
       /* left = lane rail + (within / NCOLS) of the remaining track width */
       line.style.left = 'calc(var(--lane-w) + (100% - var(--lane-w)) * ('+within+' / '+NCOLS+'))';
       line.setAttribute('data-frac', within / NCOLS);
-      line.innerHTML = '<span class="flag">Today · '+esc((DATA.meta&&DATA.meta.date)||'{{DATE}}')+'</span>';
+      line.innerHTML = '<span class="flag">Today · '+esc((DATA.meta&&DATA.meta.date)||'2026-06-22')+'</span>';
     } else {
       line.style.display = 'none';
     }
@@ -860,13 +860,13 @@ table.gate-table{ width:100%; border-collapse:collapse; font-size:12.5px; }
     var m = DATA.meta || {};
     var f = el('footer', {'class':'r-foot'});
     f.innerHTML =
-      '<span class="fm"><span class="sq"></span>'+esc(m.org||'{{ORG}}')+'</span>'+
+      '<span class="fm"><span class="sq"></span>'+esc(m.org||'Independent Research')+'</span>'+
       '<span class="sep">|</span>'+
-      '<span>'+esc(m.project||'{{PROJECT}}')+' · Delivery Roadmap</span>'+
+      '<span>'+esc(m.project||'Open Research')+' · Delivery Roadmap</span>'+
       '<span class="sep">|</span>'+
-      '<span>Prepared by '+esc(m.author||'{{AUTHOR}}')+'</span>'+
+      '<span>Prepared by '+esc(m.author||'Research Desk')+'</span>'+
       '<span class="spacer"></span>'+
-      '<span>As of '+esc(m.date||'{{DATE}}')+'</span>'+
+      '<span>As of '+esc(m.date||'2026-06-22')+'</span>'+
       '<span class="sep">|</span>'+
       '<span>Confidential</span>';
     return f;

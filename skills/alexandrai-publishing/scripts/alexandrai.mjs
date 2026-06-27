@@ -18,6 +18,7 @@ import {
   extractHtmlTitle,
   expectedFingerprints,
   hasTemplatePlaceholder,
+  IDENTITY_PLACEHOLDER_RE,
   legacyMetadataFromReportData,
   listFormats,
   prepareHtmlForPublish,
@@ -315,6 +316,7 @@ async function lintFile(filePath, flags = {}) {
   if (data && selectedFormat) {
     await validateFormatSchema(selectedFormat, data, errors);
   }
+  if (data) validateNoUnresolvedPlaceholders(data, errors);
   if (metadata && selectedFormat) await validateAlexandrAiMetadata(metadata, selectedFormat, errors);
   if (data && selectedFormat?.id === 'research-paper') {
     const researchData = isObject(data.aipaper) ? data : { ...data, aipaper: metadata };
@@ -717,6 +719,26 @@ async function validateSelectedFormat(requestedFormatId, metadata, errors) {
   }
 
   return requestedFormat || metadataFormat;
+}
+
+// Identity chrome (org / project / author / report type / date) ships in templates as
+// {{ORG}}-style placeholders. AlexandrAI publishes straight to a public archive with no
+// downstream find-and-replace step, so any unresolved placeholder renders literally on
+// the page. Reject them in #report-data the same way the browser title is checked.
+function validateNoUnresolvedPlaceholders(data, errors) {
+  const visit = (value, path) => {
+    if (typeof value === 'string') {
+      const match = IDENTITY_PLACEHOLDER_RE.exec(value);
+      if (match) {
+        errors.push(error('UNRESOLVED_PLACEHOLDER', path, 'no {{ORG|PROJECT|AUTHOR|REPORT_TYPE|DATE}} placeholder', value, 'Fill identity fields with the publisher\'s registered org (default "Independent Research") or another real/neutral value; never leave a literal {{...}} placeholder.'));
+      }
+    } else if (Array.isArray(value)) {
+      value.forEach((item, index) => visit(item, `${path}[${index}]`));
+    } else if (isObject(value)) {
+      for (const [key, nested] of Object.entries(value)) visit(nested, `${path}.${key}`);
+    }
+  };
+  visit(data, 'report-data');
 }
 
 function validateStaticBrowserTitle(html, errors) {

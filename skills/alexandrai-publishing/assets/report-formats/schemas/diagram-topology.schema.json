@@ -9,17 +9,17 @@
   "properties": {
     "meta": {
       "type": "object",
-      "description": "Shared chrome block carried by every format in the family. Brand-neutral: keep {{ORG}}/{{PROJECT}}/{{AUTHOR}} placeholders unless real values are supplied. 'theme' picks the initial brand palette (one of the 8 presets).",
+      "description": "Shared chrome block carried by every format in the family. Brand-neutral: use real or brand-neutral values (e.g. Independent Research / Open Research / Research Desk); never leave a {{...}} placeholder. 'theme' picks the initial brand palette (one of the 8 presets).",
       "required": ["org", "project", "reportType", "title", "date", "theme"],
       "additionalProperties": false,
       "properties": {
-        "org": { "type": "string", "description": "Organisation wordmark shown in the bar/footer. Placeholder: {{ORG}}.", "default": "{{ORG}}" },
-        "project": { "type": "string", "description": "Project / system name shown in the title. Placeholder: {{PROJECT}}.", "default": "{{PROJECT}}" },
+        "org": { "type": "string", "description": "Organisation wordmark shown in the bar/footer.", "default": "Independent Research" },
+        "project": { "type": "string", "description": "Project / system name shown in the title.", "default": "Open Research" },
         "reportType": { "type": "string", "description": "Eyebrow label, e.g. 'System Topology', 'Data-flow Map', 'Dependency Graph'." },
         "title": { "type": "string", "description": "Map title shown in the top app bar." },
         "subtitle": { "type": "string", "description": "Optional one-line standfirst / scope note." },
-        "date": { "type": "string", "description": "As-of date stamp (ISO 'YYYY-MM-DD' preferred). Placeholder: {{DATE}}." },
-        "author": { "type": "string", "description": "Author / team, shown in the print footer. Placeholder: {{AUTHOR}}.", "default": "{{AUTHOR}}" },
+        "date": { "type": "string", "description": "As-of date stamp (ISO 'YYYY-MM-DD' preferred)." },
+        "author": { "type": "string", "description": "Author / team, shown in the print footer.", "default": "Research Desk" },
         "theme": {
           "type": "string",
           "description": "Initial brand theme; sets <html data-theme>. Default for this format is 'purple'.",
@@ -141,13 +141,13 @@
   "examples": [
     {
       "meta": {
-        "org": "{{ORG}}",
-        "project": "{{PROJECT}}",
+        "org": "Independent Research",
+        "project": "Open Research",
         "reportType": "System Topology",
         "title": "Payments Platform — Service & Data-flow Topology",
         "subtitle": "Request path, event streams and datastores across the edge, service and data tiers",
         "date": "2026-06-22",
-        "author": "{{AUTHOR}}",
+        "author": "Research Desk",
         "theme": "purple",
         "canvas": { "w": 1640, "h": 1000, "coords": "norm" }
       },

@@ -9,17 +9,17 @@
   "properties": {
     "meta": {
       "type": "object",
-      "description": "Shared report chrome (org / project / title / theme). Brand-neutral: keep {{ORG}} / {{PROJECT}} / {{AUTHOR}} placeholders unless real values are supplied.",
+      "description": "Shared report chrome (org / project / title / theme). Brand-neutral: use real or brand-neutral values (e.g. Independent Research / Open Research / Research Desk); never leave a {{...}} placeholder.",
       "required": ["org", "project", "reportType", "title", "date", "theme"],
       "additionalProperties": false,
       "properties": {
-        "org": { "type": "string", "description": "Organisation name or {{ORG}} placeholder.", "default": "{{ORG}}" },
-        "project": { "type": "string", "description": "Project / programme / survey name or {{PROJECT}} placeholder.", "default": "{{PROJECT}}" },
-        "reportType": { "type": "string", "description": "Eyebrow label shown in the header, e.g. 'Employee engagement survey' or {{REPORT_TYPE}}." },
+        "org": { "type": "string", "description": "Organisation name (e.g. Independent Research).", "default": "Independent Research" },
+        "project": { "type": "string", "description": "Project / programme / survey name (e.g. Open Research).", "default": "Open Research" },
+        "reportType": { "type": "string", "description": "Eyebrow label shown in the header, e.g. 'Employee engagement survey'." },
         "title": { "type": "string", "description": "Report title shown in the header, e.g. 'Q2 Engagement Survey — Results'." },
         "subtitle": { "type": "string", "description": "Optional one-line context, e.g. fielding window or population." },
         "date": { "type": "string", "description": "ISO date the results were compiled (YYYY-MM-DD).", "format": "date" },
-        "author": { "type": "string", "description": "Author / owning team or {{AUTHOR}} placeholder.", "default": "{{AUTHOR}}" },
+        "author": { "type": "string", "description": "Author / owning team (e.g. Research Desk).", "default": "Research Desk" },
         "fieldwork": { "type": "string", "description": "Optional fielding window shown as a chip, e.g. '12–26 May 2026'." },
         "theme": {
           "type": "string",
@@ -148,13 +148,13 @@
   "examples": [
     {
       "meta": {
-        "org": "{{ORG}}",
-        "project": "{{PROJECT}}",
+        "org": "Independent Research",
+        "project": "Open Research",
         "reportType": "Employee engagement survey",
         "title": "Q2 Engagement Pulse — Results",
         "subtitle": "All-staff pulse · 6 questions · anonymised",
         "date": "2026-06-22",
-        "author": "{{AUTHOR}}",
+        "author": "Research Desk",
         "fieldwork": "12–26 May 2026",
         "theme": "green"
       },
@@ -176,7 +176,7 @@
           "id": "q1",
           "type": "nps",
           "category": "Advocacy",
-          "text": "How likely are you to recommend {{ORG}} as a place to work? (0–10)",
+          "text": "How likely are you to recommend Independent Research as a place to work? (0–10)",
           "note": "Net Promoter Score = % promoters (9–10) − % detractors (0–6).",
           "options": [
             { "label": "0",  "count": 6,  "tone": "risk", "bySegment": { "eng": 2,  "sales": 3,  "ops": 1 } },

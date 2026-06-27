@@ -9,17 +9,17 @@
   "properties": {
     "meta": {
       "type": "object",
-      "description": "Shared report chrome (org / project / title / theme). Brand-neutral: keep {{ORG}} / {{PROJECT}} / {{AUTHOR}} placeholders unless real values are supplied.",
+      "description": "Shared report chrome (org / project / title / theme). Brand-neutral: use real or brand-neutral values (e.g. Independent Research / Open Research / Research Desk); never leave a {{...}} placeholder.",
       "required": ["org", "project", "reportType", "title", "date", "theme"],
       "additionalProperties": false,
       "properties": {
-        "org": { "type": "string", "description": "Organisation name or {{ORG}} placeholder.", "default": "{{ORG}}" },
-        "project": { "type": "string", "description": "Project / programme name or {{PROJECT}} placeholder.", "default": "{{PROJECT}}" },
-        "reportType": { "type": "string", "description": "Eyebrow label shown in the header, e.g. 'Regional breakdown' or {{REPORT_TYPE}}." },
+        "org": { "type": "string", "description": "Organisation name (e.g. Independent Research).", "default": "Independent Research" },
+        "project": { "type": "string", "description": "Project / programme name (e.g. Open Research).", "default": "Open Research" },
+        "reportType": { "type": "string", "description": "Eyebrow label shown in the header, e.g. 'Regional breakdown'." },
         "title": { "type": "string", "description": "Report title shown in the header, e.g. 'Regional Performance — by territory'." },
         "subtitle": { "type": "string", "description": "Optional one-line standfirst / scope note." },
         "date": { "type": "string", "description": "ISO date the snapshot was generated (YYYY-MM-DD).", "format": "date" },
-        "author": { "type": "string", "description": "Author / owning team or {{AUTHOR}} placeholder.", "default": "{{AUTHOR}}" },
+        "author": { "type": "string", "description": "Author / owning team (e.g. Research Desk).", "default": "Research Desk" },
         "asOf": { "type": "string", "description": "Optional as-of label shown as a chip, e.g. 'FY26 Q1' or 'rolling 30d'." },
         "theme": {
           "type": "string",
@@ -124,13 +124,13 @@
   "examples": [
     {
       "meta": {
-        "org": "{{ORG}}",
-        "project": "{{PROJECT}}",
+        "org": "Independent Research",
+        "project": "Open Research",
         "reportType": "Regional breakdown",
         "title": "Regional Performance — retail network",
         "subtitle": "Net revenue and active accounts across 12 territories",
         "date": "2026-06-22",
-        "author": "{{AUTHOR}}",
+        "author": "Research Desk",
         "asOf": "FY26 Q1",
         "theme": "teal"
       },

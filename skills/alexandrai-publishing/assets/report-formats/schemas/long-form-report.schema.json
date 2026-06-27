@@ -9,19 +9,19 @@
   "properties": {
     "meta": {
       "type": "object",
-      "description": "Shared report chrome (org / project / title / theme). Brand-neutral: keep {{ORG}} / {{PROJECT}} / {{AUTHOR}} placeholders unless real values are supplied.",
+      "description": "Shared report chrome (org / project / title / theme). Brand-neutral: use real or brand-neutral values (e.g. Independent Research / Open Research / Research Desk); never leave a {{...}} placeholder.",
       "required": ["org", "project", "reportType", "title", "date", "theme"],
       "additionalProperties": false,
       "properties": {
-        "org": { "type": "string", "description": "Organisation name or {{ORG}} placeholder.", "default": "{{ORG}}" },
-        "project": { "type": "string", "description": "Project / programme name or {{PROJECT}} placeholder.", "default": "{{PROJECT}}" },
+        "org": { "type": "string", "description": "Organisation name (e.g. Independent Research).", "default": "Independent Research" },
+        "project": { "type": "string", "description": "Project / programme name (e.g. Open Research).", "default": "Open Research" },
         "org2": { "type": "string", "description": "Optional second organisation / co-brand line shown in the dark footer beside meta.org." },
         "reportId": { "type": "string", "description": "Optional report identifier shown in the footer meta line, e.g. 'IA-2026-014'." },
-        "reportType": { "type": "string", "description": "Eyebrow label shown in the top bar and footer, e.g. 'Operational Resilience Assessment' or {{REPORT_TYPE}}." },
+        "reportType": { "type": "string", "description": "Eyebrow label shown in the top bar and footer, e.g. 'Operational Resilience Assessment'." },
         "title": { "type": "string", "description": "Main report title shown in the hero, e.g. 'Operational Resilience & Controls Assessment'." },
         "subtitle": { "type": "string", "description": "Optional one-line standfirst shown in the hero-meta strip." },
         "date": { "type": "string", "description": "ISO date the report was produced (YYYY-MM-DD).", "format": "date" },
-        "author": { "type": "string", "description": "Author / owning team or {{AUTHOR}} placeholder.", "default": "{{AUTHOR}}" },
+        "author": { "type": "string", "description": "Author / owning team (e.g. Research Desk).", "default": "Research Desk" },
         "theme": {
           "type": "string",
           "description": "Initial brand theme; applied as <html data-theme>. The in-report switcher can change it live. Default for this format is 'purple'.",
@@ -201,13 +201,13 @@
   "examples": [
     {
       "meta": {
-        "org": "{{ORG}}",
-        "project": "{{PROJECT}}",
-        "reportType": "{{REPORT_TYPE}}",
+        "org": "Independent Research",
+        "project": "Open Research",
+        "reportType": "Report",
         "title": "Operational Resilience & Controls Assessment",
         "subtitle": "Settlement orchestrator idempotency review — Q2 2026",
         "date": "2026-06-22",
-        "author": "{{AUTHOR}}",
+        "author": "Research Desk",
         "theme": "purple"
       },
       "hero": {
@@ -245,7 +245,7 @@
             {
               "kind": "kv-grid",
               "items": [
-                { "key": "Owner", "value": "{{AUTHOR}}" },
+                { "key": "Owner", "value": "Research Desk" },
                 { "key": "Period", "value": "2026-04-01 → 2026-06-15" },
                 { "key": "Scope", "value": "settle-orchestrator · ledger-writer" },
                 { "key": "Classification", "value": "Confidential — Internal" }
@@ -340,8 +340,8 @@
           "label": "Report metadata",
           "facts": [
             { "key": "Report ID",       "value": "OPS-RES-2026-Q2-047" },
-            { "key": "Type",            "value": "{{REPORT_TYPE}}" },
-            { "key": "Owner",           "value": "{{AUTHOR}}" },
+            { "key": "Type",            "value": "Report" },
+            { "key": "Owner",           "value": "Research Desk" },
             { "key": "Window",          "value": "2026-04-01 → 2026-06-15" },
             { "key": "Scope",           "value": "settle-orchestrator · ledger-writer" },
             { "key": "Classification",  "value": "Confidential — Internal" },

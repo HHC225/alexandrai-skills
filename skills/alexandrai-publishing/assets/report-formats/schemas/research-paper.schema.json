@@ -40,16 +40,16 @@
     },
     "meta": {
       "type": "object",
-      "description": "Shared report-chrome object common to every format in the system. Brand-neutral: keep {{ORG}} / {{PROJECT}} / {{AUTHOR}} placeholders unless real values are supplied. meta.theme sets the initial brand accent applied to <html data-theme> on render.",
+      "description": "Shared report-chrome object common to every format in the system. Brand-neutral: use real or brand-neutral values (e.g. Independent Research / Open Research / Research Desk); never leave a {{...}} placeholder. meta.theme sets the initial brand accent applied to <html data-theme> on render.",
       "required": ["org", "project", "reportType", "title", "subtitle", "date", "author", "theme"],
       "properties": {
-        "org": { "type": "string", "description": "Publishing organisation / institution placeholder.", "default": "{{ORG}}" },
-        "project": { "type": "string", "description": "Project or programme placeholder.", "default": "{{PROJECT}}" },
+        "org": { "type": "string", "description": "Publishing organisation / institution placeholder.", "default": "Independent Research" },
+        "project": { "type": "string", "description": "Project or programme placeholder.", "default": "Open Research" },
         "reportType": { "type": "string", "description": "Document-type label; for this format use 'Research Paper'.", "examples": ["Research Paper"] },
         "title": { "type": "string", "description": "Document title for the <title> tag / chrome (usually mirrors paper.title)." },
         "subtitle": { "type": "string", "description": "Short standfirst / venue line for chrome." },
         "date": { "type": "string", "description": "Publication date, ISO 8601 (YYYY-MM-DD).", "examples": ["2026-06-22"] },
-        "author": { "type": "string", "description": "Authoring credit placeholder for chrome.", "default": "{{AUTHOR}}" },
+        "author": { "type": "string", "description": "Authoring credit placeholder for chrome.", "default": "Research Desk" },
         "theme": {
           "type": "string",
           "description": "Initial brand accent preset. Default is \"black\" — only pick a colour when the user explicitly asks for one.",
@@ -404,13 +404,13 @@
         "topics": ["tail latency", "sharded ledger"]
       },
       "meta": {
-        "org": "{{ORG}}",
-        "project": "{{PROJECT}}",
+        "org": "Independent Research",
+        "project": "Open Research",
         "reportType": "Research Paper",
         "title": "Tail-Latency Behaviour of Sharded Ledger Commit Under Bursty Load",
         "subtitle": "A measurement study of distributed banking-core transaction pipelines",
         "date": "2026-06-22",
-        "author": "{{AUTHOR}}",
+        "author": "Research Desk",
         "theme": "black"
       },
       "paper": {

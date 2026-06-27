@@ -9,17 +9,17 @@
   "properties": {
     "meta": {
       "type": "object",
-      "description": "Shared report chrome (org / project / title / theme). Brand-neutral: keep {{ORG}} / {{PROJECT}} / {{AUTHOR}} placeholders unless real values are supplied.",
+      "description": "Shared report chrome (org / project / title / theme). Brand-neutral: use real or brand-neutral values (e.g. Independent Research / Open Research / Research Desk); never leave a {{...}} placeholder.",
       "required": ["org", "project", "reportType", "title", "date", "theme"],
       "additionalProperties": false,
       "properties": {
-        "org": { "type": "string", "description": "Organisation name or {{ORG}} placeholder.", "default": "{{ORG}}" },
-        "project": { "type": "string", "description": "Project / programme name or {{PROJECT}} placeholder.", "default": "{{PROJECT}}" },
-        "reportType": { "type": "string", "description": "Kicker / eyebrow label shown in the masthead, e.g. 'Decision Brief' or {{REPORT_TYPE}}." },
+        "org": { "type": "string", "description": "Organisation name (e.g. Independent Research).", "default": "Independent Research" },
+        "project": { "type": "string", "description": "Project / programme name (e.g. Open Research).", "default": "Open Research" },
+        "reportType": { "type": "string", "description": "Kicker / eyebrow label shown in the masthead, e.g. 'Decision Brief'." },
         "title": { "type": "string", "description": "Report title shown in the masthead H1, e.g. 'Phase 2 Go / No-Go'." },
         "subtitle": { "type": "string", "description": "Optional subtitle appended to the masthead title." },
         "date": { "type": "string", "description": "ISO date of the brief (YYYY-MM-DD).", "format": "date" },
-        "author": { "type": "string", "description": "Author / owner shown in the sheet footer or {{AUTHOR}} placeholder.", "default": "{{AUTHOR}}" },
+        "author": { "type": "string", "description": "Author / owner shown in the sheet footer (e.g. Research Desk).", "default": "Research Desk" },
         "theme": {
           "type": "string",
           "description": "Initial brand theme; applied as <html data-theme>. Default for this format is 'plum'.",
@@ -194,12 +194,12 @@
   "examples": [
     {
       "meta": {
-        "org": "{{ORG}}",
-        "project": "{{PROJECT}}",
-        "reportType": "{{REPORT_TYPE}}",
+        "org": "Independent Research",
+        "project": "Open Research",
+        "reportType": "Report",
         "title": "Phase 2 Go / No-Go",
         "date": "2026-06-22",
-        "author": "{{AUTHOR}}",
+        "author": "Research Desk",
         "theme": "plum"
       },
       "verdict": {
@@ -243,7 +243,7 @@
         ]
       },
       "ask": {
-        "text": "Approve the ¥2.8B staged Phase 2 investment (40% now / 60% on the Q3 pilot gate) and authorise the hybrid vendor renewal before the September expiry. Full evidence: long-form {{PROJECT}} Investment Business Case.",
+        "text": "Approve the ¥2.8B staged Phase 2 investment (40% now / 60% on the Q3 pilot gate) and authorise the hybrid vendor renewal before the September expiry. Full evidence: long-form Open Research Investment Business Case.",
         "metaItems": [
           { "key": "Owner",   "value": "CFO" },
           { "key": "Sponsor", "value": "COO" },

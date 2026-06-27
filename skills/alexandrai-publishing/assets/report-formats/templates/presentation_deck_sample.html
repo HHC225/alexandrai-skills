@@ -4,7 +4,7 @@
      DATA-DRIVEN per _DATA_DRIVEN.md §1: ALL content lives in #report-data (valid vs
      schemas/slide-deck.schema.json); render() builds the slides from it on DOMContentLoaded.
      Self-contained per _FOUNDATION §0: inline <style> + inline <svg> + inline <script>;
-     system fonts; NO external requests. Brand-neutral chrome: {{ORG}} / {{PROJECT}}.
+     system fonts; NO external requests. Brand-neutral chrome: Independent Research / Open Research.
      Interactivity (§4): chart hover tooltips + legend toggle; overview/grid mode.
      Theme (§3): 9-dot .rc-theme switcher incl. mandatory Black; persisted to localStorage.
      Default theme Purple; data-theme="…" swaps the 7 brand values. -->
@@ -410,20 +410,20 @@ em{font-style:normal;color:var(--navy-deep);font-weight:600}
 <script type="application/json" id="report-data">
 {
   "meta": {
-    "org": "{{ORG}}",
-    "project": "{{PROJECT}}",
+    "org": "Independent Research",
+    "project": "Open Research",
     "reportType": "Executive Readout · FY2026 Q2",
     "title": "Platform Modernisation — Quarterly Steering Readout",
     "subtitle": "Programme health, financials, and the vendor decision for committee approval",
     "date": "2026-06-22",
-    "author": "{{AUTHOR}}",
+    "author": "Research Desk",
     "theme": "purple"
   },
   "slides": [
     {
       "id": 1,
       "type": "cover",
-      "eyebrow": "{{ORG}} · Executive Readout · FY2026 Q2",
+      "eyebrow": "Independent Research · Executive Readout · FY2026 Q2",
       "title": "Platform Modernisation — Quarterly Steering Readout",
       "chips": [
         { "label": "On Track · 2 decisions pending", "tone": "hold" },
@@ -431,8 +431,8 @@ em{font-style:normal;color:var(--navy-deep);font-weight:600}
         { "label": "Steering Deck", "tone": "brand" }
       ],
       "byline": [
-        { "key": "Prepared for", "value": "{{ORG}} Steering Committee" },
-        { "key": "By", "value": "Delivery Office · {{AUTHOR}}" },
+        { "key": "Prepared for", "value": "Independent Research Steering Committee" },
+        { "key": "By", "value": "Delivery Office · Research Desk" },
         { "key": "Period", "value": "FY2026 Q2 · Apr–Jun" }
       ]
     },
@@ -584,7 +584,7 @@ em{font-style:normal;color:var(--navy-deep);font-weight:600}
         { "text": "Approve <b>Phase 2 investment</b> of ¥2.8B.", "owner": "CFO", "due": "this quarter", "icon": "chart" },
         { "text": "Accept the <b>time-boxed compliance exception</b> or direct a scope re-cut.", "owner": "Risk & CISO", "due": "decision today", "icon": "shield" }
       ],
-      "footnote": "{{PROJECT}} · Executive Readout · FY26 Q2 — full evidence in the long-form QBR"
+      "footnote": "Open Research · Executive Readout · FY26 Q2 — full evidence in the long-form QBR"
     }
   ]
 }
@@ -592,7 +592,7 @@ em{font-style:normal;color:var(--navy-deep);font-weight:600}
 
 <noscript>
   <div class="noscript-note"><div class="ns-card">
-    <h1>{{PROJECT}} — Executive Readout</h1>
+    <h1>Open Research — Executive Readout</h1>
     <p>This deck is rendered from inline data and needs JavaScript for the slides, charts, theme
     switcher and navigation. Please enable JavaScript, or open the accompanying long-form PDF/QBR.</p>
   </div></div>
@@ -628,7 +628,7 @@ em{font-style:normal;color:var(--navy-deep);font-weight:600}
 
 <div class="deck-hud" aria-live="polite">
   <span><button class="hud-count" id="hudJump" title="Jump to slide…"><b id="cur">01</b> / <span id="tot">11</span></button></span>
-  <span class="hud-wm"><span class="hud-sq"></span><span id="hudWm">{{PROJECT}}</span></span>
+  <span class="hud-wm"><span class="hud-sq"></span><span id="hudWm">Open Research</span></span>
 </div>
 
 <div class="chart-tip" id="chartTip" role="status" aria-live="polite"></div>
@@ -902,8 +902,8 @@ em{font-style:normal;color:var(--navy-deep);font-weight:600}
     }).join('');
     deck.innerHTML = html;
     // chrome bits derived from data
-    document.getElementById('hudWm').textContent = META.project || '{{PROJECT}}';
-    if(META.title){ document.title = (META.project||'{{PROJECT}}')+' — '+META.title+' (Deck)'; }
+    document.getElementById('hudWm').textContent = META.project || 'Open Research';
+    if(META.title){ document.title = (META.project||'Open Research')+' — '+META.title+' (Deck)'; }
   }
   render();
 
